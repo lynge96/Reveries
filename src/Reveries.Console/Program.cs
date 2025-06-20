@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Reveries.Application.DTOs;
 using Reveries.Application.Interfaces;
 using Reveries.Infrastructure;
 

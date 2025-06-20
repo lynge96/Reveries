@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http.Json;
+using System.Text.Json;
 using Reveries.Application.DTOs;
 using Reveries.Application.Interfaces;
 
@@ -21,4 +22,5 @@ public class IsbndbClient : IIsbndbClient
         var json = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<BookDto>(json);
     }
+
 }
