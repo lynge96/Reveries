@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Reveries.Application.DTOs;
 using Reveries.Application.Interfaces;
 
@@ -19,7 +18,7 @@ public class IsbndbClient : IIsbndbClient
         var response = await _httpClient.GetAsync($"/book/{isbn}", cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var json = await response.Content.ReadAsStringAsync();
+        var json = await response.Content.ReadAsStringAsync(cancellationToken);
         return JsonSerializer.Deserialize<BookDto>(json);
     }
 

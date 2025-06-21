@@ -1,20 +1,25 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Reveries.Application.DTOs;
-using Reveries.Application.Interfaces;
-using Reveries.Infrastructure;
+using Reveries.Application.Services;
+using Reveries.Infrastructure.DependencyInjection;
+using Reveries.Infrastructure.ISBNDB;
 
-var builder = Host.CreateApplicationBuilder(args);
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureAppConfiguration((context, config) =>
+    {
+        config.AddJsonFile("appsettings.json", optional: true);
+    })
+    .ConfigureServices((context, services) =>
+    {
+        services.Configure<IsbndbSettings>(context.Configuration.GetSection("Isbndb"));
+        
+        services.AddIsbndbClient();
+        services.AddScoped<BookService>();
+    })
+    .Build();
 
-var apiKey = builder.Configuration["Isbndb:ApiKey"];
+var bookService = host.Services.GetRequiredService<BookService>();
+var book = await bookService.GetBookByIsbnAsync("9780804139021");
 
-builder.Services.AddIsbndbClient(apiKey);
-
-var app = builder.Build();
-
-using var scope = app.Services.CreateScope();
-var client = scope.ServiceProvider.GetRequiredService<IIsbndbClient>();
-
-var book = await client.GetBookByIsbnAsync("9780804139021");
-
-// Console.WriteLine(book?.Title ?? "Bog ikke fundet.");
+Console.WriteLine(book?.Title);
