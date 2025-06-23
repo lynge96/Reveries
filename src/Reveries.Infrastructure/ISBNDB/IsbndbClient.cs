@@ -7,7 +7,11 @@ namespace Reveries.Infrastructure.ISBNDB;
 public class IsbndbClient : IIsbndbClient
 {
     private readonly HttpClient _httpClient;
-
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+    
     public IsbndbClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
@@ -19,7 +23,11 @@ public class IsbndbClient : IIsbndbClient
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<BookDto>(json);
+        
+        var result = JsonSerializer.Deserialize<IsbndbResponseDto>(json, JsonOptions);
+        
+        return result?.Book;
     }
+    
 
 }

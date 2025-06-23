@@ -20,6 +20,7 @@ var host = Host.CreateDefaultBuilder(args)
     .Build();
 
 var bookService = host.Services.GetRequiredService<BookService>();
+
 var book = await bookService.GetBookByIsbnAsync("9780804139021");
 
 Console.WriteLine(book?.Title);

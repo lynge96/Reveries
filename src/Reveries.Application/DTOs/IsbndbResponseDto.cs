@@ -2,6 +2,5 @@
 
 public class IsbndbResponseDto
 {
-    public int Total { get; set; }
-    public List<BookDto> Books { get; set; }
+    public required BookDto Book { get; set; }
 }

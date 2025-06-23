@@ -14,6 +14,8 @@ public class BookService
 
     public async Task<BookDto?> GetBookByIsbnAsync(string isbn)
     {
-        return await _isbndb.GetBookByIsbnAsync(isbn);
+        var book = await _isbndb.GetBookByIsbnAsync(isbn);
+        
+        return book;
     }
 }
