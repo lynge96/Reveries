@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Reveries.Core.Models;
 
 namespace Reveries.Core.DTOs;
 
@@ -40,7 +41,7 @@ public class BookDto
     
     public int? Pages { get; set; }
     [JsonPropertyName("dimensions_structured")]
-    public DimensionsStructuredDto? DimensionsStructured { get; set; }
+    public DimensionsStructured? DimensionsStructured { get; set; }
 }
 
 public class DimensionsStructuredDto

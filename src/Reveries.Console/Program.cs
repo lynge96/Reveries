@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Reveries.Application.DependencyInjection;
+using Reveries.Application.Extensions;
 using Reveries.Application.Services;
 using Reveries.Infrastructure.DependencyInjection;
 
@@ -16,4 +16,4 @@ var bookService = host.Services.GetRequiredService<BookService>();
 
 var book = await bookService.GetBookByIsbnAsync("9780804139021");
 
-Console.WriteLine(book?.Title);
+Console.WriteLine(book?.ToString());

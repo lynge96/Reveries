@@ -1,5 +1,6 @@
-﻿using Reveries.Core.DTOs;
+﻿using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces;
+using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
 
@@ -12,10 +13,12 @@ public class BookService
         _isbndb = isbndb;
     }
 
-    public async Task<BookDto?> GetBookByIsbnAsync(string isbn)
+    public async Task<Book?> GetBookByIsbnAsync(string isbn)
     {
         // TODO: Tjek i Cache og DB før API
-        var book = await _isbndb.GetBookByIsbnAsync(isbn);
+        var bookDto = await _isbndb.GetBookByIsbnAsync(isbn);
+
+        var book = bookDto?.ToBook();
         
         return book;
     }
