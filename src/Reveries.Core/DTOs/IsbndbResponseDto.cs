@@ -1,4 +1,4 @@
-﻿namespace Reveries.Application.DTOs;
+﻿namespace Reveries.Core.DTOs;
 
 public class IsbndbResponseDto
 {

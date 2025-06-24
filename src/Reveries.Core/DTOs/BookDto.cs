@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Reveries.Application.DTOs;
+namespace Reveries.Core.DTOs;
 
 public class BookDto
 {

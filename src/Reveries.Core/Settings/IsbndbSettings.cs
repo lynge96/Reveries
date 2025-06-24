@@ -1,4 +1,4 @@
-﻿namespace Reveries.Infrastructure.ISBNDB;
+﻿namespace Reveries.Core.Settings;
 
 public class IsbndbSettings
 {
