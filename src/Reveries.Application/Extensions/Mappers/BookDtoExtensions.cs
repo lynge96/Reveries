@@ -1,0 +1,65 @@
+﻿using System.Text.RegularExpressions;
+using Reveries.Core.DTOs;
+using Reveries.Core.Models;
+
+namespace Reveries.Application.Extensions.Mappers;
+
+public static class BookDtoExtensions
+{
+    public static Book ToBook(this BookDto bookDto)
+    {
+        return new Book
+        {
+            Isbn13 = bookDto.Isbn13,
+            Isbn10 = bookDto.Isbn10!,
+            Title = bookDto.Title!,
+            Authors = bookDto.Authors?.ToList() ?? new(),
+            Pages = bookDto.Pages,
+            Publisher = bookDto.Publisher,
+            LanguageIso639 = bookDto.Language,
+            Language = GetLanguageName(bookDto.Language),
+            PublishDate = ParsePublishDate(bookDto.DatePublished),
+            Synopsis = CleanString(bookDto.Synopsis),
+            ImageUrl = bookDto.ImageOriginal,
+            Msrp = bookDto.Msrp,
+            Binding = bookDto.Binding,
+            Subjects = bookDto.Subjects?.ToList() ?? new(),
+            Dimensions = bookDto.DimensionsStructured?.ConvertUnits(),
+        };
+    }
+
+    private static DateTime? ParsePublishDate(string? dateString)
+    {
+        if (string.IsNullOrEmpty(dateString))
+            return null;
+            
+        return DateTime.TryParse(dateString, out var date) ? date : null;
+    }
+
+    private static string CleanString(string? input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return string.Empty;
+
+        var withLineBreaks = Regex.Replace(input, "<br/?>", "\n");
+        var noHtml = Regex.Replace(withLineBreaks, "<.*?>", string.Empty);
+        
+        return noHtml;
+    }
+    
+    private static string GetLanguageName(string? languageIso639)
+    {
+        var languageNames = new Dictionary<string, string>
+        {
+            { "en", "English" },
+            { "da", "Danish" },
+        };
+
+        if (languageIso639 != null && languageNames.TryGetValue(languageIso639, out var languageName))
+        {
+            return languageName;
+        }
+
+        return "Unknown";
+    }
+}

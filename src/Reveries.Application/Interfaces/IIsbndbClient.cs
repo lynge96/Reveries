@@ -1,4 +1,4 @@
-﻿using Reveries.Application.DTOs;
+﻿using Reveries.Core.DTOs;
 
 namespace Reveries.Application.Interfaces;
 
