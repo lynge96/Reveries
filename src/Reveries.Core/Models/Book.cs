@@ -18,6 +18,8 @@ public class Book
     
     public string? Publisher { get; set; }
     
+    public string? LanguageIso639 { get; set; }
+    
     public string? Language { get; set; }
     
     public DateTime? PublishDate { get; set; }
@@ -34,8 +36,7 @@ public class Book
     
     public DimensionsStructured? Dimensions { get; set; }
     
-    public DateTime DateCreated  { get; set; }
-    
+    public DateTimeOffset DateCreated  { get; set; }
     
     public override string ToString()
     {
