@@ -3,5 +3,6 @@
 public class AuthorSearchResponseDto
 {
     public int Total { get; init; }
-    public List<string> Authors { get; init; } = new();
+
+    public IEnumerable<string> Authors { get; init; } = null!;
 }

@@ -40,4 +40,5 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
         
         return result;
     }
+    
 }

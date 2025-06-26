@@ -28,6 +28,9 @@ public class IsbndbBookClient : IIsbndbBookClient
         
         return result;
     }
-    
 
+    public Task<BooksQueryResponseDto?> GetBooksByIsbnAsync(string query, string? languageCode, bool shouldMatchAll, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }

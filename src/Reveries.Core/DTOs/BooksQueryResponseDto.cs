@@ -1,8 +1,8 @@
 ﻿namespace Reveries.Core.DTOs;
 
-public class AuthorBooksResponseDto
+public class BooksQueryResponseDto
 {
-    public string Author { get; init; } = string.Empty;
-
+    public int TotalBooks { get; init; }
+    
     public IEnumerable<BookDto> Books { get; init; } = null!;
 }
