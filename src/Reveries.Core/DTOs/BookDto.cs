@@ -5,55 +5,41 @@ namespace Reveries.Core.DTOs;
 
 public class BookDto
 {
-    public string? Title { get; set; }
+    public string? Title { get; init; }
     
-    public string? Image { get; set; }
+    public string? Image { get; init; }
     [JsonPropertyName("image_original")]
-    public string? ImageOriginal { get; set; }
+    public string? ImageOriginal { get; init; }
     [JsonPropertyName("title_long")]
-    public string? TitleLong { get; set; }
+    public string? TitleLong { get; init; }
     [JsonPropertyName("date_published")]
-    public string? DatePublished { get; set; }
+    public string? DatePublished { get; init; }
     
-    public string? Publisher { get; set; }
+    public string? Publisher { get; init; }
     
-    public string? Synopsis { get; set; }
+    public string? Synopsis { get; init; }
     
-    public List<string>? Subjects { get; set; }
+    public List<string>? Subjects { get; init; }
     
-    public List<string>? Authors { get; set; }
+    public List<string>? Authors { get; init; }
     
-    public string? Isbn13 { get; set; }
+    public string? Isbn13 { get; init; }
     
-    public string? Isbn { get; set; }
+    public string? Isbn { get; init; }
     
-    public string? Isbn10 { get; set; }
+    public string? Isbn10 { get; init; }
     
-    public string? Edition { get; set; }
+    public string? Edition { get; init; }
     
-    public string? Binding { get; set; }
+    public string? Binding { get; init; }
     
-    public int? Msrp { get; set; }
+    public int? Msrp { get; init; }
     
-    public string? Language { get; set; }
+    public string? Language { get; init; }
     
-    public string? Dimensions { get; set; }
+    public string? Dimensions { get; init; }
     
-    public int? Pages { get; set; }
+    public int? Pages { get; init; }
     [JsonPropertyName("dimensions_structured")]
-    public DimensionsStructured? DimensionsStructured { get; set; }
-}
-
-public class DimensionsStructuredDto
-{
-    public DimensionDto Length { get; set; }
-    public DimensionDto Width { get; set; }
-    public DimensionDto Height { get; set; }
-    public DimensionDto Weight { get; set; }
-}
-
-public class DimensionDto
-{
-    public string Unit { get; set; }
-    public double Value { get; set; }
+    public DimensionsStructured? DimensionsStructured { get; init; }
 }

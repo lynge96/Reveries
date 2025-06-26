@@ -1,10 +1,10 @@
 ﻿using System.Text.Json;
+using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.DTOs;
-using Reveries.Application.Interfaces;
 
 namespace Reveries.Infrastructure.ISBNDB;
 
-public class IsbndbClient : IIsbndbClient
+public class IsbndbBookClient : IIsbndbBookClient
 {
     private readonly HttpClient _httpClient;
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -12,21 +12,21 @@ public class IsbndbClient : IIsbndbClient
         PropertyNameCaseInsensitive = true
     };
     
-    public IsbndbClient(HttpClient httpClient)
+    public IsbndbBookClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
 
-    public async Task<BookDto?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
+    public async Task<BookSearchResponseDto?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"/book/{isbn}", cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
         
-        var result = JsonSerializer.Deserialize<IsbndbResponseDto>(json, JsonOptions);
+        var result = JsonSerializer.Deserialize<BookSearchResponseDto>(json, JsonOptions);
         
-        return result?.Book;
+        return result;
     }
     
 
