@@ -1,10 +1,11 @@
 ﻿using Reveries.Core.DTOs;
+using Reveries.Core.DTOs.Books;
 
 namespace Reveries.Application.Interfaces.Isbndb;
 
 public interface IIsbndbBookClient
 {
-    Task<BookSearchResponseDto?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default);
+    Task<BookDetailsDto?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Returns a list of books that match the given query.
@@ -26,5 +27,7 @@ public interface IIsbndbBookClient
     /// <returns>
     /// A <see cref="BooksQueryResponseDto"/> containing matching books and the total count.
     /// </returns>
-    Task<BooksQueryResponseDto?> GetBooksByIsbnAsync(string query, string? languageCode, bool shouldMatchAll = false, CancellationToken cancellationToken = default);
+    Task<BooksQueryResponseDto?> GetBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll = false, CancellationToken cancellationToken = default);
+    
+    Task<BooksListResponseDto?> GetBooksByIsbnsAsync(IsbnsRequestDto isbns, CancellationToken cancellationToken = default);
 }

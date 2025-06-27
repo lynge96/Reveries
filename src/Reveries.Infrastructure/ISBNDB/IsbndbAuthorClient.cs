@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.DTOs;
+using Reveries.Core.DTOs.Authors;
 
 namespace Reveries.Infrastructure.ISBNDB;
 

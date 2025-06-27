@@ -1,4 +1,6 @@
-﻿namespace Reveries.Core.DTOs;
+﻿using Reveries.Core.DTOs.Books;
+
+namespace Reveries.Core.DTOs.Authors;
 
 public class AuthorBooksResponseDto
 {

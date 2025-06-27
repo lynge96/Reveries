@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Reveries.Core.DTOs;
+using Reveries.Core.DTOs.Books;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Extensions.Mappers;

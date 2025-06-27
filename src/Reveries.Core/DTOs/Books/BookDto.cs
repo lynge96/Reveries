@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 using Reveries.Core.Models;
 
-namespace Reveries.Core.DTOs;
+namespace Reveries.Core.DTOs.Books;
 
 public class BookDto
 {
-    public string Title { get; init; } = string.Empty;
+    public required string Title { get; init; } = string.Empty;
     
     public string Image { get; init; } = string.Empty;
     [JsonPropertyName("image_original")]
@@ -21,11 +21,11 @@ public class BookDto
     
     public IEnumerable<string> Subjects { get; init; } = null!;
     
-    public IEnumerable<string> Authors { get; init; } = null!;
+    public required IEnumerable<string> Authors { get; init; } = null!;
     
-    public string Isbn13 { get; init; } = string.Empty;
+    public required string Isbn13 { get; init; } = string.Empty;
     
-    public string Isbn { get; init; } = string.Empty;
+    public required string Isbn { get; init; } = string.Empty;
     
     public string Isbn10 { get; init; } = string.Empty;
     
