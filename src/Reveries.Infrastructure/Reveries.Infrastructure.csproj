@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Reveries.Application\Reveries.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.6" />
+  </ItemGroup>
+
 </Project>
