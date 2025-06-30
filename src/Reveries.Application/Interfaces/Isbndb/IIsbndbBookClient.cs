@@ -1,10 +1,21 @@
-﻿using Reveries.Core.DTOs;
-using Reveries.Core.DTOs.Books;
+﻿using Reveries.Core.DTOs.Books;
 
 namespace Reveries.Application.Interfaces.Isbndb;
 
 public interface IIsbndbBookClient
 {
+    /// <summary>
+    /// Retrieves detailed information for a single book using its ISBN from the ISBNdb API.
+    /// </summary>
+    /// <param name="isbn">
+    /// The ISBN of the book to retrieve. Must be a valid 10- or 13-digit identifier.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// A cancellation token to cancel the request if needed.
+    /// </param>
+    /// <returns>
+    /// A <see cref="BookDetailsDto"/> containing the book's detailed information, or <c>null</c> if the book is not found.
+    /// </returns>
     Task<BookDetailsDto?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default);
     
     /// <summary>
@@ -29,5 +40,18 @@ public interface IIsbndbBookClient
     /// </returns>
     Task<BooksQueryResponseDto?> GetBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll = false, CancellationToken cancellationToken = default);
     
+    /// <summary>
+    /// Retrieves a list of books matching the provided ISBNs from the data source.
+    /// </summary>
+    /// <param name="isbns">
+    /// An object containing a collection of ISBN strings to query for.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// A cancellation token that can be used to cancel the operation.
+    /// </param>
+    /// <returns>
+    /// A <see cref="BooksListResponseDto"/> containing the books that match the provided ISBNs, 
+    /// or <c>null</c> if no matching books are found or the request fails.
+    /// </returns>
     Task<BooksListResponseDto?> GetBooksByIsbnsAsync(IsbnsRequestDto isbns, CancellationToken cancellationToken = default);
 }
