@@ -35,7 +35,7 @@ public class DimensionsStructured
         var newValue = unit switch
         {
             "inches" => value * 2.54,
-            "pounds" => value * 453.59237,
+            "pounds" => value * 453.59,
             _ => value
         };
 

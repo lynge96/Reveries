@@ -1,11 +1,12 @@
 ﻿using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces.Isbndb;
+using Reveries.Application.Interfaces.Services;
 using Reveries.Application.Validation;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
 
-public class BookService
+public class BookService : IBookService
 {
     private readonly IIsbndbBookClient _bookClient;
 

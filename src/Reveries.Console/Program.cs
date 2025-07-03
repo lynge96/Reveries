@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Reveries.Application.Extensions;
-using Reveries.Application.Services;
+using Reveries.Console.Interfaces;
+using Reveries.Console.Services;
 using Reveries.Infrastructure.DependencyInjection;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -9,11 +10,11 @@ var host = Host.CreateDefaultBuilder(args)
     {
         services.AddInfrastructure(context.Configuration);
         services.AddApplication();
+
+        services.AddTransient<IConsoleAppRunner, ConsoleAppRunner>();
     })
     .Build();
 
-var bookService = host.Services.GetRequiredService<BookService>();
+var consoleApp = host.Services.GetRequiredService<IConsoleAppRunner>();
 
-var book = await bookService.GetBookByIsbnAsync("9780804139021");
-
-Console.WriteLine(book?.ToString());
+await consoleApp.RunAsync();
