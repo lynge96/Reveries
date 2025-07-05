@@ -15,8 +15,31 @@ public class ConsoleAppRunner : IConsoleAppRunner
     
     public async Task RunAsync()
     {
-        var book = await _bookService.GetBookByIsbnAsync("9780804139021");
-        
-        AnsiConsole.WriteLine(book!.ToString());
+        while (true)
+        {
+            // 9780804139021
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[springgreen1]What would you like to do?[/]")
+                    .AddChoices([
+                        "📖 Search book by ISBN",
+                        "🚪 Exit"
+                    ]));
+            
+            /*switch (choice)
+            {
+                case "📖 Search book by ISBN":
+                    await SearchBookByIsbnAsync();
+                    break;
+                case "👤 Search author by name":
+                    await SearchAuthorAsync();
+                    break;
+                case "🏢 Search publisher":
+                    await SearchPublisherAsync();
+                    break;
+                case "🚪 Exit":
+                    return;
+            }*/
+        }
     }
 }

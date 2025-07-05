@@ -15,6 +15,8 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 var consoleApp = host.Services.GetRequiredService<IConsoleAppRunner>();
 
 await consoleApp.RunAsync();
