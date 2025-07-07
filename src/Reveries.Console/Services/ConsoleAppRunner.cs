@@ -1,5 +1,6 @@
 ﻿using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Interfaces;
+using Reveries.Console.Models.Menu;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;
@@ -18,28 +19,36 @@ public class ConsoleAppRunner : IConsoleAppRunner
         while (true)
         {
             // 9780804139021
-            var choice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[springgreen1]What would you like to do?[/]")
-                    .AddChoices([
-                        "📖 Search book by ISBN",
-                        "🚪 Exit"
-                    ]));
+            var selectedOption = AnsiConsole.Prompt(
+                new SelectionPrompt<MenuOption>()
+                    .Title("[springgreen1]What would you like to search for? 🔎[/]")
+                    .AddChoices(MenuConfiguration.Options));
             
-            /*switch (choice)
+            switch (selectedOption.Choice)
             {
-                case "📖 Search book by ISBN":
+                case MenuChoice.SearchBook:
                     await SearchBookByIsbnAsync();
                     break;
-                case "👤 Search author by name":
-                    await SearchAuthorAsync();
+                case MenuChoice.SearchAuthor:
                     break;
-                case "🏢 Search publisher":
-                    await SearchPublisherAsync();
+                case MenuChoice.SearchPublisher:
                     break;
-                case "🚪 Exit":
+                case MenuChoice.Exit:
+                    AnsiConsole.MarkupLine("[springgreen1]Goodbye![/]");
                     return;
-            }*/
+            }
+            
+            if (selectedOption.Choice != MenuChoice.Exit)
+            {
+                AnsiConsole.MarkupLine("\n[grey]Press any key to continue...[/]");
+                AnsiConsole.Console.Input.ReadKey(true);
+                AnsiConsole.Clear();
+            }
         }
+    }
+
+    private async Task SearchBookByIsbnAsync()
+    {
+        throw new NotImplementedException();
     }
 }
