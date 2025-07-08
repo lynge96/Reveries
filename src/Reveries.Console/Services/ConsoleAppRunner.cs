@@ -1,5 +1,6 @@
-﻿using Reveries.Application.Interfaces.Services;
+﻿using Reveries.Console.Extensions;
 using Reveries.Console.Interfaces;
+using Reveries.Console.Models;
 using Reveries.Console.Models.Menu;
 using Spectre.Console;
 
@@ -7,48 +8,52 @@ namespace Reveries.Console.Services;
 
 public class ConsoleAppRunner : IConsoleAppRunner
 {
-    private readonly IBookService _bookService;
+    private readonly IMenuOperationService _menuOperationService;
+    private bool _isRunning = true;
     
-    public ConsoleAppRunner(IBookService bookService)
+    public ConsoleAppRunner(IMenuOperationService menuOperationService)
     {
-        _bookService = bookService;
+        _menuOperationService = menuOperationService;
     }
     
     public async Task RunAsync()
     {
-        while (true)
+        AnsiConsole.Clear();
+        AnsiConsole.MarkupLine("Welcome to Reveries! 💫".Bold().AsHeader());
+        
+        while (_isRunning)
         {
-            // 9780804139021
-            var selectedOption = AnsiConsole.Prompt(
-                new SelectionPrompt<MenuOption>()
-                    .Title("[springgreen1]What would you like to search for? 🔎[/]")
-                    .AddChoices(MenuConfiguration.Options));
-            
-            switch (selectedOption.Choice)
+            var option = ShowMenu();
+        
+            if (option.Choice == MenuChoice.Exit)
             {
-                case MenuChoice.SearchBook:
-                    await SearchBookByIsbnAsync();
-                    break;
-                case MenuChoice.SearchAuthor:
-                    break;
-                case MenuChoice.SearchPublisher:
-                    break;
-                case MenuChoice.Exit:
-                    AnsiConsole.MarkupLine("[springgreen1]Goodbye![/]");
-                    return;
+                _isRunning = false;
+                AnsiConsole.MarkupLine("\nGoodbye! ✨".Bold().AsPrimary());
+                break;
             }
             
-            if (selectedOption.Choice != MenuChoice.Exit)
+            try
             {
-                AnsiConsole.MarkupLine("\n[grey]Press any key to continue...[/]");
-                AnsiConsole.Console.Input.ReadKey(true);
-                AnsiConsole.Clear();
+                await _menuOperationService.HandleMenuChoiceAsync(option.Choice);
             }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"{"Error:".Underline().AsError()} {ex.Message.Italic().AsWarning()}");
+            }
+        
+            AnsiConsole.MarkupLine("\nPress any key to continue...".Italic().AsInfo());
+            AnsiConsole.Console.Input.ReadKey(true);
+            AnsiConsole.Clear();
         }
     }
-
-    private async Task SearchBookByIsbnAsync()
+    
+    private static MenuOption ShowMenu()
     {
-        throw new NotImplementedException();
+        var prompt = new SelectionPrompt<MenuOption>()
+            .Title("What would you like to search for? 🔎".AsPrimary())
+            .PageSize(10)
+            .AddChoices(MenuConfiguration.Options);
+
+        return AnsiConsole.Prompt(prompt);
     }
 }

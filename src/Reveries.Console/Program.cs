@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Reveries.Application.Extensions;
 using Reveries.Console.Interfaces;
 using Reveries.Console.Services;
+using Reveries.Console.Services.Handlers;
 using Reveries.Infrastructure.DependencyInjection;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -12,11 +13,14 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddApplication();
 
         services.AddTransient<IConsoleAppRunner, ConsoleAppRunner>();
+        services.AddScoped<IMenuOperationService, MenuOperationService>();
+        services.AddScoped<IMenuHandler, SearchBookHandler>();
+
     })
     .Build();
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-var consoleApp = host.Services.GetRequiredService<IConsoleAppRunner>();
+var runner = host.Services.GetRequiredService<IConsoleAppRunner>();
 
-await consoleApp.RunAsync();
+await runner.RunAsync();
