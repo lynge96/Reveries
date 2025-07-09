@@ -4,8 +4,8 @@ public static class ConsoleThemeExtensions
 {
     public const string Header = "blueviolet";
     public const string Primary = "springgreen1";
-    public const string Secondary = "dodgerblue1";
-    public const string Success = "green";
+    public const string Secondary = "deepskyblue1";
+    public const string Success = "chartreuse2";
     public const string Warning = "yellow";
     public const string Error = "red";
     public const string Info = "grey";

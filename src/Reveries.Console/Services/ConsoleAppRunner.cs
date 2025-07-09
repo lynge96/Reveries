@@ -52,7 +52,8 @@ public class ConsoleAppRunner : IConsoleAppRunner
         var prompt = new SelectionPrompt<MenuOption>()
             .Title("What would you like to search for? 🔎".AsPrimary())
             .PageSize(10)
-            .AddChoices(MenuConfiguration.Options);
+            .AddChoices(MenuConfiguration.Options)
+            .HighlightStyle(ConsoleThemeExtensions.Secondary);
 
         return AnsiConsole.Prompt(prompt);
     }

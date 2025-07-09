@@ -20,7 +20,7 @@ public class SearchBookHandler : IMenuHandler
     {
         // 9780804139021
         var isbn = AnsiConsole.Prompt(
-            new TextPrompt<string>("Indtast ISBN eller bogtitel:".AsPrimary())
+            new TextPrompt<string>("Please, enter the ISBN:".AsPrimary())
                 .PromptStyle($"{ConsoleThemeExtensions.Secondary}"));
 
         try
@@ -41,8 +41,34 @@ public class SearchBookHandler : IMenuHandler
             
             if (book != null)
             {
-                AnsiConsole.MarkupLine($"Elapsed time: {elapsed} ms\n".Italic().AsSuccess());
-                AnsiConsole.MarkupLine($"Fundet bog: {book.Title}".AsSuccess());
+                AnsiConsole.MarkupLine($"Elapsed time: {elapsed} ms\n".Italic().AsInfo());
+                AnsiConsole.MarkupLine($"Success! I found this book in the database:".AsSuccess());
+
+                var table = new Table()
+                    .Border(TableBorder.Markdown)
+                    .BorderColor(Color.Tan)
+                    .AddColumn(new TableColumn("Property".AsPrimary()))
+                    .AddColumn(new TableColumn("Value".AsPrimary()))
+                    .HideHeaders()
+                    .Title($"📘 {book.ToString().Bold().AsPrimary()}");
+
+                table.Columns[0].Alignment(Justify.Left);
+                table.Columns[1].Alignment(Justify.Right);
+                
+                table.AddRow("Title", book.Title.AsSecondary());
+                table.AddRow("Author", string.Join(", ", book.Authors).AsSecondary());
+                table.AddRow("ISBN-10", book.Isbn10.AsSecondary());
+                table.AddRow("ISBN-13", book.Isbn13.AsSecondary());
+                table.AddRow("Publisher", book.Publisher.AsSecondary());
+                table.AddRow("Pages", book.Pages.ToString().AsSecondary());
+                table.AddRow("Language", book.Language.AsSecondary());
+                table.AddRow("Published", book.PublishDate.ToString().AsSecondary());
+                table.AddRow("MSRP", book.Msrp.ToString().AsSecondary());
+                table.AddRow("Binding", book.Binding.AsSecondary());
+                // table.AddRow("Subjects", string.Join(", ", book.Subjects).AsSecondary());
+                // table.AddRow("Synopsis", book.Synopsis.AsSecondary());
+    
+                AnsiConsole.Write(table);
             }
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
