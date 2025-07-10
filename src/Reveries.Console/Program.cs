@@ -15,7 +15,6 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddTransient<IConsoleAppRunner, ConsoleAppRunner>();
         services.AddScoped<IMenuOperationService, MenuOperationService>();
         services.AddScoped<IMenuHandler, SearchBookHandler>();
-
     })
     .Build();
 
