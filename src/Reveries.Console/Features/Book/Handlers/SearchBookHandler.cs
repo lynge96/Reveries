@@ -1,10 +1,10 @@
 using System.Net;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Console.Extensions;
-using Reveries.Console.Interfaces;
+using Reveries.Console.Common.Extensions;
+using Reveries.Console.Features.Console.Interfaces;
 using Spectre.Console;
 
-namespace Reveries.Console.Services.Handlers;
+namespace Reveries.Console.Features.Book.Handlers;
 
 public class SearchBookHandler : IMenuHandler
 {

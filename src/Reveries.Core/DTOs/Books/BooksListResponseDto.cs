@@ -8,8 +8,3 @@ public class BooksListResponseDto
 
     public IEnumerable<BookDto> Data { get; init; } = null!;
 }
-
-public class IsbnsRequestDto
-{
-    public List<string> Isbns { get; init; } = new();
-}

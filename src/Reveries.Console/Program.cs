@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Reveries.Application.Extensions;
-using Reveries.Console.Interfaces;
-using Reveries.Console.Services;
-using Reveries.Console.Services.Handlers;
+using Reveries.Console.Features.Book.Handlers;
+using Reveries.Console.Features.Console.Interfaces;
+using Reveries.Console.Features.Console.Services;
 using Reveries.Infrastructure.DependencyInjection;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -18,7 +19,7 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-Console.OutputEncoding = System.Text.Encoding.UTF8;
+Console.OutputEncoding = Encoding.UTF8;
 
 var runner = host.Services.GetRequiredService<IConsoleAppRunner>();
 

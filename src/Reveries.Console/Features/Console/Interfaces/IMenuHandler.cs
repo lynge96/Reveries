@@ -1,4 +1,4 @@
-namespace Reveries.Console.Interfaces;
+namespace Reveries.Console.Features.Console.Interfaces;
 
 public interface IMenuHandler
 {

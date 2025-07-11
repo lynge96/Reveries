@@ -1,10 +1,9 @@
-﻿using Reveries.Console.Extensions;
-using Reveries.Console.Interfaces;
-using Reveries.Console.Models;
-using Reveries.Console.Models.Menu;
+﻿using Reveries.Console.Common.Extensions;
+using Reveries.Console.Common.Models.Menu;
+using Reveries.Console.Features.Console.Interfaces;
 using Spectre.Console;
 
-namespace Reveries.Console.Services;
+namespace Reveries.Console.Features.Console.Services;
 
 public class ConsoleAppRunner : IConsoleAppRunner
 {

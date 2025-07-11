@@ -21,4 +21,12 @@
     <PackageReference Include="Spectre.Console.ImageSharp" Version="0.50.1-preview.0.20" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\" />
+    <Folder Include="Features\Author\" />
+    <Folder Include="Features\Book\" />
+    <Folder Include="Features\Console\" />
+    <Folder Include="Features\Publisher\" />
+  </ItemGroup>
+
 </Project>

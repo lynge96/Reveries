@@ -1,4 +1,4 @@
-namespace Reveries.Console.Models.Menu;
+namespace Reveries.Console.Common.Models.Menu;
 
 public static class MenuConfiguration
 {

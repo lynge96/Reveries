@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Reveries.Application.Validation;
+namespace Reveries.Application.Common.Validation;
 
 public static partial class IsbnValidator
 {

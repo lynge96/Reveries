@@ -1,4 +1,4 @@
-namespace Reveries.Console.Extensions;
+namespace Reveries.Console.Common.Extensions;
 
 public static class ConsoleThemeExtensions
 {

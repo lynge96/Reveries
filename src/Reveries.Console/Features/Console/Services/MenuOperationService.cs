@@ -1,8 +1,8 @@
-using Reveries.Console.Interfaces;
-using Reveries.Console.Models.Menu;
-using Reveries.Console.Services.Handlers;
+using Reveries.Console.Common.Models.Menu;
+using Reveries.Console.Features.Book.Handlers;
+using Reveries.Console.Features.Console.Interfaces;
 
-namespace Reveries.Console.Services;
+namespace Reveries.Console.Features.Console.Services;
 
 public class MenuOperationService : IMenuOperationService
 {

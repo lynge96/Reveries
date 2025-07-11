@@ -54,7 +54,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         return result;
     }
 
-    public async Task<BooksListResponseDto?> GetBooksByIsbnsAsync(IsbnsRequestDto isbns, CancellationToken cancellationToken = default)
+    public async Task<BooksListResponseDto?> GetBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken cancellationToken = default)
     {
         var jsonContent = new StringContent(
             JsonSerializer.Serialize(isbns), 

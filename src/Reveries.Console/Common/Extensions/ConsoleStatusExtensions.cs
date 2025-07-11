@@ -1,6 +1,6 @@
 using Spectre.Console;
 
-namespace Reveries.Console.Extensions;
+namespace Reveries.Console.Common.Extensions;
 
 public static class ConsoleStatusExtensions
 {
