@@ -37,7 +37,7 @@ public class ConsoleAppRunner : IConsoleAppRunner
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"{"Error:".Underline().AsError()} {ex.Message.Italic().AsWarning()}");
+                AnsiConsole.MarkupLine($"{"Error:".Underline().AsError()} {Markup.Escape($"[{ex.GetType().Name}] {ex.Message}").Italic().AsWarning()}");
             }
         
             AnsiConsole.MarkupLine("Press any key to continue...".Italic().AsInfo());

@@ -56,18 +56,26 @@ public class IsbndbBookClient : IIsbndbBookClient
 
     public async Task<BooksListResponseDto?> GetBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken cancellationToken = default)
     {
+        var requestObject = new { isbns = isbns.ToList() };
+
         var jsonContent = new StringContent(
-            JsonSerializer.Serialize(isbns), 
+            JsonSerializer.Serialize(requestObject), 
             Encoding.UTF8, 
             "application/json");
-
+        
         var response = await _httpClient.PostAsync("/books", jsonContent, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
         var result = JsonSerializer.Deserialize<BooksListResponseDto>(json, JsonOptions);
-    
-        return result;
+
+        return result ?? new BooksListResponseDto 
+        { 
+            Total = 0,
+            Data = new List<BookDto>(),
+            Requested = 0 
+        };
+
     }
     
 }

@@ -17,27 +17,30 @@ public class SearchBookHandler : IMenuHandler
 
     public async Task HandleAsync()
     {
-        // 9780804139021
+        // 9780804139021 9780593099322
         var isbn = AnsiConsole.Prompt(
-            new TextPrompt<string>("Please, enter the ISBN:".AsPrimary())
+            new TextPrompt<string>("Please, enter one or more ISBNs, separated by comma or space:".AsPrimary())
                 .PromptStyle($"{ConsoleThemeExtensions.Secondary}"));
 
         try
         {
             var (result, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-                .RunWithStatusAsync(async () => await _bookService.GetBookByIsbnAsync(isbn));
+                .RunWithStatusAsync(async () => await _bookService.GetBooksByIsbnStringAsync(isbn));
 
             if (result != null)
             {
                 AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
-
-                AnsiConsole.Write(result.DisplayBook());
+                
+                AnsiConsole.Write(result.DisplayBooks());
             }
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
-            AnsiConsole.MarkupLine($"No books with ISBN: {isbn.AsSecondary()} were found in the database.".AsWarning());
+            var isbnDisplay = isbn.Contains(',') || isbn.Contains(' ') 
+                ? "the provided ISBNs" 
+                : $"ISBN: {isbn.AsSecondary()}";
+            AnsiConsole.MarkupLine($"No books with {isbnDisplay} were found in the database.".AsWarning());
         }
-
+        
     }
 }

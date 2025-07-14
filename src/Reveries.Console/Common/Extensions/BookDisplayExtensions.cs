@@ -5,13 +5,17 @@ namespace Reveries.Console.Common.Extensions;
 
 public static class BookDisplayExtensions
 {
-    public static Tree DisplayBooks(this IEnumerable<Book> books)
+    public static Tree DisplayBooks(this BooksListResponse bookCollection)
     {
-        var bookList = books.ToList();
-        var bookCount = bookList.Count;
-        var root = new Tree($"Success! Found {bookCount} book{(bookCount != 1 ? "s" : "")} in the database:".AsSuccess());
+        var root = new Tree($"Success! Found {bookCollection.Total.Bold().AsWarning()} of {bookCollection.Requested.Bold().AsWarning()} requested book{(bookCollection.Total != 1 ? "s" : "")} in the database:".AsSuccess());
+        
+        if (bookCollection.Books.Any() != true)
+        {
+            root.AddNode("No books found".AsWarning());
+            return root;
+        }
 
-        foreach (var book in bookList)
+        foreach (var book in bookCollection.Books)
         {
             var bookNode = root.AddNode("📖 " + book.Title.Bold().AsPrimary());
             var details = new Dictionary<string, string>
@@ -37,8 +41,4 @@ public static class BookDisplayExtensions
         return root;
     }
 
-
-    
-    public static Tree DisplayBook(this Book book)
-        => new[] { book }.DisplayBooks();
 }

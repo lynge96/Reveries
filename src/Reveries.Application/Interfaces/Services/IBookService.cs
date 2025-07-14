@@ -4,9 +4,7 @@ namespace Reveries.Application.Interfaces.Services;
 
 public interface IBookService
 {
-    Task<Book?> GetBookByIsbnAsync(string isbn);
+    Task<BooksListResponse?> GetBooksByIsbnStringAsync(string isbnString);
     
-    Task<List<Book?>> GetBookByTitleAsync(string title, string languageCode);
-    
-    Task<BooksListResponse?> GetBooksByIsbnsAsync(List<string> isbns);
+    Task<List<Book?>> GetBookByTitleAsync(string title, string? languageCode);
 }

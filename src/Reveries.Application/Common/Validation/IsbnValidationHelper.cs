@@ -1,9 +1,10 @@
+using Reveries.Application.Common.Validation.Exceptions;
+
 namespace Reveries.Application.Common.Validation;
 
 public record IsbnValidationResult(
-    List<string> ValidIsbns, 
-    List<string> InvalidIsbns);
-
+    List<string> ValidIsbns
+);
 
 public static class IsbnValidationHelper
 {
@@ -11,7 +12,7 @@ public static class IsbnValidationHelper
     {
         var normalizedIsbn = IsbnValidator.Normalize(isbn);
         if (!IsbnValidator.IsValid(normalizedIsbn))
-            throw new ArgumentException("ISBN must be either 10 or 13 digits.", nameof(isbn));
+            throw new IsbnValidationException($"Invalid ISBN checksum for '{isbn}'. Please verify the number is correct.", nameof(isbn));
         
         return normalizedIsbn;
     }
@@ -30,11 +31,11 @@ public static class IsbnValidationHelper
 
         if (invalidIsbns.Any())
         {
-            throw new ArgumentException(
-                $"The following ISBN numbers are invalid: {string.Join(", ", invalidIsbns)}");
+            throw new IsbnValidationException(
+                $"The following ISBN numbers are invalid: {string.Join(", ", invalidIsbns)}. Invalid ISBN checksum.");
         }
 
-        return new IsbnValidationResult(validIsbns, invalidIsbns);
+        return new IsbnValidationResult(validIsbns);
     }
 
 }

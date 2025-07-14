@@ -14,8 +14,31 @@ public class BookService : IBookService
     {
         _bookClient = bookClient;
     }
+    
+    public async Task<BooksListResponse?> GetBooksByIsbnStringAsync(string isbnString)
+    {
+        var isbns = isbnString.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries).ToList();
 
-    public async Task<Book?> GetBookByIsbnAsync(string isbn)
+        if (isbns.Count == 1)
+        {
+            var book = await GetBookByIsbnAsync(isbns[0]);
+            return book != null 
+                ? new BooksListResponse(1, 1, new List<Book> { book }) 
+                : new BooksListResponse(0, 1, new List<Book>());
+        }
+        
+        var bookList = await GetBooksByIsbnsAsync(isbns);
+        
+        return bookList;
+    }
+
+
+    public async Task<List<Book?>> GetBookByTitleAsync(string title, string? languageCode)
+    {
+        throw new NotImplementedException();
+    }
+
+    private async Task<Book?> GetBookByIsbnAsync(string isbn)
     {
         var normalizedIsbn = IsbnValidationHelper.ValidateSingleIsbn(isbn);
 
@@ -28,13 +51,8 @@ public class BookService : IBookService
         
         return book;
     }
-
-    public async Task<List<Book?>> GetBookByTitleAsync(string title, string? languageCode)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<BooksListResponse?> GetBooksByIsbnsAsync(List<string> isbns)
+    
+    private async Task<BooksListResponse?> GetBooksByIsbnsAsync(List<string> isbns)
     {
         if (isbns.Count > 100)
             throw new ArgumentException("Too many ISBN numbers. Maximum is 100.");
@@ -44,15 +62,15 @@ public class BookService : IBookService
         var response = await _bookClient.GetBooksByIsbnsAsync(validatedIsbns);
         
         if (response is null)
-            return new BooksListResponse(0, string.Empty, new List<Book>());
+            return new BooksListResponse(0, 0, new List<Book>());
 
         var books = response.Data
             .Select(bookDto => bookDto.ToBook())
             .ToList();
 
         return new BooksListResponse(
-            response.Total,
-            response.Requested,
+            books.Count,
+            validatedIsbns.Count,
             books);
     }
 }

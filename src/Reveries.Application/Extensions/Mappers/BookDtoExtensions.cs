@@ -24,6 +24,7 @@ public static class BookDtoExtensions
             ImageUrl = bookDto.ImageOriginal,
             Msrp = bookDto.Msrp,
             Binding = bookDto.Binding,
+            Edition = bookDto.Edition,
             Subjects = bookDto.Subjects?.ToList() ?? new(),
             Dimensions = bookDto.DimensionsStructured?.ConvertUnits(),
         };

@@ -32,6 +32,8 @@ public class Book
     
     public string? Binding { get; set; }
 
+    public string? Edition { get; set; }
+    
     public List<string> Subjects { get; set; } = new();
     
     public DimensionsStructured? Dimensions { get; set; }
