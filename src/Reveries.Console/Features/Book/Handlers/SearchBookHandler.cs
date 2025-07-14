@@ -1,6 +1,7 @@
 using System.Net;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
+using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Features.Console.Interfaces;
 using Spectre.Console;
 
@@ -8,6 +9,7 @@ namespace Reveries.Console.Features.Book.Handlers;
 
 public class SearchBookHandler : IMenuHandler
 {
+    public MenuChoice MenuChoice => MenuChoice.SearchBook;
     private readonly IBookService _bookService;
 
     public SearchBookHandler(IBookService bookService)
@@ -18,6 +20,7 @@ public class SearchBookHandler : IMenuHandler
     public async Task HandleAsync()
     {
         // 9780804139021 9780593099322
+        // 9788799338238
         var isbn = AnsiConsole.Prompt(
             new TextPrompt<string>("Please, enter one or more ISBNs, separated by comma or space:".AsPrimary())
                 .PromptStyle($"{ConsoleThemeExtensions.Secondary}"));

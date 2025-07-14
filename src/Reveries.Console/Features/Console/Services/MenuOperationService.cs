@@ -1,20 +1,17 @@
 using Reveries.Console.Common.Models.Menu;
-using Reveries.Console.Features.Book.Handlers;
 using Reveries.Console.Features.Console.Interfaces;
 
 namespace Reveries.Console.Features.Console.Services;
 
 public class MenuOperationService : IMenuOperationService
 {
+    // Dictionary that maps each menu choice to its corresponding handler implementation
     private readonly IReadOnlyDictionary<MenuChoice, IMenuHandler> _handlers;
-
-    public MenuOperationService(IEnumerable<IMenuHandler> handlers)
-    {
-        _handlers = handlers.ToDictionary(
-            handler => GetMenuChoiceFromHandler(handler),
-            handler => handler);
-    }
-
+    
+    // Initializes the service with all available menu handlers.
+    public MenuOperationService(IEnumerable<IMenuHandler> handlers) =>
+        _handlers = handlers.ToDictionary(h => h.MenuChoice);
+    
     public async Task HandleMenuChoiceAsync(MenuChoice choice)
     {
         if (_handlers.TryGetValue(choice, out var handler))
@@ -26,12 +23,4 @@ public class MenuOperationService : IMenuOperationService
             throw new InvalidOperationException($"No handlers were found for that menu: {choice}");
         }
     }
-    
-    private static MenuChoice GetMenuChoiceFromHandler(IMenuHandler handler) =>
-        handler switch
-        {
-            SearchBookHandler => MenuChoice.SearchBook,
-            _ => throw new ArgumentException($"Unknown handler type: {handler.GetType().Name}")
-        };
-
 }
