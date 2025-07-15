@@ -29,11 +29,11 @@ public class BookDto
     
     public string Isbn10 { get; init; } = string.Empty;
     
-    public string Edition { get; init; } = string.Empty;
+    // public string Edition { get; init; } = string.Empty;
     
     public string Binding { get; init; } = string.Empty;
     
-    public int Msrp { get; init; }
+    public decimal Msrp { get; init; }
     
     public string Language { get; init; } = string.Empty;
     

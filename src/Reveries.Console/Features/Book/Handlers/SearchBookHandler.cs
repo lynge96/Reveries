@@ -3,6 +3,7 @@ using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Features.Console.Interfaces;
+using Reveries.Core.Models;
 using Spectre.Console;
 
 namespace Reveries.Console.Features.Book.Handlers;
@@ -21,29 +22,45 @@ public class SearchBookHandler : IMenuHandler
     {
         // 9780804139021 9780593099322
         // 9788799338238
-        var isbn = AnsiConsole.Prompt(
-            new TextPrompt<string>("Please, enter one or more ISBNs, separated by comma or space:".AsPrimary())
+        var searchInput = AnsiConsole.Prompt(
+            new TextPrompt<string>("Enter book title or ISBN, separated by comma or space:".AsPrimary())
                 .PromptStyle($"{ConsoleThemeExtensions.Secondary}"));
 
         try
         {
             var (result, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-                .RunWithStatusAsync(async () => await _bookService.GetBooksByIsbnStringAsync(isbn));
-
-            if (result != null)
-            {
-                AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
+                .RunWithStatusAsync(async () => 
+                {
+                    if (IsIsbnFormat(searchInput))
+                    {
+                        return await _bookService.GetBooksByIsbnStringAsync(searchInput);
+                    }
                 
-                AnsiConsole.Write(result.DisplayBooks());
-            }
+                    var books = await _bookService.GetBooksByTitleAsync(searchInput, languageCode: null);
+                    return new BooksListResponse(books.Count, 1, books);
+                });
+
+            AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
+            AnsiConsole.Write(result.DisplayBooks());
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
-            var isbnDisplay = isbn.Contains(',') || isbn.Contains(' ') 
-                ? "the provided ISBNs" 
-                : $"ISBN: {isbn.AsSecondary()}";
-            AnsiConsole.MarkupLine($"No books with {isbnDisplay} were found in the database.".AsWarning());
+            AnsiConsole.MarkupLine($"No books found for: {searchInput.AsSecondary()}".AsWarning());
         }
-        
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"An error occurred: {ex.Message}".AsError());
+        }
     }
+    
+    private static bool IsIsbnFormat(string input)
+    {
+        var parts = input.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        
+        return parts.All(part => 
+            part.Length >= 10 && 
+            part.Length <= 13 && 
+            part.All(c => char.IsDigit(c) || c == '-' || c == 'X'));
+    }
+
 }
