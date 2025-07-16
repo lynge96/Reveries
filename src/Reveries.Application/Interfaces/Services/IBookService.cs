@@ -1,10 +1,11 @@
-﻿using Reveries.Core.Models;
+﻿using Reveries.Core.Enums;
+using Reveries.Core.Models;
 
 namespace Reveries.Application.Interfaces.Services;
 
 public interface IBookService
 {
-    Task<BooksListResponse> GetBooksByIsbnStringAsync(string isbnString, CancellationToken cancellationToken = default);
+    Task<List<Book>> GetBooksByIsbnStringAsync(string isbnString, CancellationToken cancellationToken = default);
     
-    Task<List<Book>> GetBooksByTitleAsync(string title, string? languageCode, CancellationToken cancellationToken = default);
+    Task<List<Book>> GetBooksByTitleAsync(string title, string? languageCode, BookFormat format, CancellationToken cancellationToken = default);
 }

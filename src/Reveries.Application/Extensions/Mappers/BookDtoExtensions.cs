@@ -22,7 +22,7 @@ public static class BookDtoExtensions
             Synopsis = CleanString(bookDto.Synopsis),
             ImageUrl = bookDto.ImageOriginal,
             Msrp = bookDto.Msrp,
-            Binding = CleanBinding(bookDto.Binding),
+            Binding = bookDto.Binding,
             // Edition = bookDto.Edition,
             Subjects = bookDto.Subjects?.ToList() ?? new(),
             Dimensions = bookDto.DimensionsStructured?.ConvertUnits(),
@@ -73,14 +73,6 @@ public static class BookDtoExtensions
         }
 
         return "Unknown";
-    }
-    
-    private static string CleanBinding(string? binding)
-    {
-        if (string.IsNullOrEmpty(binding))
-            return string.Empty;
-        
-        return binding.Replace("[", "").Replace("]", "").Trim();
     }
 
 }

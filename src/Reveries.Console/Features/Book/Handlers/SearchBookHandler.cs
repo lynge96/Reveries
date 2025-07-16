@@ -3,7 +3,7 @@ using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Features.Console.Interfaces;
-using Reveries.Core.Models;
+using Reveries.Core.Enums;
 using Spectre.Console;
 
 namespace Reveries.Console.Features.Book.Handlers;
@@ -36,8 +36,8 @@ public class SearchBookHandler : IMenuHandler
                         return await _bookService.GetBooksByIsbnStringAsync(searchInput);
                     }
                 
-                    var books = await _bookService.GetBooksByTitleAsync(searchInput, languageCode: null);
-                    return new BooksListResponse(books.Count, 1, books);
+                    var books = await _bookService.GetBooksByTitleAsync(searchInput, languageCode: null, BookFormat.PhysicalOnly);
+                    return books;
                 });
 
             AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());

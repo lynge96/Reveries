@@ -5,19 +5,19 @@ namespace Reveries.Console.Common.Extensions;
 
 public static class BookDisplayExtensions
 {
-    public static Tree DisplayBooks(this BooksListResponse bookCollection)
+    public static Tree DisplayBooks(this List<Book> books)
     {
-        var root = new Tree($"Success! Found {bookCollection.Total.Bold().AsWarning()} of {bookCollection.Requested.Bold().AsWarning()} requested book{(bookCollection.Total != 1 ? "s" : "")} in the database:".AsSuccess());
+        var root = new Tree($"Success! Found {books.Count.Bold().AsWarning()} book{(books.Count != 1 ? "s" : "")} in the database:".AsSuccess());
         
-        if (bookCollection.Books.Any() != true)
+        if (books.Any() != true)
         {
             root.AddNode("No books found".AsWarning());
             return root;
         }
 
-        foreach (var book in bookCollection.Books)
+        foreach (var book in books)
         {
-            var bookNode = root.AddNode("📖 " + book.Title.Bold().AsPrimary());
+            var bookNode = root.AddNode("📖 " + Markup.Escape(book.Title).Bold().AsPrimary());
             var details = new Dictionary<string, string>
             {
                 { "Author", string.Join(", ", book.Authors) },
@@ -33,11 +33,9 @@ public static class BookDisplayExtensions
 
             foreach (var (property, value) in details)
             {
-                bookNode.AddNode($"{property}: {value.AsSecondary()}");
+                bookNode.AddNode($"{property}: {Markup.Escape(value).AsSecondary()}");
             }
-
         }
-
         return root;
     }
 

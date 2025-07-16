@@ -21,7 +21,7 @@ public class BookDto
     
     public IEnumerable<string> Subjects { get; init; } = null!;
     
-    public required IEnumerable<string> Authors { get; init; } = null!;
+    public IEnumerable<string> Authors { get; init; } = null!;
     
     public required string Isbn13 { get; init; } = string.Empty;
     
