@@ -18,35 +18,34 @@ public class IsbndbPublisherClient : IIsbndbPublisherClient
         _httpClient = httpClient;
     }
     
-    public async Task<PublisherDetailsReponseDto?> GetPublisherDetailsAsync(string publisherName, string? languageCode, CancellationToken cancellationToken)
+    public Task<PublisherDetailsReponseDto?> GetPublisherDetailsAsync(string publisherName, string? languageCode, CancellationToken cancellationToken = default)
     {
-        var basePath = $"/publisher/{Uri.EscapeDataString(publisherName)}";
-
-        var queryParams = new Dictionary<string, string?>();
-
+        var endpoint = $"/publisher/{Uri.EscapeDataString(publisherName)}";
+    
         if (!string.IsNullOrWhiteSpace(languageCode))
-            queryParams.Add("language", languageCode);
-
-        var uri = QueryHelpers.AddQueryString(basePath, queryParams);
-
-        var response = await _httpClient.GetAsync(uri, cancellationToken);
-        response.EnsureSuccessStatusCode();
-
-        var json = await response.Content.ReadAsStringAsync(cancellationToken);
-        var result = JsonSerializer.Deserialize<PublisherDetailsReponseDto>(json, JsonOptions);
-
-        return result;
+        {
+            endpoint = QueryHelpers.AddQueryString(endpoint, "language", languageCode);
+        }
+    
+        return SendRequestAndDeserializeAsync<PublisherDetailsReponseDto>(endpoint, cancellationToken);
     }
-
-    public async Task<PublisherListResponseDto?> GetPublishersAsync(string publisherName, CancellationToken cancellationToken)
+    
+    public Task<PublisherListResponseDto?> GetPublishersAsync(string publisherName, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"/publishers/{publisherName}", cancellationToken);
-        response.EnsureSuccessStatusCode();
-
-        var json = await response.Content.ReadAsStringAsync(cancellationToken);
-        
-        var result = JsonSerializer.Deserialize<PublisherListResponseDto>(json, JsonOptions);
-        
-        return result;
+        return SendRequestAndDeserializeAsync<PublisherListResponseDto>(
+            $"/publishers/{Uri.EscapeDataString(publisherName)}", 
+            cancellationToken);
     }
+    
+    private async Task<T?> SendRequestAndDeserializeAsync<T>(string endpoint, CancellationToken cancellationToken = default)
+    {
+        var response = await _httpClient.GetAsync(endpoint, cancellationToken);
+        response.EnsureSuccessStatusCode();
+    
+        return await JsonSerializer.DeserializeAsync<T>(
+            await response.Content.ReadAsStreamAsync(cancellationToken),
+            JsonOptions,
+            cancellationToken);
+    }
+
 }

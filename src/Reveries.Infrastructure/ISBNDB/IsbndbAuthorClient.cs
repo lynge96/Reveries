@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.DTOs;
 using Reveries.Core.DTOs.Authors;
 
 namespace Reveries.Infrastructure.ISBNDB;
@@ -18,28 +17,29 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
         _httpClient = httpClient;
     }
     
-    public async Task<AuthorSearchResponseDto?> GetAuthorsByNameAsync(string authorName, CancellationToken cancellationToken = default)
+    public Task<AuthorSearchResponseDto?> GetAuthorsByNameAsync(string authorName, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"/authors/{authorName}", cancellationToken);
-        response.EnsureSuccessStatusCode();
-        
-        var json = await response.Content.ReadAsStringAsync(cancellationToken);
-        
-        var result = JsonSerializer.Deserialize<AuthorSearchResponseDto>(json, JsonOptions);
-        
-        return result;
+        return SendRequestAndDeserializeAsync<AuthorSearchResponseDto>(
+            $"/authors/{Uri.EscapeDataString(authorName)}", 
+            cancellationToken);
     }
 
-    public async Task<AuthorBooksResponseDto?> GetBooksByAuthorAsync(string authorName, CancellationToken cancellationToken = default)
+    public Task<AuthorBooksResponseDto?> GetBooksByAuthorAsync(string authorName, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"/author/{authorName}", cancellationToken);
-        response.EnsureSuccessStatusCode();
-        
-        var json = await response.Content.ReadAsStringAsync(cancellationToken);
-        
-        var result = JsonSerializer.Deserialize<AuthorBooksResponseDto>(json, JsonOptions);
-        
-        return result;
+        return SendRequestAndDeserializeAsync<AuthorBooksResponseDto>(
+            $"/author/{Uri.EscapeDataString(authorName)}", 
+            cancellationToken);
     }
     
+    private async Task<T?> SendRequestAndDeserializeAsync<T>(string endpoint, CancellationToken cancellationToken = default)
+    {
+        var response = await _httpClient.GetAsync(endpoint, cancellationToken);
+        response.EnsureSuccessStatusCode();
+    
+        return await JsonSerializer.DeserializeAsync<T>(
+            await response.Content.ReadAsStreamAsync(cancellationToken),
+            JsonOptions,
+            cancellationToken);
+    }
+
 }

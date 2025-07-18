@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.DTOs.Books;
+using Reveries.Infrastructure.Common.Json.Converters;
 
 namespace Reveries.Infrastructure.ISBNDB;
 
@@ -11,7 +12,8 @@ public class IsbndbBookClient : IIsbndbBookClient
     private readonly HttpClient _httpClient;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        Converters = { new DecimalConverter() }
     };
     
     public IsbndbBookClient(HttpClient httpClient)
@@ -98,4 +100,5 @@ public class IsbndbBookClient : IIsbndbBookClient
             throw new InvalidOperationException($"Failed to retrieve books data: {ex.Message}", ex);
         }
     }
+    
 }
