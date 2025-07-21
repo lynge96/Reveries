@@ -5,5 +5,5 @@ namespace Reveries.Console.Features.Console.Interfaces;
 public interface IMenuHandler
 {
     MenuChoice MenuChoice { get; }
-    Task HandleAsync();
+    Task HandleAsync(CancellationToken cancellationToken = default);
 }

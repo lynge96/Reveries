@@ -37,7 +37,13 @@ public static class ServiceCollectionExtensions
             var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
             return new IsbndbAuthorClient(httpClientFactory.CreateClient("Isbndb"));
         });
-
+        
+        services.AddTransient<IIsbndbPublisherClient, IsbndbPublisherClient>(provider =>
+        {
+            var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+            return new IsbndbPublisherClient(httpClientFactory.CreateClient("Isbndb"));
+        });
+        
         return services;
     }
 }

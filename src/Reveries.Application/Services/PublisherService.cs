@@ -23,6 +23,7 @@ public class PublisherService : IPublisherService
         
         return response.Books
             .Select(bookDto => bookDto.ToBook())
+            .Where(book => !string.IsNullOrWhiteSpace(book.Language) && !book.Language.Equals("unknown", StringComparison.InvariantCultureIgnoreCase))
             .ToList();
     }
 

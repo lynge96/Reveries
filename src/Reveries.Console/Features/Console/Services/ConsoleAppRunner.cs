@@ -1,5 +1,6 @@
 ﻿using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
+using Reveries.Console.Common.Utilities;
 using Reveries.Console.Features.Console.Interfaces;
 using Spectre.Console;
 
@@ -22,8 +23,10 @@ public class ConsoleAppRunner : IConsoleAppRunner
         
         while (_isRunning)
         {
-            var option = ShowMenu();
-        
+            var option = ConsolePromptUtility.ShowSelectionPrompt(
+                "What would you like to search for? 🔎", 
+                MenuConfiguration.Options);
+            
             if (option.Choice == MenuChoice.Exit)
             {
                 _isRunning = false;
@@ -44,16 +47,5 @@ public class ConsoleAppRunner : IConsoleAppRunner
             AnsiConsole.Console.Input.ReadKey(true);
             AnsiConsole.Clear();
         }
-    }
-    
-    private static MenuOption ShowMenu()
-    {
-        var prompt = new SelectionPrompt<MenuOption>()
-            .Title("What would you like to search for? 🔎".AsPrimary())
-            .PageSize(10)
-            .AddChoices(MenuConfiguration.Options)
-            .HighlightStyle(ConsoleThemeExtensions.Secondary);
-
-        return AnsiConsole.Prompt(prompt);
     }
 }

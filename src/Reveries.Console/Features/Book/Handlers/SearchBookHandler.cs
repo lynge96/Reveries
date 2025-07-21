@@ -2,6 +2,7 @@ using System.Net;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
+using Reveries.Console.Common.Utilities;
 using Reveries.Console.Features.Console.Interfaces;
 using Reveries.Core.Enums;
 using Spectre.Console;
@@ -18,30 +19,28 @@ public class SearchBookHandler : IMenuHandler
         _bookService = bookService;
     }
 
-    public async Task HandleAsync()
+    public async Task HandleAsync(CancellationToken cancellationToken = default)
     {
         // 9780804139021 9780593099322
         // 9788799338238
-        var searchInput = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter book title or ISBN, separated by comma or space:".AsPrimary())
-                .PromptStyle($"{ConsoleThemeExtensions.Secondary}"));
+        var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma or space:");
 
         try
         {
-            var (result, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
+            var (bookResults, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
                 .RunWithStatusAsync(async () => 
                 {
                     if (IsIsbnFormat(searchInput))
                     {
-                        return await _bookService.GetBooksByIsbnStringAsync(searchInput);
+                        return await _bookService.GetBooksByIsbnStringAsync(searchInput, cancellationToken);
                     }
                 
-                    var books = await _bookService.GetBooksByTitleAsync(searchInput, languageCode: null, BookFormat.PhysicalOnly);
+                    var books = await _bookService.GetBooksByTitleAsync(searchInput, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
                     return books;
                 });
 
             AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
-            AnsiConsole.Write(result.DisplayBooks());
+            AnsiConsole.Write(bookResults.DisplayBooks());
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {

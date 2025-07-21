@@ -22,11 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Common\" />
-    <Folder Include="Features\Author\" />
     <Folder Include="Features\Book\" />
     <Folder Include="Features\Console\" />
-    <Folder Include="Features\Publisher\" />
   </ItemGroup>
 
 </Project>
