@@ -28,7 +28,7 @@ public static class BookFormatExtensions
         };
     }
 
-    public static bool IsPhysicalBook(this string? binding) => 
+    private static bool IsPhysicalBook(this string? binding) => 
         binding != null && PhysicalFormats.Contains(binding);
 
 }

@@ -1,4 +1,5 @@
 using System.Net;
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -32,10 +33,12 @@ public class SearchPublisherHandler : IMenuHandler
                 });
 
             AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
+
+            var uniquePublishers = PublisherNormalizer.GetUniquePublishers(publishers);
             
             var selectedPublisher = ConsolePromptUtility.ShowSelectionPrompt(
                 "Select a publisher to see their books:",
-                publishers);
+                uniquePublishers);
             
             var (books, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
                 .RunWithStatusAsync(async () => await _publisherService.GetBooksByPublisherAsync(selectedPublisher));
