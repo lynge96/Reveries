@@ -22,6 +22,11 @@ public static class ServiceCollectionExtensions
         {
             var settings = provider.GetRequiredService<IOptions<IsbndbSettings>>().Value;
 
+            if (string.IsNullOrWhiteSpace(settings.ApiKey))
+            {
+                throw new InvalidOperationException("ISBNDB API-key is not configured. Please add a valid API-key in appsettings.json");
+            }
+
             client.BaseAddress = new Uri(settings.ApiUrl);
             client.DefaultRequestHeaders.Add("Authorization", settings.ApiKey);
         });
@@ -37,7 +42,13 @@ public static class ServiceCollectionExtensions
             var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
             return new IsbndbAuthorClient(httpClientFactory.CreateClient("Isbndb"));
         });
-
+        
+        services.AddTransient<IIsbndbPublisherClient, IsbndbPublisherClient>(provider =>
+        {
+            var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+            return new IsbndbPublisherClient(httpClientFactory.CreateClient("Isbndb"));
+        });
+        
         return services;
     }
 }

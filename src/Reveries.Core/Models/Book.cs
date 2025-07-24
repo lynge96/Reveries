@@ -6,7 +6,7 @@ public class Book
     
     public string? Isbn13 { get; set; }
     
-    public required string Isbn10 { get; set; }
+    public string? Isbn10 { get; set; }
     
     public required string Title { get; set; }
 
@@ -32,6 +32,8 @@ public class Book
     
     public string? Binding { get; set; }
 
+    public string? Edition { get; set; }
+    
     public List<string> Subjects { get; set; } = new();
     
     public DimensionsStructured? Dimensions { get; set; }
@@ -45,5 +47,6 @@ public class Book
 
         return $"{title} by {authors}";
     }
+    
 }
 

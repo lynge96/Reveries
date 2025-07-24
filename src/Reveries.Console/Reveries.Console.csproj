@@ -17,6 +17,12 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <PackageReference Include="Spectre.Console" Version="0.50.1-preview.0.20" />
+    <PackageReference Include="Spectre.Console.ImageSharp" Version="0.50.1-preview.0.20" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Console\" />
   </ItemGroup>
 
 </Project>

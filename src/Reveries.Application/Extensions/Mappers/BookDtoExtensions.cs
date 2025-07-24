@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using Reveries.Core.DTOs;
 using Reveries.Core.DTOs.Books;
 using Reveries.Core.Models;
 
@@ -12,8 +11,8 @@ public static class BookDtoExtensions
         return new Book
         {
             Isbn13 = bookDto.Isbn13,
-            Isbn10 = bookDto.Isbn10!,
-            Title = bookDto.Title!,
+            Isbn10 = bookDto.Isbn10,
+            Title = bookDto.Title,
             Authors = bookDto.Authors?.ToList() ?? new(),
             Pages = bookDto.Pages,
             Publisher = bookDto.Publisher,
@@ -24,6 +23,7 @@ public static class BookDtoExtensions
             ImageUrl = bookDto.ImageOriginal,
             Msrp = bookDto.Msrp,
             Binding = bookDto.Binding,
+            // Edition = bookDto.Edition,
             Subjects = bookDto.Subjects?.ToList() ?? new(),
             Dimensions = bookDto.DimensionsStructured?.ConvertUnits(),
         };
@@ -42,11 +42,22 @@ public static class BookDtoExtensions
         if (string.IsNullOrEmpty(input))
             return string.Empty;
 
-        var withLineBreaks = Regex.Replace(input, "<br/?>", "\n");
-        var noHtml = Regex.Replace(withLineBreaks, "<.*?>", string.Empty);
-        
-        return noHtml;
+        // Først erstat HTML line breaks med mellemrum
+        var noHtmlBreaks = Regex.Replace(input, "<br/?>", " ");
+    
+        // Fjern HTML tags
+        var noHtml = Regex.Replace(noHtmlBreaks, "<.*?>", string.Empty);
+    
+        // Erstat alle typer af linjeskift med mellemrum
+        var noLineBreaks = Regex.Replace(noHtml, @"[\r\n\t]+", " ");
+    
+        // Fjern mellemrum
+        var singleSpaces = Regex.Replace(noLineBreaks, @"\s+", " ");
+    
+        // Trim mellemrum i start og slut
+        return singleSpaces.Trim();
     }
+
     
     private static string GetLanguageName(string? languageIso639)
     {
@@ -63,4 +74,5 @@ public static class BookDtoExtensions
 
         return "Unknown";
     }
+
 }

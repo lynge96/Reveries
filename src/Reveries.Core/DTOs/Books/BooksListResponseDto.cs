@@ -4,12 +4,7 @@ public class BooksListResponseDto
 {
     public int Total { get; init; }
     
-    public string Requested { get; init; } = string.Empty;
+    public int Requested { get; init; }
 
     public IEnumerable<BookDto> Data { get; init; } = null!;
-}
-
-public class IsbnsRequestDto
-{
-    public List<string> Isbns { get; init; } = new();
 }

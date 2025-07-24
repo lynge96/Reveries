@@ -38,7 +38,7 @@ public interface IIsbndbBookClient
     /// <returns>
     /// A <see cref="BooksQueryResponseDto"/> containing matching books and the total count.
     /// </returns>
-    Task<BooksQueryResponseDto?> GetBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll = false, CancellationToken cancellationToken = default);
+    Task<BooksQueryResponseDto?> GetBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll = true, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Retrieves a list of books matching the provided ISBNs from the data source.
@@ -53,5 +53,5 @@ public interface IIsbndbBookClient
     /// A <see cref="BooksListResponseDto"/> containing the books that match the provided ISBNs, 
     /// or <c>null</c> if no matching books are found or the request fails.
     /// </returns>
-    Task<BooksListResponseDto?> GetBooksByIsbnsAsync(IsbnsRequestDto isbns, CancellationToken cancellationToken = default);
+    Task<BooksListResponseDto?> GetBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken cancellationToken = default);
 }
