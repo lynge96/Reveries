@@ -9,7 +9,7 @@ public static class BookDisplayExtensions
     {
         var root = new Tree($"Success! Found {books.Count.Bold().AsWarning()} book{(books.Count != 1 ? "s" : "")} in the database:".AsSuccess());
         
-        if (books.Any() != true)
+        if (books.Any() == false)
         {
             root.AddNode("No books found".AsWarning());
             return root;
@@ -22,7 +22,7 @@ public static class BookDisplayExtensions
             {
                 { "Author", string.Join(", ", book.Authors) },
                 { "Pages", book.Pages?.ToString() ?? "Unknown" },
-                { "ISBN-10", book.Isbn10 },
+                { "ISBN-10", book.Isbn10 ?? "N/A"},
                 { "ISBN-13", book.Isbn13 ?? "N/A" },
                 { "Publisher", book.Publisher ?? "Unknown" },
                 { "Language", book.Language ?? "Unknown language" },

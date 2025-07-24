@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Book\" />
     <Folder Include="Features\Console\" />
   </ItemGroup>
 

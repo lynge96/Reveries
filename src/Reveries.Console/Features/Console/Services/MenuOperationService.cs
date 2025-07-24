@@ -1,5 +1,6 @@
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Features.Console.Interfaces;
+using Reveries.Console.Features.Handlers.Interfaces;
 
 namespace Reveries.Console.Features.Console.Services;
 

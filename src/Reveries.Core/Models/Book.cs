@@ -6,7 +6,7 @@ public class Book
     
     public string? Isbn13 { get; set; }
     
-    public required string Isbn10 { get; set; }
+    public string? Isbn10 { get; set; }
     
     public required string Title { get; set; }
 
