@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using DotNetEnv;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Reveries.Application.Extensions;

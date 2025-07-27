@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using DotNetEnv;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.Isbndb;
@@ -11,7 +12,20 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<IsbndbSettings>(configuration.GetSection("Isbndb"));
+        Env.Load();
+
+        var isbndbSettings = new IsbndbSettings
+        {
+            ApiKey = Environment.GetEnvironmentVariable("ISBNDB_API_KEY") ?? string.Empty,
+            ApiUrl = Environment.GetEnvironmentVariable("ISBNDB_API_URL") ?? string.Empty
+        };
+        
+        services.Configure<IsbndbSettings>(options =>
+        {
+            options.ApiKey = isbndbSettings.ApiKey;
+            options.ApiUrl = isbndbSettings.ApiUrl;
+        });
+
         services.AddIsbndbClients();
         return services;
     }
@@ -24,8 +38,14 @@ public static class ServiceCollectionExtensions
 
             if (string.IsNullOrWhiteSpace(settings.ApiKey))
             {
-                throw new InvalidOperationException("ISBNDB API-key is not configured. Please add a valid API-key in appsettings.json");
+                throw new InvalidOperationException("ISBNDB API key is not configured. Please add a valid API key in the .env file with ISBNDB_API_KEY");
             }
+
+            if (string.IsNullOrWhiteSpace(settings.ApiUrl))
+            {
+                throw new InvalidOperationException("ISBNDB API URL is not configured. Please add a valid URL in the .env file with ISBNDB_API_URL");
+            }
+
 
             client.BaseAddress = new Uri(settings.ApiUrl);
             client.DefaultRequestHeaders.Add("Authorization", settings.ApiKey);
