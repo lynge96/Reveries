@@ -3,6 +3,7 @@ using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Core.Enums;
+using Reveries.Core.Models;
 using Spectre.Console;
 
 namespace Reveries.Console.Features.Handlers;
@@ -24,18 +25,19 @@ public class SearchBookHandler : BaseHandler
         var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma or space:");
         
         var (bookResults, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(async () => 
-            {
-                if (IsIsbnFormat(searchInput))
-                {
-                    return await _bookService.GetBooksByIsbnStringAsync(searchInput, cancellationToken);
-                }
-            
-                return await _bookService.GetBooksByTitleAsync(searchInput, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
-            });
+            .RunWithStatusAsync(() => SearchBooksAsync(searchInput, cancellationToken));
 
+        var filteredBooks = bookResults.SelectLanguages();
+        
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
-        AnsiConsole.Write(bookResults.DisplayBooks());
+        AnsiConsole.Write(filteredBooks.DisplayBooks());
+    }
+
+    private Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken cancellationToken)
+    {
+        return IsIsbnFormat(searchInput)
+            ? _bookService.GetBooksByIsbnStringAsync(searchInput, cancellationToken)
+            : _bookService.GetBooksByTitleAsync(searchInput, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
     }
 
     private static bool IsIsbnFormat(string input)

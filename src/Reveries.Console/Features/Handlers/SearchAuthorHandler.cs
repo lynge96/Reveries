@@ -21,7 +21,7 @@ public class SearchAuthorHandler : BaseHandler
         var authorInput = ConsolePromptUtility.GetUserInput("Enter author name:");
 
         var (authors, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(async () => await _authorService.GetAuthorsByNameAsync(authorInput));
+            .RunWithStatusAsync(async () => await _authorService.GetAuthorsByNameAsync(authorInput, cancellationToken));
 
         if (authors.Count == 0)
         {
@@ -38,14 +38,15 @@ public class SearchAuthorHandler : BaseHandler
         var (books, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(async () => await _authorService.GetBooksForAuthorAsync(selectedAuthor));
         
-        AnsiConsole.MarkupLine($"Elapsed book search time: {bookSearchElapsedMs} ms".Italic().AsInfo());
-
         if (books.Count == 0)
         {
             AnsiConsole.MarkupLine($"No books found for author: {selectedAuthor.AsSecondary()}".AsWarning());
             return;
         }
-
-        AnsiConsole.Write(books.DisplayBooks());
+        
+        var filteredBooks = books.SelectLanguages();
+        
+        AnsiConsole.MarkupLine($"Elapsed book search time: {bookSearchElapsedMs} ms".Italic().AsInfo());
+        AnsiConsole.Write(filteredBooks.DisplayBooks());
     }
 }

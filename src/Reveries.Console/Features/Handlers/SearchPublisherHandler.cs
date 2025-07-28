@@ -1,10 +1,8 @@
-using System.Net;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
-using Reveries.Console.Features.Handlers.Interfaces;
 using Spectre.Console;
 
 namespace Reveries.Console.Features.Handlers;
@@ -24,11 +22,7 @@ public class SearchPublisherHandler : BaseHandler
         var publisherInput = ConsolePromptUtility.GetUserInput("Enter publisher name:");
         
         var (publishers, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(async () => 
-            {
-                var publishers = await _publisherService.GetPublishersByNameAsync(publisherInput);
-                return publishers;
-            });
+            .RunWithStatusAsync(() => _publisherService.GetPublishersByNameAsync(publisherInput, cancellationToken));
 
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
 
@@ -41,14 +35,15 @@ public class SearchPublisherHandler : BaseHandler
         var (books, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(async () => await _publisherService.GetBooksByPublisherAsync(selectedPublisher));
         
-        AnsiConsole.MarkupLine($"Elapsed book search time: {bookSearchElapsedMs} ms".Italic().AsInfo());
-
         if (books.Count == 0)
         {
             AnsiConsole.MarkupLine($"No books found for publisher: {selectedPublisher.AsSecondary()}".AsWarning());
             return;
         }
 
-        AnsiConsole.Write(books.DisplayBooks());
+        var filteredBooks = books.SelectLanguages();
+        
+        AnsiConsole.MarkupLine($"Elapsed book search time: {bookSearchElapsedMs} ms".Italic().AsInfo());
+        AnsiConsole.Write(filteredBooks.DisplayBooks());
     }
 }

@@ -7,7 +7,7 @@ public static class BookDisplayExtensions
 {
     public static Tree DisplayBooks(this List<Book> books)
     {
-        var root = new Tree($"Success! Found {books.Count.Bold().AsWarning()} book{(books.Count != 1 ? "s" : "")} in the database:".AsSuccess());
+        var root = new Tree($"Success! Found {books.Count.Bold().AsWarning()} book{(books.Count != 1 ? "s" : "")} in the database:".AsSuccess().Underline());
         
         if (books.Any() == false)
         {

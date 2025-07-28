@@ -43,7 +43,7 @@ public class BookService : IBookService
         
         return response.Books
             .Select(bookdto => bookdto.ToBook())
-            .Where(book => !string.IsNullOrWhiteSpace(book.Language) && !book.Language.Equals("unknown", StringComparison.InvariantCultureIgnoreCase))
+            // .Where(book => !string.IsNullOrWhiteSpace(book.Language) && !book.Language.Equals("unknown", StringComparison.InvariantCultureIgnoreCase))
             .FilterByFormat(format)
             .ToList();
     }

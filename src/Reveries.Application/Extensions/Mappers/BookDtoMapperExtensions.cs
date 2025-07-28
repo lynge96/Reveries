@@ -5,7 +5,7 @@ using System.Globalization;
 
 namespace Reveries.Application.Extensions.Mappers;
 
-public static class BookDtoExtensions
+public static class BookDtoMapperExtensions
 {
     public static Book ToBook(this BookDto bookDto)
     {
@@ -24,7 +24,7 @@ public static class BookDtoExtensions
             LanguageIso639 = bookDto.Language,
             Language = GetLanguageName(bookDto.Language),
             PublishDate = ParsePublishDate(bookDto.DatePublished),
-            Synopsis = CleanString(bookDto.Synopsis),
+            Synopsis = bookDto.Synopsis.CleanHtml(),
             ImageUrl = bookDto.ImageOriginal,
             Msrp = bookDto.Msrp,
             Binding = bookDto.Binding,
@@ -42,27 +42,6 @@ public static class BookDtoExtensions
             return null;
             
         return DateTime.TryParse(dateString, out var date) ? date : null;
-    }
-
-    private static string CleanString(string? input)
-    {
-        if (string.IsNullOrEmpty(input))
-            return string.Empty;
-
-        // Først erstat HTML line breaks med mellemrum
-        var noHtmlBreaks = Regex.Replace(input, "<br/?>", " ");
-    
-        // Fjern HTML tags
-        var noHtml = Regex.Replace(noHtmlBreaks, "<.*?>", string.Empty);
-    
-        // Erstat alle typer af linjeskift med mellemrum
-        var noLineBreaks = Regex.Replace(noHtml, @"[\r\n\t]+", " ");
-    
-        // Fjern mellemrum
-        var singleSpaces = Regex.Replace(noLineBreaks, @"\s+", " ");
-    
-        // Trim mellemrum i start og slut
-        return singleSpaces.Trim();
     }
     
     private static string GetLanguageName(string? languageIso639)

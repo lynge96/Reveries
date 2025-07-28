@@ -1,29 +1,24 @@
+using System.Text.RegularExpressions;
+
 namespace Reveries.Application.Extensions;
 
-public class PublisherNormalizer
+public partial class PublisherNormalizer
 {
-    private static readonly char[] TrimChars = { ',', ' ', ':', ';', '.' };
-    
-    public static string NormalizePublisher(string publisher)
+    private static partial class RegexPatterns
     {
-        // Konvertér til title case og trim specialtegn
-        var normalized = publisher.Trim(TrimChars);
-        
-        // Fjern parenteser og deres indhold
-        normalized = System.Text.RegularExpressions.Regex.Replace(normalized, @"\s*\([^)]*\)", "");
-        
-        // Fjern alt efter "/" da det ofte er underforlag
-        if (normalized.Contains('/'))
-        {
-            normalized = normalized.Split('/')[0].Trim();
-        }
-        
-        // Fjern præfikser som "London :"
-        normalized = System.Text.RegularExpressions.Regex.Replace(normalized, @"^[A-Za-z]+\s*:", "").Trim();
-        
-        return normalized.ToUpperInvariant();
-    }
+        [GeneratedRegex(@"\s*[@\(\[][^\)\]]*[\)\]]")]
+        public static partial Regex ParenthesesPattern();
     
+        [GeneratedRegex(@"^[A-Za-z]+\s*:")]
+        public static partial Regex PrefixPattern();
+    
+        [GeneratedRegex(@"[^A-Za-z0-9\s]")]
+        public static partial Regex SpecialCharsPattern();
+    
+        [GeneratedRegex(@"\s+")]
+        public static partial Regex MultipleSpacesPattern();
+    }
+
     public static IEnumerable<string> GetUniquePublishers(IEnumerable<string> publishers)
     {
         return publishers
@@ -31,5 +26,28 @@ public class PublisherNormalizer
             .Where(p => !string.IsNullOrWhiteSpace(p))
             .Distinct()
             .OrderBy(p => p);
+    }
+
+    private static string NormalizePublisher(string publisher)
+    {
+        // Fjern parenteser og deres indhold først
+        var normalized = RegexPatterns.ParenthesesPattern().Replace(publisher, "");
+    
+        // Fjern alt efter "/"
+        if (normalized.Contains('/'))
+        {
+            normalized = normalized.Split('/')[0];
+        }
+    
+        // Fjern præfikser som "London :"
+        normalized = RegexPatterns.PrefixPattern().Replace(normalized, "");
+    
+        // Behold kun bogstaver, tal og mellemrum
+        normalized = RegexPatterns.SpecialCharsPattern().Replace(normalized, "");
+    
+        // Fjern ekstra mellemrum
+        normalized = RegexPatterns.MultipleSpacesPattern().Replace(normalized, " ").Trim();
+    
+        return normalized.ToUpperInvariant();
     }
 }
