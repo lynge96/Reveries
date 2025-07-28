@@ -44,9 +44,11 @@ public class SearchBookHandler : BaseHandler
     {
         var parts = input.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
         
+        const int isbn10Length = 10;
+        const int isbn13Length = 13;
+        
         return parts.All(part => 
-            part.Length >= 10 && 
-            part.Length <= 13 && 
+            part.Length is >= isbn10Length and <= isbn13Length && 
             part.All(c => char.IsDigit(c) || c == '-' || c == 'X'));
     }
     
