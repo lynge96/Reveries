@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Reveries.Core.DTOs.Books;
 using Reveries.Core.Models;
+using System.Globalization;
 
 namespace Reveries.Application.Extensions.Mappers;
 
@@ -13,9 +14,13 @@ public static class BookDtoExtensions
             Isbn13 = bookDto.Isbn13,
             Isbn10 = bookDto.Isbn10,
             Title = bookDto.Title,
-            Authors = bookDto.Authors?.ToList() ?? new(),
+            Authors = bookDto.Authors?
+                .Select(authorName => new Author { Name = authorName })
+                .ToList() ?? new List<Author>(),
             Pages = bookDto.Pages,
-            Publisher = bookDto.Publisher,
+            Publisher = string.IsNullOrEmpty(bookDto.Publisher) 
+                ? null 
+                : new Publisher { Name = bookDto.Publisher },
             LanguageIso639 = bookDto.Language,
             Language = GetLanguageName(bookDto.Language),
             PublishDate = ParsePublishDate(bookDto.DatePublished),
@@ -24,8 +29,10 @@ public static class BookDtoExtensions
             Msrp = bookDto.Msrp,
             Binding = bookDto.Binding,
             // Edition = bookDto.Edition,
-            Subjects = bookDto.Subjects?.ToList() ?? new(),
-            Dimensions = bookDto.DimensionsStructured?.ConvertUnits(),
+            Subjects = bookDto.Subjects?
+                .Select(subjectName => new Subject { Name = subjectName })
+                .ToList() ?? new List<Subject>(),
+            Dimensions = bookDto.DimensionsStructured?.ToModel()
         };
     }
 
@@ -57,22 +64,31 @@ public static class BookDtoExtensions
         // Trim mellemrum i start og slut
         return singleSpaces.Trim();
     }
-
     
     private static string GetLanguageName(string? languageIso639)
     {
-        var languageNames = new Dictionary<string, string>
-        {
-            { "en", "English" },
-            { "da", "Danish" },
-        };
+        if (string.IsNullOrEmpty(languageIso639))
+            return "Unknown";
 
-        if (languageIso639 != null && languageNames.TryGetValue(languageIso639, out var languageName))
+        try
         {
-            return languageName;
+            var culture = CultureInfo.GetCultureInfo(languageIso639);
+            return culture.EnglishName.Split(' ')[0];
         }
-
-        return "Unknown";
+        catch (CultureNotFoundException)
+        {
+            try
+            {
+                var cultureWithRegion = CultureInfo.GetCultureInfo($"{languageIso639}-{languageIso639.ToUpper()}");
+                return cultureWithRegion.EnglishName.Split(' ')[0];
+            }
+            catch (CultureNotFoundException)
+            {
+                return "Unknown";
+            }
+        }
     }
+
+
 
 }

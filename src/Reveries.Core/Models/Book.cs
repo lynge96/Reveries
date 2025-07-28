@@ -10,13 +10,15 @@ public class Book
     
     public required string Title { get; set; }
 
-    public required List<string> Authors { get; init; } = new();
+    public ICollection<Author> Authors { get; set; } = new List<Author>();
     
     public int? Pages { get; set; }
     
     public bool IsRead { get; set; }
     
-    public string? Publisher { get; set; }
+    public int? PublisherId { get; set; }
+
+    public Publisher? Publisher { get; set; }
     
     public string? LanguageIso639 { get; set; }
     
@@ -34,9 +36,9 @@ public class Book
 
     public string? Edition { get; set; }
     
-    public List<string> Subjects { get; set; } = new();
+    public ICollection<Subject> Subjects { get; set; } = new List<Subject>();
     
-    public DimensionsStructured? Dimensions { get; set; }
+    public Dimensions? Dimensions { get; set; }
     
     public DateTimeOffset DateCreated  { get; set; }
     

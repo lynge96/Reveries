@@ -41,5 +41,5 @@ public class BookDto
     
     public int Pages { get; init; }
     [JsonPropertyName("dimensions_structured")]
-    public DimensionsStructured? DimensionsStructured { get; init; }
+    public DimensionsStructuredDto? DimensionsStructured { get; init; }
 }
