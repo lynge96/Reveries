@@ -25,10 +25,8 @@ public class SearchPublisherHandler : BaseHandler
             .RunWithStatusAsync(() => _publisherService.GetPublishersByNameAsync(publisherInput, cancellationToken));
 
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
-
-        var uniquePublishers = PublisherNormalizer.GetUniquePublishers(publishers);
         
-        var selectedPublisher = ConsolePromptUtility.ShowSelectionPrompt("Select a publisher to see their books:", uniquePublishers);
+        var selectedPublisher = ConsolePromptUtility.ShowSelectionPrompt("Select a publisher to see their books:", publishers);
         
         var (books, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(async () => await _publisherService.GetBooksByPublisherAsync(selectedPublisher, cancellationToken));

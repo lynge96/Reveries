@@ -31,7 +31,9 @@ public class SearchAuthorHandler : BaseHandler
 
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
         
-        var selectedAuthor = ConsolePromptUtility.ShowSelectionPrompt("Select an author to see their books:", authors);
+        var selectedAuthor = authors.Count == 1 
+            ? authors[0] 
+            : ConsolePromptUtility.ShowSelectionPrompt("Select an author to see their books:", authors);
         
         var (books, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(async () => await _authorService.GetBooksForAuthorAsync(selectedAuthor, cancellationToken));

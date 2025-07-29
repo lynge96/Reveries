@@ -15,7 +15,7 @@ public static class BookDtoMapperExtensions
             Isbn10 = bookDto.Isbn10,
             Title = bookDto.Title,
             Authors = bookDto.Authors?
-                .Select(authorName => new Author { Name = authorName })
+                .Select(authorName => new Author { NormalizedName = authorName })
                 .ToList() ?? new List<Author>(),
             Pages = bookDto.Pages,
             Publisher = string.IsNullOrEmpty(bookDto.Publisher) 

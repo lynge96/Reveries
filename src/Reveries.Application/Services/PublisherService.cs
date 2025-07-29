@@ -1,3 +1,4 @@
+using Reveries.Application.Extensions;
 using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
@@ -34,6 +35,8 @@ public class PublisherService : IPublisherService
         if (response?.Publishers == null)
             return new List<string>();
 
-        return response.Publishers.ToList();
+        var uniquePublishers = PublisherNormalizer.GetUniquePublishers(response.Publishers);
+        
+        return uniquePublishers.ToList();
     }
 }
