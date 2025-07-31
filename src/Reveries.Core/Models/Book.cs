@@ -38,7 +38,7 @@ public class Book
     
     public ICollection<Subject> Subjects { get; set; } = new List<Subject>();
     
-    public Dimensions? Dimensions { get; set; }
+    public BookDimensions? Dimensions { get; set; }
     
     public DateTimeOffset DateCreated  { get; set; }
     

@@ -5,7 +5,7 @@ namespace Reveries.Application.Extensions.Mappers;
 
 public static class DimensionsStructuredDtoExtensions
 {
-    public static Dimensions? ToModel(this DimensionsStructuredDto? dto)
+    public static BookDimensions? ToModel(this DimensionsStructuredDto? dto)
     {
         if (dto == null) return null;
 
@@ -17,16 +17,12 @@ public static class DimensionsStructuredDtoExtensions
             Weight = ConvertDimension(dto.Weight)
         };
         
-        return new Dimensions
+        return new BookDimensions
         {
-            LengthValue = convertedDimensions.Length?.Value,
-            LengthUnit = convertedDimensions.Length?.Unit,
-            WidthValue = convertedDimensions.Width?.Value,
-            WidthUnit = convertedDimensions.Width?.Unit,
-            HeightValue = convertedDimensions.Height?.Value,
-            HeightUnit = convertedDimensions.Height?.Unit,
-            WeightValue = convertedDimensions.Weight?.Value,
-            WeightUnit = convertedDimensions.Weight?.Unit
+            ThicknessCm = (decimal?)convertedDimensions.Length?.Value,
+            WidthCm = (decimal?)convertedDimensions.Width?.Value,
+            HeightCm = (decimal?)convertedDimensions.Height?.Value,
+            WeightG = (decimal?)convertedDimensions.Weight?.Value
         };
     }
     
