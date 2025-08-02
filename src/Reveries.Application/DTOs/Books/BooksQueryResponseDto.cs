@@ -1,4 +1,4 @@
-﻿namespace Reveries.Core.DTOs.Books;
+﻿namespace Reveries.Application.DTOs.Books;
 
 public class BooksQueryResponseDto
 {

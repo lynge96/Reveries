@@ -1,4 +1,4 @@
-using Reveries.Core.Models;
+using Reveries.Core.Entities;
 
 namespace Reveries.Application.Interfaces.Services;
 

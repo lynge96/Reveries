@@ -1,5 +1,5 @@
-﻿using Reveries.Core.Enums;
-using Reveries.Core.Models;
+﻿using Reveries.Core.Entities;
+using Reveries.Core.Enums;
 
 namespace Reveries.Application.Interfaces.Services;
 

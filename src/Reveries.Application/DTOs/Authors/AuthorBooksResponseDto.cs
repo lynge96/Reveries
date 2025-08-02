@@ -1,6 +1,6 @@
-﻿using Reveries.Core.DTOs.Books;
+﻿using Reveries.Application.DTOs.Books;
 
-namespace Reveries.Core.DTOs.Authors;
+namespace Reveries.Application.DTOs.Authors;
 
 public class AuthorBooksResponseDto
 {

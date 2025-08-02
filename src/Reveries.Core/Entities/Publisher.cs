@@ -1,4 +1,4 @@
-namespace Reveries.Core.Models;
+namespace Reveries.Core.Entities;
 
 public class Publisher
 {

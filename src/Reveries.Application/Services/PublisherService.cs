@@ -2,7 +2,7 @@ using Reveries.Application.Extensions;
 using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Core.Models;
+using Reveries.Core.Entities;
 
 namespace Reveries.Application.Services;
 

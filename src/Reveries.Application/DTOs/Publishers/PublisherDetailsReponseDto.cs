@@ -1,6 +1,6 @@
-﻿using Reveries.Core.DTOs.Books;
+﻿using Reveries.Application.DTOs.Books;
 
-namespace Reveries.Core.DTOs.Publishers;
+namespace Reveries.Application.DTOs.Publishers;
 
 public class PublisherDetailsReponseDto
 {

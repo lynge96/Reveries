@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
-using Reveries.Core.DTOs.Books;
-using Reveries.Core.Models;
 using System.Globalization;
+using Reveries.Application.DTOs.Books;
+using Reveries.Core.Entities;
 
 namespace Reveries.Application.Extensions.Mappers;
 

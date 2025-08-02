@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="DotNetEnv" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.6" />
   </ItemGroup>
@@ -20,6 +21,11 @@
       <Link>.env</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Persistence\ConnectionFactory\" />
+    <Folder Include="Persistence\Repositories\" />
   </ItemGroup>
 
 </Project>

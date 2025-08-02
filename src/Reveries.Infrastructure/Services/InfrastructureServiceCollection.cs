@@ -4,11 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Settings;
-using Reveries.Infrastructure.ISBNDB;
+using Reveries.Infrastructure.IsbnDb;
 
-namespace Reveries.Infrastructure.DependencyInjection;
+namespace Reveries.Infrastructure.Services;
 
-public static class ServiceCollectionExtensions
+public static class InfrastructureServiceCollection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {

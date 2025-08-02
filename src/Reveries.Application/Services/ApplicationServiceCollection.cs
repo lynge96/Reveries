@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Application.Services;
 
-namespace Reveries.Application.Extensions;
+namespace Reveries.Application.Services;
 
 public static class ServiceCollectionExtensions
 {

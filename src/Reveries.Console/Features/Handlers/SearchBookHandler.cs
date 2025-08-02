@@ -2,8 +2,8 @@ using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
+using Reveries.Core.Entities;
 using Reveries.Core.Enums;
-using Reveries.Core.Models;
 using Spectre.Console;
 
 namespace Reveries.Console.Features.Handlers;

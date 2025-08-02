@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
+using Reveries.Application.DTOs.Authors;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.DTOs.Authors;
 
-namespace Reveries.Infrastructure.ISBNDB;
+namespace Reveries.Infrastructure.IsbnDb;
 
 public class IsbndbAuthorClient : IIsbndbAuthorClient
 {

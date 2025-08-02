@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using Reveries.Application.DTOs.Publishers;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.DTOs.Publishers;
 
-namespace Reveries.Infrastructure.ISBNDB;
+namespace Reveries.Infrastructure.IsbnDb;
 
 public class IsbndbPublisherClient : IIsbndbPublisherClient
 {

@@ -1,4 +1,4 @@
-﻿namespace Reveries.Core.DTOs.Authors;
+﻿namespace Reveries.Application.DTOs.Authors;
 
 public class AuthorSearchResponseDto
 {

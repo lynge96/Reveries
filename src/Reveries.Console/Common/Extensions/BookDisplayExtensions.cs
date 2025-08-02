@@ -1,4 +1,4 @@
-using Reveries.Core.Models;
+using Reveries.Core.Entities;
 using Spectre.Console;
 
 namespace Reveries.Console.Common.Extensions;

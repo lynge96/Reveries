@@ -3,8 +3,8 @@ using Reveries.Application.Extensions;
 using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
+using Reveries.Core.Entities;
 using Reveries.Core.Enums;
-using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
 
