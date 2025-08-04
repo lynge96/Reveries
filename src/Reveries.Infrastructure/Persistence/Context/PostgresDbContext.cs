@@ -1,15 +1,16 @@
 using DotNetEnv;
 using Npgsql;
 
-namespace Reveries.Infrastructure.Persistence.ConnectionFactory;
+namespace Reveries.Infrastructure.Persistence.Context;
 
-public class PostgresConnectionFactory : IPostgresConnectionFactory, IDisposable
+public class PostgresDbContext : IPostgresDbContext
 {
     private readonly string _connectionString;
     private NpgsqlConnection? _connection;
+    private NpgsqlTransaction? _transaction;
     private bool _disposed;
-
-    public PostgresConnectionFactory()
+    
+    public PostgresDbContext()
     {
         Env.Load();
         var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
@@ -36,29 +37,36 @@ public class PostgresConnectionFactory : IPostgresConnectionFactory, IDisposable
         }.ToString();
     }
     
-    public async Task<NpgsqlConnection> CreateConnectionAsync()
+    public async Task<NpgsqlConnection> GetConnectionAsync()
     {
         if (_disposed)
         {
-            throw new ObjectDisposedException(nameof(PostgresConnectionFactory));
+            throw new ObjectDisposedException(nameof(PostgresDbContext));
         }
 
-        if (_connection == null || _connection.State == System.Data.ConnectionState.Closed)
+        if (_connection == null)
         {
             _connection = new NpgsqlConnection(_connectionString);
         }
 
+        if (_connection.State != System.Data.ConnectionState.Open)
+        {
+            await RetryConnectionAsync();
+        }
+
+        return _connection;
+    }
+    
+    private async Task RetryConnectionAsync()
+    {
         var retryCount = 0;
         const int maxRetries = 5;
-        
+
         while (retryCount < maxRetries)
         {
             try
             {
-                if (_connection.State != System.Data.ConnectionState.Open)
-                {
-                    await _connection.OpenAsync();
-                }
+                await _connection!.OpenAsync();
                 break;
             }
             catch (NpgsqlException)
@@ -66,26 +74,58 @@ public class PostgresConnectionFactory : IPostgresConnectionFactory, IDisposable
                 retryCount++;
                 if (retryCount == maxRetries)
                     throw;
-                
+
                 await Task.Delay(TimeSpan.FromSeconds(2 * retryCount));
             }
         }
-        
-        return _connection;
     }
     
-    public void Dispose()
+    public async Task<NpgsqlTransaction> BeginTransactionAsync()
+    {
+        var connection = await GetConnectionAsync();
+        _transaction = await connection.BeginTransactionAsync();
+        return _transaction;
+    }
+
+    public async Task CommitTransactionAsync()
+    {
+        if (_transaction != null)
+        {
+            await _transaction.CommitAsync();
+            await _transaction.DisposeAsync();
+            _transaction = null;
+        }
+    }
+
+    public async Task RollbackTransactionAsync()
+    {
+        if (_transaction != null)
+        {
+            await _transaction.RollbackAsync();
+            await _transaction.DisposeAsync();
+            _transaction = null;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
     {
         if (_disposed) return;
-        
-        if (_connection != null && _connection.State == System.Data.ConnectionState.Open)
+
+        if (_transaction != null)
         {
-            _connection.Close();
+            await _transaction.DisposeAsync();
         }
-        
-        _connection?.Dispose();
+
+        if (_connection != null)
+        {
+            if (_connection.State == System.Data.ConnectionState.Open)
+            {
+                await _connection.CloseAsync();
+            }
+            await _connection.DisposeAsync();
+        }
+
         _disposed = true;
         GC.SuppressFinalize(this);
     }
-    
 }

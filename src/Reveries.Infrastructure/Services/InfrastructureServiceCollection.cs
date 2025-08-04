@@ -3,8 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.Isbndb;
+using Reveries.Core.Interfaces;
 using Reveries.Core.Settings;
 using Reveries.Infrastructure.IsbnDb;
+using Reveries.Infrastructure.Persistence.Context;
+using Reveries.Infrastructure.Persistence.Repositories;
 
 namespace Reveries.Infrastructure.Services;
 
@@ -27,6 +30,11 @@ public static class InfrastructureServiceCollection
         });
 
         services.AddIsbndbClients();
+        services.AddScoped<IPostgresDbContext, PostgresDbContext>();
+        services.AddScoped<IBookRepository, BookRepository>();
+        services.AddScoped<IPublisherRepository, PublisherRepository>();
+        services.AddScoped<IAuthorRepository, AuthorRepository>();
+        
         return services;
     }
     

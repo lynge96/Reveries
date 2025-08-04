@@ -1,23 +1,32 @@
+using Dapper;
 using Reveries.Core.Entities;
 using Reveries.Core.Interfaces;
-using Reveries.Infrastructure.Persistence.ConnectionFactory;
+using Reveries.Infrastructure.Persistence.Context;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
-public class BookRepository : BaseRepository, IBookRepository
+public class BookRepository : IBookRepository
 {
-    public BookRepository(IPostgresConnectionFactory connectionFactory) : base(connectionFactory)
+    private readonly IPostgresDbContext _dbContext;
+    
+    public BookRepository(IPostgresDbContext dbContext)
     {
+        _dbContext = dbContext;
     }
 
     public async Task<Book?> GetBookByIsbnAsync(string isbn)
     {
         const string sql = """
-                           SELECT * FROM books 
-                           WHERE isbn = @Isbn
+                           SELECT *
+                           FROM books 
+                           WHERE isbn13 = @Isbn 
+                              OR isbn10 = @Isbn
+                           LIMIT 1
                            """;
-            
-        return await QuerySingleOrDefaultAsync<Book>(sql, new { Isbn = isbn });
+        
+        var connection = await _dbContext.GetConnectionAsync();
+        
+        return await connection.QuerySingleOrDefaultAsync<Book>(sql, new { Isbn = isbn });
     }
 
     public Task<int> CreateBookAsync(Book book)
