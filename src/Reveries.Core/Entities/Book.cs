@@ -45,10 +45,14 @@ public class Book
     public override string ToString()
     {
         var title = string.IsNullOrEmpty(Title) ? "Unknown Title" : Title;
-        var authors = Authors.Count == 0 ? "Unknown Author" : string.Join(", ", Authors);
-
-        return $"{title} by {authors}";
+        var authors = Authors
+            .Select(a => a.Name)
+            .DefaultIfEmpty("Unknown Author")
+            .ToList();
+        
+        return $"{title} by {string.Join(", ", authors)}";
     }
+
     
 }
 

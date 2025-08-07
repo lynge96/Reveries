@@ -34,6 +34,7 @@ public static class InfrastructureServiceCollection
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<IPublisherRepository, PublisherRepository>();
         services.AddScoped<IAuthorRepository, AuthorRepository>();
+        services.AddScoped<ISubjectRepository, SubjectRepository>();
         
         return services;
     }

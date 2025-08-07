@@ -20,7 +20,7 @@ public static class BookDisplayExtensions
             var bookNode = root.AddNode("📖 " + Markup.Escape(book.Title).Bold().AsPrimary());
             var details = new Dictionary<string, string>
             {
-                { "Author", string.Join(", ", book.Authors.Select(author => author.NormalizedName)) },
+                { "Author", string.Join(", ", book.Authors.Select(author => author.Name)) },
                 { "Pages", book.Pages?.ToString() ?? "Unknown" },
                 { "ISBN-10", book.Isbn10 ?? "N/A"},
                 { "ISBN-13", book.Isbn13 ?? "N/A" },

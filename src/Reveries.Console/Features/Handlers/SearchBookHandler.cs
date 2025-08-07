@@ -12,6 +12,7 @@ public class SearchBookHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchBook;
     private readonly IBookService _bookService;
+    private readonly IBookManagementService _bookManagementService;
 
     public SearchBookHandler(IBookService bookService)
     {
@@ -31,6 +32,22 @@ public class SearchBookHandler : BaseHandler
         
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
         AnsiConsole.Write(filteredBooks.DisplayBooks());
+
+        var booksToSave = BookSelectionUtility.SelectBooksToSave(filteredBooks);
+        
+        if (booksToSave.Any())
+        {
+            AnsiConsole.MarkupLine($"\nYou have chosen to save {booksToSave.Count} book(s)!".AsSuccess());
+            foreach (var book in booksToSave)
+            {
+                await _bookManagementService.SaveCompleteBookAsync(book, cancellationToken);
+            }
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("No books were selected to save.".AsWarning());
+        }
+
     }
 
     private Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken cancellationToken)

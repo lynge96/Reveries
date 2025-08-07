@@ -4,13 +4,15 @@ public class Author
 {
     public int Id { get; set; }
     
-    public required string NormalizedName { get; init; }
+    public string Name { get; init; }
+    
+    public string NormalizedName { get; init; }
     
     public string? FirstName { get; set; }
     
     public string? LastName { get; set; }
 
-    public ICollection<string> NameVariants { get; set; } = new List<string>();
+    public ICollection<AuthorNameVariant> NameVariants { get; set; } = new List<AuthorNameVariant>();
     
     public ICollection<Book> Books { get; set; } = new List<Book>();
 
