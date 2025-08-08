@@ -4,9 +4,9 @@ public class Author
 {
     public int Id { get; set; }
     
-    public string Name { get; init; }
+    public string? Name { get; set; }
     
-    public string NormalizedName { get; init; }
+    public required string NormalizedName { get; init; }
     
     public string? FirstName { get; set; }
     

@@ -46,13 +46,12 @@ public class Book
     {
         var title = string.IsNullOrEmpty(Title) ? "Unknown Title" : Title;
         var authors = Authors
-            .Select(a => a.Name)
+            .Select(a => string.Join(" ", new[] { a.FirstName, a.LastName }.Where(n => !string.IsNullOrEmpty(n))))
             .DefaultIfEmpty("Unknown Author")
             .ToList();
-        
+    
         return $"{title} by {string.Join(", ", authors)}";
     }
-
     
 }
 

@@ -18,13 +18,41 @@ public class BookManagementService : IBookManagementService
         _bookService = bookService;
     }
 
-    public Task<Book> SaveCompleteBookAsync(Book book, CancellationToken cancellationToken = default)
+    public async Task<Book> SaveCompleteBookAsync(Book book, CancellationToken cancellationToken = default)
     {
         // 1. Handle Authors
+        var authorNameVariantTasks = book.Authors.Select(author => 
+            EnrichAuthorWithNameVariantsAsync(author, cancellationToken));
         
-        // Sætte fornavn og efternavn og NormalizedName for forfatterne
-        // Derefter skal alle navnevarianter findes i databasen og gemmes i listen.
+        await Task.WhenAll(authorNameVariantTasks);
+        
         
         throw new NotImplementedException();
     }
+    
+    private async Task<Author> EnrichAuthorWithNameVariantsAsync(Author author, CancellationToken cancellationToken)
+    {
+        var variants = await _authorService.GetAuthorsByNameAsync(author.NormalizedName, cancellationToken);
+    
+        author.NameVariants = new List<AuthorNameVariant>
+        {
+            new AuthorNameVariant
+            {
+                NameVariant = author.NormalizedName,
+                IsPrimary = true
+            }
+        };
+    
+        foreach(var variant in variants.Where(v => v != author.NormalizedName))
+        {
+            author.NameVariants.Add(new AuthorNameVariant 
+            { 
+                NameVariant = variant,
+                IsPrimary = false
+            });
+        }
+    
+        return author;
+    }
+
 }

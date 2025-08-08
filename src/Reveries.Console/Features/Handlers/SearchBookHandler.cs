@@ -14,9 +14,10 @@ public class SearchBookHandler : BaseHandler
     private readonly IBookService _bookService;
     private readonly IBookManagementService _bookManagementService;
 
-    public SearchBookHandler(IBookService bookService)
+    public SearchBookHandler(IBookService bookService, IBookManagementService bookManagementService)
     {
         _bookService = bookService;
+        _bookManagementService = bookManagementService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
