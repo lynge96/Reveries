@@ -37,6 +37,16 @@ public class PostgresDbContext : IPostgresDbContext
         }.ToString();
     }
     
+    public bool HasActiveTransaction => _transaction != null;
+
+    private void ThrowIfDisposed()
+    {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(nameof(PostgresDbContext));
+        }
+    }
+
     public async Task<NpgsqlConnection> GetConnectionAsync()
     {
         if (_disposed)
@@ -80,30 +90,58 @@ public class PostgresDbContext : IPostgresDbContext
         }
     }
     
-    public async Task<NpgsqlTransaction> BeginTransactionAsync()
+    public async Task BeginTransactionAsync()
     {
+        ThrowIfDisposed();
+        
+        if (HasActiveTransaction)
+        {
+            throw new InvalidOperationException("Transaction already in progress");
+        }
+
         var connection = await GetConnectionAsync();
         _transaction = await connection.BeginTransactionAsync();
-        return _transaction;
     }
-
+    
     public async Task CommitTransactionAsync()
     {
-        if (_transaction != null)
+        ThrowIfDisposed();
+
+        try
         {
-            await _transaction.CommitAsync();
-            await _transaction.DisposeAsync();
-            _transaction = null;
+            if (_transaction != null)
+            {
+                await _transaction.CommitAsync();
+            }
+        }
+        finally
+        {
+            if (_transaction != null)
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
         }
     }
-
+    
     public async Task RollbackTransactionAsync()
     {
-        if (_transaction != null)
+        ThrowIfDisposed();
+
+        try
         {
-            await _transaction.RollbackAsync();
-            await _transaction.DisposeAsync();
-            _transaction = null;
+            if (_transaction != null)
+            {
+                await _transaction.RollbackAsync();
+            }
+        }
+        finally
+        {
+            if (_transaction != null)
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
         }
     }
 
@@ -128,4 +166,6 @@ public class PostgresDbContext : IPostgresDbContext
         _disposed = true;
         GC.SuppressFinalize(this);
     }
+    
+    
 }

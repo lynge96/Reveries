@@ -6,6 +6,7 @@ using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Settings;
 using Reveries.Infrastructure.IsbnDb;
+using Reveries.Infrastructure.Persistence;
 using Reveries.Infrastructure.Persistence.Context;
 using Reveries.Infrastructure.Persistence.Repositories;
 
@@ -35,6 +36,7 @@ public static class InfrastructureServiceCollection
         services.AddScoped<IPublisherRepository, PublisherRepository>();
         services.AddScoped<IAuthorRepository, AuthorRepository>();
         services.AddScoped<ISubjectRepository, SubjectRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         
         return services;
     }

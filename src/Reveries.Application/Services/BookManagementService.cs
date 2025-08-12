@@ -1,38 +1,50 @@
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Entities;
+using Reveries.Core.Interfaces;
 
 namespace Reveries.Application.Services;
 
 public class BookManagementService : IBookManagementService
 {
     private readonly IAuthorService _authorService;
-    private readonly IPublisherService _publisherService;
-    private readonly ISubjectService _subjectService;
-    private readonly IBookService _bookService;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public BookManagementService(IAuthorService authorService, IPublisherService publisherService, ISubjectService subjectService, IBookService bookService)
+    public BookManagementService(IAuthorService authorService, IUnitOfWork unitOfWork)
     {
         _authorService = authorService;
-        _publisherService = publisherService;
-        _subjectService = subjectService;
-        _bookService = bookService;
-    }
-
-    public async Task<Book> SaveCompleteBookAsync(Book book, CancellationToken cancellationToken = default)
-    {
-        // 1. Handle Authors
-        var authorNameVariantTasks = book.Authors.Select(author => 
-            EnrichAuthorWithNameVariantsAsync(author, cancellationToken));
-        
-        await Task.WhenAll(authorNameVariantTasks);
-        
-        
-        throw new NotImplementedException();
+        _unitOfWork = unitOfWork;
     }
     
-    private async Task<Author> EnrichAuthorWithNameVariantsAsync(Author author, CancellationToken cancellationToken)
+    public async Task<int> SaveCompleteBookAsync(Book book, CancellationToken cancellationToken = default)
     {
-        var variants = await _authorService.GetAuthorsByNameAsync(author.NormalizedName, cancellationToken);
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+
+            // 1. Håndter forfattere
+            var authorNameVariantTasks = book.Authors.Select(EnrichAuthorWithNameVariantsAsync);
+            await Task.WhenAll(authorNameVariantTasks);
+
+            // 2. Gem bogen
+            var savedBookId = await _unitOfWork.Books.CreateBookAsync(book);
+            
+            // TODO: Gem forfattere, subject og author
+            
+            // 3. Commit transaktionen
+            await _unitOfWork.CommitAsync();
+
+            return savedBookId;
+        }
+        catch (Exception)
+        {
+            await _unitOfWork.RollbackAsync();
+            throw;
+        }
+    }
+    
+    private async Task<Author> EnrichAuthorWithNameVariantsAsync(Author author)
+    {
+        var variants = await _authorService.GetAuthorsByNameAsync(author.NormalizedName);
     
         author.NameVariants = new List<AuthorNameVariant>
         {

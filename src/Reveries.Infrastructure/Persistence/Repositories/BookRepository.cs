@@ -29,8 +29,41 @@ public class BookRepository : IBookRepository
         return await connection.QuerySingleOrDefaultAsync<Book>(sql, new { Isbn = isbn });
     }
 
-    public Task<int> CreateBookAsync(Book book)
+    public async Task<int> CreateBookAsync(Book book)
     {
-        throw new NotImplementedException();
+        const string insertBookSql = """
+                                     INSERT INTO books (
+                                         isbn13, isbn10, title, page_count, is_read, publisher_id,
+                                         language_iso639, language, publication_date, synopsis,
+                                         image_url, msrp, binding, edition, date_created
+                                     ) VALUES (
+                                         @Isbn13, @Isbn10, @Title, @Pages, @IsRead, @PublisherId,
+                                         @LanguageIso639, @Language, @PublishDate, @Synopsis,
+                                         @ImageUrl, @Msrp, @Binding, @Edition, @DateCreated
+                                     )
+                                     RETURNING id;
+                                     """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+    
+        return await connection.QuerySingleAsync<int>(insertBookSql, new
+        {
+            book.Isbn13,
+            book.Isbn10,
+            book.Title,
+            book.Pages,
+            book.IsRead,
+            book.PublisherId,
+            book.LanguageIso639,
+            book.Language,
+            book.PublishDate,
+            book.Synopsis,
+            book.ImageUrl,
+            book.Msrp,
+            book.Binding,
+            book.Edition,
+            DateCreated = DateTimeOffset.UtcNow
+        });
+
     }
 }

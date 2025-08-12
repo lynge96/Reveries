@@ -1,11 +1,9 @@
 using Npgsql;
+using Reveries.Core.Interfaces;
 
 namespace Reveries.Infrastructure.Persistence.Context;
 
-public interface IPostgresDbContext : IAsyncDisposable
+public interface IPostgresDbContext : IDbContext
 {
     Task<NpgsqlConnection> GetConnectionAsync();
-    Task<NpgsqlTransaction> BeginTransactionAsync();
-    Task CommitTransactionAsync();
-    Task RollbackTransactionAsync();
 }
