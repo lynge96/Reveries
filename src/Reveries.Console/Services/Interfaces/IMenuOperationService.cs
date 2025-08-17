@@ -1,6 +1,6 @@
 using Reveries.Console.Common.Models.Menu;
 
-namespace Reveries.Console.Features.Console.Interfaces;
+namespace Reveries.Console.Services.Interfaces;
 
 /// <summary>
 /// Defines operations for handling menu choices in the application.

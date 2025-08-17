@@ -1,6 +1,6 @@
 using Reveries.Console.Common.Models.Menu;
 
-namespace Reveries.Console.Features.Handlers.Interfaces;
+namespace Reveries.Console.Handlers.Interfaces;
 
 public interface IMenuHandler
 {

@@ -1,7 +1,8 @@
 using Npgsql;
 using Reveries.Core.Interfaces;
+using Reveries.Core.Interfaces.Persistence;
 
-namespace Reveries.Infrastructure.Persistence.Context;
+namespace Reveries.Infrastructure.Interfaces.Persistence;
 
 public interface IPostgresDbContext : IDbContext
 {

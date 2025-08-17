@@ -19,4 +19,18 @@ public static class ConsoleStatusExtensions
             });
     }
 
+    public static async Task<long> RunWithStatusAsync(this IAnsiConsole console, Func<Task> action, string spinnerStyle = ConsoleThemeExtensions.Secondary)
+    {
+        return await console.Status()
+            .StartAsync<long>("Searching".AsPrimary(), async ctx =>
+            {
+                ctx.Spinner(Spinner.Known.Default);
+                ctx.SpinnerStyle(spinnerStyle);
+
+                var timer = System.Diagnostics.Stopwatch.StartNew();
+                await action();
+            
+                return timer.ElapsedMilliseconds;
+            });
+    }
 }

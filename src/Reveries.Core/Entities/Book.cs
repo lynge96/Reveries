@@ -16,8 +16,6 @@ public class Book
     
     public bool IsRead { get; set; }
     
-    public int? PublisherId { get; set; }
-
     public Publisher? Publisher { get; set; }
     
     public string? LanguageIso639 { get; set; }

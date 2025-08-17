@@ -1,6 +1,6 @@
 using Reveries.Core.Entities;
 
-namespace Reveries.Core.Interfaces;
+namespace Reveries.Core.Interfaces.Repositories;
 
 public interface IPublisherRepository
 {

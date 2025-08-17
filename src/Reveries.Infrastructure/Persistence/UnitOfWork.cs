@@ -1,4 +1,7 @@
 using Reveries.Core.Interfaces;
+using Reveries.Core.Interfaces.Persistence;
+using Reveries.Core.Interfaces.Repositories;
+using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.Context;
 
 namespace Reveries.Infrastructure.Persistence;
@@ -11,14 +14,28 @@ public class UnitOfWork : IUnitOfWork
     public IAuthorRepository Authors { get; }
     public IPublisherRepository Publishers { get; }
     public ISubjectRepository Subjects { get; }
+    public IBookAuthorsRepository BookAuthorses { get; }
+    public IBookSubjectsRepository BookSubjectses { get; }
     
-    public UnitOfWork(IPostgresDbContext dbContext, IBookRepository bookRepository, IAuthorRepository authorRepository, IPublisherRepository publisherRepository, ISubjectRepository subjectRepository)
+    public IBookDimensionsRepository BookDimensions { get; }
+
+    public UnitOfWork(IPostgresDbContext dbContext,
+        IBookRepository bookRepository, 
+        IAuthorRepository authorRepository, 
+        IPublisherRepository publisherRepository, 
+        ISubjectRepository subjectRepository,
+        IBookAuthorsRepository bookAuthors,
+        IBookSubjectsRepository bookSubjects,
+        IBookDimensionsRepository bookDimensions)
     {
         _dbContext = dbContext;
         Books = bookRepository;
         Authors = authorRepository;
         Publishers = publisherRepository;
         Subjects = subjectRepository;
+        BookAuthorses = bookAuthors;
+        BookSubjectses = bookSubjects;
+        BookDimensions = bookDimensions;
     }
     
     public async Task BeginTransactionAsync()

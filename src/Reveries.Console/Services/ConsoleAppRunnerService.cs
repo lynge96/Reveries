@@ -1,17 +1,17 @@
 ﻿using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
-using Reveries.Console.Features.Console.Interfaces;
+using Reveries.Console.Services.Interfaces;
 using Spectre.Console;
 
-namespace Reveries.Console.Features.Console.Services;
+namespace Reveries.Console.Services;
 
-public class ConsoleAppRunner : IConsoleAppRunner
+public class ConsoleAppRunnerService : IConsoleAppRunnerService
 {
     private readonly IMenuOperationService _menuOperationService;
     private bool _isRunning = true;
     
-    public ConsoleAppRunner(IMenuOperationService menuOperationService)
+    public ConsoleAppRunnerService(IMenuOperationService menuOperationService)
     {
         _menuOperationService = menuOperationService;
     }

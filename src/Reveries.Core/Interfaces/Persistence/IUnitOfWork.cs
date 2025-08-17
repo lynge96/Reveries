@@ -1,4 +1,6 @@
-namespace Reveries.Core.Interfaces;
+using Reveries.Core.Interfaces.Repositories;
+
+namespace Reveries.Core.Interfaces.Persistence;
 
 public interface IUnitOfWork
 {
@@ -10,6 +12,12 @@ public interface IUnitOfWork
     
     ISubjectRepository Subjects { get; }
     
+    IBookAuthorsRepository BookAuthorses { get; }
+    
+    IBookSubjectsRepository BookSubjectses { get; }
+
+    IBookDimensionsRepository BookDimensions { get; }
+
     Task BeginTransactionAsync();
     
     Task CommitAsync();

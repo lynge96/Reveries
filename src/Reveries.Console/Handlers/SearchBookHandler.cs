@@ -2,53 +2,51 @@ using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
+using Reveries.Console.Services.Interfaces;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
+using Reveries.Infrastructure.Persistence;
 using Spectre.Console;
 
-namespace Reveries.Console.Features.Handlers;
+namespace Reveries.Console.Handlers;
 
 public class SearchBookHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchBook;
     private readonly IBookService _bookService;
-    private readonly IBookManagementService _bookManagementService;
+    private readonly IBookSaveService _bookSaveService;
+    private readonly IBookSelectionService _bookSelectionService;
+    private readonly IBookDisplayService _bookDisplayService;
 
-    public SearchBookHandler(IBookService bookService, IBookManagementService bookManagementService)
+    public SearchBookHandler(IBookService bookService, IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
     {
         _bookService = bookService;
-        _bookManagementService = bookManagementService;
+        _bookSaveService = bookSaveService;
+        _bookSelectionService = bookSelectionService;
+        _bookDisplayService = bookDisplayService;
     }
+
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         // 9780804139021 9780593099322
         // 9788799338238
         var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma or space:");
-        
-        var (bookResults, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
+
+        var (bookResults, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(() => SearchBooksAsync(searchInput, cancellationToken));
 
-        var filteredBooks = bookResults.SelectLanguages();
+        var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
         
-        AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
-        AnsiConsole.Write(filteredBooks.DisplayBooks());
+        AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
+        AnsiConsole.Write(_bookDisplayService.DisplayBooks(filteredBooks));
 
-        var booksToSave = BookSelectionUtility.SelectBooksToSave(filteredBooks);
+        var booksToSave = _bookSelectionService.SelectBooksToSave(filteredBooks);
         
-        if (booksToSave.Any())
-        {
-            AnsiConsole.MarkupLine($"\nYou have chosen to save {booksToSave.Count} book(s)!".AsSuccess());
-            foreach (var book in booksToSave)
-            {
-                await _bookManagementService.SaveCompleteBookAsync(book, cancellationToken);
-            }
-        }
-        else
-        {
-            AnsiConsole.MarkupLine("No books were selected to save.".AsWarning());
-        }
-
+        var elapsedSaveMs = await AnsiConsole.Create(new AnsiConsoleSettings())
+            .RunWithStatusAsync(() => _bookSaveService.SaveBooksAsync(booksToSave, cancellationToken));
+        
+        AnsiConsole.MarkupLine($"\nTotal save time: {elapsedSaveMs} ms".Italic().AsInfo());
     }
 
     private Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken cancellationToken)

@@ -1,10 +1,10 @@
 using System.Net;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
-using Reveries.Console.Features.Handlers.Interfaces;
+using Reveries.Console.Handlers.Interfaces;
 using Spectre.Console;
 
-namespace Reveries.Console.Features.Handlers;
+namespace Reveries.Console.Handlers;
 
 public abstract class BaseHandler : IMenuHandler
 {

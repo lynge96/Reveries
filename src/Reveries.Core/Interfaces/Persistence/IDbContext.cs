@@ -1,4 +1,4 @@
-namespace Reveries.Core.Interfaces;
+namespace Reveries.Core.Interfaces.Persistence;
 
 public interface IDbContext : IAsyncDisposable
 {

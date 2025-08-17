@@ -1,5 +1,6 @@
 using DotNetEnv;
 using Npgsql;
+using Reveries.Infrastructure.Interfaces.Persistence;
 
 namespace Reveries.Infrastructure.Persistence.Context;
 

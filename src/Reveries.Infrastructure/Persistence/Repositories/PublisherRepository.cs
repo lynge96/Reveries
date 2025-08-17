@@ -1,6 +1,8 @@
 using Dapper;
 using Reveries.Core.Entities;
 using Reveries.Core.Interfaces;
+using Reveries.Core.Interfaces.Repositories;
+using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.Context;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
@@ -21,15 +23,20 @@ public class PublisherRepository : IPublisherRepository
                            VALUES (@Name, @DateCreated)
                            RETURNING id
                            """;
-            
-        var connection = await _dbContext.GetConnectionAsync();
         
-        return await connection.QuerySingleAsync<int>(sql, 
+        var connection = await _dbContext.GetConnectionAsync();
+    
+        var publisherId = await connection.QuerySingleAsync<int>(sql, 
             new { 
                 publisher.Name, 
                 DateCreated = DateTimeOffset.UtcNow 
             });
+
+        publisher.Id = publisherId;
+    
+        return publisherId;
     }
+
 
     public async Task<Publisher?> GetPublisherByNameAsync(string name)
     {
