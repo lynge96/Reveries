@@ -20,7 +20,6 @@ public static class BookDtoMapperExtensions
                     var (firstName, lastName, normalizedName) = AuthorNameNormalizer.NormalizeAuthorName(authorName);
                     return new Author
                     {
-                        Name = authorName,
                         FirstName = firstName,
                         LastName = lastName,
                         NormalizedName = normalizedName

@@ -23,7 +23,7 @@ public class BookSubjectsRepository : IBookSubjectsRepository
     
         var connection = await _dbContext.GetConnectionAsync();
         await connection.ExecuteAsync(sql, 
-            subjects.Select(s => new { BookId = bookId, SubjectId = s.Id }));
+            subjects.Select(s => new { BookId = bookId, SubjectId = s.SubjectId }));
     }
 
 }

@@ -5,7 +5,6 @@ using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services.Interfaces;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
-using Reveries.Infrastructure.Persistence;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;
@@ -25,8 +24,7 @@ public class SearchBookHandler : BaseHandler
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
     }
-
-
+    
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         // 9780804139021 9780593099322
@@ -43,10 +41,8 @@ public class SearchBookHandler : BaseHandler
 
         var booksToSave = _bookSelectionService.SelectBooksToSave(filteredBooks);
         
-        var elapsedSaveMs = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(() => _bookSaveService.SaveBooksAsync(booksToSave, cancellationToken));
-        
-        AnsiConsole.MarkupLine($"\nTotal save time: {elapsedSaveMs} ms".Italic().AsInfo());
+        await _bookSaveService.SaveBooksAsync(booksToSave, cancellationToken);
+
     }
 
     private Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken cancellationToken)

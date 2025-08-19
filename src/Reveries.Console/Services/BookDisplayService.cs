@@ -1,3 +1,4 @@
+using System.Globalization;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Services.Interfaces;
 using Reveries.Core.Entities;
@@ -30,7 +31,7 @@ public class BookDisplayService : IBookDisplayService
     {
         var details = new Dictionary<string, string>
         {
-            { "Author", string.Join(", ", book.Authors.Select(author => author.Name)) },
+            { "Author", string.Join(", ", book.Authors.Select(author => CultureInfo.CurrentCulture.TextInfo.ToTitleCase(author.NormalizedName))) },
             { "Pages", book.Pages?.ToString() ?? "Unknown" },
             { "ISBN-10", book.Isbn10 ?? "N/A"},
             { "ISBN-13", book.Isbn13 ?? "N/A" },

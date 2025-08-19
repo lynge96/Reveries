@@ -14,5 +14,4 @@ public class BookDimensions
     
     public DateTimeOffset DateCreated { get; set; }
     
-    public Book Book { get; set; } = null!;
 }

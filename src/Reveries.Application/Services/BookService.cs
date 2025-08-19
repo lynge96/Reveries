@@ -5,22 +5,29 @@ using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
+using Reveries.Core.Interfaces.Persistence;
 
 namespace Reveries.Application.Services;
 
 public class BookService : IBookService
 {
     private readonly IIsbndbBookClient _bookClient;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public BookService(IIsbndbBookClient bookClient)
+    public BookService(IIsbndbBookClient bookClient, IUnitOfWork unitOfWork)
     {
         _bookClient = bookClient;
+        _unitOfWork = unitOfWork;
     }
     
     public async Task<List<Book>> GetBooksByIsbnStringAsync(string isbnString, CancellationToken cancellationToken = default)
     {
         var isbns = isbnString.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries).ToList();
 
+        var bookInDb = await _unitOfWork.Books.GetBooksWithDetailsByIsbnAsync(isbns);
+        if (bookInDb.Count > 0)
+            return bookInDb;
+        
         if (isbns.Count == 1)
         {
             var book = await GetBookByIsbnAsync(isbns[0], cancellationToken);
@@ -43,7 +50,6 @@ public class BookService : IBookService
         
         return response.Books
             .Select(bookdto => bookdto.ToBook())
-            // .Where(book => !string.IsNullOrWhiteSpace(book.Language) && !book.Language.Equals("unknown", StringComparison.InvariantCultureIgnoreCase))
             .FilterByFormat(format)
             .ToList();
     }

@@ -11,4 +11,6 @@ public class AuthorNameVariant
     public bool IsPrimary { get; set; }
     
     public Author Author { get; set; }
+    
+    public DateTimeOffset DateCreated { get; set; }
 }

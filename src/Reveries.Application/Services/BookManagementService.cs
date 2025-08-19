@@ -68,13 +68,13 @@ public class BookManagementService : IBookManagementService
         
             if (existingAuthor != null)
             {
-                author.Id = existingAuthor.Id;
+                author.AuthorId = existingAuthor.AuthorId;
             }
             else
             {
                 await EnrichAuthorWithNameVariantsAsync(author);
                 
-                author.Id = await _unitOfWork.Authors.CreateAuthorAsync(author);
+                author.AuthorId = await _unitOfWork.Authors.CreateAuthorAsync(author);
             }
         }
     }
@@ -109,11 +109,11 @@ public class BookManagementService : IBookManagementService
             var existingPublisher = await _unitOfWork.Publishers.GetPublisherByNameAsync(book.Publisher.Name);
             if (existingPublisher == null)
             {
-                book.Publisher.Id = await _unitOfWork.Publishers.CreatePublisherAsync(book.Publisher);
+                book.Publisher.PublisherId = await _unitOfWork.Publishers.CreatePublisherAsync(book.Publisher);
             }
             else
             {
-                book.Publisher.Id = existingPublisher.Id;
+                book.Publisher.PublisherId = existingPublisher.PublisherId;
             }
         }
     }
@@ -125,11 +125,11 @@ public class BookManagementService : IBookManagementService
             var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Name);
             if (existingSubject == null)
             {
-                subject.Id = await _unitOfWork.Subjects.CreateSubjectAsync(subject);
+                subject.SubjectId = await _unitOfWork.Subjects.CreateSubjectAsync(subject);
             }
             else
             {
-                subject.Id = existingSubject.Id;
+                subject.SubjectId = existingSubject.SubjectId;
             }
         }
     }

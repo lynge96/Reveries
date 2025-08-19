@@ -1,9 +1,7 @@
 using Dapper;
 using Reveries.Core.Entities;
-using Reveries.Core.Interfaces;
 using Reveries.Core.Interfaces.Repositories;
 using Reveries.Infrastructure.Interfaces.Persistence;
-using Reveries.Infrastructure.Persistence.Context;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
@@ -14,6 +12,55 @@ public class BookRepository : IBookRepository
     public BookRepository(IPostgresDbContext dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public async Task<List<Book>> GetBooksWithDetailsByIsbnAsync(IEnumerable<string> isbns)
+    {
+        const string sql = """
+                           SELECT b.id AS Id, title, isbn13, isbn10, publisher_id, publication_date AS publishDate, page_count AS pages, synopsis, language, language_iso639 AS languageIso639, edition, binding, image_url AS imageUrl, msrp, is_read AS isRead, b.date_created AS dateCreated,
+                                  p.id AS publisherId, p.name, p.date_created AS dateCreated,
+                                  a.id AS authorId, normalized_name AS normalizedName, first_name as firstName, last_name AS lastName, a.date_created AS dateCreated,
+                                  s.id AS subjectId, s.name, s.date_created AS dateCreated,
+                                  bd.book_id AS bookId, height_cm AS heightCm, width_cm AS widthCm, thickness_cm AS thicknessCm, weight_g AS weightG, bd.date_created AS dateCreated
+                           FROM books b
+                               LEFT JOIN publishers p ON b.publisher_id = p.id
+                               LEFT JOIN books_authors ba ON b.id = ba.book_id
+                               LEFT JOIN authors a ON ba.author_id = a.id
+                               LEFT JOIN books_subjects bs ON b.id = bs.book_id
+                               LEFT JOIN subjects s ON bs.subject_id = s.id
+                               LEFT JOIN book_dimensions bd ON b.id = bd.book_id
+                           WHERE b.isbn13 = ANY(@Isbns)
+                              OR b.isbn10 = ANY(@Isbns)
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+        
+        var bookDictionary = new Dictionary<int, Book>();
+        
+        await connection.QueryAsync<Book, Publisher, Author, Subject, BookDimensions, Book>(
+            sql,
+            (book, publisher, author, subject, dimensions) =>
+            {
+                if (!bookDictionary.TryGetValue(book.Id ?? 0, out var bookEntry))
+                {
+                    bookEntry = book;
+                    bookEntry.Publisher = publisher;
+                    bookEntry.Dimensions = dimensions;
+                    bookDictionary.Add(book.Id ?? 0, bookEntry);
+                }
+
+                if (bookEntry.Authors.All(a => a.AuthorId != author.AuthorId))
+                    bookEntry.Authors.Add(author);
+                
+                if (bookEntry.Subjects.All(s => s.SubjectId != subject.SubjectId))
+                    bookEntry.Subjects.Add(subject);
+
+                return bookEntry;
+            },
+            new { Isbns = isbns.ToList() },
+            splitOn: "publisherId,authorId,subjectId,bookId");
+
+        return bookDictionary.Values.ToList();
     }
 
     public async Task<Book?> GetBookByIsbnAsync(string? isbn13, string? isbn10 = null)
@@ -56,7 +103,7 @@ public class BookRepository : IBookRepository
             book.Title,
             book.Pages,
             book.IsRead,
-            PublisherId = book.Publisher?.Id,
+            book.Publisher?.PublisherId,
             book.LanguageIso639,
             book.Language,
             book.PublishDate,

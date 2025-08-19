@@ -2,9 +2,9 @@ namespace Reveries.Core.Entities;
 
 public class Subject
 {
-    public int Id { get; set; }
+    public int SubjectId { get; set; }
     
     public required string Name { get; set; }
     
-    public ICollection<Book> Books { get; set; } = new List<Book>();
+    public DateTimeOffset DateCreated { get; set; }
 }
