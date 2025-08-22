@@ -39,6 +39,9 @@ public class BookManagementService : IBookManagementService
             if (book.Dimensions != null)
                 await SaveBookDimensionsAsync(savedBookId, book.Dimensions);
             
+            if (book.DeweyDecimals.Count != 0)
+                await SaveDeweyDecimalsAsync(savedBookId, book.DeweyDecimals);
+            
             await _unitOfWork.CommitAsync();
 
             return savedBookId;
@@ -122,7 +125,7 @@ public class BookManagementService : IBookManagementService
     {
         foreach (var subject in book.Subjects)
         {
-            var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Name);
+            var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Genre);
             if (existingSubject == null)
             {
                 subject.SubjectId = await _unitOfWork.Subjects.CreateSubjectAsync(subject);
@@ -136,12 +139,12 @@ public class BookManagementService : IBookManagementService
     
     private async Task SaveBookAuthorsAsync(int bookId, IEnumerable<Author> authors)
     {
-        await _unitOfWork.BookAuthorses.SaveBookAuthorsAsync(bookId, authors);
+        await _unitOfWork.BookAuthors.SaveBookAuthorsAsync(bookId, authors);
     }
     
     private async Task SaveBookSubjectsAsync(int bookId, IEnumerable<Subject> subjects)
     {
-        await _unitOfWork.BookSubjectses.SaveBookSubjectsAsync(bookId, subjects);
+        await _unitOfWork.BookSubjects.SaveBookSubjectsAsync(bookId, subjects);
     }
     
     private async Task SaveBookDimensionsAsync(int bookId, BookDimensions? dimensions)
@@ -152,4 +155,12 @@ public class BookManagementService : IBookManagementService
         }
     }
 
+    private async Task SaveDeweyDecimalsAsync(int bookId, IEnumerable<DeweyDecimal>? deweyDecimals)
+    {
+        var decimalsList = deweyDecimals?.ToList();
+        if (decimalsList == null || decimalsList.Count == 0)
+            return;
+
+        await _unitOfWork.DeweyDecimals.SaveDeweyDecimalsAsync(bookId, decimalsList);
+    }
 }

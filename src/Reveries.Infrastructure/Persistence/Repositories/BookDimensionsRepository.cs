@@ -18,9 +18,9 @@ public class BookDimensionsRepository : IBookDimensionsRepository
     {
         const string sql = """
                            INSERT INTO book_dimensions (
-                               book_id, height_cm, width_cm, thickness_cm, weight_g, date_created
+                               book_id, height_cm, width_cm, thickness_cm, weight_g
                            ) VALUES (
-                               @BookId, @HeightCm, @WidthCm, @ThicknessCm, @WeightG, @DateCreated
+                               @BookId, @HeightCm, @WidthCm, @ThicknessCm, @WeightG
                            )
                            """;
         
@@ -31,8 +31,7 @@ public class BookDimensionsRepository : IBookDimensionsRepository
             dimensions.HeightCm,
             dimensions.WidthCm,
             dimensions.ThicknessCm,
-            dimensions.WeightG,
-            DateCreated = DateTimeOffset.UtcNow
+            dimensions.WeightG
         });
     }
 }

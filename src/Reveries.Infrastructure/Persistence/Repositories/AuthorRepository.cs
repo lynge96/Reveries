@@ -87,5 +87,28 @@ public class AuthorRepository : IAuthorRepository
         
         return await connection.QuerySingleOrDefaultAsync<Author>(sql, new { Name = name });
     }
-    
+
+    public async Task<List<Author>> GetAuthorsByNameAsync(string name)
+    {
+        const string sql = """
+                           SELECT a.id as author_id,
+                                  a.normalized_name,
+                                  a.first_name,
+                                  a.last_name,
+                                  a.date_created as datecreatedauthor
+                           FROM authors a
+                           WHERE a.first_name ILIKE @Pattern
+                              OR a.last_name  ILIKE @Pattern
+                              OR a.normalized_name ILIKE @Pattern
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+
+        var authors = await connection.QueryAsync<Author>(
+            sql,
+            new { Pattern = $"%{name}%" });
+
+        return authors.ToList();
+    }
+
 }

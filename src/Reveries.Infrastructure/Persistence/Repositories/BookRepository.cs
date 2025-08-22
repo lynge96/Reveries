@@ -1,5 +1,7 @@
 using Dapper;
 using Reveries.Core.Entities;
+using Reveries.Core.Enums;
+using Reveries.Core.Extensions;
 using Reveries.Core.Interfaces.Repositories;
 using Reveries.Infrastructure.Interfaces.Persistence;
 
@@ -14,53 +16,74 @@ public class BookRepository : IBookRepository
         _dbContext = dbContext;
     }
 
+    public async Task<List<Book>> GetBooksByAuthorAsync(string authorName)
+    {
+        if (string.IsNullOrWhiteSpace(authorName))
+            return new List<Book>();
+        
+        return await GetBooksByAuthorsAsync(new List<string> { authorName });
+    }
+    
+    public async Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<string> authorNames)
+    {
+        const string sql = """
+                           SELECT *
+                           FROM book_details
+                           WHERE normalizedName ILIKE ANY(@Patterns)
+                              OR firstName ILIKE ANY(@Patterns)
+                              OR lastName ILIKE ANY(@Patterns)
+                           """;
+
+        var patterns = authorNames
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .Select(n => $"%{n.Trim()}%")
+            .ToList();
+
+        return await QueryBooksAsync(sql, new { Patterns = patterns });
+    }
+
+    public async Task<List<Book>> GetBooksByPublisherAsync(string publisherName)
+    {
+        const string sql = """
+                           SELECT *
+                           FROM book_details
+                           WHERE name ILIKE @Pattern
+                           """;
+
+        var pattern = $"%{publisherName.Trim()}%";
+
+        return await QueryBooksAsync(sql, new { Pattern = pattern });
+    }
+
+    public async Task<List<Book>> GetBooksWithDetailsByTitlesAsync(List<string>? bookTitles)
+    {
+        if (bookTitles == null || !bookTitles.Any())
+            return new List<Book>();
+
+        const string sql = """
+                           SELECT *
+                           FROM book_details
+                           WHERE title ILIKE ANY(@Patterns)
+                           """;
+
+        var patterns = bookTitles
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Select(t => $"%{t.Trim()}%")
+            .ToList();
+
+        return await QueryBooksAsync(sql, new { Patterns = patterns });
+    }
+    
     public async Task<List<Book>> GetBooksWithDetailsByIsbnAsync(IEnumerable<string> isbns)
     {
         const string sql = """
-                           SELECT b.id AS Id, title, isbn13, isbn10, publisher_id, publication_date AS publishDate, page_count AS pages, synopsis, language, language_iso639 AS languageIso639, edition, binding, image_url AS imageUrl, msrp, is_read AS isRead, b.date_created AS dateCreated,
-                                  p.id AS publisherId, p.name, p.date_created AS dateCreated,
-                                  a.id AS authorId, normalized_name AS normalizedName, first_name as firstName, last_name AS lastName, a.date_created AS dateCreated,
-                                  s.id AS subjectId, s.name, s.date_created AS dateCreated,
-                                  bd.book_id AS bookId, height_cm AS heightCm, width_cm AS widthCm, thickness_cm AS thicknessCm, weight_g AS weightG, bd.date_created AS dateCreated
-                           FROM books b
-                               LEFT JOIN publishers p ON b.publisher_id = p.id
-                               LEFT JOIN books_authors ba ON b.id = ba.book_id
-                               LEFT JOIN authors a ON ba.author_id = a.id
-                               LEFT JOIN books_subjects bs ON b.id = bs.book_id
-                               LEFT JOIN subjects s ON bs.subject_id = s.id
-                               LEFT JOIN book_dimensions bd ON b.id = bd.book_id
-                           WHERE b.isbn13 = ANY(@Isbns)
-                              OR b.isbn10 = ANY(@Isbns)
+                           SELECT *
+                           FROM book_details
+                           WHERE isbn13 = ANY(@Isbns)
+                              OR isbn10 = ANY(@Isbns)
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync();
-        
-        var bookDictionary = new Dictionary<int, Book>();
-        
-        await connection.QueryAsync<Book, Publisher, Author, Subject, BookDimensions, Book>(
-            sql,
-            (book, publisher, author, subject, dimensions) =>
-            {
-                if (!bookDictionary.TryGetValue(book.Id ?? 0, out var bookEntry))
-                {
-                    bookEntry = book;
-                    bookEntry.Publisher = publisher;
-                    bookEntry.Dimensions = dimensions;
-                    bookDictionary.Add(book.Id ?? 0, bookEntry);
-                }
-
-                if (bookEntry.Authors.All(a => a.AuthorId != author.AuthorId))
-                    bookEntry.Authors.Add(author);
-                
-                if (bookEntry.Subjects.All(s => s.SubjectId != subject.SubjectId))
-                    bookEntry.Subjects.Add(subject);
-
-                return bookEntry;
-            },
-            new { Isbns = isbns.ToList() },
-            splitOn: "publisherId,authorId,subjectId,bookId");
-
-        return bookDictionary.Values.ToList();
+        return await QueryBooksAsync(sql, new { Isbns = isbns.ToList() });
     }
 
     public async Task<Book?> GetBookByIsbnAsync(string? isbn13, string? isbn10 = null)
@@ -85,11 +108,11 @@ public class BookRepository : IBookRepository
                                      INSERT INTO books (
                                          isbn13, isbn10, title, page_count, is_read, publisher_id,
                                          language_iso639, language, publication_date, synopsis,
-                                         image_url, msrp, binding, edition, date_created
+                                         image_url, msrp, binding, edition, date_created, image_thumbnail
                                      ) VALUES (
                                          @Isbn13, @Isbn10, @Title, @Pages, @IsRead, @PublisherId,
                                          @LanguageIso639, @Language, @PublishDate, @Synopsis,
-                                         @ImageUrl, @Msrp, @Binding, @Edition, @DateCreated
+                                         @ImageUrl, @Msrp, @Binding, @Edition, @DateCreated, @ImageThumbnail
                                      )
                                      RETURNING id;
                                      """;
@@ -112,10 +135,45 @@ public class BookRepository : IBookRepository
             book.Msrp,
             book.Binding,
             book.Edition,
-            DateCreated = DateTimeOffset.UtcNow
+            DateCreated = DateTimeOffset.UtcNow,
+            book.ImageThumbnail
         });
         
         book.Id = bookId;
         return bookId;
+    }
+    
+    private async Task<List<Book>> QueryBooksAsync(string sql, object parameters)
+    {
+        var connection = await _dbContext.GetConnectionAsync();
+        var bookDictionary = new Dictionary<int, Book>();
+
+        await connection.QueryAsync<Book, Publisher, Author, Subject, BookDimensions, DeweyDecimal, Book>(
+            sql,
+            (book, publisher, author, subject, dimensions, deweyDecimal) =>
+            {
+                if (!bookDictionary.TryGetValue(book.Id ?? 0, out var bookEntry))
+                {
+                    bookEntry = book.WithDataSource(DataSource.Database);
+                    bookEntry.Publisher = publisher;
+                    bookEntry.Dimensions = dimensions;
+                    bookDictionary.Add(book.Id ?? 0, bookEntry);
+                }
+
+                if (bookEntry.Authors.All(a => a.AuthorId != author.AuthorId))
+                    bookEntry.Authors.Add(author);
+
+                if (bookEntry.Subjects.All(s => s.SubjectId != subject.SubjectId))
+                    bookEntry.Subjects.Add(subject);
+
+                if (bookEntry.DeweyDecimals.All(dd => dd.Code != deweyDecimal.Code))
+                    bookEntry.DeweyDecimals.Add(deweyDecimal);
+                
+                return bookEntry;
+            },
+            parameters,
+            splitOn: "publisherid,authorid,subjectid,heightcm,code");
+
+        return bookDictionary.Values.ToList();
     }
 }

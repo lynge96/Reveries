@@ -2,6 +2,7 @@
 using System.Globalization;
 using Reveries.Application.DTOs.Books;
 using Reveries.Core.Entities;
+using Reveries.Core.Enums;
 
 namespace Reveries.Application.Extensions.Mappers;
 
@@ -34,14 +35,19 @@ public static class BookDtoMapperExtensions
             Language = GetLanguageName(bookDto.Language),
             PublishDate = ParsePublishDate(bookDto.DatePublished),
             Synopsis = bookDto.Synopsis.CleanHtml(),
+            ImageThumbnail = bookDto.Image,
             ImageUrl = bookDto.ImageOriginal,
             Msrp = bookDto.Msrp,
             Binding = bookDto.Binding,
-            // Edition = bookDto.Edition,
+            Edition = bookDto.Edition,
             Subjects = bookDto.Subjects?
-                .Select(subjectName => new Subject { Name = subjectName })
+                .Select(subjectName => new Subject { Genre = subjectName })
                 .ToList() ?? new List<Subject>(),
-            Dimensions = bookDto.DimensionsStructured?.ToModel()
+            Dimensions = bookDto.DimensionsStructured?.ToModel(),
+            DataSource = DataSource.IsbndbApi,
+            DeweyDecimals = bookDto.DeweyDecimals?
+                .Select(code => new DeweyDecimal { Code = code })
+                .ToList() ?? new List<DeweyDecimal>()
         };
     }
 

@@ -20,36 +20,60 @@ public class BookService : IBookService
         _unitOfWork = unitOfWork;
     }
     
-    public async Task<List<Book>> GetBooksByIsbnStringAsync(string isbnString, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByIsbnStringAsync(List<string> isbnString, CancellationToken cancellationToken = default)
     {
-        var isbns = isbnString.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries).ToList();
-
-        var bookInDb = await _unitOfWork.Books.GetBooksWithDetailsByIsbnAsync(isbns);
-        if (bookInDb.Count > 0)
-            return bookInDb;
+        var booksInDb = await _unitOfWork.Books.GetBooksWithDetailsByIsbnAsync(isbnString);
         
-        if (isbns.Count == 1)
-        {
-            var book = await GetBookByIsbnAsync(isbns[0], cancellationToken);
-            return book != null 
-                ? new List<Book> { book }
-                : new List<Book>();
-        }
-    
-        var bookList = await GetBooksByIsbnsAsync(isbns, cancellationToken);
+        var foundIsbns = booksInDb.Select(b => b.Isbn13 ?? b.Isbn10).Where(i => i != null).ToHashSet();
+        var missingIsbns = isbnString.Where(i => !foundIsbns.Contains(i)).ToList();
 
-        return bookList;
+        List<Book> booksFromApi = new();
+
+        switch (missingIsbns.Count)
+        {
+            case 1:
+            {
+                var book = await GetBookByIsbnAsync(missingIsbns[0], cancellationToken);
+                if (book != null)
+                    booksFromApi.Add(book);
+                break;
+            }
+            case > 1:
+                booksFromApi = await GetBooksByIsbnsAsync(missingIsbns, cancellationToken);
+                break;
+        }
+
+        return booksInDb.Concat(booksFromApi).ToList();
     }
     
-    public async Task<List<Book>> GetBooksByTitleAsync(string title, string? languageCode, BookFormat format, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByTitleAsync(List<string>? titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default)
     {
-        var response = await _bookClient.GetBooksByQueryAsync(title, languageCode, shouldMatchAll: true, cancellationToken);
-        
-        if (response?.Books is null)
+        if (titles == null || titles.Count == 0)
             return new List<Book>();
         
-        return response.Books
-            .Select(bookdto => bookdto.ToBook())
+        var booksInDb = await _unitOfWork.Books.GetBooksWithDetailsByTitlesAsync(titles);
+        
+        var missingTitles = titles
+            .Where(t => !booksInDb.Any(b => 
+                b.Title.Contains(t, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+
+        var booksFromApi = new List<Book>();
+
+        if (missingTitles.Count != 0)
+        {
+            foreach (var missingTitle in missingTitles)
+            {
+                var response = await _bookClient.GetBooksByQueryAsync(missingTitle, languageCode, shouldMatchAll: true, cancellationToken);
+                if (response?.Books != null)
+                {
+                    booksFromApi.AddRange(response.Books.Select(b => b.ToBook()));
+                }
+            }
+        }
+        
+        return booksInDb
+            .Concat(booksFromApi)
             .FilterByFormat(format)
             .ToList();
     }
@@ -58,7 +82,6 @@ public class BookService : IBookService
     {
         var normalizedIsbn = IsbnValidationHelper.ValidateSingleIsbn(isbn);
 
-        // TODO: Tjek i Cache og DB før API
         var response = await _bookClient.GetBookByIsbnAsync(normalizedIsbn, cancellationToken);
 
         var bookDto = response?.Book;

@@ -34,13 +34,12 @@ public class PublisherRepository : IPublisherRepository
     
         return publisherId;
     }
-
-
-    public async Task<Publisher?> GetPublisherByNameAsync(string name)
+    
+    public async Task<Publisher?> GetPublisherByNameAsync(string? name)
     {
         const string sql = """
                            SELECT * FROM publishers 
-                           WHERE name = @Name
+                           WHERE name ILIKE @Name
                            LIMIT 1
                            """;
             

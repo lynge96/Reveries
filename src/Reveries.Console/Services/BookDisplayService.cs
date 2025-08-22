@@ -2,6 +2,7 @@ using System.Globalization;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Services.Interfaces;
 using Reveries.Core.Entities;
+using Reveries.Core.Enums;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;
@@ -10,7 +11,7 @@ public class BookDisplayService : IBookDisplayService
 {
     public Tree DisplayBooks(List<Book> books)
     {
-        var root = new Tree($"Success! Found {books.Count.Bold().AsWarning()} book{(books.Count != 1 ? "s" : "")} in the database:".AsSuccess().Underline());
+        var root = new Tree($"Success! Found {books.Count.Bold().AsWarning()} book{(books.Count != 1 ? "s" : "")}:".AsSuccess().Underline());
         
         if (!books.Any())
         {
@@ -20,7 +21,11 @@ public class BookDisplayService : IBookDisplayService
 
         foreach (var book in books)
         {
-            var bookNode = root.AddNode("📖 " + Markup.Escape(book.Title).Bold().AsPrimary());
+            var sourceLabel = book.DataSource == DataSource.Database
+                ? " (Database)"
+                : " (API)";
+            
+            var bookNode = root.AddNode("📖 " + Markup.Escape(book.Title).Bold().AsPrimary() + sourceLabel.AsInfo());
             AddBookDetails(bookNode, book);
         }
         

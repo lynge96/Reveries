@@ -12,11 +12,13 @@ public interface IUnitOfWork
     
     ISubjectRepository Subjects { get; }
     
-    IBookAuthorsRepository BookAuthorses { get; }
+    IBookAuthorsRepository BookAuthors { get; }
     
-    IBookSubjectsRepository BookSubjectses { get; }
+    IBookSubjectsRepository BookSubjects { get; }
 
     IBookDimensionsRepository BookDimensions { get; }
+    
+    IDeweyDecimalRepository DeweyDecimals { get; }
 
     Task BeginTransactionAsync();
     

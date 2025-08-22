@@ -27,7 +27,7 @@ public class SearchBookHandler : BaseHandler
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        // 9780804139021 9780593099322
+        // 9780804139021 9780593099322 9781982141172
         // 9788799338238
         var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma or space:");
 
@@ -41,15 +41,34 @@ public class SearchBookHandler : BaseHandler
 
         var booksToSave = _bookSelectionService.SelectBooksToSave(filteredBooks);
         
-        await _bookSaveService.SaveBooksAsync(booksToSave, cancellationToken);
-
+        if (booksToSave.Count > 0)
+            await _bookSaveService.SaveBooksAsync(booksToSave, cancellationToken);
     }
 
-    private Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken cancellationToken)
+    private async Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken cancellationToken)
     {
-        return IsIsbnFormat(searchInput)
-            ? _bookService.GetBooksByIsbnStringAsync(searchInput, cancellationToken)
-            : _bookService.GetBooksByTitleAsync(searchInput, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
+        var tokens = searchInput
+            .Split([',', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+
+        var isbnTokens = tokens.Where(IsIsbnFormat).ToList();
+        var titleTokens = tokens.Except(isbnTokens).ToList();
+
+        var results = new List<Book>();
+
+        if (isbnTokens.Count != 0)
+        {
+            var isbnResults = await _bookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
+            results.AddRange(isbnResults);
+        }
+
+        if (titleTokens.Count != 0)
+        {
+            var titleResults = await _bookService.GetBooksByTitleAsync(titleTokens, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
+            results.AddRange(titleResults);
+        }
+
+        return results;
     }
 
     private static bool IsIsbnFormat(string input)

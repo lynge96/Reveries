@@ -5,7 +5,7 @@ namespace Reveries.Application.Interfaces.Services;
 
 public interface IBookService
 {
-    Task<List<Book>> GetBooksByIsbnStringAsync(string isbnString, CancellationToken cancellationToken = default);
+    Task<List<Book>> GetBooksByIsbnStringAsync(List<string> isbns, CancellationToken cancellationToken = default);
     
-    Task<List<Book>> GetBooksByTitleAsync(string title, string? languageCode, BookFormat format, CancellationToken cancellationToken = default);
+    Task<List<Book>> GetBooksByTitleAsync(List<string> titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default);
 }

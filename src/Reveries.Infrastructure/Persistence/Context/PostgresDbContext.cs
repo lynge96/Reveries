@@ -22,7 +22,7 @@ public class PostgresDbContext : IPostgresDbContext
         var password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") 
                        ?? throw new InvalidOperationException("POSTGRES_PASSWORD environment variable is missing");
 
-        _connectionString = new NpgsqlConnectionStringBuilder
+        var builder = new NpgsqlConnectionStringBuilder
         {
             Host = host,
             Port = 5432,
@@ -34,8 +34,10 @@ public class PostgresDbContext : IPostgresDbContext
             Pooling = true,
             MinPoolSize = 1,
             MaxPoolSize = 20,
-            ApplicationName = "Reveries"
-        }.ToString();
+            ApplicationName = "Reveries PostgreSQL Database"
+        };
+
+        _connectionString = builder.ToString();
     }
     
     public bool HasActiveTransaction => _transaction != null;

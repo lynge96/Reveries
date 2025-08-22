@@ -1,6 +1,7 @@
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Services.Interfaces;
 using Reveries.Core.Entities;
+using Reveries.Core.Enums;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;
@@ -9,11 +10,16 @@ public class BookSelectionService : IBookSelectionService
 {
     public List<Book> SelectBooksToSave(List<Book> books)
     {
-        if (books.Count == 1)
+        var booksToPrompt = books.Where(b => b.DataSource != DataSource.Database).ToList();
+
+        switch (booksToPrompt.Count)
         {
-            return AnsiConsole.Confirm("Do you want to save this book in the database?".AsPrimary())
-                ? new List<Book> { books.First() }
-                : new List<Book>();
+            case 0:
+                return new List<Book>();
+            case 1:
+                return AnsiConsole.Confirm("Do you want to save this book in the database?".AsPrimary())
+                    ? new List<Book> { booksToPrompt.First() }
+                    : new List<Book>();
         }
 
         var choices = new MultiSelectionPrompt<Book>()
@@ -21,7 +27,7 @@ public class BookSelectionService : IBookSelectionService
             .PageSize(10)
             .InstructionsText("(Press <space> to select, <enter> to confirm)".AsInfo().Italic());
 
-        choices.AddChoices(books);
+        choices.AddChoices(booksToPrompt);
         return AnsiConsole.Prompt(choices);
     }
 

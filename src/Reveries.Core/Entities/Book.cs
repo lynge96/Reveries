@@ -1,4 +1,6 @@
-﻿namespace Reveries.Core.Entities;
+﻿using Reveries.Core.Enums;
+
+namespace Reveries.Core.Entities;
 
 public class Book
 {
@@ -26,6 +28,8 @@ public class Book
     
     public string? Synopsis { get; set; }
     
+    public string? ImageThumbnail { get; set; }
+    
     public string? ImageUrl { get; set; }
     
     public decimal? Msrp { get; set; }
@@ -34,11 +38,15 @@ public class Book
 
     public string? Edition { get; set; }
     
+    public ICollection<DeweyDecimal> DeweyDecimals { get; set; } = new List<DeweyDecimal>();
+    
     public ICollection<Subject> Subjects { get; set; } = new List<Subject>();
     
     public BookDimensions? Dimensions { get; set; }
     
     public DateTimeOffset DateCreated  { get; set; }
+    
+    public required DataSource DataSource { get; init; }
     
     public override string ToString()
     {

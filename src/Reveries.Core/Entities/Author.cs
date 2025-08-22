@@ -12,5 +12,5 @@ public class Author
 
     public ICollection<AuthorNameVariant> NameVariants { get; set; } = new List<AuthorNameVariant>();
 
-    public DateTimeOffset DateCreated { get; set; }
+    public DateTimeOffset DateCreatedAuthor { get; set; }
 }

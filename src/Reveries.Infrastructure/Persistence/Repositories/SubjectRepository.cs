@@ -16,32 +16,32 @@ public class SubjectRepository : ISubjectRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Subject?> GetSubjectByNameAsync(string name)
+    public async Task<Subject?> GetSubjectByNameAsync(string genre)
     {
         const string sql = """
                            SELECT * FROM subjects 
-                           WHERE name = @Name
+                           WHERE genre = @Genre
                            LIMIT 1
                            """;
         
         var connection = await _dbContext.GetConnectionAsync();
     
-        return await connection.QuerySingleOrDefaultAsync<Subject>(sql, new { Name = name });
+        return await connection.QuerySingleOrDefaultAsync<Subject>(sql, new { Genre = genre });
     }
 
     public async Task<int> CreateSubjectAsync(Subject subject)
     {
         const string sql = """
-                           INSERT INTO subjects (name, date_created)
-                           VALUES (@Name, @DateCreated)
+                           INSERT INTO subjects (genre, date_created)
+                           VALUES (@Genre, @DateCreated)
                            RETURNING id
                            """;
         
         var connection = await _dbContext.GetConnectionAsync();
 
         var subjectId = await connection.QuerySingleAsync<int>(sql, 
-            new { 
-                subject.Name,
+            new {
+                Genre = subject.Genre,
                 DateCreated = DateTimeOffset.UtcNow 
             });
         
