@@ -1,39 +1,51 @@
 using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Core.Models;
+using Reveries.Core.Entities;
+using Reveries.Core.Interfaces.Persistence;
 
 namespace Reveries.Application.Services;
 
 public class AuthorService : IAuthorService
 {
     private readonly IIsbndbAuthorClient _authorClient;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AuthorService(IIsbndbAuthorClient authorClient)
+    public AuthorService(IIsbndbAuthorClient authorClient, IUnitOfWork unitOfWork)
     {
         _authorClient = authorClient;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<List<string>> GetAuthorsByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        var response = await _authorClient.GetAuthorsByNameAsync(name, cancellationToken);
-    
-        if (response?.Authors == null)
-            return new List<string>();
+        var response = new List<string>();
+
+        var databaseResponse = await _unitOfWork.Authors.GetAuthorsByNameAsync(name);
+        response.AddRange(databaseResponse.Select(a => a.FirstName + " " + a.LastName));
         
-        return response.Authors.ToList();
+        var apiResponse = await _authorClient.GetAuthorsByNameAsync(name, cancellationToken);
+        if (apiResponse?.Authors != null)
+        {
+            response.AddRange(apiResponse.Authors);
+        }
+        
+        return response.Distinct().ToList();
     }
     
     public async Task<List<Book>> GetBooksForAuthorAsync(string author, CancellationToken cancellationToken = default)
     {
-        var response = await _authorClient.GetBooksByAuthorAsync(author, cancellationToken);
+        var bookInDb = await _unitOfWork.Books.GetBooksByAuthorAsync(author);
+        if (bookInDb.Count > 0)
+            return bookInDb;
+        
+        var apiResponse = await _authorClient.GetBooksByAuthorAsync(author, cancellationToken);
     
-        if (response?.Books == null)
+        if (apiResponse?.Books == null)
             return new List<Book>();
         
-        return response.Books
+        return apiResponse.Books
             .Select(bookDto => bookDto.ToBook())
-            .Where(book => !string.IsNullOrWhiteSpace(book.Language) && !book.Language.Equals("unknown", StringComparison.InvariantCultureIgnoreCase))
             .ToList();
     }
 

@@ -5,18 +5,11 @@ namespace Reveries.Console.Common.Utilities;
 
 public static class ConsolePromptUtility
 {
-    public static string GetUserInput(string promptText, string? promptStyle = null)
+    public static string GetUserInput(string promptText)
     {
         var prompt = new TextPrompt<string>(promptText.AsPrimary());
-    
-        if (promptStyle != null)
-        {
-            prompt.PromptStyle(promptStyle);
-        }
-        else
-        {
-            prompt.PromptStyle($"{ConsoleThemeExtensions.Secondary}");
-        }
+        
+        prompt.PromptStyle($"{ConsoleThemeExtensions.Secondary}");
     
         return AnsiConsole.Prompt(prompt);
     }
