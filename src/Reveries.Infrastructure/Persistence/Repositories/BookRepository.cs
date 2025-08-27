@@ -166,7 +166,7 @@ public class BookRepository : IBookRepository
                 if (bookEntry.Subjects.All(s => s.SubjectId != subject.SubjectId))
                     bookEntry.Subjects.Add(subject);
 
-                if (bookEntry.DeweyDecimals.All(dd => dd.Code != deweyDecimal.Code))
+                if (deweyDecimal != null && bookEntry.DeweyDecimals.All(dd => dd.Code != deweyDecimal.Code))
                     bookEntry.DeweyDecimals.Add(deweyDecimal);
                 
                 return bookEntry;

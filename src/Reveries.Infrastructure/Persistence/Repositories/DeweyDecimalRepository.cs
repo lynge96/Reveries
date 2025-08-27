@@ -16,23 +16,20 @@ public class DeweyDecimalRepository : IDeweyDecimalRepository
     
     public async Task SaveDeweyDecimalsAsync(int bookId, List<DeweyDecimal>? decimals)
     {
-        if (decimals is { Count: 0 })
+        if (decimals == null || decimals.Count == 0)
             return;
 
         const string sql = """
                            INSERT INTO dewey_decimals (book_id, code)
-                           VALUES (@BookId, @DeweyDecimal)
+                           VALUES (@BookId, @Code)
                            ON CONFLICT DO NOTHING;
                            """;
 
-        var parameters = decimals.Select(d => new
-        {
-            BookId = bookId,
-            DeweyDecimal = d.Code
-        });
-        
+        var parameters = decimals
+            .Select(d => new { BookId = bookId, Code = d.Code })
+            .ToList();
+
         var connection = await _dbContext.GetConnectionAsync();
-        
         await connection.ExecuteAsync(sql, parameters);
     }
 }

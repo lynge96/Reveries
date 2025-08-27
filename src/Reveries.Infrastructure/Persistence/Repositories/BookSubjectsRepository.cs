@@ -19,11 +19,19 @@ public class BookSubjectsRepository : IBookSubjectsRepository
         const string sql = """
                            INSERT INTO books_subjects (book_id, subject_id)
                            VALUES (@BookId, @SubjectId)
+                           ON CONFLICT DO NOTHING;
                            """;
-    
+
         var connection = await _dbContext.GetConnectionAsync();
-        await connection.ExecuteAsync(sql, 
-            subjects.Select(s => new { BookId = bookId, SubjectId = s.SubjectId }));
+
+        var parameters = subjects
+            .Select(s => new { BookId = bookId, SubjectId = s.SubjectId })
+            .ToList();
+
+        if (parameters.Count > 0)
+        {
+            await connection.ExecuteAsync(sql, parameters);
+        }
     }
 
 }

@@ -18,8 +18,12 @@ public class SubjectRepository : ISubjectRepository
 
     public async Task<Subject?> GetSubjectByNameAsync(string genre)
     {
+        if (string.IsNullOrWhiteSpace(genre))
+            return null;
+        
         const string sql = """
-                           SELECT * FROM subjects 
+                           SELECT id AS subjectId, genre, date_created AS datecreatedsubject 
+                           FROM subjects 
                            WHERE genre = @Genre
                            LIMIT 1
                            """;

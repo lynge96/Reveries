@@ -18,6 +18,8 @@ public class UnitOfWork : IUnitOfWork
     public IBookSubjectsRepository BookSubjects { get; }
     public IBookDimensionsRepository BookDimensions { get; }
     public IDeweyDecimalRepository DeweyDecimals { get; }
+    
+    public ISeriesRepository Series { get; }
 
     public UnitOfWork(IPostgresDbContext dbContext,
         IBookRepository bookRepository, 
@@ -27,7 +29,8 @@ public class UnitOfWork : IUnitOfWork
         IBookAuthorsRepository bookAuthors,
         IBookSubjectsRepository bookSubjects,
         IBookDimensionsRepository bookDimensions,
-        IDeweyDecimalRepository deweyDecimals)
+        IDeweyDecimalRepository deweyDecimals,
+        ISeriesRepository series)
     {
         _dbContext = dbContext;
         Books = bookRepository;
@@ -38,6 +41,7 @@ public class UnitOfWork : IUnitOfWork
         BookSubjects = bookSubjects;
         BookDimensions = bookDimensions;
         DeweyDecimals = deweyDecimals;
+        Series = series;
     }
     
     public async Task BeginTransactionAsync()

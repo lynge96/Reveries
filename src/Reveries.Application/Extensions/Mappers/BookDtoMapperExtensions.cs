@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using System.Globalization;
+﻿using System.Globalization;
 using Reveries.Application.DTOs.Books;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
@@ -30,7 +29,7 @@ public static class BookDtoMapperExtensions
             Pages = bookDto.Pages,
             Publisher = string.IsNullOrEmpty(bookDto.Publisher) 
                 ? null 
-                : new Publisher { Name = bookDto.Publisher },
+                : new Publisher { Name = PublisherNormalizer.NormalizePublisher(bookDto.Publisher) },
             LanguageIso639 = bookDto.Language,
             Language = GetLanguageName(bookDto.Language),
             PublishDate = ParsePublishDate(bookDto.DatePublished),

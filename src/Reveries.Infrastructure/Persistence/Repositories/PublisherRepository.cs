@@ -37,8 +37,12 @@ public class PublisherRepository : IPublisherRepository
     
     public async Task<Publisher?> GetPublisherByNameAsync(string? name)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+        
         const string sql = """
-                           SELECT * FROM publishers 
+                           SELECT id AS publisherId, name, date_created AS datecreatedpublisher
+                           FROM publishers 
                            WHERE name ILIKE @Name
                            LIMIT 1
                            """;

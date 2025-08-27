@@ -15,7 +15,6 @@ public abstract class BaseHandler : IMenuHandler
     public async Task HandleAsync(CancellationToken cancellationToken = default)
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        cts.CancelAfter(TimeSpan.FromSeconds(30));
 
         try
         {

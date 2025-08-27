@@ -64,27 +64,24 @@ public class AuthorRepository : IAuthorRepository
     public async Task<Author?> GetAuthorByNameAsync(string name)
     {
         const string sql = """
-                           WITH direct_match AS (
-                               SELECT * FROM authors 
-                               WHERE normalized_name = @Name
-                               LIMIT 1
-                           ),
-                           variant_match AS (
-                               SELECT a.* 
-                               FROM authors a
-                               JOIN author_name_variants anv ON a.id = anv.author_id
-                               WHERE anv.name_variant = @Name
-                               LIMIT 1
-                           )
-                           SELECT * FROM direct_match
-                           UNION ALL
-                           SELECT * FROM variant_match
-                           WHERE NOT EXISTS (SELECT 1 FROM direct_match)
-                           LIMIT 1
+                           SELECT a.id as author_id,
+                                  a.normalized_name,
+                                  a.first_name,
+                                  a.last_name,
+                                  a.date_created as datecreatedauthor
+                           FROM authors a
+                           WHERE a.normalized_name = @Name
+                              OR EXISTS (
+                                  SELECT 1 
+                                  FROM author_name_variants anv
+                                  WHERE anv.author_id = a.id 
+                                    AND anv.name_variant = @Name
+                              )
+                           ORDER BY CASE WHEN a.normalized_name = @Name THEN 1 ELSE 2 END
+                           LIMIT 1;
                            """;
-            
+
         var connection = await _dbContext.GetConnectionAsync();
-        
         return await connection.QuerySingleOrDefaultAsync<Author>(sql, new { Name = name });
     }
 
