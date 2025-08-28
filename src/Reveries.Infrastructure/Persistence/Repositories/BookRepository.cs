@@ -1,7 +1,5 @@
 using Dapper;
 using Reveries.Core.Entities;
-using Reveries.Core.Enums;
-using Reveries.Core.Extensions;
 using Reveries.Core.Interfaces.Repositories;
 using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.DTOs;
@@ -171,21 +169,18 @@ public class BookRepository : IBookRepository
                         Book = bookDto,
                         Publisher = publisher,
                         Dimensions = dimensions,
-                        Series = series,
-                        Authors = new List<AuthorDto>(),
-                        Subjects = new List<SubjectDto>(),
-                        DeweyDecimals = new List<DeweyDecimalDto>()
+                        Series = series
                     };
                     bookDictionary.Add(bookDto.Id, bookEntry);
                 }
 
-                if (author != null && bookEntry.Authors.All(a => a.AuthorId != author.AuthorId))
+                if (author != null && !bookEntry.Authors.Any(a => a.AuthorId == author.AuthorId))
                     bookEntry.Authors.Add(author);
 
-                if (subject != null && bookEntry.Subjects.All(s => s.SubjectId != subject.SubjectId))
+                if (subject != null && !bookEntry.Subjects.Any(s => s.SubjectId == subject.SubjectId))
                     bookEntry.Subjects.Add(subject);
 
-                if (deweyDecimal != null && bookEntry.DeweyDecimals.All(dd => dd.Code != deweyDecimal.Code))
+                if (deweyDecimal != null && !bookEntry.DeweyDecimals.Any(dd => dd.Code == deweyDecimal.Code))
                     bookEntry.DeweyDecimals.Add(deweyDecimal);
 
                 return bookDto;
