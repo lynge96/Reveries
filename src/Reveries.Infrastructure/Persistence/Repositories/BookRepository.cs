@@ -1,9 +1,9 @@
 using Dapper;
 using Reveries.Core.Entities;
-using Reveries.Core.Enums;
-using Reveries.Core.Extensions;
 using Reveries.Core.Interfaces.Repositories;
 using Reveries.Infrastructure.Interfaces.Persistence;
+using Reveries.Infrastructure.Persistence.DTOs;
+using Reveries.Infrastructure.Persistence.Mappers;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
@@ -108,25 +108,25 @@ public class BookRepository : IBookRepository
                                      INSERT INTO books (
                                          isbn13, isbn10, title, page_count, is_read, publisher_id,
                                          language_iso639, language, publication_date, synopsis,
-                                         image_url, msrp, binding, edition, date_created, image_thumbnail
+                                         image_url, msrp, binding, edition, date_created, image_thumbnail, series_id, series_number
                                      ) VALUES (
                                          @Isbn13, @Isbn10, @Title, @Pages, @IsRead, @PublisherId,
                                          @LanguageIso639, @Language, @PublishDate, @Synopsis,
-                                         @ImageUrl, @Msrp, @Binding, @Edition, @DateCreated, @ImageThumbnail
+                                         @ImageUrl, @Msrp, @Binding, @Edition, @DateCreated, @ImageThumbnail, @SeriesId, @SeriesNumber
                                      )
                                      RETURNING id;
                                      """;
         
         var connection = await _dbContext.GetConnectionAsync();
     
-        var bookId = await connection.QuerySingleAsync<int>(sql, new
+        var parameters = new
         {
             book.Isbn13,
             book.Isbn10,
             book.Title,
             book.Pages,
             book.IsRead,
-            book.Publisher?.PublisherId,
+            PublisherId = book.Publisher?.Id,
             book.LanguageIso639,
             book.Language,
             book.PublishDate,
@@ -136,8 +136,12 @@ public class BookRepository : IBookRepository
             book.Binding,
             book.Edition,
             DateCreated = DateTimeOffset.UtcNow,
-            book.ImageThumbnail
-        });
+            book.ImageThumbnail,
+            SeriesId = book.Series?.Id,
+            book.SeriesNumber
+        };
+        
+        var bookId = await connection.QuerySingleAsync<int>(sql, parameters);
         
         book.Id = bookId;
         return bookId;
@@ -145,35 +149,47 @@ public class BookRepository : IBookRepository
     
     private async Task<List<Book>> QueryBooksAsync(string sql, object parameters)
     {
+        var dtoList = await QueryBooksDtoAsync(sql, parameters);
+        return dtoList.Select(BookAggregateMapperExtensions.MapAggregateDtoToDomain).ToList();
+    }
+    
+    private async Task<List<BookAggregateDto>> QueryBooksDtoAsync(string sql, object parameters)
+    {
         var connection = await _dbContext.GetConnectionAsync();
-        var bookDictionary = new Dictionary<int, Book>();
+        var bookDictionary = new Dictionary<int, BookAggregateDto>();
 
-        await connection.QueryAsync<Book, Publisher, Author, Subject, BookDimensions, DeweyDecimal, Book>(
+        await connection.QueryAsync<BookDto, PublisherDto, AuthorDto, SubjectDto, DimensionsDto, DeweyDecimalDto, SeriesDto, BookDto>(
             sql,
-            (book, publisher, author, subject, dimensions, deweyDecimal) =>
+            (bookDto, publisher, author, subject, dimensions, deweyDecimal, series) =>
             {
-                if (!bookDictionary.TryGetValue(book.Id ?? 0, out var bookEntry))
+                if (!bookDictionary.TryGetValue(bookDto.Id, out var bookEntry))
                 {
-                    bookEntry = book.WithDataSource(DataSource.Database);
-                    bookEntry.Publisher = publisher;
-                    bookEntry.Dimensions = dimensions;
-                    bookDictionary.Add(book.Id ?? 0, bookEntry);
+                    bookEntry = new BookAggregateDto
+                    {
+                        Book = bookDto,
+                        Publisher = publisher,
+                        Dimensions = dimensions,
+                        Series = series
+                    };
+                    bookDictionary.Add(bookDto.Id, bookEntry);
                 }
 
-                if (bookEntry.Authors.All(a => a.AuthorId != author.AuthorId))
+                if (author != null && !bookEntry.Authors.Any(a => a.AuthorId == author.AuthorId))
                     bookEntry.Authors.Add(author);
 
-                if (bookEntry.Subjects.All(s => s.SubjectId != subject.SubjectId))
+                if (subject != null && !bookEntry.Subjects.Any(s => s.SubjectId == subject.SubjectId))
                     bookEntry.Subjects.Add(subject);
 
-                if (bookEntry.DeweyDecimals.All(dd => dd.Code != deweyDecimal.Code))
+                if (deweyDecimal != null && !bookEntry.DeweyDecimals.Any(dd => dd.Code == deweyDecimal.Code))
                     bookEntry.DeweyDecimals.Add(deweyDecimal);
-                
-                return bookEntry;
+
+                return bookDto;
             },
             parameters,
-            splitOn: "publisherid,authorid,subjectid,heightcm,code");
+            splitOn: "publisherid,authorid,subjectid,heightcm,code,seriesid"
+        );
 
         return bookDictionary.Values.ToList();
     }
+
 }

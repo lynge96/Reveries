@@ -4,5 +4,5 @@ public class BooksQueryResponseDto
 {
     public int Total { get; init; }
     
-    public IEnumerable<BookDto> Books { get; init; } = null!;
+    public IEnumerable<IsbndbBookDto> Books { get; init; } = null!;
 }

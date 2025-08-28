@@ -87,7 +87,7 @@ public class IsbndbBookClient : IIsbndbBookClient
             return result ?? new BooksListResponseDto 
             { 
                 Total = 0,
-                Data = new List<BookDto>(),
+                Data = new List<IsbndbBookDto>(),
                 Requested = 0 
             };
         }

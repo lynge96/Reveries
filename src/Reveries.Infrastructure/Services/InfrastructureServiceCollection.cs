@@ -43,6 +43,7 @@ public static class InfrastructureServiceCollection
         services.AddScoped<IBookSubjectsRepository, BookSubjectsRepository>();
         services.AddScoped<IBookDimensionsRepository, BookDimensionsRepository>();
         services.AddScoped<IDeweyDecimalRepository, DeweyDecimalRepository>();
+        services.AddScoped<ISeriesRepository, SeriesRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         
         Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;

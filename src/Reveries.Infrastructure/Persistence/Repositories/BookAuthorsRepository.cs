@@ -17,12 +17,20 @@ public class BookAuthorsRepository : IBookAuthorsRepository
     public async Task SaveBookAuthorsAsync(int bookId, IEnumerable<Author> authors)
     {
         const string sql = """
-                          INSERT INTO books_authors (book_id, author_id)
-                          VALUES (@BookId, @AuthorId)
-                          """;
-        
+                           INSERT INTO books_authors (book_id, author_id)
+                           VALUES (@BookId, @AuthorId)
+                           ON CONFLICT DO NOTHING;
+                           """;
+
         var connection = await _dbContext.GetConnectionAsync();
-        await connection.ExecuteAsync(sql, 
-            authors.Select(a => new { BookId = bookId, AuthorId = a.AuthorId }));
+
+        var parameters = authors
+            .Select(a => new { BookId = bookId, AuthorId = a.Id })
+            .ToList();
+
+        if (parameters.Count > 0)
+        {
+            await connection.ExecuteAsync(sql, parameters);
+        }
     }
 }

@@ -19,6 +19,8 @@ public interface IUnitOfWork
     IBookDimensionsRepository BookDimensions { get; }
     
     IDeweyDecimalRepository DeweyDecimals { get; }
+    
+    ISeriesRepository Series { get; }
 
     Task BeginTransactionAsync();
     

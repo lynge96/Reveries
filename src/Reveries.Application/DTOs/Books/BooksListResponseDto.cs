@@ -6,5 +6,5 @@ public class BooksListResponseDto
     
     public int Requested { get; init; }
 
-    public IEnumerable<BookDto> Data { get; init; } = null!;
+    public IEnumerable<IsbndbBookDto> Data { get; init; } = null!;
 }

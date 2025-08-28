@@ -28,6 +28,7 @@ public class BookSelectionService : IBookSelectionService
             .InstructionsText("(Press <space> to select, <enter> to confirm)".AsInfo().Italic());
 
         choices.AddChoices(booksToPrompt);
+        
         return AnsiConsole.Prompt(choices);
     }
 

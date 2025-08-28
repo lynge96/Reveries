@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace Reveries.Application.Extensions;
 
@@ -28,26 +29,35 @@ public partial class PublisherNormalizer
             .OrderBy(p => p);
     }
 
-    private static string NormalizePublisher(string publisher)
+    private static readonly string[] NoiseWords = { "LTD", "INC", "PUBLISHING" };
+
+    public static string NormalizePublisher(string publisher)
     {
-        // Fjern parenteser og deres indhold først
+        if (string.IsNullOrWhiteSpace(publisher))
+            return string.Empty;
+
+        // Fjern parentesindhold
         var normalized = RegexPatterns.ParenthesesPattern().Replace(publisher, "");
-    
-        // Fjern alt efter "/"
-        if (normalized.Contains('/'))
-        {
-            normalized = normalized.Split('/')[0];
-        }
-    
+        
         // Fjern præfikser som "London :"
         normalized = RegexPatterns.PrefixPattern().Replace(normalized, "");
-    
+
         // Behold kun bogstaver, tal og mellemrum
         normalized = RegexPatterns.SpecialCharsPattern().Replace(normalized, "");
-    
+
+        // Fjern støj-ord
+        foreach (var noise in NoiseWords)
+        {
+            normalized = Regex.Replace(normalized, $@"\b{noise}\b", "", RegexOptions.IgnoreCase);
+        }
+
         // Fjern ekstra mellemrum
         normalized = RegexPatterns.MultipleSpacesPattern().Replace(normalized, " ").Trim();
-    
-        return normalized.ToUpperInvariant();
+
+        // Konverter til Title Case
+        normalized = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(normalized.ToLowerInvariant());
+
+        return normalized;
     }
+
 }

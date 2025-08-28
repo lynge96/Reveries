@@ -6,5 +6,5 @@ public class PublisherDetailsReponseDto
 {
     public string Publisher { get; init; } = string.Empty;
     
-    public IEnumerable<BookDto> Books { get; init; } = null!;
+    public IEnumerable<IsbndbBookDto> Books { get; init; } = null!;
 }

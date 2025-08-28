@@ -30,10 +30,10 @@ public class PostgresDbContext : IPostgresDbContext
             Username = username,
             Password = password,
             Timeout = 15,
-            CommandTimeout = 20,
+            CommandTimeout = 30,
             Pooling = true,
             MinPoolSize = 1,
-            MaxPoolSize = 20,
+            MaxPoolSize = 100,
             ApplicationName = "Reveries PostgreSQL Database"
         };
 
