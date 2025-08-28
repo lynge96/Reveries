@@ -25,7 +25,7 @@ public class BookAuthorsRepository : IBookAuthorsRepository
         var connection = await _dbContext.GetConnectionAsync();
 
         var parameters = authors
-            .Select(a => new { BookId = bookId, AuthorId = a.AuthorId })
+            .Select(a => new { BookId = bookId, AuthorId = a.Id })
             .ToList();
 
         if (parameters.Count > 0)

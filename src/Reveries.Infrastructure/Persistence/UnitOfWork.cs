@@ -71,16 +71,4 @@ public class UnitOfWork : IUnitOfWork
         await _dbContext.RollbackTransactionAsync();
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        await _dbContext.DisposeAsync();
-        _disposed = true;
-        GC.SuppressFinalize(this);
-    }
-
 }

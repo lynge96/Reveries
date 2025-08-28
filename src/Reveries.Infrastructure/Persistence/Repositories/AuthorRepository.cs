@@ -40,7 +40,7 @@ public class AuthorRepository : IAuthorRepository
                 DateCreated = DateTimeOffset.UtcNow 
             });
         
-        author.AuthorId = authorId;
+        author.Id = authorId;
 
         // If there are name variants, insert them
         if (author.NameVariants.Count > 0)

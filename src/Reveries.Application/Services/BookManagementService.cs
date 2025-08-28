@@ -27,6 +27,7 @@ public class BookManagementService : IBookManagementService
             await HandlePublisherAsync(book);
             await HandleAuthorsAsync(book);
             await HandleSubjectsAsync(book);
+            await HandleSeriesAsync(book);
             
             var savedBookId = await _unitOfWork.Books.CreateBookAsync(book);
             
@@ -46,7 +47,7 @@ public class BookManagementService : IBookManagementService
 
             return savedBookId;
         }
-        catch (Exception)
+        catch
         {
             await _unitOfWork.RollbackAsync();
             throw;
@@ -71,13 +72,13 @@ public class BookManagementService : IBookManagementService
         
             if (existingAuthor != null)
             {
-                author.AuthorId = existingAuthor.AuthorId;
+                author.Id = existingAuthor.Id;
             }
             else
             {
                 await EnrichAuthorWithNameVariantsAsync(author);
                 
-                author.AuthorId = await _unitOfWork.Authors.CreateAuthorAsync(author);
+                author.Id = await _unitOfWork.Authors.CreateAuthorAsync(author);
             }
         }
     }
@@ -112,11 +113,11 @@ public class BookManagementService : IBookManagementService
             var existingPublisher = await _unitOfWork.Publishers.GetPublisherByNameAsync(book.Publisher.Name);
             if (existingPublisher == null)
             {
-                book.Publisher.PublisherId = await _unitOfWork.Publishers.CreatePublisherAsync(book.Publisher);
+                book.Publisher.Id = await _unitOfWork.Publishers.CreatePublisherAsync(book.Publisher);
             }
             else
             {
-                book.Publisher.PublisherId = existingPublisher.PublisherId;
+                book.Publisher.Id = existingPublisher.Id;
             }
         }
     }
@@ -128,12 +129,21 @@ public class BookManagementService : IBookManagementService
             var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Genre);
             if (existingSubject == null)
             {
-                subject.SubjectId = await _unitOfWork.Subjects.CreateSubjectAsync(subject);
+                subject.Id = await _unitOfWork.Subjects.CreateSubjectAsync(subject);
             }
             else
             {
-                subject.SubjectId = existingSubject.SubjectId;
+                subject.Id = existingSubject.Id;
             }
+        }
+    }
+    
+    private async Task HandleSeriesAsync(Book book)
+    {
+        if (book.Series != null)
+        {
+            var seriesId = await _unitOfWork.Series.GetOrCreateSeriesAsync(book.Series.Name);
+            book.Series.Id = seriesId;
         }
     }
     

@@ -33,7 +33,7 @@ public class PostgresDbContext : IPostgresDbContext
             CommandTimeout = 30,
             Pooling = true,
             MinPoolSize = 1,
-            MaxPoolSize = 20,
+            MaxPoolSize = 100,
             ApplicationName = "Reveries PostgreSQL Database"
         };
 

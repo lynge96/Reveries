@@ -25,7 +25,7 @@ public class BookSubjectsRepository : IBookSubjectsRepository
         var connection = await _dbContext.GetConnectionAsync();
 
         var parameters = subjects
-            .Select(s => new { BookId = bookId, SubjectId = s.SubjectId })
+            .Select(s => new { BookId = bookId, SubjectId = s.Id })
             .ToList();
 
         if (parameters.Count > 0)

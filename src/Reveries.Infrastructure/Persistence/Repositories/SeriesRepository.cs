@@ -18,7 +18,7 @@ public class SeriesRepository : ISeriesRepository
         const string selectSql = "SELECT id FROM series WHERE name = @Name;";
         const string insertSql = "INSERT INTO series (name) VALUES (@Name) RETURNING id;";
 
-        await using var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync();
 
         var existingId = await connection.QueryFirstOrDefaultAsync<int?>(selectSql, new { Name = seriesName });
         if (existingId.HasValue)

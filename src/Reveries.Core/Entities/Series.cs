@@ -2,9 +2,9 @@ namespace Reveries.Core.Entities;
 
 public class Series
 {
-    public int SeriesId { get; set; }
+    public int Id { get; set; }
 
     public string Name { get; set; } = null!;
     
-    public DateTimeOffset DateCreatedSeries { get; set; }
+    public DateTimeOffset DateCreated { get; set; }
 }

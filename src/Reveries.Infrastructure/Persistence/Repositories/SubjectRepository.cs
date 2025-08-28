@@ -49,7 +49,7 @@ public class SubjectRepository : ISubjectRepository
                 DateCreated = DateTimeOffset.UtcNow 
             });
         
-        subject.SubjectId = subjectId;
+        subject.Id = subjectId;
     
         return subjectId;
     }

@@ -2,10 +2,10 @@ namespace Reveries.Core.Entities;
 
 public class Publisher
 {
-    public int PublisherId { get; set; }
+    public int Id { get; set; }
     
     public string? Name { get; set; }
     
-    public DateTimeOffset DateCreatedPublisher { get; set; }
+    public DateTimeOffset DateCreated { get; set; }
     
 }

@@ -30,7 +30,7 @@ public class PublisherRepository : IPublisherRepository
                 DateCreated = DateTimeOffset.UtcNow 
             });
 
-        publisher.PublisherId = publisherId;
+        publisher.Id = publisherId;
     
         return publisherId;
     }

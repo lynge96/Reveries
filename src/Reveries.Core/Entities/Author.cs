@@ -2,7 +2,7 @@ namespace Reveries.Core.Entities;
 
 public class Author
 {
-    public int AuthorId { get; set; }
+    public int Id { get; set; }
     
     public required string NormalizedName { get; init; }
     
@@ -12,5 +12,5 @@ public class Author
 
     public ICollection<AuthorNameVariant> NameVariants { get; set; } = new List<AuthorNameVariant>();
 
-    public DateTimeOffset DateCreatedAuthor { get; set; }
+    public DateTimeOffset DateCreated { get; set; }
 }

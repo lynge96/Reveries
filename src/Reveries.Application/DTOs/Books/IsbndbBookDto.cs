@@ -3,7 +3,7 @@ using Reveries.Core.Enums;
 
 namespace Reveries.Application.DTOs.Books;
 
-public class BookDto
+public class IsbndbBookDto
 {
     public required string Title { get; init; } = string.Empty; // giver mening at kræve Title
     public string? Image { get; init; } // kan godt være null fra API’et
