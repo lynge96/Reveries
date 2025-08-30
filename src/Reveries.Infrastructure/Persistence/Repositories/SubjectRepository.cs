@@ -4,6 +4,8 @@ using Reveries.Core.Interfaces;
 using Reveries.Core.Interfaces.Repositories;
 using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.Context;
+using Reveries.Infrastructure.Persistence.DTOs;
+using Reveries.Infrastructure.Persistence.Mappers;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
@@ -22,7 +24,7 @@ public class SubjectRepository : ISubjectRepository
             return null;
         
         const string sql = """
-                           SELECT id AS subjectId, genre, date_created AS datecreatedsubject 
+                           SELECT id AS subjectId, genre, date_created AS dateCreatedSubject
                            FROM subjects 
                            WHERE genre = @Genre
                            LIMIT 1
@@ -30,27 +32,26 @@ public class SubjectRepository : ISubjectRepository
         
         var connection = await _dbContext.GetConnectionAsync();
     
-        return await connection.QuerySingleOrDefaultAsync<Subject>(sql, new { Genre = genre });
+        var subjectDto = await connection.QuerySingleOrDefaultAsync<SubjectDto>(sql, new { Genre = genre });
+        
+        return subjectDto?.ToDomain();
     }
 
     public async Task<int> CreateSubjectAsync(Subject subject)
     {
         const string sql = """
-                           INSERT INTO subjects (genre, date_created)
-                           VALUES (@Genre, @DateCreated)
+                           INSERT INTO subjects (genre)
+                           VALUES (@Genre)
                            RETURNING id
                            """;
         
         var connection = await _dbContext.GetConnectionAsync();
 
-        var subjectId = await connection.QuerySingleAsync<int>(sql, 
-            new {
-                Genre = subject.Genre,
-                DateCreated = DateTimeOffset.UtcNow 
-            });
+        var subjectDto = subject.ToDto();
+
+        var subjectId = await connection.QuerySingleAsync<int>(sql, subjectDto);
         
         subject.Id = subjectId;
-    
         return subjectId;
     }
 

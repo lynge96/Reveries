@@ -12,24 +12,33 @@ public class BookSelectionService : IBookSelectionService
     {
         var booksToPrompt = books.Where(b => b.DataSource != DataSource.Database).ToList();
 
-        switch (booksToPrompt.Count)
+        var action = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("What do you want to do?".AsPrimary())
+                .AddChoices("Save all books", "Select specific books", "Skip saving")
+        );
+
+        switch (action)
         {
-            case 0:
-                return new List<Book>();
-            case 1:
-                return AnsiConsole.Confirm("Do you want to save this book in the database?".AsPrimary())
-                    ? new List<Book> { booksToPrompt.First() }
-                    : new List<Book>();
+            case "Save all books":
+                return booksToPrompt;
+            case "Skip saving":
+                break;
+            case "Select specific books":
+                var selectedBooks = AnsiConsole.Prompt(
+                    new MultiSelectionPrompt<string>()
+                        .Title("Select the books you want to save:".AsPrimary())
+                        .PageSize(10)
+                        .InstructionsText("(Press <space> to select, <enter> to confirm)".AsInfo().Italic())
+                        .AddChoices(booksToPrompt.Select(b => b.ToString()))
+                );
+        
+                return booksToPrompt
+                    .Where(b => selectedBooks.Contains(b.ToString()))
+                    .ToList();
         }
 
-        var choices = new MultiSelectionPrompt<Book>()
-            .Title("Select books you want to save:".AsPrimary())
-            .PageSize(10)
-            .InstructionsText("(Press <space> to select, <enter> to confirm)".AsInfo().Italic());
-
-        choices.AddChoices(booksToPrompt);
-        
-        return AnsiConsole.Prompt(choices);
+        return new List<Book>();
     }
 
     public List<Book> FilterBooksByLanguage(IEnumerable<Book> books)

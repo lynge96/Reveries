@@ -4,6 +4,8 @@ using Reveries.Core.Interfaces;
 using Reveries.Core.Interfaces.Repositories;
 using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.Context;
+using Reveries.Infrastructure.Persistence.DTOs;
+using Reveries.Infrastructure.Persistence.Mappers;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
@@ -19,43 +21,36 @@ public class AuthorRepository : IAuthorRepository
     public async Task<int> CreateAuthorAsync(Author author)
     {
         const string authorSql = """
-                                 INSERT INTO authors (normalized_name, first_name, last_name, date_created)
-                                 VALUES (@NormalizedName, @FirstName, @LastName, @DateCreated)
+                                 INSERT INTO authors (normalized_name, first_name, last_name)
+                                 VALUES (@NormalizedName, @FirstName, @LastName)
                                  RETURNING id
                                  """;
 
         const string variantSql = """
-                                  INSERT INTO author_name_variants (author_id, name_variant, is_primary, date_created)
-                                  VALUES (@AuthorId, @NameVariant, @IsPrimary, @DateCreated)
+                                  INSERT INTO author_name_variants (author_id, name_variant, is_primary)
+                                  VALUES (@AuthorId, @NameVariant, @IsPrimary)
                                   """;
 
         var connection = await _dbContext.GetConnectionAsync();
-    
+
+        var authorDto = author.ToDto();
+        
         // Insert the author first
-        var authorId = await connection.QuerySingleAsync<int>(authorSql, 
-            new { 
-                author.NormalizedName,
-                author.FirstName,
-                author.LastName,
-                DateCreated = DateTimeOffset.UtcNow 
-            });
+        var authorId = await connection.QuerySingleAsync<int>(authorSql, authorDto);
         
         author.Id = authorId;
 
         // If there are name variants, insert them
         if (author.NameVariants.Count > 0)
         {
-            foreach (var variant in author.NameVariants)
+            var variantDtos = author.NameVariants.Select(variant => new
             {
-                variant.AuthorId = authorId;
-                await connection.ExecuteAsync(variantSql, new
-                {
-                    AuthorId = authorId,
-                    variant.NameVariant,
-                    variant.IsPrimary,
-                    DateCreated = DateTimeOffset.UtcNow
-                });
-            }
+                AuthorId = authorId,
+                variant.NameVariant,
+                variant.IsPrimary
+            }).ToList();
+
+            await connection.ExecuteAsync(variantSql, variantDtos);
         }
     
         return authorId;
@@ -64,11 +59,11 @@ public class AuthorRepository : IAuthorRepository
     public async Task<Author?> GetAuthorByNameAsync(string name)
     {
         const string sql = """
-                           SELECT a.id as author_id,
+                           SELECT a.id,
                                   a.normalized_name,
                                   a.first_name,
                                   a.last_name,
-                                  a.date_created as datecreatedauthor
+                                  a.date_created
                            FROM authors a
                            WHERE a.normalized_name = @Name
                               OR EXISTS (
@@ -88,11 +83,11 @@ public class AuthorRepository : IAuthorRepository
     public async Task<List<Author>> GetAuthorsByNameAsync(string name)
     {
         const string sql = """
-                           SELECT a.id as author_id,
+                           SELECT a.id as AuthorId,
                                   a.normalized_name,
                                   a.first_name,
                                   a.last_name,
-                                  a.date_created as datecreatedauthor
+                                  a.date_created as DateCreatedAuthor
                            FROM authors a
                            WHERE a.first_name ILIKE @Pattern
                               OR a.last_name  ILIKE @Pattern
@@ -101,11 +96,11 @@ public class AuthorRepository : IAuthorRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var authors = await connection.QueryAsync<Author>(
+        var authorDtos = await connection.QueryAsync<AuthorDto>(
             sql,
             new { Pattern = $"%{name}%" });
 
-        return authors.ToList();
+        return authorDtos.Select(dto => dto.ToDomain()).ToList();
     }
 
 }

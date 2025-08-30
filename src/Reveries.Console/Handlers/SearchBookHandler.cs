@@ -28,7 +28,6 @@ public class SearchBookHandler : BaseHandler
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         // 9780804139021 9780593099322 9781982141172
-        // 9780006479888
         var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma or space:");
 
         var (bookResults, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())

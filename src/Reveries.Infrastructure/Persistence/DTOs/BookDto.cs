@@ -17,7 +17,8 @@ public class BookDto
     public string? ImageUrl { get; set; }
     public decimal? Msrp { get; set; }
     public bool IsRead { get; set; }
-    public DateTime DateCreated { get; set; }
+    public DateTimeOffset DateCreated { get; set; }
     public string? ImageThumbnail { get; set; }
     public int? SeriesNumber { get; set; }
+    public int? SeriesId { get; set; }
 }
