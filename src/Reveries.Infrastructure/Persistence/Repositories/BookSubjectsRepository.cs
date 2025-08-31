@@ -1,0 +1,37 @@
+using Dapper;
+using Reveries.Core.Entities;
+using Reveries.Core.Interfaces.Repositories;
+using Reveries.Infrastructure.Interfaces.Persistence;
+
+namespace Reveries.Infrastructure.Persistence.Repositories;
+
+public class BookSubjectsRepository : IBookSubjectsRepository
+{
+    private readonly IPostgresDbContext _dbContext;
+    
+    public BookSubjectsRepository(IPostgresDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public async Task SaveBookSubjectsAsync(int bookId, IEnumerable<Subject> subjects)
+    {
+        const string sql = """
+                           INSERT INTO books_subjects (book_id, subject_id)
+                           VALUES (@BookId, @SubjectId)
+                           ON CONFLICT DO NOTHING;
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+
+        var parameters = subjects
+            .Select(s => new { BookId = bookId, SubjectId = s.Id })
+            .ToList();
+
+        if (parameters.Count > 0)
+        {
+            await connection.ExecuteAsync(sql, parameters);
+        }
+    }
+
+}
