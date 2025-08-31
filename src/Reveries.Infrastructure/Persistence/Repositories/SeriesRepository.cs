@@ -1,6 +1,9 @@
 using Dapper;
+using Reveries.Core.Entities;
 using Reveries.Core.Interfaces.Repositories;
 using Reveries.Infrastructure.Interfaces.Persistence;
+using Reveries.Infrastructure.Persistence.DTOs;
+using Reveries.Infrastructure.Persistence.Mappers;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
@@ -12,18 +15,41 @@ public class SeriesRepository : ISeriesRepository
     {
         _dbContext = dbContext;
     }
-
-    public async Task<int> GetOrCreateSeriesAsync(string seriesName)
+    
+    public async Task<Series?> GetSeriesByNameAsync(string? seriesName)
     {
-        const string selectSql = "SELECT id FROM series WHERE name = @Name;";
-        const string insertSql = "INSERT INTO series (name) VALUES (@Name) RETURNING id;";
+        if (string.IsNullOrWhiteSpace(seriesName))
+            return null;
+    
+        const string sql = """
+                           SELECT id as SeriesId, name, date_created as DateCreatedSeries 
+                           FROM series 
+                           WHERE name = @Name
+                           LIMIT 1;
+                           """;
+    
+        var connection = await _dbContext.GetConnectionAsync();
+    
+        var seriesDto = await connection.QueryFirstOrDefaultAsync<SeriesDto>(sql, new { Name = seriesName });
+    
+        return seriesDto?.ToDomain();
+    }
 
+    public async Task<int> CreateSeriesAsync(Series series)
+    {
+        const string sql = """
+                           INSERT INTO series (name) 
+                           VALUES (@SeriesName) 
+                           RETURNING id;
+                           """;
+        
         var connection = await _dbContext.GetConnectionAsync();
 
-        var existingId = await connection.QueryFirstOrDefaultAsync<int?>(selectSql, new { Name = seriesName });
-        if (existingId.HasValue)
-            return existingId.Value;
-
-        return await connection.ExecuteScalarAsync<int>(insertSql, new { Name = seriesName });
+        var seriesDto = series.ToDto();
+        
+        var seriesId = await connection.QuerySingleAsync<int>(sql, seriesDto);
+        
+        series.Id = seriesId;
+        return seriesId;
     }
 }

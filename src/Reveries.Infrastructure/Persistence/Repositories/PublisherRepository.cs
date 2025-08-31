@@ -2,6 +2,8 @@ using Dapper;
 using Reveries.Core.Entities;
 using Reveries.Core.Interfaces.Repositories;
 using Reveries.Infrastructure.Interfaces.Persistence;
+using Reveries.Infrastructure.Persistence.DTOs;
+using Reveries.Infrastructure.Persistence.Mappers;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
@@ -17,21 +19,18 @@ public class PublisherRepository : IPublisherRepository
     public async Task<int> CreatePublisherAsync(Publisher publisher)
     {
         const string sql = """
-                           INSERT INTO publishers (name, date_created)
-                           VALUES (@Name, @DateCreated)
+                           INSERT INTO publishers (name)
+                           VALUES (@Name)
                            RETURNING id
                            """;
         
         var connection = await _dbContext.GetConnectionAsync();
-    
-        var publisherId = await connection.QuerySingleAsync<int>(sql, 
-            new { 
-                publisher.Name, 
-                DateCreated = DateTimeOffset.UtcNow 
-            });
+        
+        var publisherDto = publisher.ToDto();
+        
+        var publisherId = await connection.QuerySingleAsync<int>(sql, publisherDto);
 
         publisher.Id = publisherId;
-    
         return publisherId;
     }
     
@@ -41,7 +40,7 @@ public class PublisherRepository : IPublisherRepository
             return null;
         
         const string sql = """
-                           SELECT id AS publisherId, name, date_created AS datecreatedpublisher
+                           SELECT id AS publisherId, name, date_created AS dateCreatedPublisher
                            FROM publishers 
                            WHERE name ILIKE @Name
                            LIMIT 1
@@ -49,6 +48,8 @@ public class PublisherRepository : IPublisherRepository
             
         var connection = await _dbContext.GetConnectionAsync();
         
-        return await connection.QuerySingleOrDefaultAsync<Publisher>(sql, new { Name = name });
+        var publisherDto = await connection.QuerySingleOrDefaultAsync<PublisherDto>(sql, new { Name = name });
+
+        return publisherDto?.ToDomain();
     }
 }

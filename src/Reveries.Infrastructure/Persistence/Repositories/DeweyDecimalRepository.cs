@@ -2,6 +2,7 @@ using Dapper;
 using Reveries.Core.Entities;
 using Reveries.Core.Interfaces.Repositories;
 using Reveries.Infrastructure.Interfaces.Persistence;
+using Reveries.Infrastructure.Persistence.DTOs;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
@@ -26,7 +27,7 @@ public class DeweyDecimalRepository : IDeweyDecimalRepository
                            """;
 
         var parameters = decimals
-            .Select(d => new { BookId = bookId, Code = d.Code })
+            .Select(d => new DeweyDecimalDto { BookId = bookId, Code = d.Code })
             .ToList();
 
         var connection = await _dbContext.GetConnectionAsync();

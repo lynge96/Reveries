@@ -34,7 +34,8 @@ public class PostgresDbContext : IPostgresDbContext
             Pooling = true,
             MinPoolSize = 1,
             MaxPoolSize = 100,
-            ApplicationName = "Reveries PostgreSQL Database"
+            ApplicationName = "Reveries PostgreSQL Database",
+            IncludeErrorDetail = true // For debugging purposes only
         };
 
         _connectionString = builder.ToString();

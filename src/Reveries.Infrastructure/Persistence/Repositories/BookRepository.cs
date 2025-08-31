@@ -57,7 +57,7 @@ public class BookRepository : IBookRepository
 
     public async Task<List<Book>> GetBooksWithDetailsByTitlesAsync(List<string>? bookTitles)
     {
-        if (bookTitles == null || !bookTitles.Any())
+        if (bookTitles == null || bookTitles.Count == 0)
             return new List<Book>();
 
         const string sql = """
@@ -98,8 +98,10 @@ public class BookRepository : IBookRepository
                            """;
     
         var connection = await _dbContext.GetConnectionAsync();
+
+        var bookDto = await connection.QuerySingleOrDefaultAsync<BookDto>(sql, new { Isbn13 = isbn13, Isbn10 = isbn10 });
     
-        return await connection.QuerySingleOrDefaultAsync<Book>(sql, new { Isbn13 = isbn13, Isbn10 = isbn10 });
+        return bookDto?.ToDomain();
     }
 
     public async Task<int> CreateBookAsync(Book book)
@@ -108,40 +110,20 @@ public class BookRepository : IBookRepository
                                      INSERT INTO books (
                                          isbn13, isbn10, title, page_count, is_read, publisher_id,
                                          language_iso639, language, publication_date, synopsis,
-                                         image_url, msrp, binding, edition, date_created, image_thumbnail, series_id, series_number
+                                         image_url, msrp, binding, edition, image_thumbnail, series_id, series_number
                                      ) VALUES (
                                          @Isbn13, @Isbn10, @Title, @Pages, @IsRead, @PublisherId,
                                          @LanguageIso639, @Language, @PublishDate, @Synopsis,
-                                         @ImageUrl, @Msrp, @Binding, @Edition, @DateCreated, @ImageThumbnail, @SeriesId, @SeriesNumber
+                                         @ImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnail, @SeriesId, @SeriesNumber
                                      )
                                      RETURNING id;
                                      """;
-        
+
         var connection = await _dbContext.GetConnectionAsync();
-    
-        var parameters = new
-        {
-            book.Isbn13,
-            book.Isbn10,
-            book.Title,
-            book.Pages,
-            book.IsRead,
-            PublisherId = book.Publisher?.Id,
-            book.LanguageIso639,
-            book.Language,
-            book.PublishDate,
-            book.Synopsis,
-            book.ImageUrl,
-            book.Msrp,
-            book.Binding,
-            book.Edition,
-            DateCreated = DateTimeOffset.UtcNow,
-            book.ImageThumbnail,
-            SeriesId = book.Series?.Id,
-            book.SeriesNumber
-        };
+
+        var bookDto = book.ToDto();
         
-        var bookId = await connection.QuerySingleAsync<int>(sql, parameters);
+        var bookId = await connection.QuerySingleAsync<int>(sql, bookDto);
         
         book.Id = bookId;
         return bookId;
