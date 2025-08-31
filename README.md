@@ -1,7 +1,6 @@
 # Reveries 💫
 > Developed by [Anders Lynge Ravnsbæk](https://www.linkedin.com/in/alravnsbaek/)
 
-# Reveries 💫
 Reveries is a personal hobby project that I am developing in my spare time alongside job hunting. The project serves both as a way to maintain and expand my coding skills and as an opportunity to experiment with new technologies, best practices, integrations, and patterns that can strengthen my competencies as a developer.  
 
 It is therefore both a learning project and a product I personally want to use to support my passion for reading books—and one I look forward to putting into practice.  
