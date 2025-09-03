@@ -84,7 +84,7 @@ public class BookService : IBookService
 
         var response = await _bookClient.GetBookByIsbnAsync(normalizedIsbn, cancellationToken);
 
-        var bookDto = response?.IsbndbBook;
+        var bookDto = response?.Book;
         
         var book = bookDto?.ToBook();
         

@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.Isbndb;
+using Reveries.Core.Settings;
 
 namespace Reveries.Infrastructure.IsbnDb;
 
@@ -8,39 +10,32 @@ public static class IsbndbServiceCollection
 {
     public static IServiceCollection AddIsbndb(this IServiceCollection services, IConfiguration configuration)
     {
-        var apiKey = Environment.GetEnvironmentVariable("ISBNDB_API_KEY") ?? string.Empty;
-        var apiUrl = Environment.GetEnvironmentVariable("ISBNDB_API_URL") ?? string.Empty;
-
-        if (string.IsNullOrWhiteSpace(apiKey))
-            throw new InvalidOperationException("ISBNDB API key is missing");
-
-        if (string.IsNullOrWhiteSpace(apiUrl))
-            throw new InvalidOperationException("ISBNDB API URL is missing");
-
-        services.AddHttpClient("Isbndb", client =>
+        services.AddHttpClient("Isbndb", (provider, client) =>
         {
-            client.BaseAddress = new Uri(apiUrl);
-            client.DefaultRequestHeaders.Add("Authorization", apiKey);
+            var settings = provider.GetRequiredService<IOptions<IsbndbSettings>>().Value;
+            
+            client.BaseAddress = new Uri(settings.ApiUrl);
+            client.DefaultRequestHeaders.Add("Authorization", settings.ApiKey);
         });
-
+        
         services.AddTransient<IIsbndbBookClient>(provider =>
         {
-            var factory = provider.GetRequiredService<IHttpClientFactory>();
-            return new IsbndbBookClient(factory.CreateClient("Isbndb"));
+            var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+            return new IsbndbBookClient(httpClientFactory.CreateClient("Isbndb"));
         });
 
         services.AddTransient<IIsbndbAuthorClient>(provider =>
         {
-            var factory = provider.GetRequiredService<IHttpClientFactory>();
-            return new IsbndbAuthorClient(factory.CreateClient("Isbndb"));
+            var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+            return new IsbndbAuthorClient(httpClientFactory.CreateClient("Isbndb"));
         });
 
         services.AddTransient<IIsbndbPublisherClient>(provider =>
         {
-            var factory = provider.GetRequiredService<IHttpClientFactory>();
-            return new IsbndbPublisherClient(factory.CreateClient("Isbndb"));
+            var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+            return new IsbndbPublisherClient(httpClientFactory.CreateClient("Isbndb"));
         });
-
+        
         return services;
     }
 }

@@ -12,32 +12,35 @@ public class BookSelectionService : IBookSelectionService
     {
         var booksToPrompt = books.Where(b => b.DataSource != DataSource.Database).ToList();
 
-        var action = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("What do you want to do?".AsPrimary())
-                .AddChoices("Save all books", "Select specific books", "Skip saving")
-        );
-
-        switch (action)
+        if (booksToPrompt.Count > 0)
         {
-            case "Save all books":
-                return booksToPrompt;
-            case "Skip saving":
-                break;
-            case "Select specific books":
-                var selectedBooks = AnsiConsole.Prompt(
-                    new MultiSelectionPrompt<string>()
-                        .Title("Select the books you want to save:".AsPrimary())
-                        .PageSize(10)
-                        .InstructionsText("(Press <space> to select, <enter> to confirm)".AsInfo().Italic())
-                        .AddChoices(booksToPrompt.Select(b => b.ToString()))
-                );
-        
-                return booksToPrompt
-                    .Where(b => selectedBooks.Contains(b.ToString()))
-                    .ToList();
-        }
+            var action = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("What do you want to do?".AsPrimary())
+                    .AddChoices("Save all books", "Select specific books", "Skip saving")
+            );
 
+            switch (action)
+            {
+                case "Save all books":
+                    return booksToPrompt;
+                case "Skip saving":
+                    break;
+                case "Select specific books":
+                    var selectedBooks = AnsiConsole.Prompt(
+                        new MultiSelectionPrompt<string>()
+                            .Title("Select the books you want to save:".AsPrimary())
+                            .PageSize(10)
+                            .InstructionsText("(Press <space> to select, <enter> to confirm)".AsInfo().Italic())
+                            .AddChoices(booksToPrompt.Select(b => b.ToString()))
+                    );
+        
+                    return booksToPrompt
+                        .Where(b => selectedBooks.Contains(b.ToString()))
+                        .ToList();
+            }
+        }
+        
         return new List<Book>();
     }
 

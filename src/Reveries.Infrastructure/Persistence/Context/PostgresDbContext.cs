@@ -1,5 +1,7 @@
 using DotNetEnv;
+using Microsoft.Extensions.Options;
 using Npgsql;
+using Reveries.Core.Settings;
 using Reveries.Infrastructure.Interfaces.Persistence;
 
 namespace Reveries.Infrastructure.Persistence.Context;
@@ -11,29 +13,22 @@ public class PostgresDbContext : IPostgresDbContext
     private NpgsqlTransaction? _transaction;
     private bool _disposed;
     
-    public PostgresDbContext()
+    public PostgresDbContext(IOptions<PostgresSettings> options)
     {
-        Env.Load();
-        var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-        var database = Environment.GetEnvironmentVariable("POSTGRES_DB") 
-                       ?? throw new InvalidOperationException("POSTGRES_DB environment variable is missing");
-        var username = Environment.GetEnvironmentVariable("POSTGRES_USER") 
-                       ?? throw new InvalidOperationException("POSTGRES_USER environment variable is missing");
-        var password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") 
-                       ?? throw new InvalidOperationException("POSTGRES_PASSWORD environment variable is missing");
-
+        var settings = options.Value;
+        
         var builder = new NpgsqlConnectionStringBuilder
         {
-            Host = host,
-            Port = 5432,
-            Database = database,
-            Username = username,
-            Password = password,
-            Timeout = 15,
-            CommandTimeout = 30,
-            Pooling = true,
-            MinPoolSize = 1,
-            MaxPoolSize = 100,
+            Host = settings.Host,
+            Port = settings.Port,
+            Database = settings.Database,
+            Username = settings.Username,
+            Password = settings.Password,
+            Timeout = settings.Timeout,
+            CommandTimeout = settings.CommandTimeout,
+            Pooling = settings.Pooling,
+            MinPoolSize = settings.MinPoolSize,
+            MaxPoolSize = settings.MaxPoolSize,
             ApplicationName = "Reveries PostgreSQL Database",
             IncludeErrorDetail = true // For debugging purposes only
         };

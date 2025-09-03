@@ -1,23 +1,29 @@
-namespace Reveries.BookEnrichmentWorker;
+using Reveries.BookEnrichmentWorker;
 
 public class Worker : BackgroundService
 {
-    private readonly ILogger<Worker> _logger;
+    private readonly BookEnrichmentRunner _runner;
 
-    public Worker(ILogger<Worker> logger)
+    public Worker(BookEnrichmentRunner runner)
     {
-        _logger = logger;
+        _runner = runner;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_logger.IsEnabled(LogLevel.Information))
+            try
             {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                Console.WriteLine("Enriching books...");
+                await _runner.RunAsync(stoppingToken);
             }
-            await Task.Delay(1000, stoppingToken);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
     }
 }

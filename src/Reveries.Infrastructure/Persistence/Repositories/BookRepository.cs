@@ -128,7 +128,27 @@ public class BookRepository : IBookRepository
         book.Id = bookId;
         return bookId;
     }
-    
+
+    public async Task<List<Book>> GetBooksMissingMetadataAsync()
+    {
+        const string sql = """
+                           SELECT *
+                           FROM books
+                           WHERE page_count IS NULL OR page_count = 0
+                           OR publication_date IS NULL OR publication_date = '0001-01-01'
+                           OR binding ILIKE 'unknown'
+                           OR edition IS NULL
+                           OR msrp IS NULL OR msrp = 0
+                           OR (series_number IS NULL AND series_id IS NOT NULL)
+                           """;
+        
+        var connection = await _dbContext.GetConnectionAsync();
+        
+        var bookDtos = await connection.QueryAsync<BookDto>(sql);
+
+        return bookDtos.Select(b => b.ToDomain()).ToList();
+    }
+
     private async Task<List<Book>> QueryBooksAsync(string sql, object parameters)
     {
         var dtoList = await QueryBooksDtoAsync(sql, parameters);
