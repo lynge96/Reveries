@@ -11,7 +11,7 @@ using Reveries.Console.Services.Interfaces;
 using Reveries.Infrastructure.Services;
 
 var host = Host.CreateDefaultBuilder(args)
-    .ConfigureAppConfiguration((context, config) =>
+    .ConfigureAppConfiguration((config) =>
     {
         Env.Load();
         config.AddEnvironmentVariables();

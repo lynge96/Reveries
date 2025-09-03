@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Application", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure", "src\Reveries.Infrastructure\Reveries.Infrastructure.csproj", "{8C96F4DE-89B6-4772-8888-662FE8D0462A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.BookEnrichmentWorker", "src\Reveries.BookEnrichmentWorker\Reveries.BookEnrichmentWorker.csproj", "{C7BB7A5C-9401-4D9A-B20F-72D19B6188A1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,9 +36,5 @@ Global
 		{8C96F4DE-89B6-4772-8888-662FE8D0462A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C96F4DE-89B6-4772-8888-662FE8D0462A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C96F4DE-89B6-4772-8888-662FE8D0462A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7BB7A5C-9401-4D9A-B20F-72D19B6188A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7BB7A5C-9401-4D9A-B20F-72D19B6188A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7BB7A5C-9401-4D9A-B20F-72D19B6188A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7BB7A5C-9401-4D9A-B20F-72D19B6188A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
