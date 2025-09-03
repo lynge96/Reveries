@@ -2,5 +2,5 @@
 
 public class BookDetailsDto
 {
-    public IsbndbBookDto IsbndbBook { get; init; } = null!;
+    public IsbndbBookDto Book { get; init; } = null!;
 }

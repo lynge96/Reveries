@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthorService, AuthorService>();
         services.AddScoped<IPublisherService, PublisherService>();
         services.AddScoped<IBookManagementService, BookManagementService>();
+        services.AddScoped<IBookEnrichmentService, BookEnrichmentService>();
         
         return services;
     }

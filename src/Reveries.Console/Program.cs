@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using DotNetEnv;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Reveries.Application.Services;
@@ -9,6 +11,11 @@ using Reveries.Console.Services.Interfaces;
 using Reveries.Infrastructure.Services;
 
 var host = Host.CreateDefaultBuilder(args)
+    .ConfigureAppConfiguration((config) =>
+    {
+        Env.Load();
+        config.AddEnvironmentVariables();
+    })
     .ConfigureServices((context, services) =>
     {
         services.AddInfrastructure(context.Configuration);
