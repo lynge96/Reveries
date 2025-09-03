@@ -11,37 +11,32 @@ public class BookSelectionService : IBookSelectionService
     public List<Book> SelectBooksToSave(List<Book> books)
     {
         var booksToPrompt = books.Where(b => b.DataSource != DataSource.Database).ToList();
-
-        if (booksToPrompt.Count > 0)
+        var bookNamesList = booksToPrompt.Select(b => b.Title).ToList();
+        if (booksToPrompt.Count == 0)
+            return new List<Book>();
+        
+        var prompt = new MultiSelectionPrompt<string>()
+            .Title("Select the books you want to save:".AsPrimary())
+            .PageSize(10)
+            .InstructionsText("(Press <space> to select, <enter> to confirm)".AsInfo().Italic());
+        
+        if (bookNamesList.Count != 0)
         {
-            var action = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("What do you want to do?".AsPrimary())
-                    .AddChoices("Save all books", "Select specific books", "Skip saving")
-            );
-
-            switch (action)
-            {
-                case "Save all books":
-                    return booksToPrompt;
-                case "Skip saving":
-                    break;
-                case "Select specific books":
-                    var selectedBooks = AnsiConsole.Prompt(
-                        new MultiSelectionPrompt<string>()
-                            .Title("Select the books you want to save:".AsPrimary())
-                            .PageSize(10)
-                            .InstructionsText("(Press <space> to select, <enter> to confirm)".AsInfo().Italic())
-                            .AddChoices(booksToPrompt.Select(b => b.ToString()))
-                    );
-        
-                    return booksToPrompt
-                        .Where(b => selectedBooks.Contains(b.ToString()))
-                        .ToList();
-            }
+            prompt.AddChoiceGroup("Cancel");
+            prompt.AddChoiceGroup("All books", bookNamesList);
         }
+
+        var selectedBooks = AnsiConsole.Prompt(prompt);
         
-        return new List<Book>();
+        if (selectedBooks.Contains("Cancel"))
+            return new List<Book>();
+        
+        var pickedBooks = selectedBooks
+            .Select(title => books.FirstOrDefault(b => b.Title == title))
+            .Where(b => b != null)
+            .ToList()!;
+
+        return pickedBooks!;
     }
 
     public List<Book> FilterBooksByLanguage(IEnumerable<Book> books)
