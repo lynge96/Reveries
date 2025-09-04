@@ -1,8 +1,8 @@
 using Reveries.Core.Entities;
 
-namespace Reveries.Application.Interfaces.Services;
+namespace Reveries.Application.Interfaces.Isbndb;
 
-public interface IPublisherService
+public interface IIsbndbPublisherService
 {
     Task<List<Book>> GetBooksByPublisherAsync(string publisher, CancellationToken cancellationToken = default);
     

@@ -1,17 +1,16 @@
 using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Entities;
 using Reveries.Core.Interfaces.Persistence;
 
-namespace Reveries.Application.Services;
+namespace Reveries.Application.Services.Isbndb;
 
-public class AuthorService : IAuthorService
+public class IsbndbAuthorService : IIsbndbAuthorService
 {
     private readonly IIsbndbAuthorClient _authorClient;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AuthorService(IIsbndbAuthorClient authorClient, IUnitOfWork unitOfWork)
+    public IsbndbAuthorService(IIsbndbAuthorClient authorClient, IUnitOfWork unitOfWork)
     {
         _authorClient = authorClient;
         _unitOfWork = unitOfWork;

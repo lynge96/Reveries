@@ -1,3 +1,4 @@
+using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -12,14 +13,14 @@ namespace Reveries.Console.Handlers;
 public class SearchBookHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchBook;
-    private readonly IBookService _bookService;
+    private readonly IIsbndbBookService _isbndbBookService;
     private readonly IBookSaveService _bookSaveService;
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
 
-    public SearchBookHandler(IBookService bookService, IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
+    public SearchBookHandler(IIsbndbBookService isbndbBookService, IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
     {
-        _bookService = bookService;
+        _isbndbBookService = isbndbBookService;
         _bookSaveService = bookSaveService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
@@ -58,13 +59,13 @@ public class SearchBookHandler : BaseHandler
 
         if (isbnTokens.Count != 0)
         {
-            var isbnResults = await _bookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
+            var isbnResults = await _isbndbBookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
             results.AddRange(isbnResults);
         }
 
         if (titleTokens.Count != 0)
         {
-            var titleResults = await _bookService.GetBooksByTitleAsync(titleTokens, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
+            var titleResults = await _isbndbBookService.GetBooksByTitleAsync(titleTokens, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
             results.AddRange(titleResults);
         }
 

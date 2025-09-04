@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
-using Reveries.Application.DTOs.Publishers;
+using Reveries.Application.DTOs.IsbndbDtos.Publishers;
 using Reveries.Application.Interfaces.Isbndb;
 
 namespace Reveries.Infrastructure.IsbnDb;

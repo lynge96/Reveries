@@ -1,4 +1,4 @@
-﻿using Reveries.Application.DTOs.Books;
+﻿using Reveries.Application.DTOs.IsbndbDtos.Books;
 
 namespace Reveries.Application.Interfaces.Isbndb;
 

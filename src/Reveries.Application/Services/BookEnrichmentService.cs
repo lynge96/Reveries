@@ -14,8 +14,7 @@ public class BookEnrichmentService : IBookEnrichmentService
     
     public async Task EnrichBooksAsync(CancellationToken cancellationToken)
     {
-        var books = await _unitOfWork.Books.GetBooksMissingMetadataAsync();
-        
+        // TODO: Lav en Google Books client som henter data for manglende data og beskrivelse af bøgerne.
         return;
     }
 }

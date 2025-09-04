@@ -1,8 +1,8 @@
 using Reveries.Core.Entities;
 
-namespace Reveries.Application.Interfaces.Services;
+namespace Reveries.Application.Interfaces.Isbndb;
 
-public interface IAuthorService
+public interface IIsbndbAuthorService
 {
     Task<List<string>> GetAuthorsByNameAsync(string name, CancellationToken cancellationToken = default);
     

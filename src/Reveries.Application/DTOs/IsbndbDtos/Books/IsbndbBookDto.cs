@@ -1,7 +1,6 @@
 ﻿using System.Text.Json.Serialization;
-using Reveries.Core.Enums;
 
-namespace Reveries.Application.DTOs.Books;
+namespace Reveries.Application.DTOs.IsbndbDtos.Books;
 
 public class IsbndbBookDto
 {

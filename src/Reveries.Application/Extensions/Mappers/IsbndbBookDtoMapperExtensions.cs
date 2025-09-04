@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
-using Reveries.Application.DTOs.Books;
+using Reveries.Application.DTOs.IsbndbDtos.Books;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
 

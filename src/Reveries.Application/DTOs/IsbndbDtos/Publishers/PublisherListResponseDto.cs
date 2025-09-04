@@ -1,4 +1,4 @@
-﻿namespace Reveries.Application.DTOs.Publishers;
+﻿namespace Reveries.Application.DTOs.IsbndbDtos.Publishers;
 
 public class PublisherListResponseDto
 {

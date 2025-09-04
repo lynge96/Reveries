@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
-using Reveries.Application.DTOs.Books;
+using Reveries.Application.DTOs.IsbndbDtos.Books;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Infrastructure.Common.Json.Converters;
 

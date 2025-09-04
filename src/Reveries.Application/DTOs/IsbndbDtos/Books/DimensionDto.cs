@@ -1,4 +1,4 @@
-namespace Reveries.Application.DTOs.Books;
+namespace Reveries.Application.DTOs.IsbndbDtos.Books;
 
 public class DimensionDto
 {

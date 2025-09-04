@@ -1,3 +1,4 @@
+using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -10,13 +11,13 @@ namespace Reveries.Console.Handlers;
 public class SearchPublisherHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchPublisher;
-    private readonly IPublisherService _publisherService;
+    private readonly IIsbndbPublisherService _isbndbPublisherService;
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
 
-    public SearchPublisherHandler(IPublisherService publisherService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
+    public SearchPublisherHandler(IIsbndbPublisherService isbndbPublisherService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
     {
-        _publisherService = publisherService;
+        _isbndbPublisherService = isbndbPublisherService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
     }
@@ -26,14 +27,14 @@ public class SearchPublisherHandler : BaseHandler
         var publisherInput = ConsolePromptUtility.GetUserInput("Enter publisher name:");
         
         var (publishers, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(() => _publisherService.GetPublishersByNameAsync(publisherInput, cancellationToken));
+            .RunWithStatusAsync(() => _isbndbPublisherService.GetPublishersByNameAsync(publisherInput, cancellationToken));
 
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
         
         var selectedPublisher = ConsolePromptUtility.ShowSelectionPrompt("Select a publisher to see their books:", publishers);
         
         var (bookResults, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(async () => await _publisherService.GetBooksByPublisherAsync(selectedPublisher, cancellationToken));
+            .RunWithStatusAsync(async () => await _isbndbPublisherService.GetBooksByPublisherAsync(selectedPublisher, cancellationToken));
         
         if (bookResults.Count == 0)
         {

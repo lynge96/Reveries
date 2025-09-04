@@ -17,6 +17,13 @@ public static class InfrastructureServiceCollection
             options.ApiUrl = Environment.GetEnvironmentVariable("ISBNDB_API_URL") 
                              ?? throw new InvalidOperationException("ISBNDB_API_URL missing");
         });
+        services.Configure<GoogleBooksSettings>(options =>
+        {
+            options.ApiKey = Environment.GetEnvironmentVariable("GOOGLE_BOOKS_API_KEY") 
+                             ?? throw new InvalidOperationException("GOOGLE_BOOKS_API_KEY missing");
+            options.ApiUrl = Environment.GetEnvironmentVariable("GOOGLE_BOOKS_API_URL") 
+                             ?? throw new InvalidOperationException("GOOGLE_BOOKS_API_URL missing");
+        });
         services.Configure<PostgresSettings>(options =>
         {
             options.Host = Environment.GetEnvironmentVariable("DB_HOST") 

@@ -1,3 +1,4 @@
+using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -10,13 +11,13 @@ namespace Reveries.Console.Handlers;
 public class SearchAuthorHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchAuthor;
-    private readonly IAuthorService _authorService;
+    private readonly IIsbndbAuthorService _isbndbAuthorService;
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
 
-    public SearchAuthorHandler(IAuthorService authorService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
+    public SearchAuthorHandler(IIsbndbAuthorService isbndbAuthorService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
     {
-        _authorService = authorService;
+        _isbndbAuthorService = isbndbAuthorService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
     }
@@ -26,7 +27,7 @@ public class SearchAuthorHandler : BaseHandler
         var authorInput = ConsolePromptUtility.GetUserInput("Enter author name:");
 
         var (authors, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(async () => await _authorService.GetAuthorsByNameAsync(authorInput, cancellationToken));
+            .RunWithStatusAsync(async () => await _isbndbAuthorService.GetAuthorsByNameAsync(authorInput, cancellationToken));
 
         if (authors.Count == 0)
         {
@@ -41,7 +42,7 @@ public class SearchAuthorHandler : BaseHandler
             : ConsolePromptUtility.ShowSelectionPrompt("Select an author to see their books:", authors);
         
         var (bookResults, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(async () => await _authorService.GetBooksForAuthorAsync(selectedAuthor, cancellationToken));
+            .RunWithStatusAsync(async () => await _isbndbAuthorService.GetBooksForAuthorAsync(selectedAuthor, cancellationToken));
         
         if (bookResults.Count == 0)
         {

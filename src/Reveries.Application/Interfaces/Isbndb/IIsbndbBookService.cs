@@ -1,9 +1,9 @@
 ﻿using Reveries.Core.Entities;
 using Reveries.Core.Enums;
 
-namespace Reveries.Application.Interfaces.Services;
+namespace Reveries.Application.Interfaces.Isbndb;
 
-public interface IBookService
+public interface IIsbndbBookService
 {
     Task<List<Book>> GetBooksByIsbnStringAsync(List<string> isbns, CancellationToken cancellationToken = default);
     

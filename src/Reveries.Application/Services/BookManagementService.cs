@@ -1,4 +1,5 @@
 using Reveries.Application.Common.Validation.Exceptions;
+using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Entities;
 using Reveries.Core.Interfaces.Persistence;
@@ -7,12 +8,12 @@ namespace Reveries.Application.Services;
 
 public class BookManagementService : IBookManagementService
 {
-    private readonly IAuthorService _authorService;
+    private readonly IIsbndbAuthorService _isbndbAuthorService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public BookManagementService(IAuthorService authorService, IUnitOfWork unitOfWork)
+    public BookManagementService(IIsbndbAuthorService isbndbAuthorService, IUnitOfWork unitOfWork)
     {
-        _authorService = authorService;
+        _isbndbAuthorService = isbndbAuthorService;
         _unitOfWork = unitOfWork;
     }
     
@@ -85,7 +86,7 @@ public class BookManagementService : IBookManagementService
 
     private async Task EnrichAuthorWithNameVariantsAsync(Author author)
     {
-        var variants = await _authorService.GetAuthorsByNameAsync(author.NormalizedName);
+        var variants = await _isbndbAuthorService.GetAuthorsByNameAsync(author.NormalizedName);
     
         author.NameVariants = new List<AuthorNameVariant>
         {
