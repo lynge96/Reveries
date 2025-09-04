@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reveries.Core.Settings;
-using Reveries.Infrastructure.IsbnDb;
+using Reveries.Infrastructure.BookApis.GoogleBooksClients;
+using Reveries.Infrastructure.BookApis.IsbndbClients;
 using Reveries.Infrastructure.Persistence;
 
 namespace Reveries.Infrastructure.Services;
@@ -36,7 +37,8 @@ public static class InfrastructureServiceCollection
                                ?? throw new InvalidOperationException("POSTGRES_PASSWORD missing");
         });
         
-        services.AddIsbndb(configuration);
+        services.AddIsbndb();
+        services.AddGoogleBooks();
         services.AddPersistence();
         
         return services;

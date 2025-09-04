@@ -5,7 +5,7 @@ using Reveries.Application.DTOs.IsbndbDtos.Books;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Infrastructure.Common.Json.Converters;
 
-namespace Reveries.Infrastructure.IsbnDb;
+namespace Reveries.Infrastructure.BookApis.IsbndbClients;
 
 public class IsbndbBookClient : IIsbndbBookClient
 {

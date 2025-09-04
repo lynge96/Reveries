@@ -4,11 +4,11 @@ using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Settings;
 
-namespace Reveries.Infrastructure.IsbnDb;
+namespace Reveries.Infrastructure.BookApis.IsbndbClients;
 
 public static class IsbndbServiceCollection
 {
-    public static IServiceCollection AddIsbndb(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddIsbndb(this IServiceCollection services)
     {
         services.AddHttpClient("Isbndb", (provider, client) =>
         {

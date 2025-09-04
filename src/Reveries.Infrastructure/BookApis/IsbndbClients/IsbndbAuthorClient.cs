@@ -2,7 +2,7 @@
 using Reveries.Application.DTOs.IsbndbDtos.Authors;
 using Reveries.Application.Interfaces.Isbndb;
 
-namespace Reveries.Infrastructure.IsbnDb;
+namespace Reveries.Infrastructure.BookApis.IsbndbClients;
 
 public class IsbndbAuthorClient : IIsbndbAuthorClient
 {
