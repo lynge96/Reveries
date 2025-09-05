@@ -4,5 +4,6 @@ public enum DataSource
 {
     Database,
     IsbndbApi,
+    GoogleBooksApi,
     Cache
 }

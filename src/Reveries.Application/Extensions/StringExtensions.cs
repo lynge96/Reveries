@@ -39,4 +39,11 @@ public static partial class StringExtensions
         // Trim mellemrum i start og slut
         return singleSpaces.Trim();
     }
+    
+    public static DateTime? ParsePublishDate(this string? dateString)
+    {
+        if (string.IsNullOrEmpty(dateString)) return null;
+        
+        return DateTime.TryParse(dateString, out var date) ? date : null;
+    }
 }

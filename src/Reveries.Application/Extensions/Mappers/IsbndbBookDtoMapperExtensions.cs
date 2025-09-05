@@ -35,7 +35,7 @@ public static class IsbndbBookDtoMapperExtensions
                 : new Publisher { Name = PublisherNormalizer.NormalizePublisher(isbndbBookDto.Publisher) },
             LanguageIso639 = isbndbBookDto.Language,
             Language = GetLanguageName(isbndbBookDto.Language),
-            PublishDate = ParsePublishDate(isbndbBookDto.DatePublished),
+            PublishDate = isbndbBookDto.DatePublished.ParsePublishDate(),
             Synopsis = isbndbBookDto.Synopsis.CleanHtml(),
             ImageThumbnail = isbndbBookDto.Image,
             ImageUrl = isbndbBookDto.ImageOriginal,
@@ -53,14 +53,6 @@ public static class IsbndbBookDtoMapperExtensions
             Series = seriesName != null ? new Series { Name = seriesName } : null,
             SeriesNumber = seriesNumber,
         };
-    }
-
-    private static DateTime? ParsePublishDate(string? dateString)
-    {
-        if (string.IsNullOrEmpty(dateString))
-            return null;
-            
-        return DateTime.TryParse(dateString, out var date) ? date : null;
     }
     
     private static string GetLanguageName(string? languageIso639)
