@@ -13,4 +13,5 @@ public class GoogleVolumeInfoDto
     public List<string>? Categories { get; set; }
     public string? Language { get; set; }
     public string? PrintType { get; set; }
+    
 }

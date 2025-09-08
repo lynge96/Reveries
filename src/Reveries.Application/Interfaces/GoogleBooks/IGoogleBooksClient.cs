@@ -5,5 +5,5 @@ namespace Reveries.Application.Interfaces.GoogleBooks;
 public interface IGoogleBooksClient
 {
     Task<GoogleBookResponseDto?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default);
-    Task<GoogleBookResponseDto?> SearchBooksAsync(string query, CancellationToken cancellationToken = default);
+    Task<GoogleBookItemDto?> GetBookByVolumeIdAsync(string volumeId, CancellationToken cancellationToken = default);
 }

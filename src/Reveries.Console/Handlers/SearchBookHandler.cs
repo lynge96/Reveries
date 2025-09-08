@@ -17,13 +17,15 @@ public class SearchBookHandler : BaseHandler
     private readonly IBookSaveService _bookSaveService;
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
+    private readonly IBookEnrichmentService _bookEnrichmentService;
 
-    public SearchBookHandler(IIsbndbBookService isbndbBookService, IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
+    public SearchBookHandler(IIsbndbBookService isbndbBookService, IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookEnrichmentService bookEnrichmentService)
     {
         _isbndbBookService = isbndbBookService;
         _bookSaveService = bookSaveService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
+        _bookEnrichmentService = bookEnrichmentService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -59,8 +61,9 @@ public class SearchBookHandler : BaseHandler
 
         if (isbnTokens.Count != 0)
         {
-            var isbnResults = await _isbndbBookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
-            results.AddRange(isbnResults);
+            var isbn = await _bookEnrichmentService.EnrichBookByIsbnAsync(isbnTokens[0], cancellationToken);
+            //var isbnResults = await _isbndbBookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
+            //results.AddRange(isbnResults);
         }
 
         if (titleTokens.Count != 0)

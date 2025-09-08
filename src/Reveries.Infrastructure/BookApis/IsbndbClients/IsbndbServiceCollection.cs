@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.Settings;
+using Reveries.Core.Entities.Settings;
 
 namespace Reveries.Infrastructure.BookApis.IsbndbClients;
 

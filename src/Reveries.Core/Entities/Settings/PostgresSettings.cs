@@ -1,4 +1,4 @@
-namespace Reveries.Core.Settings;
+namespace Reveries.Core.Entities.Settings;
 
 public class PostgresSettings
 {

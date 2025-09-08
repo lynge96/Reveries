@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Reveries.Core.Settings;
+using Reveries.Core.Entities.Settings;
 using Reveries.Infrastructure.BookApis.GoogleBooksClients;
 using Reveries.Infrastructure.BookApis.IsbndbClients;
 using Reveries.Infrastructure.Persistence;

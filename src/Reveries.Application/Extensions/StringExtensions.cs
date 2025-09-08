@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Reveries.Application.Extensions;
@@ -45,5 +46,29 @@ public static partial class StringExtensions
         if (string.IsNullOrEmpty(dateString)) return null;
         
         return DateTime.TryParse(dateString, out var date) ? date : null;
+    }
+    
+    public static string GetLanguageName(this string? languageIso639)
+    {
+        if (string.IsNullOrEmpty(languageIso639))
+            return "Unknown";
+
+        try
+        {
+            var culture = CultureInfo.GetCultureInfo(languageIso639);
+            return culture.EnglishName.Split(' ')[0];
+        }
+        catch (CultureNotFoundException)
+        {
+            try
+            {
+                var cultureWithRegion = CultureInfo.GetCultureInfo($"{languageIso639}-{languageIso639.ToUpper()}");
+                return cultureWithRegion.EnglishName.Split(' ')[0];
+            }
+            catch (CultureNotFoundException)
+            {
+                return "Unknown";
+            }
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Reveries.Application.DTOs.IsbndbDtos.Books;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
@@ -34,7 +33,7 @@ public static class IsbndbBookDtoMapperExtensions
                 ? null 
                 : new Publisher { Name = PublisherNormalizer.NormalizePublisher(isbndbBookDto.Publisher) },
             LanguageIso639 = isbndbBookDto.Language,
-            Language = GetLanguageName(isbndbBookDto.Language),
+            Language = isbndbBookDto.Language.GetLanguageName(),
             PublishDate = isbndbBookDto.DatePublished.ParsePublishDate(),
             Synopsis = isbndbBookDto.Synopsis.CleanHtml(),
             ImageThumbnail = isbndbBookDto.Image,
@@ -55,30 +54,6 @@ public static class IsbndbBookDtoMapperExtensions
         };
     }
     
-    private static string GetLanguageName(string? languageIso639)
-    {
-        if (string.IsNullOrEmpty(languageIso639))
-            return "Unknown";
-
-        try
-        {
-            var culture = CultureInfo.GetCultureInfo(languageIso639);
-            return culture.EnglishName.Split(' ')[0];
-        }
-        catch (CultureNotFoundException)
-        {
-            try
-            {
-                var cultureWithRegion = CultureInfo.GetCultureInfo($"{languageIso639}-{languageIso639.ToUpper()}");
-                return cultureWithRegion.EnglishName.Split(' ')[0];
-            }
-            catch (CultureNotFoundException)
-            {
-                return "Unknown";
-            }
-        }
-    }
-
     private static (string cleanedTitle, string? seriesName, int? seriesNumber) ParseSeriesInfo(string title)
     {
         if (string.IsNullOrWhiteSpace(title))

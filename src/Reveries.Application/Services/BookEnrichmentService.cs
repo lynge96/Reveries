@@ -18,9 +18,10 @@ public class BookEnrichmentService : IBookEnrichmentService
         _isbndbService = isbndbBookService;
         _googleService = googleBookService;
     }
-
+    // TODO: Færdiggør metoderne, så de henter bøger fra ISBNDB og Google Books og samler dem sammen, så searchHandler kun bruger 1 service.
     public async Task<Book?> EnrichBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
     {
+        var googleBook = await _googleService.GetBookByIsbnAsync(isbn, cancellationToken);
         var result = await EnrichBooksByIsbnsAsync(new List<string> { isbn }, cancellationToken);
         
         return result.FirstOrDefault();

@@ -21,6 +21,7 @@ public class IsbndbBookService : IIsbndbBookService
     
     public async Task<List<Book>> GetBooksByIsbnStringAsync(List<string> isbnString, CancellationToken cancellationToken = default)
     {
+        // TODO: Lav en DatabaseSearchService der har metoder til at hente data fra databasen.
         var booksInDb = await _unitOfWork.Books.GetBooksWithDetailsByIsbnAsync(isbnString);
         
         var foundIsbns = booksInDb.Select(b => b.Isbn13 ?? b.Isbn10).Where(i => i != null).ToHashSet();
