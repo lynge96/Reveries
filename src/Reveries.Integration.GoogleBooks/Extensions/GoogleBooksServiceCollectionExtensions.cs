@@ -5,7 +5,7 @@ using Reveries.Integration.GoogleBooks.Configuration;
 
 namespace Reveries.Integration.GoogleBooks.Extensions;
 
-public static class ServiceCollectionExtensions
+public static class GoogleBooksServiceCollectionExtensions
 {
     public static IServiceCollection AddGoogleBooksServices(this IServiceCollection services)
     {

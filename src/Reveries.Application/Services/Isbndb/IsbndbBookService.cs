@@ -1,7 +1,5 @@
 ﻿using Reveries.Application.Common.Mappers;
-using Reveries.Application.Common.Validation;
 using Reveries.Application.Extensions;
-using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
@@ -22,29 +20,23 @@ public class IsbndbBookService : IIsbndbBookService
     
     public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
-        // TODO: Lav en DatabaseSearchService der har metoder til at hente data fra databasen.
-        var booksInDb = await _unitOfWork.Books.GetBooksWithDetailsByIsbnAsync(isbns);
-        
-        var foundIsbns = booksInDb.Select(b => b.Isbn13 ?? b.Isbn10).Where(i => i != null).ToHashSet();
-        var missingIsbns = isbns.Where(i => !foundIsbns.Contains(i)).ToList();
+        List<Book> isbndbBooks = new();
 
-        List<Book> booksFromApi = new();
-
-        switch (missingIsbns.Count)
+        switch (isbns.Count)
         {
             case 1:
             {
-                var book = await GetSingleBookAsync(missingIsbns[0], cancellationToken);
+                var book = await GetSingleBookAsync(isbns[0], cancellationToken);
                 if (book != null)
-                    booksFromApi.Add(book);
+                    isbndbBooks.Add(book);
                 break;
             }
             case > 1:
-                booksFromApi = await GetMultipleBooksAsync(missingIsbns, cancellationToken);
+                isbndbBooks = await GetMultipleBooksAsync(isbns, cancellationToken);
                 break;
         }
 
-        return booksInDb.Concat(booksFromApi).ToList();
+        return isbndbBooks;
     }
     
     public async Task<List<Book>> GetBooksByTitlesAsync(List<string>? titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default)

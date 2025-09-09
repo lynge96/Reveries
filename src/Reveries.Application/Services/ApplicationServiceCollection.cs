@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         // Book services
         services.AddScoped<IBookManagementService, BookManagementService>();
         services.AddScoped<IBookEnrichmentService, BookEnrichmentService>();
+        services.AddScoped<IBookLookupService, BookLookupService>();
         
         return services;
     }

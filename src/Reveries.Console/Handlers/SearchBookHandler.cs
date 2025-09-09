@@ -17,14 +17,16 @@ public class SearchBookHandler : BaseHandler
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
     private readonly IBookEnrichmentService _bookEnrichmentService;
+    private readonly IBookLookupService _bookLookupService;
 
-    public SearchBookHandler(IIsbndbBookService isbndbBookService, IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookEnrichmentService bookEnrichmentService)
+    public SearchBookHandler(IIsbndbBookService isbndbBookService, IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookEnrichmentService bookEnrichmentService, IBookLookupService bookLookupService)
     {
         _isbndbBookService = isbndbBookService;
         _bookSaveService = bookSaveService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
         _bookEnrichmentService = bookEnrichmentService;
+        _bookLookupService = bookLookupService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -61,7 +63,10 @@ public class SearchBookHandler : BaseHandler
         if (isbnTokens.Count != 0)
         {
             // TODO: Skal kalde en central service, der tjekker Database og en der tjekker EnrichBooks, hvis de ikke findes.
-            var isbn = await _bookEnrichmentService.EnrichBooksByIsbnsAsync(isbnTokens, cancellationToken);
+            var books = await _bookLookupService.FindBooksByIsbnAsync(isbnTokens, cancellationToken);
+            results.AddRange(books);
+            
+            var isbn = await _bookEnrichmentService.MergeBooksFromSourcesByIsbnsAsync(isbnTokens, cancellationToken);
             //var isbnResults = await _isbndbBookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
             //results.AddRange(isbnResults);
         }

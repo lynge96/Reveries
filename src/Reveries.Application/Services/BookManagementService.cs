@@ -35,7 +35,7 @@ public class BookManagementService : IBookManagementService
             if (book.Authors.Count != 0)
                 await SaveBookAuthorsAsync(savedBookId, book.Authors);
             
-            if (book.Subjects.Count != 0)
+            if (book.Subjects != null && book.Subjects.Count != 0)
                 await SaveBookSubjectsAsync(savedBookId, book.Subjects);
             
             if (book.Dimensions != null)

@@ -17,23 +17,18 @@ public class BookEnrichmentService : IBookEnrichmentService
         _isbndbService = isbndbBookService;
         _googleService = googleBookService;
     }
-    // TODO: Færdiggør metoderne, så de henter bøger fra ISBNDB og Google Books og samler dem sammen, så searchHandler kun bruger 1 service.
     
-    public async Task<List<Book>> EnrichBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> MergeBooksFromSourcesByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
-        var validatedIsbns = IsbnValidationHelper.ValidateIsbns(isbns);
-        if (validatedIsbns.Count == 0)
-            return new List<Book>();
-        
-        var googleBooksTask = _googleService.GetBooksByIsbnsAsync(validatedIsbns, cancellationToken);
-        var isbndbTask = _isbndbService.GetBooksByIsbnsAsync(validatedIsbns, cancellationToken);
+        var googleBooksTask = _googleService.GetBooksByIsbnsAsync(isbns, cancellationToken);
+        var isbndbTask = _isbndbService.GetBooksByIsbnsAsync(isbns, cancellationToken);
         await Task.WhenAll(googleBooksTask, isbndbTask);
         
         var googleBooks = googleBooksTask.Result;
         var isbndbBooks = isbndbTask.Result;
         
         var books = new List<Book>();
-        foreach (var isbn in validatedIsbns)
+        foreach (var isbn in isbns)
         {
             var isbndbBook = isbndbBooks.FirstOrDefault(b => b.Isbn13 == isbn || b.Isbn10 == isbn);
             var googleBook = googleBooks.FirstOrDefault(b => b.Isbn13 == isbn || b.Isbn10 == isbn);
@@ -97,14 +92,14 @@ public class BookEnrichmentService : IBookEnrichmentService
             Isbn10 = Prefer(isbndbBook.Isbn10, googleBook.Isbn10),
             Title = Prefer(googleBook.Title, isbndbBook.Title)!,
             Pages = isbndbBook.Pages > 0 ? isbndbBook.Pages : googleBook.Pages,
-            LanguageIso639 = isbndbBook.LanguageIso639 ?? googleBook.LanguageIso639,
-            Language = isbndbBook.Language ?? googleBook.Language,
+            LanguageIso639 = Prefer(isbndbBook.LanguageIso639, googleBook.LanguageIso639),
+            Language = Prefer(isbndbBook.Language, googleBook.Language),
             PublishDate = isbndbBook.PublishDate ?? googleBook.PublishDate,
             Synopsis = googleBook.Synopsis ?? isbndbBook.Synopsis,
             ImageThumbnail = googleBook.ImageThumbnail ?? isbndbBook.ImageThumbnail,
             ImageUrl = isbndbBook.ImageThumbnail ?? isbndbBook.ImageUrl,
             Msrp = isbndbBook.Msrp,
-            Binding = isbndbBook.Binding ?? googleBook.Binding,
+            Binding = Prefer(isbndbBook.Binding, googleBook.Binding),
             Edition = Prefer(googleBook.Edition, isbndbBook.Edition),
             SeriesNumber = isbndbBook.SeriesNumber,
             Dimensions = isbndbBook.Dimensions,
