@@ -4,7 +4,7 @@ using Reveries.Application.DTOs.GoogleBooksDtos;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Core.Entities.Settings;
 
-namespace Reveries.Infrastructure.BookApis.GoogleBooksClients;
+namespace Reveries.Integration.GoogleBooks.Clients;
 
 public class GoogleBooksClient : IGoogleBooksClient
 {

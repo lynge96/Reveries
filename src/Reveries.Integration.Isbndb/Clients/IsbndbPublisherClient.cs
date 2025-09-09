@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Reveries.Application.DTOs.IsbndbDtos.Publishers;
 using Reveries.Application.Interfaces.Isbndb;
 
-namespace Reveries.Infrastructure.BookApis.IsbndbClients;
+namespace Reveries.Integration.Isbndb.Clients;
 
 public class IsbndbPublisherClient : IIsbndbPublisherClient
 {

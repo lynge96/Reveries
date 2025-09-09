@@ -2,8 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Core.Entities.Settings;
+using Reveries.Integration.GoogleBooks.Clients;
 
-namespace Reveries.Infrastructure.BookApis.GoogleBooksClients;
+namespace Reveries.Integration.GoogleBooks.Configuration;
 
 public static class GoogleBooksServiceCollection
 {

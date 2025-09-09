@@ -1,10 +1,10 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Entities.Settings;
+using Reveries.Integration.Isbndb.Clients;
 
-namespace Reveries.Infrastructure.BookApis.IsbndbClients;
+namespace Reveries.Integration.Isbndb.Configuration;
 
 public static class IsbndbServiceCollection
 {

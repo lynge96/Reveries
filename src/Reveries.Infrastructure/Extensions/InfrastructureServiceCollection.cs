@@ -1,30 +1,14 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reveries.Core.Entities.Settings;
-using Reveries.Infrastructure.BookApis.GoogleBooksClients;
-using Reveries.Infrastructure.BookApis.IsbndbClients;
 using Reveries.Infrastructure.Persistence;
 
-namespace Reveries.Infrastructure.Services;
+namespace Reveries.Infrastructure.Extensions;
 
 public static class InfrastructureServiceCollection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<IsbndbSettings>(options =>
-        {
-            options.ApiKey = Environment.GetEnvironmentVariable("ISBNDB_API_KEY") 
-                             ?? throw new InvalidOperationException("ISBNDB_API_KEY missing");
-            options.ApiUrl = Environment.GetEnvironmentVariable("ISBNDB_API_URL") 
-                             ?? throw new InvalidOperationException("ISBNDB_API_URL missing");
-        });
-        services.Configure<GoogleBooksSettings>(options =>
-        {
-            options.ApiKey = Environment.GetEnvironmentVariable("GOOGLE_BOOKS_API_KEY") 
-                             ?? throw new InvalidOperationException("GOOGLE_BOOKS_API_KEY missing");
-            options.ApiUrl = Environment.GetEnvironmentVariable("GOOGLE_BOOKS_API_URL") 
-                             ?? throw new InvalidOperationException("GOOGLE_BOOKS_API_URL missing");
-        });
         services.Configure<PostgresSettings>(options =>
         {
             options.Host = Environment.GetEnvironmentVariable("DB_HOST") 
@@ -37,8 +21,6 @@ public static class InfrastructureServiceCollection
                                ?? throw new InvalidOperationException("POSTGRES_PASSWORD missing");
         });
         
-        services.AddIsbndb();
-        services.AddGoogleBooks();
         services.AddPersistence();
         
         return services;

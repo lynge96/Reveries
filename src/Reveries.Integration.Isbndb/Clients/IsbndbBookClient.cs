@@ -1,11 +1,11 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using Reveries.Application.Common.Json.Converters;
 using Reveries.Application.DTOs.IsbndbDtos.Books;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Infrastructure.Common.Json.Converters;
 
-namespace Reveries.Infrastructure.BookApis.IsbndbClients;
+namespace Reveries.Integration.Isbndb.Clients;
 
 public class IsbndbBookClient : IIsbndbBookClient
 {
