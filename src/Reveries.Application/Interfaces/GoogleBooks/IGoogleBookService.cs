@@ -4,5 +4,5 @@ namespace Reveries.Application.Interfaces.GoogleBooks;
 
 public interface IGoogleBookService
 {
-    Task<Book?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default);
+    Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default);
 }

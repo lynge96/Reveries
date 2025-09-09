@@ -61,7 +61,7 @@ public class SearchBookHandler : BaseHandler
 
         if (isbnTokens.Count != 0)
         {
-            var isbn = await _bookEnrichmentService.EnrichBookByIsbnAsync(isbnTokens[0], cancellationToken);
+            var isbn = await _bookEnrichmentService.EnrichBooksByIsbnsAsync(isbnTokens, cancellationToken);
             //var isbnResults = await _isbndbBookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
             //results.AddRange(isbnResults);
         }

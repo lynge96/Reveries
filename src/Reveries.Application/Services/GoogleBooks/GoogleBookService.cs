@@ -14,23 +14,33 @@ public class GoogleBookService : IGoogleBookService
         _googleBooksClient = googleBooksClient;
     }
     
-    public async Task<Book?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
-        var response = await _googleBooksClient.GetBookByIsbnAsync(isbn, cancellationToken);
-        if (response?.Items == null || response.Items.Count == 0)
-            return null;
+        var results = new List<Book>();
 
-        var item = response.Items.First();
+        foreach (var isbn in isbns)
+        {
+            var response = await _googleBooksClient.GetBookByIsbnAsync(isbn, cancellationToken);
 
-        var volumeResponse = await _googleBooksClient.GetBookByVolumeIdAsync(item.Id, cancellationToken);
-        if (volumeResponse?.VolumeInfo == null)
-            return item.VolumeInfo.ToBook();
+            if (response?.Items == null || response.Items.Count == 0)
+                continue;
 
-        var primaryBook = item.VolumeInfo.ToBook();
-        var volumeBook = volumeResponse.VolumeInfo.ToBook();
+            var item = response.Items.First();
 
-        var mergedBook = MergeGoogleBooks(primaryBook, volumeBook);
-        return mergedBook;
+            var volumeResponse = await _googleBooksClient.GetBookByVolumeIdAsync(item.Id, cancellationToken);
+            if (volumeResponse?.VolumeInfo == null)
+            {
+                results.Add(item.VolumeInfo.ToBook());
+                continue;
+            }
+
+            var primaryBook = item.VolumeInfo.ToBook();
+            var volumeBook = volumeResponse.VolumeInfo.ToBook();
+
+            results.Add(MergeGoogleBooks(primaryBook, volumeBook));
+        }
+
+        return results;
     }
 
     private static Book MergeGoogleBooks(Book book, Book volume)

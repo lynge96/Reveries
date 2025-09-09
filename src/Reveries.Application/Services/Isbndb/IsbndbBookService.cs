@@ -19,13 +19,13 @@ public class IsbndbBookService : IIsbndbBookService
         _unitOfWork = unitOfWork;
     }
     
-    public async Task<List<Book>> GetBooksByIsbnStringAsync(List<string> isbnString, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
         // TODO: Lav en DatabaseSearchService der har metoder til at hente data fra databasen.
-        var booksInDb = await _unitOfWork.Books.GetBooksWithDetailsByIsbnAsync(isbnString);
+        var booksInDb = await _unitOfWork.Books.GetBooksWithDetailsByIsbnAsync(isbns);
         
         var foundIsbns = booksInDb.Select(b => b.Isbn13 ?? b.Isbn10).Where(i => i != null).ToHashSet();
-        var missingIsbns = isbnString.Where(i => !foundIsbns.Contains(i)).ToList();
+        var missingIsbns = isbns.Where(i => !foundIsbns.Contains(i)).ToList();
 
         List<Book> booksFromApi = new();
 
@@ -33,13 +33,13 @@ public class IsbndbBookService : IIsbndbBookService
         {
             case 1:
             {
-                var book = await GetBookByIsbnAsync(missingIsbns[0], cancellationToken);
+                var book = await GetSingleBookAsync(missingIsbns[0], cancellationToken);
                 if (book != null)
                     booksFromApi.Add(book);
                 break;
             }
             case > 1:
-                booksFromApi = await GetBooksByIsbnsAsync(missingIsbns, cancellationToken);
+                booksFromApi = await GetMultipleBooksAsync(missingIsbns, cancellationToken);
                 break;
         }
 
@@ -78,11 +78,9 @@ public class IsbndbBookService : IIsbndbBookService
             .ToList();
     }
 
-    private async Task<Book?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
+    private async Task<Book?> GetSingleBookAsync(string isbn, CancellationToken cancellationToken = default)
     {
-        var normalizedIsbn = IsbnValidationHelper.ValidateSingleIsbn(isbn);
-
-        var response = await _bookClient.GetBookByIsbnAsync(normalizedIsbn, cancellationToken);
+        var response = await _bookClient.GetBookByIsbnAsync(isbn, cancellationToken);
 
         var bookDto = response?.Book;
         
@@ -91,14 +89,12 @@ public class IsbndbBookService : IIsbndbBookService
         return book;
     }
     
-    private async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
+    private async Task<List<Book>> GetMultipleBooksAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
         if (isbns.Count > 100)
             throw new ArgumentException("Too many ISBN numbers. Maximum is 100.");
-        
-        var validatedIsbns = IsbnValidationHelper.ValidateIsbns(isbns).ValidIsbns;
 
-        var response = await _bookClient.GetBooksByIsbnsAsync(validatedIsbns, cancellationToken);
+        var response = await _bookClient.GetBooksByIsbnsAsync(isbns, cancellationToken);
         
         if (response is null)
             return new List<Book>();
