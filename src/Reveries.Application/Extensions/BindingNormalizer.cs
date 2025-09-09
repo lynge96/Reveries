@@ -17,7 +17,7 @@ public static class BindingNormalizer
         { "hb", "Hardback" }
     };
 
-    public static string Normalize(string? rawBinding)
+    public static string Normalize(this string? rawBinding)
     {
         if (string.IsNullOrWhiteSpace(rawBinding))
             return "Unknown";

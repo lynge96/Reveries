@@ -1,7 +1,7 @@
 using Reveries.Application.DTOs.IsbndbDtos.Books;
 using Reveries.Core.Entities;
 
-namespace Reveries.Application.Extensions.Mappers;
+namespace Reveries.Application.Common.Mappers;
 
 public static class DimensionsStructuredDtoExtensions
 {

@@ -1,3 +1,4 @@
+using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Repositories;
@@ -25,7 +26,7 @@ public static class PersistenceServiceCollection
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+        DefaultTypeMap.MatchNamesWithUnderscores = true;
 
         return services;
     }

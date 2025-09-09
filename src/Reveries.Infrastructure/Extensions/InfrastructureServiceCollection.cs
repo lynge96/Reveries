@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Reveries.Core.Entities.Settings;
+using Reveries.Infrastructure.Configuration;
 using Reveries.Infrastructure.Persistence;
 
 namespace Reveries.Infrastructure.Extensions;

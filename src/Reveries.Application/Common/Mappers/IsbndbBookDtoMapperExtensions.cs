@@ -1,9 +1,10 @@
 ﻿using System.Text.RegularExpressions;
 using Reveries.Application.DTOs.IsbndbDtos.Books;
+using Reveries.Application.Extensions;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
 
-namespace Reveries.Application.Extensions.Mappers;
+namespace Reveries.Application.Common.Mappers;
 
 public static class IsbndbBookDtoMapperExtensions
 {
@@ -39,16 +40,14 @@ public static class IsbndbBookDtoMapperExtensions
             ImageThumbnail = isbndbBookDto.Image,
             ImageUrl = isbndbBookDto.ImageOriginal,
             Msrp = isbndbBookDto.Msrp,
-            Binding = BindingNormalizer.Normalize(isbndbBookDto.Binding),
+            Binding = isbndbBookDto.Binding?.Normalize(),
             Edition = isbndbBookDto.Edition,
             Subjects = isbndbBookDto.Subjects?
                 .Select(subjectName => new Subject { Genre = subjectName })
                 .ToList() ?? new List<Subject>(),
             Dimensions = isbndbBookDto.DimensionsStructured?.ToModel(),
             DataSource = DataSource.IsbndbApi,
-            DeweyDecimals = isbndbBookDto.DeweyDecimals?
-                .Select(code => new DeweyDecimal { Code = code })
-                .ToList() ?? new List<DeweyDecimal>(),
+            DeweyDecimals = isbndbBookDto.DeweyDecimals.FormatDeweyDecimals(),
             Series = seriesName != null ? new Series { Name = seriesName } : null,
             SeriesNumber = seriesNumber,
         };

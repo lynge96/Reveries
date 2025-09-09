@@ -22,7 +22,7 @@ public class BookEnrichmentService : IBookEnrichmentService
     public async Task<List<Book>> EnrichBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
         var validatedIsbns = IsbnValidationHelper.ValidateIsbns(isbns);
-        if (validatedIsbns!.Count == 0)
+        if (validatedIsbns.Count == 0)
             return new List<Book>();
         
         var googleTask = _googleService.GetBooksByIsbnsAsync(validatedIsbns, cancellationToken);
@@ -83,7 +83,7 @@ public class BookEnrichmentService : IBookEnrichmentService
             Authors = googleBook.Authors.Count != 0 ? googleBook.Authors : isbndbBook.Authors,
             Publisher = isbndbBook.Publisher ?? googleBook.Publisher,
             DeweyDecimals = isbndbBook.DeweyDecimals,
-            Subjects = googleBook.Subjects.Count != 0 ? googleBook.Subjects : isbndbBook.Subjects,
+            Subjects = googleBook.Subjects != null && googleBook.Subjects.Count != 0 ? googleBook.Subjects : isbndbBook.Subjects,
             Series = isbndbBook.Series
         };
     }

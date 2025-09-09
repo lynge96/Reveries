@@ -40,7 +40,7 @@ public class Book
     
     public ICollection<DeweyDecimal> DeweyDecimals { get; set; } = new List<DeweyDecimal>();
     
-    public ICollection<Subject> Subjects { get; set; } = new List<Subject>();
+    public ICollection<Subject>? Subjects { get; set; } = new List<Subject>();
     
     public int? SeriesNumber { get; set; }
     

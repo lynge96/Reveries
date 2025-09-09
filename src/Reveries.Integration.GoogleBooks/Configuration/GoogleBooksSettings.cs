@@ -1,4 +1,4 @@
-namespace Reveries.Core.Entities.Settings;
+namespace Reveries.Integration.GoogleBooks.Configuration;
 
 public class GoogleBooksSettings
 {
