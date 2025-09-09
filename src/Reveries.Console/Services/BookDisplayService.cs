@@ -19,11 +19,22 @@ public class BookDisplayService : IBookDisplayService
             return root;
         }
 
-        foreach (var book in books)
+        var sortedBooks = books
+            .OrderByDescending(b => b.DataSource.HasFlag(DataSource.CombinedBookApi))
+            .ThenBy(b => b.Title)
+            .ToList();
+        
+        foreach (var book in sortedBooks)
         {
-            var sourceLabel = book.DataSource == DataSource.Database
-                ? " (Database)"
-                : " (API)";
+            var sourceLabel = book.DataSource switch
+            {
+                DataSource.Database => " (Database)",
+                DataSource.GoogleBooksApi => " (GoogleBooks API)",
+                DataSource.IsbndbApi => " (ISBNdb API)",
+                DataSource.CombinedBookApi => " (Combined API)",
+                DataSource.Cache => " (Cache)",
+                _ => ""
+            };
             
             var bookNode = root.AddNode("📖 " + Markup.Escape(book.Title).Bold().AsPrimary() + sourceLabel.AsInfo());
             AddBookDetails(bookNode, book);

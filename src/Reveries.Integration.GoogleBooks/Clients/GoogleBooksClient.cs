@@ -56,4 +56,25 @@ public class GoogleBooksClient : IGoogleBooksClient
             throw new InvalidOperationException($"Failed to deserialize Google Book data for Volume: {volumeId}", ex);
         }
     }
+
+    public async Task<GoogleBookResponseDto?> SearchBooksByTitleAsync(string title, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Title must not be empty.", nameof(title));
+        
+        var url = $"volumes?q=intitle:\"{Uri.EscapeDataString(title)}\"&key={_settings.ApiKey}";
+        var response = await _httpClient.GetAsync(url, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        try
+        {
+            return JsonSerializer.Deserialize<GoogleBookResponseDto>(json, JsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException($"Failed to deserialize Google Book data for title: {title}", ex);
+        }
+    }
 }

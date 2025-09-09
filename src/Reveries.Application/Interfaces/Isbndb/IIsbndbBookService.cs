@@ -7,5 +7,5 @@ public interface IIsbndbBookService
 {
     Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default);
     
-    Task<List<Book>> GetBooksByTitleAsync(List<string> titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default);
+    Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default);
 }

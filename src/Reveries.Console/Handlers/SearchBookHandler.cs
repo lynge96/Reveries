@@ -5,7 +5,6 @@ using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services.Interfaces;
 using Reveries.Core.Entities;
-using Reveries.Core.Enums;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;
@@ -32,7 +31,7 @@ public class SearchBookHandler : BaseHandler
     {
         // 9780804139021 9780593099322 9781982141172
         // 9781399725026
-        var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma or space:");
+        var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma:");
 
         var (bookResults, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(() => SearchBooksAsync(searchInput, cancellationToken));
@@ -51,7 +50,7 @@ public class SearchBookHandler : BaseHandler
     private async Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken cancellationToken)
     {
         var tokens = searchInput
-            .Split([',', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Split([','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToList();
 
         var isbnTokens = tokens.Where(IsIsbnFormat).ToList();
@@ -66,11 +65,12 @@ public class SearchBookHandler : BaseHandler
             //var isbnResults = await _isbndbBookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
             //results.AddRange(isbnResults);
         }
-
         if (titleTokens.Count != 0)
         {
-            var titleResults = await _isbndbBookService.GetBooksByTitleAsync(titleTokens, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
-            results.AddRange(titleResults);
+            var books = await _bookEnrichmentService.SearchBooksByTitleAsync(titleTokens, cancellationToken);
+            results.AddRange(books);
+            // var titleResults = await _isbndbBookService.GetBooksByTitlesAsync(titleTokens, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
+            // results.AddRange(titleResults);
         }
 
         return results;

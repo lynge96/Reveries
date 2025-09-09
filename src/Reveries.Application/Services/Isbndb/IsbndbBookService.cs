@@ -47,7 +47,7 @@ public class IsbndbBookService : IIsbndbBookService
         return booksInDb.Concat(booksFromApi).ToList();
     }
     
-    public async Task<List<Book>> GetBooksByTitleAsync(List<string>? titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByTitlesAsync(List<string>? titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default)
     {
         if (titles == null || titles.Count == 0)
             return new List<Book>();
@@ -55,8 +55,8 @@ public class IsbndbBookService : IIsbndbBookService
         var booksInDb = await _unitOfWork.Books.GetBooksWithDetailsByTitlesAsync(titles);
         
         var missingTitles = titles
-            .Where(t => !booksInDb.Any(b => 
-                b.Title.Contains(t, StringComparison.OrdinalIgnoreCase)))
+            .Where(t => !booksInDb
+            .Any(b => b.Title.Contains(t, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
         var booksFromApi = new List<Book>();

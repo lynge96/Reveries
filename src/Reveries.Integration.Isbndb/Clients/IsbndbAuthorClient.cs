@@ -20,7 +20,7 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
     public Task<AuthorSearchResponseDto?> GetAuthorsByNameAsync(string authorName, CancellationToken cancellationToken = default)
     {
         return SendRequestAndDeserializeAsync<AuthorSearchResponseDto>(
-            $"/authors/{Uri.EscapeDataString(authorName)}", 
+            $"authors/{Uri.EscapeDataString(authorName)}", 
             cancellationToken);
     }
 

@@ -11,7 +11,7 @@ public class BookSelectionService : IBookSelectionService
     public List<Book> SelectBooksToSave(List<Book> books)
     {
         var booksToPrompt = books.Where(b => b.DataSource != DataSource.Database).ToList();
-        var bookNamesList = booksToPrompt.Select(b => b.Title).ToList();
+        var bookNamesList = booksToPrompt.Select(b => Markup.Escape(b.Title)).ToList();
         if (booksToPrompt.Count == 0)
             return new List<Book>();
         

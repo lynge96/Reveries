@@ -20,7 +20,7 @@ public class IsbndbPublisherClient : IIsbndbPublisherClient
     
     public Task<PublisherDetailsReponseDto?> GetPublisherDetailsAsync(string publisherName, string? languageCode, CancellationToken cancellationToken = default)
     {
-        var endpoint = $"/publisher/{Uri.EscapeDataString(publisherName)}";
+        var endpoint = $"publisher/{Uri.EscapeDataString(publisherName)}";
     
         if (!string.IsNullOrWhiteSpace(languageCode))
         {
@@ -33,7 +33,7 @@ public class IsbndbPublisherClient : IIsbndbPublisherClient
     public Task<PublisherListResponseDto?> GetPublishersAsync(string publisherName, CancellationToken cancellationToken = default)
     {
         return SendRequestAndDeserializeAsync<PublisherListResponseDto>(
-            $"/publishers/{Uri.EscapeDataString(publisherName)}", 
+            $"publishers/{Uri.EscapeDataString(publisherName)}", 
             cancellationToken);
     }
     

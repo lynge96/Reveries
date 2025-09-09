@@ -6,5 +6,6 @@ public enum DataSource
     Database,
     IsbndbApi,
     GoogleBooksApi,
+    CombinedBookApi,
     Cache
 }

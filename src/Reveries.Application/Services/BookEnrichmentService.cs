@@ -25,11 +25,11 @@ public class BookEnrichmentService : IBookEnrichmentService
         if (validatedIsbns.Count == 0)
             return new List<Book>();
         
-        var googleTask = _googleService.GetBooksByIsbnsAsync(validatedIsbns, cancellationToken);
+        var googleBooksTask = _googleService.GetBooksByIsbnsAsync(validatedIsbns, cancellationToken);
         var isbndbTask = _isbndbService.GetBooksByIsbnsAsync(validatedIsbns, cancellationToken);
-        await Task.WhenAll(googleTask, isbndbTask);
+        await Task.WhenAll(googleBooksTask, isbndbTask);
         
-        var googleBooks = googleTask.Result;
+        var googleBooks = googleBooksTask.Result;
         var isbndbBooks = isbndbTask.Result;
         
         var books = new List<Book>();
@@ -46,9 +46,39 @@ public class BookEnrichmentService : IBookEnrichmentService
         return books;
     }
 
-    public async Task<List<Book>> SearchBooksByTitleAsync(string title, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> SearchBooksByTitleAsync(List<string> titles, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var googleBooksTask = _googleService.GetBooksByTitleAsync(titles, cancellationToken);
+        var isbndbTask = _isbndbService.GetBooksByTitlesAsync(titles, null, BookFormat.PhysicalOnly, cancellationToken);
+        await Task.WhenAll(googleBooksTask, isbndbTask);
+        
+        var googleBooks = googleBooksTask.Result;
+        var isbndbBooks = isbndbTask.Result;
+        
+        var isbndbByIsbn = isbndbBooks
+            .Where(b => !string.IsNullOrWhiteSpace(b.Isbn13))
+            .ToDictionary(b => b.Isbn13!, b => b);
+
+        var mergedBooks = new List<Book>();
+
+        foreach (var googleBook in googleBooks)
+        {
+            if (!string.IsNullOrWhiteSpace(googleBook.Isbn13) && isbndbByIsbn.TryGetValue(googleBook.Isbn13, out var isbndbBook))
+            {
+                var mergedBook = MergeBooks(isbndbBook, googleBook);
+                mergedBooks.Add(mergedBook);
+
+                isbndbByIsbn.Remove(googleBook.Isbn13);
+            }
+            else
+            {
+                mergedBooks.Add(googleBook);
+            }
+        }
+
+        mergedBooks.AddRange(isbndbByIsbn.Values);
+
+        return mergedBooks;
     }
     
     private static Book MergeBooks(Book? isbndbBook, Book? googleBook)
@@ -62,7 +92,7 @@ public class BookEnrichmentService : IBookEnrichmentService
 
         return new Book
         {
-            DataSource = DataSource.IsbndbApi | DataSource.IsbndbApi,
+            DataSource = DataSource.CombinedBookApi,
             Isbn13 = Prefer(isbndbBook.Isbn13, googleBook.Isbn13),
             Isbn10 = Prefer(isbndbBook.Isbn10, googleBook.Isbn10),
             Title = Prefer(googleBook.Title, isbndbBook.Title)!,

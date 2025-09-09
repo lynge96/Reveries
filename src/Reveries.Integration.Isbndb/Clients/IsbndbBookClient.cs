@@ -23,7 +23,7 @@ public class IsbndbBookClient : IIsbndbBookClient
 
     public async Task<BookDetailsDto?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
     {
-        using var response = await _httpClient.GetAsync($"/book/{isbn}", cancellationToken);
+        using var response = await _httpClient.GetAsync($"book/{isbn}", cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -40,7 +40,7 @@ public class IsbndbBookClient : IIsbndbBookClient
 
     public async Task<BooksQueryResponseDto?> GetBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll, CancellationToken cancellationToken = default)
     {
-        var basePath = $"/books/{Uri.EscapeDataString(query)}";
+        var basePath = $"books/{Uri.EscapeDataString(query)}";
         
         var queryParams = new Dictionary<string, string?>();
 
@@ -78,7 +78,7 @@ public class IsbndbBookClient : IIsbndbBookClient
                 Encoding.UTF8, 
                 "application/json");
 
-            using var response = await _httpClient.PostAsync("/books", jsonContent, cancellationToken);
+            using var response = await _httpClient.PostAsync("books", jsonContent, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken);

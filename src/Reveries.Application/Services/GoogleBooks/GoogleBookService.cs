@@ -1,5 +1,4 @@
 using Reveries.Application.Common.Mappers;
-using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
@@ -22,7 +21,6 @@ public class GoogleBookService : IGoogleBookService
         foreach (var isbn in isbns)
         {
             var response = await _googleBooksClient.GetBookByIsbnAsync(isbn, cancellationToken);
-
             if (response?.Items == null || response.Items.Count == 0)
                 continue;
 
@@ -41,6 +39,22 @@ public class GoogleBookService : IGoogleBookService
             results.Add(MergeGoogleBooks(primaryBook, volumeBook));
         }
 
+        return results;
+    }
+
+    public async Task<List<Book>> GetBooksByTitleAsync(List<string> titles, CancellationToken cancellationToken = default)
+    {
+        var results = new List<Book>();
+
+        foreach (var title in titles)
+        {
+            var response = await _googleBooksClient.SearchBooksByTitleAsync(title, cancellationToken);
+            if (response?.Items == null || response.Items.Count == 0)
+                continue;
+
+            results.AddRange(response.Items.Select(i => i.VolumeInfo.ToBook()));
+        } 
+        
         return results;
     }
 
