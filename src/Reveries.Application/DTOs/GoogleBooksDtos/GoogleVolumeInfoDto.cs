@@ -1,3 +1,5 @@
+using Reveries.Application.Extensions.Mappers;
+
 namespace Reveries.Application.DTOs.GoogleBooksDtos;
 
 public class GoogleVolumeInfoDto
@@ -13,5 +15,5 @@ public class GoogleVolumeInfoDto
     public List<string>? Categories { get; set; }
     public string? Language { get; set; }
     public string? PrintType { get; set; }
-    
+    public ImageLinks? ImageLinks { get; set; }
 }

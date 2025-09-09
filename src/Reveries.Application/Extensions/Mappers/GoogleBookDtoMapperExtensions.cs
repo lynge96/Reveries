@@ -40,7 +40,8 @@ public static class GoogleBookDtoMapperExtensions
                 .ToList() ?? [],
             Language = dto.Language.GetLanguageName(),
             LanguageIso639 = dto.Language,
-            Binding = dto.PrintType
+            Binding = dto.PrintType,
+            ImageThumbnail = dto.ImageLinks?.Thumbnail
         };
     }
     

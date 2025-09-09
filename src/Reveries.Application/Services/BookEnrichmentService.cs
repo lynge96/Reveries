@@ -22,7 +22,7 @@ public class BookEnrichmentService : IBookEnrichmentService
     public async Task<List<Book>> EnrichBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
         var validatedIsbns = IsbnValidationHelper.ValidateIsbns(isbns);
-        if (validatedIsbns.Count == 0)
+        if (validatedIsbns!.Count == 0)
             return new List<Book>();
         
         var googleTask = _googleService.GetBooksByIsbnsAsync(validatedIsbns, cancellationToken);
@@ -71,8 +71,8 @@ public class BookEnrichmentService : IBookEnrichmentService
             Language = isbndbBook.Language ?? googleBook.Language,
             PublishDate = isbndbBook.PublishDate ?? googleBook.PublishDate,
             Synopsis = googleBook.Synopsis ?? isbndbBook.Synopsis,
-            ImageThumbnail = isbndbBook.ImageThumbnail,
-            ImageUrl = isbndbBook.ImageUrl,
+            ImageThumbnail = googleBook.ImageThumbnail ?? isbndbBook.ImageThumbnail,
+            ImageUrl = isbndbBook.ImageThumbnail ?? isbndbBook.ImageUrl,
             Msrp = isbndbBook.Msrp,
             Binding = isbndbBook.Binding ?? googleBook.Binding,
             Edition = Prefer(googleBook.Edition, isbndbBook.Edition),

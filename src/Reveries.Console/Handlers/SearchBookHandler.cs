@@ -61,6 +61,7 @@ public class SearchBookHandler : BaseHandler
 
         if (isbnTokens.Count != 0)
         {
+            // TODO: Skal kalde en central service, der tjekker Database og en der tjekker EnrichBooks, hvis de ikke findes.
             var isbn = await _bookEnrichmentService.EnrichBooksByIsbnsAsync(isbnTokens, cancellationToken);
             //var isbnResults = await _isbndbBookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
             //results.AddRange(isbnResults);
