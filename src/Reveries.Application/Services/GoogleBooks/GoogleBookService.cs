@@ -41,18 +41,21 @@ public class GoogleBookService : IGoogleBookService
 
     public async Task<List<Book>> GetBooksByTitleAsync(List<string> titles, CancellationToken cancellationToken = default)
     {
-        var results = new List<Book>();
+        if (titles.Count == 0)
+            return new List<Book>();
 
-        foreach (var title in titles)
+        var tasks = titles.Select(async title =>
         {
             var response = await _googleBooksClient.SearchBooksByTitleAsync(title, cancellationToken);
             if (response?.Items == null || response.Items.Count == 0)
-                continue;
+                return [];
 
-            results.AddRange(response.Items.Select(i => i.VolumeInfo.ToBook()));
-        } 
-        
-        return results;
+            return response.Items.Select(i => i.VolumeInfo.ToBook()).ToArray();
+        });
+
+        var results = await Task.WhenAll(tasks);
+
+        return results.SelectMany(b => b).ToList();
     }
 
     private static Book MergeGoogleBooks(Book book, Book volume)
