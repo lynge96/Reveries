@@ -1,44 +1,36 @@
 using Reveries.Application.Common.Mappers;
-using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Entities;
-using Reveries.Core.Interfaces.Persistence;
 
 namespace Reveries.Application.Services.Isbndb;
 
 public class IsbndbAuthorService : IIsbndbAuthorService
 {
     private readonly IIsbndbAuthorClient _authorClient;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public IsbndbAuthorService(IIsbndbAuthorClient authorClient, IUnitOfWork unitOfWork)
+    public IsbndbAuthorService(IIsbndbAuthorClient authorClient)
     {
         _authorClient = authorClient;
-        _unitOfWork = unitOfWork;
     }
 
-    public async Task<List<string>> GetAuthorsByNameAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<List<Author>> GetAuthorsByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        var response = new List<string>();
+        var authorList = new List<Author>();
 
-        var databaseResponse = await _unitOfWork.Authors.GetAuthorsByNameAsync(name);
-        response.AddRange(databaseResponse.Select(a => a.FirstName + " " + a.LastName));
-        
-        var apiResponse = await _authorClient.GetAuthorsByNameAsync(name, cancellationToken);
-        if (apiResponse?.Authors != null)
+        var authorResponseDto = await _authorClient.GetAuthorsByNameAsync(name, cancellationToken);
+        if (authorResponseDto?.Authors != null)
         {
-            response.AddRange(apiResponse.Authors);
+            authorList.AddRange(authorResponseDto.Authors.Select(AuthorMapper.ToAuthor));
         }
         
-        return response.Distinct().ToList();
+        return authorList
+            .GroupBy(a => a.NormalizedName)
+            .Select(g => g.First())
+            .ToList();
     }
     
     public async Task<List<Book>> GetBooksForAuthorAsync(string author, CancellationToken cancellationToken = default)
     {
-        var bookInDb = await _unitOfWork.Books.GetBooksByAuthorAsync(author);
-        if (bookInDb.Count > 0)
-            return bookInDb;
-        
         var apiResponse = await _authorClient.GetBooksByAuthorAsync(author, cancellationToken);
     
         if (apiResponse?.Books == null)

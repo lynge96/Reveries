@@ -17,10 +17,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIsbndbPublisherService, IsbndbPublisherService>();
         // Google Books services
         services.AddScoped<IGoogleBookService, GoogleBookService>();
-        // Book services
+        // Services
         services.AddScoped<IBookManagementService, BookManagementService>();
         services.AddScoped<IBookEnrichmentService, BookEnrichmentService>();
         services.AddScoped<IBookLookupService, BookLookupService>();
+        services.AddScoped<IAuthorLookupService, AuthorLookupService>();
+        services.AddScoped<IPublisherLookupService, PublisherLookupService>();
         
         return services;
     }

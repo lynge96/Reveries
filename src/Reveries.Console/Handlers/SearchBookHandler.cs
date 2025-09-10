@@ -12,27 +12,21 @@ namespace Reveries.Console.Handlers;
 public class SearchBookHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchBook;
-    private readonly IIsbndbBookService _isbndbBookService;
     private readonly IBookSaveService _bookSaveService;
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
-    private readonly IBookEnrichmentService _bookEnrichmentService;
     private readonly IBookLookupService _bookLookupService;
 
-    public SearchBookHandler(IIsbndbBookService isbndbBookService, IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookEnrichmentService bookEnrichmentService, IBookLookupService bookLookupService)
+    public SearchBookHandler(IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookLookupService bookLookupService)
     {
-        _isbndbBookService = isbndbBookService;
         _bookSaveService = bookSaveService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
-        _bookEnrichmentService = bookEnrichmentService;
         _bookLookupService = bookLookupService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        // 9780804139021 9780593099322 9781982141172
-        // 9781399725026
         var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma:");
 
         var (bookResults, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
@@ -62,20 +56,13 @@ public class SearchBookHandler : BaseHandler
 
         if (isbnTokens.Count != 0)
         {
-            // TODO: Skal kalde en central service, der tjekker Database og en der tjekker EnrichBooks, hvis de ikke findes.
             var books = await _bookLookupService.FindBooksByIsbnAsync(isbnTokens, cancellationToken);
             results.AddRange(books);
-            
-            var isbn = await _bookEnrichmentService.MergeBooksFromSourcesByIsbnsAsync(isbnTokens, cancellationToken);
-            //var isbnResults = await _isbndbBookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
-            //results.AddRange(isbnResults);
         }
         if (titleTokens.Count != 0)
         {
-            var books = await _bookEnrichmentService.SearchBooksByTitleAsync(titleTokens, cancellationToken);
+            var books = await _bookLookupService.FindBooksByTitleAsync(titleTokens, cancellationToken);
             results.AddRange(books);
-            // var titleResults = await _isbndbBookService.GetBooksByTitlesAsync(titleTokens, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
-            // results.AddRange(titleResults);
         }
 
         return results;
@@ -83,7 +70,7 @@ public class SearchBookHandler : BaseHandler
 
     private static bool IsIsbnFormat(string input)
     {
-        var parts = input.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        var parts = input.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         
         const int isbn10Length = 10;
         const int isbn13Length = 13;

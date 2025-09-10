@@ -3,24 +3,21 @@ using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
-using Reveries.Core.Interfaces.Persistence;
 
 namespace Reveries.Application.Services.Isbndb;
 
 public class IsbndbBookService : IIsbndbBookService
 {
     private readonly IIsbndbBookClient _bookClient;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public IsbndbBookService(IIsbndbBookClient bookClient, IUnitOfWork unitOfWork)
+    public IsbndbBookService(IIsbndbBookClient bookClient)
     {
         _bookClient = bookClient;
-        _unitOfWork = unitOfWork;
     }
     
     public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
-        List<Book> isbndbBooks = new();
+        var isbndbBooks = new List<Book>();
 
         switch (isbns.Count)
         {
@@ -39,34 +36,20 @@ public class IsbndbBookService : IIsbndbBookService
         return isbndbBooks;
     }
     
-    public async Task<List<Book>> GetBooksByTitlesAsync(List<string>? titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default)
     {
-        if (titles == null || titles.Count == 0)
-            return new List<Book>();
-        
-        var booksInDb = await _unitOfWork.Books.GetBooksWithDetailsByTitlesAsync(titles);
-        
-        var missingTitles = titles
-            .Where(t => !booksInDb
-            .Any(b => b.Title.Contains(t, StringComparison.OrdinalIgnoreCase)))
-            .ToList();
-
         var booksFromApi = new List<Book>();
-
-        if (missingTitles.Count != 0)
+        
+        foreach (var title in titles)
         {
-            foreach (var missingTitle in missingTitles)
+            var response = await _bookClient.GetBooksByQueryAsync(title, languageCode, shouldMatchAll: true, cancellationToken);
+            if (response?.Books != null)
             {
-                var response = await _bookClient.GetBooksByQueryAsync(missingTitle, languageCode, shouldMatchAll: true, cancellationToken);
-                if (response?.Books != null)
-                {
-                    booksFromApi.AddRange(response.Books.Select(b => b.ToBook()));
-                }
+                booksFromApi.AddRange(response.Books.Select(b => b.ToBook()));
             }
         }
         
-        return booksInDb
-            .Concat(booksFromApi)
+        return booksFromApi
             .FilterByFormat(format)
             .ToList();
     }

@@ -1,31 +1,21 @@
 using Reveries.Application.Common.Mappers;
-using Reveries.Application.Extensions;
-using Reveries.Application.Extensions.Mappers;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Entities;
-using Reveries.Core.Interfaces.Persistence;
 
 namespace Reveries.Application.Services.Isbndb;
 
 public class IsbndbPublisherService : IIsbndbPublisherService
 {
     private readonly IIsbndbPublisherClient _publisherClient;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public IsbndbPublisherService(IIsbndbPublisherClient publisherClient, IUnitOfWork unitOfWork)
+    public IsbndbPublisherService(IIsbndbPublisherClient publisherClient)
     {
         _publisherClient = publisherClient;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<List<Book>> GetBooksByPublisherAsync(string publisher, CancellationToken cancellationToken = default)
     {
-        var databaseResponse = await _unitOfWork.Books.GetBooksByPublisherAsync(publisher);
-        if (databaseResponse.Count > 0)
-            return databaseResponse;
-        
         var apiResponse = await _publisherClient.GetPublisherDetailsAsync(publisher, null, cancellationToken);
-
         if (apiResponse?.Books == null)
             return new List<Book>();
         
@@ -35,23 +25,22 @@ public class IsbndbPublisherService : IIsbndbPublisherService
             .ToList();
     }
 
-    public async Task<List<string>> GetPublishersByNameAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<List<Publisher>> GetPublishersByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        var response = new List<string>();
+        var publisherResponseDto = await _publisherClient.GetPublishersAsync(name, cancellationToken);
+        if (publisherResponseDto?.Publishers == null || !publisherResponseDto.Publishers.Any())
+            return new List<Publisher>();
         
-        var databaseResponse = await _unitOfWork.Publishers.GetPublisherByNameAsync(name);
-        if (databaseResponse != null)
-            response.Add(databaseResponse.Name!);
-        
-        var apiResponse = await _publisherClient.GetPublishersAsync(name, cancellationToken);
-        if (apiResponse?.Publishers != null)
-        {
-            var uniquePublishers = PublisherNormalizer.GetUniquePublishers(apiResponse.Publishers);
-            response.AddRange(uniquePublishers);
-        }
-        
-        return response
-            .Where(p => !string.IsNullOrWhiteSpace(p))
+        var publishers = publisherResponseDto.Publishers
+            .Select(PublisherMapper.ToPublisher)
+            .Where(p => !string.IsNullOrWhiteSpace(p.Name))
             .ToList();
+        
+        var uniquePublishers = publishers
+            .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
+
+        return uniquePublishers;
     }
 }

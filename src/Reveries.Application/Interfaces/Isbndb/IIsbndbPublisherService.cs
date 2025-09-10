@@ -6,5 +6,5 @@ public interface IIsbndbPublisherService
 {
     Task<List<Book>> GetBooksByPublisherAsync(string publisher, CancellationToken cancellationToken = default);
     
-    Task<List<string>> GetPublishersByNameAsync(string name, CancellationToken cancellationToken = default);
+    Task<List<Publisher>> GetPublishersByNameAsync(string name, CancellationToken cancellationToken = default);
 }

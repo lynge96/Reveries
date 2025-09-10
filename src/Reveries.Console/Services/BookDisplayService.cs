@@ -1,4 +1,5 @@
 using System.Globalization;
+using Reveries.Application.Extensions;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Services.Interfaces;
 using Reveries.Core.Entities;
@@ -13,14 +14,15 @@ public class BookDisplayService : IBookDisplayService
     {
         var root = new Tree($"Success! Found {books.Count.Bold().AsWarning()} book{(books.Count != 1 ? "s" : "")}:".AsSuccess().Underline());
         
-        if (!books.Any())
+        if (books.Count == 0)
         {
             root.AddNode("No books found".AsWarning());
             return root;
         }
 
         var sortedBooks = books
-            .OrderByDescending(b => b.DataSource.HasFlag(DataSource.CombinedBookApi))
+            .OrderByDescending(b => b.DataSource.HasFlag(DataSource.Database))
+            .ThenBy(b => b.DataSource.HasFlag(DataSource.CombinedBookApi))
             .ThenBy(b => b.Title)
             .ToList();
         
@@ -30,7 +32,7 @@ public class BookDisplayService : IBookDisplayService
             {
                 DataSource.Database => " (Database)",
                 DataSource.GoogleBooksApi => " (GoogleBooks API)",
-                DataSource.IsbndbApi => " (ISBNdb API)",
+                DataSource.IsbndbApi => " (ISBNDB API)",
                 DataSource.CombinedBookApi => " (Combined API)",
                 DataSource.Cache => " (Cache)",
                 _ => ""
@@ -43,11 +45,11 @@ public class BookDisplayService : IBookDisplayService
         return root;
     }
 
-    private void AddBookDetails(TreeNode bookNode, Book book)
+    private static void AddBookDetails(TreeNode bookNode, Book book)
     {
         var details = new Dictionary<string, string>
         {
-            { "Author", string.Join(", ", book.Authors.Select(author => CultureInfo.CurrentCulture.TextInfo.ToTitleCase(author.NormalizedName))) },
+            { "Author", string.Join(", ", book.Authors.Select(author => author.NormalizedName.ToTitleCase())) },
             { "Pages", book.Pages?.ToString() ?? "Unknown" },
             { "ISBN-10", book.Isbn10 ?? "N/A"},
             { "ISBN-13", book.Isbn13 ?? "N/A" },

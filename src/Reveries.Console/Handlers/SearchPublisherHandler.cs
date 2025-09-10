@@ -14,12 +14,14 @@ public class SearchPublisherHandler : BaseHandler
     private readonly IIsbndbPublisherService _isbndbPublisherService;
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
+    private readonly IBookLookupService _bookLookupService;
 
-    public SearchPublisherHandler(IIsbndbPublisherService isbndbPublisherService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
+    public SearchPublisherHandler(IIsbndbPublisherService isbndbPublisherService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookLookupService bookLookupService)
     {
         _isbndbPublisherService = isbndbPublisherService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
+        _bookLookupService = bookLookupService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -34,11 +36,13 @@ public class SearchPublisherHandler : BaseHandler
         var selectedPublisher = ConsolePromptUtility.ShowSelectionPrompt("Select a publisher to see their books:", publishers);
         
         var (bookResults, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(async () => await _isbndbPublisherService.GetBooksByPublisherAsync(selectedPublisher, cancellationToken));
+            .RunWithStatusAsync(async () => await _bookLookupService.FindBooksByPublisherAsync(selectedPublisher.Name, cancellationToken));
         
         if (bookResults.Count == 0)
         {
-            AnsiConsole.MarkupLine($"No books found for publisher: {selectedPublisher.AsSecondary()}".AsWarning());
+            if (selectedPublisher.Name != null)
+                AnsiConsole.MarkupLine(
+                    $"No books found for publisher: {selectedPublisher.Name.AsSecondary()}".AsWarning());
             return;
         }
 

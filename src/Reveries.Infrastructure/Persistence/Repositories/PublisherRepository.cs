@@ -34,22 +34,21 @@ public class PublisherRepository : IPublisherRepository
         return publisherId;
     }
     
-    public async Task<Publisher?> GetPublisherByNameAsync(string? name)
+    public async Task<List<Publisher>> GetPublishersByNameAsync(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return null;
-        
+            return new List<Publisher>();
+
         const string sql = """
                            SELECT id AS publisherId, name, date_created AS dateCreatedPublisher
-                           FROM publishers 
+                           FROM publishers
                            WHERE name ILIKE @Name
-                           LIMIT 1
                            """;
-            
-        var connection = await _dbContext.GetConnectionAsync();
-        
-        var publisherDto = await connection.QuerySingleOrDefaultAsync<PublisherDto>(sql, new { Name = name });
 
-        return publisherDto?.ToDomain();
+        var connection = await _dbContext.GetConnectionAsync();
+
+        var publisherDtos = await connection.QueryAsync<PublisherDto>(sql, new { Name = name });
+
+        return publisherDtos.Select(dto => dto.ToDomain()).ToList();
     }
 }
