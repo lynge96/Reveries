@@ -1,4 +1,3 @@
-using Reveries.Application.Common.Validation;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;

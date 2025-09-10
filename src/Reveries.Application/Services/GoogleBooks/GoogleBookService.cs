@@ -16,30 +16,27 @@ public class GoogleBookService : IGoogleBookService
     
     public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
-        var results = new List<Book>();
-
-        foreach (var isbn in isbns)
+        var tasks = isbns.Select(async isbn =>
         {
             var response = await _googleBooksClient.GetBookByIsbnAsync(isbn, cancellationToken);
             if (response?.Items == null || response.Items.Count == 0)
-                continue;
+                return null;
 
             var item = response.Items.First();
 
             var volumeResponse = await _googleBooksClient.GetBookByVolumeIdAsync(item.Id, cancellationToken);
             if (volumeResponse?.VolumeInfo == null)
-            {
-                results.Add(item.VolumeInfo.ToBook());
-                continue;
-            }
+                return item.VolumeInfo.ToBook();
 
             var primaryBook = item.VolumeInfo.ToBook();
             var volumeBook = volumeResponse.VolumeInfo.ToBook();
 
-            results.Add(MergeGoogleBooks(primaryBook, volumeBook));
-        }
-
-        return results;
+            return MergeGoogleBooks(primaryBook, volumeBook);
+        });
+        
+        var books = await Task.WhenAll(tasks);
+        
+        return books.Where(b => b != null).ToList()!;
     }
 
     public async Task<List<Book>> GetBooksByTitleAsync(List<string> titles, CancellationToken cancellationToken = default)
