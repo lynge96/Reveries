@@ -39,7 +39,7 @@ public static class GoogleBookDtoMapperExtensions
             Subjects = dto.Categories?.ExtractUniqueSubjects(),
             Language = dto.Language.GetLanguageName(),
             LanguageIso639 = dto.Language,
-            Binding = dto.PrintType,
+            Binding = dto.PrintType.ToTitleCase(),
             ImageThumbnail = dto.ImageLinks?.Thumbnail
         };
     }

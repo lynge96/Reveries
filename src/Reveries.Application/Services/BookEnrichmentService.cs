@@ -22,23 +22,22 @@ public class BookEnrichmentService : IBookEnrichmentService
     {
         var googleBooksTask = _googleService.GetBooksByIsbnsAsync(isbns, cancellationToken);
         var isbndbTask = _isbndbService.GetBooksByIsbnsAsync(isbns, cancellationToken);
+        
         await Task.WhenAll(googleBooksTask, isbndbTask);
         
-        var googleBooks = googleBooksTask.Result;
-        var isbndbBooks = isbndbTask.Result;
+        var googleDict = BuildIsbnDictionary(googleBooksTask.Result);
+        var isbndbDict = BuildIsbnDictionary(isbndbTask.Result);
         
-        var books = new List<Book>();
+        var mergedBooks = new List<Book>();
         foreach (var isbn in isbns)
         {
-            var isbndbBook = isbndbBooks.FirstOrDefault(b => b.Isbn13 == isbn || b.Isbn10 == isbn);
-            var googleBook = googleBooks.FirstOrDefault(b => b.Isbn13 == isbn || b.Isbn10 == isbn);
+            isbndbDict.TryGetValue(isbn, out var isbndbBook);
+            googleDict.TryGetValue(isbn, out var googleBook);
 
-            var mergedBook = MergeBooks(isbndbBook, googleBook);
-            
-            books.Add(mergedBook);
+            mergedBooks.Add(MergeBooks(isbndbBook, googleBook));
         }
 
-        return books;
+        return mergedBooks;
     }
 
     public async Task<List<Book>> SearchBooksByTitleAsync(List<string> titles, CancellationToken cancellationToken = default)
@@ -118,4 +117,14 @@ public class BookEnrichmentService : IBookEnrichmentService
         return values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
     }
     
+    private static Dictionary<string, Book> BuildIsbnDictionary(IEnumerable<Book> books)
+    {
+        return books
+            .SelectMany(b => new[]
+            {
+                (isbn: b.Isbn10, book: b),
+                (isbn: b.Isbn13, book: b)
+            })
+            .ToDictionary(x => x.isbn!, x => x.book);
+    }
 }

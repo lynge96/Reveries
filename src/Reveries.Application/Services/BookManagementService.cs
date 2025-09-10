@@ -99,11 +99,14 @@ public class BookManagementService : IBookManagementService
     
         foreach(var authorVariant in authorList.Where(v => v != author))
         {
-            author.NameVariants.Add(new AuthorNameVariant 
-            { 
-                NameVariant = authorVariant.NormalizedName,
-                IsPrimary = false
-            });
+            if(!author.NameVariants.Any(v => v.NameVariant.Equals(authorVariant.NormalizedName, StringComparison.OrdinalIgnoreCase)))
+            {
+                author.NameVariants.Add(new AuthorNameVariant 
+                { 
+                    NameVariant = authorVariant.NormalizedName,
+                    IsPrimary = false
+                });
+            }
         }
     }
 

@@ -72,7 +72,7 @@ public static partial class StringExtensions
         }
     }
     
-    public static string ToTitleCase(this string input)
+    public static string? ToTitleCase(this string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
             return input;
