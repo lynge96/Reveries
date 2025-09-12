@@ -129,13 +129,23 @@ public class BookRepository : IBookRepository
         return bookId;
     }
 
-    private async Task<List<Book>> QueryBooksAsync(string sql, object parameters)
+    public async Task<List<Book>> GetAllBooksAsync()
+    {
+        const string sql = """
+                           SELECT *
+                           FROM book_details
+                           """;
+        
+        return await QueryBooksAsync(sql);
+    }
+
+    private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)
     {
         var dtoList = await QueryBooksDtoAsync(sql, parameters);
         return dtoList.Select(BookAggregateMapperExtensions.MapAggregateDtoToDomain).ToList();
     }
     
-    private async Task<List<BookAggregateDto>> QueryBooksDtoAsync(string sql, object parameters)
+    private async Task<List<BookAggregateDto>> QueryBooksDtoAsync(string sql, object? parameters = null)
     {
         var connection = await _dbContext.GetConnectionAsync();
         var bookDictionary = new Dictionary<int, BookAggregateDto>();
@@ -167,7 +177,7 @@ public class BookRepository : IBookRepository
 
                 return bookDto;
             },
-            parameters,
+            param: parameters,
             splitOn: "publisherid,authorid,subjectid,heightcm,code,seriesid"
         );
 

@@ -92,4 +92,13 @@ public class BookLookupService : IBookLookupService
         var booksFromApi = await _isbndbPublisherService.GetBooksByPublisherAsync(publisher, cancellationToken);
         return booksFromApi;
     }
+
+    public async Task<List<Book>> GetAllBooksAsync(CancellationToken cancellationToken = default)
+    {
+        var books = await _unitOfWork.Books.GetAllBooksAsync();
+        if (books.Count == 0)
+            return new List<Book>();
+        
+        return books;
+    }
 }

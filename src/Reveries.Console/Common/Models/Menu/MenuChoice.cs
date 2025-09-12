@@ -5,5 +5,6 @@ public enum MenuChoice
     SearchBook,
     SearchAuthor,
     SearchPublisher,
+    BooksInDatabase,
     Exit
 }

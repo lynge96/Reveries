@@ -44,4 +44,6 @@ public interface IBookLookupService
     /// <param name="cancellationToken">Token to observe while waiting for the task to complete.</param>
     /// <returns>A list of <see cref="Book"/> objects published by the given publisher.</returns>
     Task<List<Book>> FindBooksByPublisherAsync(string? publisher, CancellationToken cancellationToken = default);
+    
+    Task<List<Book>> GetAllBooksAsync(CancellationToken cancellationToken = default);
 }

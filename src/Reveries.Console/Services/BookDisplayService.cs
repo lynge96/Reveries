@@ -1,4 +1,3 @@
-using System.Globalization;
 using Reveries.Application.Extensions;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Services.Interfaces;
