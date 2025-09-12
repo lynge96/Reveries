@@ -17,7 +17,7 @@ public class BookEnrichmentService : IBookEnrichmentService
         _googleService = googleBookService;
     }
     
-    public async Task<List<Book>> MergeBooksFromSourcesByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> AggregateBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
         var googleBooksTask = _googleService.GetBooksByIsbnsAsync(isbns, cancellationToken);
         var isbndbTask = _isbndbService.GetBooksByIsbnsAsync(isbns, cancellationToken);

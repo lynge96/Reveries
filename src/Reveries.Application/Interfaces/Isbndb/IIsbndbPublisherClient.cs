@@ -2,6 +2,11 @@
 
 namespace Reveries.Application.Interfaces.Isbndb;
 
+/// <summary>
+/// Provides methods to query the ISBNdb API for publisher-related information.
+/// This includes retrieving details for a specific publisher or searching for publishers
+/// that match a given name query.
+/// </summary>
 public interface IIsbndbPublisherClient
 {
     /// <summary>
@@ -21,7 +26,7 @@ public interface IIsbndbPublisherClient
     /// A <see cref="PublisherDetailsReponseDto"/> containing detailed information about the requested publisher,
     /// or <c>null</c> if no matching data is found.
     /// </returns>
-    Task<PublisherDetailsReponseDto?> GetPublisherDetailsAsync(string publisherName, string? languageCode, CancellationToken cancellationToken);
+    Task<PublisherDetailsReponseDto?> FetchPublisherDetailsAsync(string publisherName, string? languageCode, CancellationToken cancellationToken);
     
     /// <summary>
     /// Retrieves a list of publishers that fits the query from the ISBNdb API.
@@ -35,6 +40,6 @@ public interface IIsbndbPublisherClient
     /// <returns>
     /// A <see cref="PublisherDetailsReponseDto"/> containing details for the matched publisher, or <c>null</c> if no result is found.
     /// </returns>
-    Task<PublisherListResponseDto?> GetPublishersAsync(string publisherName, CancellationToken cancellationToken);
+    Task<PublisherListResponseDto?> FetchPublishersAsync(string publisherName, CancellationToken cancellationToken);
 
 }

@@ -55,7 +55,7 @@ public class BookRepository : IBookRepository
         return await QueryBooksAsync(sql, new { Pattern = pattern });
     }
 
-    public async Task<List<Book>> GetBooksWithDetailsByTitlesAsync(List<string>? bookTitles)
+    public async Task<List<Book>> GetDetailedBooksByTitleAsync(List<string>? bookTitles)
     {
         if (bookTitles == null || bookTitles.Count == 0)
             return new List<Book>();
@@ -74,7 +74,7 @@ public class BookRepository : IBookRepository
         return await QueryBooksAsync(sql, new { Patterns = patterns });
     }
     
-    public async Task<List<Book>> GetBooksWithDetailsByIsbnAsync(IEnumerable<string> isbns)
+    public async Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<string> isbns)
     {
         const string sql = """
                            SELECT *
@@ -104,7 +104,7 @@ public class BookRepository : IBookRepository
         return bookDto?.ToDomain();
     }
 
-    public async Task<int> CreateBookAsync(Book book)
+    public async Task<int> CreateAsync(Book book)
     {
         const string sql = """
                                      INSERT INTO books (

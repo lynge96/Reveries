@@ -42,7 +42,7 @@ public class IsbndbBookService : IIsbndbBookService
         
         foreach (var title in titles)
         {
-            var response = await _bookClient.GetBooksByQueryAsync(title, languageCode, shouldMatchAll: true, cancellationToken);
+            var response = await _bookClient.SearchBooksByQueryAsync(title, languageCode, shouldMatchAll: true, cancellationToken);
             if (response?.Books != null)
             {
                 booksFromApi.AddRange(response.Books.Select(b => b.ToBook()));
@@ -56,7 +56,7 @@ public class IsbndbBookService : IIsbndbBookService
 
     private async Task<Book?> GetSingleBookAsync(string isbn, CancellationToken cancellationToken = default)
     {
-        var response = await _bookClient.GetBookByIsbnAsync(isbn, cancellationToken);
+        var response = await _bookClient.FetchBookByIsbnAsync(isbn, cancellationToken);
 
         var bookDto = response?.Book;
         
@@ -70,7 +70,7 @@ public class IsbndbBookService : IIsbndbBookService
         if (isbns.Count > 100)
             throw new ArgumentException("Too many ISBN numbers. Maximum is 100.");
 
-        var response = await _bookClient.GetBooksByIsbnsAsync(isbns, cancellationToken);
+        var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, cancellationToken);
         
         if (response is null)
             return new List<Book>();

@@ -21,7 +21,7 @@ public class GoogleBooksClient : IGoogleBooksClient
         _settings = settings.Value;
     }
     
-    public async Task<GoogleBookResponseDto?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
+    public async Task<GoogleBookResponseDto?> FetchBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
     {
         var url = $"volumes?q=isbn:{Uri.EscapeDataString(isbn)}&key={_settings.ApiKey}";
         var response = await _httpClient.GetAsync(url, cancellationToken);
@@ -39,7 +39,7 @@ public class GoogleBooksClient : IGoogleBooksClient
         }
     }
 
-    public async Task<GoogleBookItemDto?> GetBookByVolumeIdAsync(string volumeId, CancellationToken cancellationToken = default)
+    public async Task<GoogleBookItemDto?> FetchBookByVolumeIdAsync(string volumeId, CancellationToken cancellationToken = default)
     {
         var url = $"volumes/{volumeId}?key={_settings.ApiKey}";
         var response = await _httpClient.GetAsync(url, cancellationToken);
@@ -57,7 +57,7 @@ public class GoogleBooksClient : IGoogleBooksClient
         }
     }
 
-    public async Task<GoogleBookResponseDto?> SearchBooksByTitleAsync(string title, CancellationToken cancellationToken = default)
+    public async Task<GoogleBookResponseDto?> FindBooksByTitleAsync(string title, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Title must not be empty.", nameof(title));

@@ -17,7 +17,7 @@ public class BookManagementService : IBookManagementService
         _unitOfWork = unitOfWork;
     }
     
-    public async Task<int> SaveCompleteBookAsync(Book book, CancellationToken cancellationToken = default)
+    public async Task<int> CreateBookWithRelationsAsync(Book book, CancellationToken cancellationToken = default)
     {
         await ValidateBookNotExistsAsync(book);
         
@@ -30,7 +30,7 @@ public class BookManagementService : IBookManagementService
             await HandleSubjectsAsync(book);
             await HandleSeriesAsync(book);
             
-            var savedBookId = await _unitOfWork.Books.CreateBookAsync(book);
+            var savedBookId = await _unitOfWork.Books.CreateAsync(book);
             
             if (book.Authors.Count != 0)
                 await SaveBookAuthorsAsync(savedBookId, book.Authors);

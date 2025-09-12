@@ -17,14 +17,14 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
         _httpClient = httpClient;
     }
     
-    public Task<AuthorSearchResponseDto?> GetAuthorsByNameAsync(string authorName, CancellationToken cancellationToken = default)
+    public Task<AuthorSearchResponseDto?> SearchAuthorsByNameAsync(string authorName, CancellationToken cancellationToken = default)
     {
         return SendRequestAndDeserializeAsync<AuthorSearchResponseDto>(
             $"authors/{Uri.EscapeDataString(authorName)}", 
             cancellationToken);
     }
 
-    public Task<AuthorBooksResponseDto?> GetBooksByAuthorAsync(string authorName, CancellationToken cancellationToken = default)
+    public Task<AuthorBooksResponseDto?> FetchBooksByAuthorAsync(string authorName, CancellationToken cancellationToken = default)
     {
         return SendRequestAndDeserializeAsync<AuthorBooksResponseDto>(
             $"/author/{Uri.EscapeDataString(authorName)}", 

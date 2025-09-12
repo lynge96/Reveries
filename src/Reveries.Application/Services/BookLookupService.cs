@@ -27,7 +27,7 @@ public class BookLookupService : IBookLookupService
         if (validatedIsbns.Count == 0)
             return new List<Book>();
         
-        var databaseBooks = await _unitOfWork.Books.GetBooksWithDetailsByIsbnAsync(validatedIsbns);
+        var databaseBooks = await _unitOfWork.Books.GetDetailedBooksByIsbnsAsync(validatedIsbns);
         
         var foundIsbns = databaseBooks
             .Select(b => b.Isbn13 ?? b.Isbn10)
@@ -41,7 +41,7 @@ public class BookLookupService : IBookLookupService
         if (missingIsbns.Count == 0)
             return databaseBooks;
         
-        var apiBooks = await _bookEnrichmentService.MergeBooksFromSourcesByIsbnsAsync(missingIsbns, cancellationToken);
+        var apiBooks = await _bookEnrichmentService.AggregateBooksByIsbnsAsync(missingIsbns, cancellationToken);
         
         return databaseBooks.Concat(apiBooks).ToList();
     }
@@ -51,7 +51,7 @@ public class BookLookupService : IBookLookupService
         if (titles.Count == 0)
             return new List<Book>();
         
-        var booksInDatabase = await _unitOfWork.Books.GetBooksWithDetailsByTitlesAsync(titles);
+        var booksInDatabase = await _unitOfWork.Books.GetDetailedBooksByTitleAsync(titles);
         
         var dbTitles = booksInDatabase
             .Select(b => b.Title)
@@ -76,7 +76,7 @@ public class BookLookupService : IBookLookupService
         if (booksInDatabase.Count > 0)
             return booksInDatabase;
         
-        var booksFromApi = await _isbndbAuthorService.GetBooksForAuthorAsync(author, cancellationToken);
+        var booksFromApi = await _isbndbAuthorService.GetBooksByAuthorAsync(author, cancellationToken);
         return booksFromApi;
     }
 

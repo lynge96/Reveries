@@ -16,10 +16,10 @@ public class AuthorLookupService : IAuthorLookupService
         _isbndbAuthorService = isbndbAuthorService;
     }
 
-    public async Task<List<Author>> FindAuthorsByNameAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<List<Author>> FindAuthorsByNameAsync(string authorName, CancellationToken cancellationToken = default)
     {
-        var dbTask = _unitOfWork.Authors.GetAuthorsByNameAsync(name);
-        var apiTask = _isbndbAuthorService.GetAuthorsByNameAsync(name, cancellationToken);
+        var dbTask = _unitOfWork.Authors.GetAuthorsByNameAsync(authorName);
+        var apiTask = _isbndbAuthorService.GetAuthorsByNameAsync(authorName, cancellationToken);
 
         await Task.WhenAll(dbTask, apiTask);
 

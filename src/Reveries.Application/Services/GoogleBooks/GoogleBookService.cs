@@ -18,13 +18,13 @@ public class GoogleBookService : IGoogleBookService
     {
         var tasks = isbns.Select(async isbn =>
         {
-            var response = await _googleBooksClient.GetBookByIsbnAsync(isbn, cancellationToken);
+            var response = await _googleBooksClient.FetchBookByIsbnAsync(isbn, cancellationToken);
             if (response?.Items == null || response.Items.Count == 0)
                 return null;
 
             var item = response.Items.First();
 
-            var volumeResponse = await _googleBooksClient.GetBookByVolumeIdAsync(item.Id, cancellationToken);
+            var volumeResponse = await _googleBooksClient.FetchBookByVolumeIdAsync(item.Id, cancellationToken);
             if (volumeResponse?.VolumeInfo == null)
                 return item.VolumeInfo.ToBook();
 
@@ -42,15 +42,15 @@ public class GoogleBookService : IGoogleBookService
     public async Task<List<Book>> GetBooksByTitleAsync(List<string> titles, CancellationToken cancellationToken = default)
     {
         if (titles.Count == 0)
-            return new List<Book>();
+            return [];
 
         var tasks = titles.Select(async title =>
         {
-            var response = await _googleBooksClient.SearchBooksByTitleAsync(title, cancellationToken);
+            var response = await _googleBooksClient.FindBooksByTitleAsync(title, cancellationToken);
             if (response?.Items == null || response.Items.Count == 0)
                 return [];
 
-            return response.Items.Select(i => i.VolumeInfo.ToBook()).ToArray();
+            return response.Items.Select(i => i.VolumeInfo.ToBook());
         });
 
         var results = await Task.WhenAll(tasks);

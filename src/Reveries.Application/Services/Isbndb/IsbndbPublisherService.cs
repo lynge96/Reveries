@@ -15,7 +15,7 @@ public class IsbndbPublisherService : IIsbndbPublisherService
 
     public async Task<List<Book>> GetBooksByPublisherAsync(string publisher, CancellationToken cancellationToken = default)
     {
-        var apiResponse = await _publisherClient.GetPublisherDetailsAsync(publisher, null, cancellationToken);
+        var apiResponse = await _publisherClient.FetchPublisherDetailsAsync(publisher, null, cancellationToken);
         if (apiResponse?.Books == null)
             return new List<Book>();
         
@@ -27,7 +27,7 @@ public class IsbndbPublisherService : IIsbndbPublisherService
 
     public async Task<List<Publisher>> GetPublishersByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        var publisherResponseDto = await _publisherClient.GetPublishersAsync(name, cancellationToken);
+        var publisherResponseDto = await _publisherClient.FetchPublishersAsync(name, cancellationToken);
         if (publisherResponseDto?.Publishers == null || !publisherResponseDto.Publishers.Any())
             return new List<Publisher>();
         

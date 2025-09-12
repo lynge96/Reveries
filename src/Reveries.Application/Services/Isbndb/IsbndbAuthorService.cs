@@ -13,11 +13,11 @@ public class IsbndbAuthorService : IIsbndbAuthorService
         _authorClient = authorClient;
     }
 
-    public async Task<List<Author>> GetAuthorsByNameAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<List<Author>> GetAuthorsByNameAsync(string authorName, CancellationToken cancellationToken = default)
     {
         var authorList = new List<Author>();
 
-        var authorResponseDto = await _authorClient.GetAuthorsByNameAsync(name, cancellationToken);
+        var authorResponseDto = await _authorClient.SearchAuthorsByNameAsync(authorName, cancellationToken);
         if (authorResponseDto?.Authors != null)
         {
             authorList.AddRange(authorResponseDto.Authors.Select(AuthorMapper.ToAuthor));
@@ -29,9 +29,9 @@ public class IsbndbAuthorService : IIsbndbAuthorService
             .ToList();
     }
     
-    public async Task<List<Book>> GetBooksForAuthorAsync(string author, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByAuthorAsync(string authorName, CancellationToken cancellationToken = default)
     {
-        var apiResponse = await _authorClient.GetBooksByAuthorAsync(author, cancellationToken);
+        var apiResponse = await _authorClient.FetchBooksByAuthorAsync(authorName, cancellationToken);
     
         if (apiResponse?.Books == null)
             return new List<Book>();

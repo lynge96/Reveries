@@ -11,17 +11,17 @@ namespace Reveries.Console.Handlers;
 public class SearchPublisherHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchPublisher;
-    private readonly IIsbndbPublisherService _isbndbPublisherService;
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
     private readonly IBookLookupService _bookLookupService;
+    private readonly IPublisherLookupService _publisherLookupService;
 
-    public SearchPublisherHandler(IIsbndbPublisherService isbndbPublisherService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookLookupService bookLookupService)
+    public SearchPublisherHandler(IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookLookupService bookLookupService, IPublisherLookupService publisherLookupService)
     {
-        _isbndbPublisherService = isbndbPublisherService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
         _bookLookupService = bookLookupService;
+        _publisherLookupService = publisherLookupService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ public class SearchPublisherHandler : BaseHandler
         var publisherInput = ConsolePromptUtility.GetUserInput("Enter publisher name:");
         
         var (publishers, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(() => _isbndbPublisherService.GetPublishersByNameAsync(publisherInput, cancellationToken));
+            .RunWithStatusAsync(() => _publisherLookupService.FindPublishersByNameAsync(publisherInput, cancellationToken));
 
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
         
