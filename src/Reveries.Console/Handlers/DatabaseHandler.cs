@@ -26,28 +26,32 @@ public class DatabaseHandler : BaseHandler
 
         var columnNames = new[]
         {
-            "ISBN", "Title", "Author", "Published", 
-            "Publisher", "Series", "Binding", "Pages"
+            "ISBN", "Read", "Title", "Author", "Published", 
+            "Publisher", "#", "Series", "Binding", "Pages"
         };
         table.AddColumns(columnNames.Select(c => c.Bold().AsPrimary()).ToArray());
         
         foreach (var book in booksInDb)
         {
             table.AddRow(
-                book.Isbn13 ?? book.Isbn10 ?? "Unknown", 
-                book.Title, 
+                book.Isbn13 ?? book.Isbn10 ?? "",
+                book.IsRead ? "✅" : "❌",
+                book.Title.Bold(), 
                 book.GetAuthorNames(), 
-                book?.PublishDateFormatted ?? "Unknown", 
-                book?.Publisher?.Name ?? "Unknown",
-                book?.Series?.Name ?? "Unknown",
-                book?.Binding ?? "Unknown",
-                book?.Pages.ToString() ?? "Unknown");
+                book?.PublishDateFormatted ?? "", 
+                book?.Publisher?.Name ?? "",
+                book?.SeriesNumber.ToString() ?? "",
+                book?.Series?.Name ?? "",
+                book?.Binding ?? "",
+                book?.Pages.ToString() ?? "").Collapse();
         }
         
         var bookCount = booksInDb.Count;
         table.Columns[0].Footer($"Books in total: {bookCount}".Bold().AsSecondary());
         var totalPages = booksInDb.Sum(b => b.Pages ?? 0);
-        table.Columns[7].Footer($"Total pages: {totalPages}".Bold().AsSecondary());
+        table.Columns[columnNames.Length-3].Footer($"Total pages: {totalPages}".Bold().AsSecondary());
+        var avgPages = totalPages / bookCount;
+        table.Columns[columnNames.Length-2].Footer($"Average pages: {avgPages:N0}".Bold().AsSecondary());
         
         AnsiConsole.Write(table);
     }

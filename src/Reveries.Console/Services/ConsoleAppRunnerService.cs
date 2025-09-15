@@ -10,12 +10,13 @@ public class ConsoleAppRunnerService : IConsoleAppRunnerService
 {
     private readonly IMenuOperationService _menuOperationService;
     private bool _isRunning = true;
-    
+    private MenuOption[] _currentMenu = MenuConfiguration.MainMenu;
+
     public ConsoleAppRunnerService(IMenuOperationService menuOperationService)
     {
         _menuOperationService = menuOperationService;
     }
-    
+
     public async Task RunAsync()
     {
         AnsiConsole.Clear();
@@ -23,26 +24,35 @@ public class ConsoleAppRunnerService : IConsoleAppRunnerService
         
         while (_isRunning)
         {
-            var option = ConsolePromptUtility.ShowSelectionPrompt(
-                "What would you like to search for? 🔎", 
-                MenuConfiguration.Options);
-            
-            if (option.Choice == MenuChoice.Exit)
+            var option = ConsolePromptUtility.ShowSelectionPrompt("What would you like to search for? 🔎", _currentMenu);
+
+            switch (option.Choice)
             {
-                _isRunning = false;
-                AnsiConsole.MarkupLine("\nGoodbye! ✨".Bold().AsPrimary());
-                break;
+                case MenuChoice.Exit:
+                    _isRunning = false;
+                    AnsiConsole.MarkupLine("\nGoodbye! ✨".Bold().AsPrimary());
+                    return;
+                case MenuChoice.ApiOperations:
+                    _currentMenu = MenuConfiguration.ApiMenu;
+                    continue;
+                case MenuChoice.DatabaseOperations:
+                    _currentMenu = MenuConfiguration.DatabaseMenu;
+                    continue;
+                case MenuChoice.Back:
+                    _currentMenu = MenuConfiguration.MainMenu;
+                    continue;
             }
-            
+
             try
             {
                 await _menuOperationService.HandleMenuChoiceAsync(option.Choice);
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"{"Error:".Underline().AsError()} {Markup.Escape($"[{ex.GetType().Name}] {ex.Message}").Italic().AsWarning()}");
+                AnsiConsole.MarkupLine(
+                    $"{"Error:".Underline().AsError()} {Markup.Escape($"[{ex.GetType().Name}] {ex.Message}").Italic().AsWarning()}");
             }
-        
+
             AnsiConsole.MarkupLine("Press any key to continue...".Italic().AsInfo());
             AnsiConsole.Console.Input.ReadKey(true);
             AnsiConsole.Clear();
