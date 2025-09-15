@@ -10,8 +10,8 @@ public class ConsoleAppRunnerService : IConsoleAppRunnerService
 {
     private readonly IMenuOperationService _menuOperationService;
     private bool _isRunning = true;
-    private MenuOption[] _currentMenu = MenuConfiguration.MainMenu;
-
+    private readonly Stack<MenuOption[]> _menuStack = new();
+    
     public ConsoleAppRunnerService(IMenuOperationService menuOperationService)
     {
         _menuOperationService = menuOperationService;
@@ -22,9 +22,13 @@ public class ConsoleAppRunnerService : IConsoleAppRunnerService
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("Welcome to Reveries! 💫".Bold().AsHeader());
         
-        while (_isRunning)
+        _menuStack.Push(MenuConfiguration.MainMenu);
+        
+        while (_isRunning && _menuStack.Count > 0)
         {
-            var option = ConsolePromptUtility.ShowSelectionPrompt("What would you like to search for? 🔎", _currentMenu);
+            var currentMenu = _menuStack.Peek().ToList();
+
+            var option = ConsolePromptUtility.ShowSelectionPrompt("What would you like to search for? 🔎", currentMenu);
 
             switch (option.Choice)
             {
@@ -33,13 +37,13 @@ public class ConsoleAppRunnerService : IConsoleAppRunnerService
                     AnsiConsole.MarkupLine("\nGoodbye! ✨".Bold().AsPrimary());
                     return;
                 case MenuChoice.ApiOperations:
-                    _currentMenu = MenuConfiguration.ApiMenu;
+                    _menuStack.Push(MenuConfiguration.ApiMenu);
                     continue;
                 case MenuChoice.DatabaseOperations:
-                    _currentMenu = MenuConfiguration.DatabaseMenu;
+                    _menuStack.Push(MenuConfiguration.DatabaseMenu);
                     continue;
                 case MenuChoice.Back:
-                    _currentMenu = MenuConfiguration.MainMenu;
+                    _menuStack.Pop();
                     continue;
             }
 
