@@ -2,7 +2,7 @@ using DotNetEnv;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Reveries.Infrastructure.Configuration;
-using Reveries.Infrastructure.Interfaces.Persistence;
+using Reveries.Infrastructure.Persistence.Interfaces;
 
 namespace Reveries.Infrastructure.Persistence.Context;
 

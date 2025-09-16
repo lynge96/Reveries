@@ -54,7 +54,15 @@ public class BookManagementService : IBookManagementService
             throw;
         }
     }
-    
+
+    public async Task UpdateBooksWithSeriesAsync(List<Book> books, CancellationToken cancellationToken = default)
+    {
+        foreach (var book in books)
+        {
+            await _unitOfWork.Books.UpdateBookSeriesAsync(book);
+        }
+    }
+
     private async Task ValidateBookNotExistsAsync(Book book)
     {
         var existingBook = await _unitOfWork.Books.GetBookByIsbnAsync(book.Isbn13, book.Isbn10);

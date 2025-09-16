@@ -1,8 +1,8 @@
 using Reveries.Core.Interfaces;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Repositories;
-using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.Context;
+using Reveries.Infrastructure.Persistence.Interfaces;
 
 namespace Reveries.Infrastructure.Persistence;
 

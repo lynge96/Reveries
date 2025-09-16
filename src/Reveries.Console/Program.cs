@@ -34,7 +34,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<IMenuHandler, SearchBookHandler>();
         services.AddScoped<IMenuHandler, SearchAuthorHandler>();
         services.AddScoped<IMenuHandler, SearchPublisherHandler>();
-        services.AddScoped<IMenuHandler, DatabaseHandler>();
+        services.AddScoped<IMenuHandler, DatabaseTableHandler>();
+        services.AddScoped<IMenuHandler, BookSeriesHandler>();
     })
     .Build();
 

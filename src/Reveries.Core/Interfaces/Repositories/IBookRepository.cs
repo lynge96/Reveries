@@ -12,4 +12,5 @@ public interface IBookRepository
     Task<Book?> GetBookByIsbnAsync(string? isbn13, string? isbn10 = null);
     Task<int> CreateAsync(Book book);
     Task<List<Book>> GetAllBooksAsync();
+    Task UpdateBookSeriesAsync(Book book);
 }

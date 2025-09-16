@@ -2,8 +2,8 @@ using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Repositories;
-using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.Context;
+using Reveries.Infrastructure.Persistence.Interfaces;
 using Reveries.Infrastructure.Persistence.Repositories;
 
 namespace Reveries.Infrastructure.Persistence;

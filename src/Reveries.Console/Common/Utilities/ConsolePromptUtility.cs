@@ -25,4 +25,14 @@ public static class ConsolePromptUtility
         return AnsiConsole.Prompt(prompt);
     }
 
+    public static bool ShowYesNoPrompt(string title)
+    {
+        var choice = new SelectionPrompt<string>()
+            .Title(title.AsPrimary())
+            .AddChoices("Yes", "No")
+            .HighlightStyle(ConsoleThemeExtensions.Secondary);
+
+        var result = AnsiConsole.Prompt(choice);
+        return result == "Yes";
+    }
 }

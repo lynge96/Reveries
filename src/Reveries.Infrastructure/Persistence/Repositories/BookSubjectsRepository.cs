@@ -1,7 +1,7 @@
 using Dapper;
 using Reveries.Core.Entities;
 using Reveries.Core.Interfaces.Repositories;
-using Reveries.Infrastructure.Interfaces.Persistence;
+using Reveries.Infrastructure.Persistence.Interfaces;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 

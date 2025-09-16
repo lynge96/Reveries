@@ -1,8 +1,8 @@
 using Dapper;
 using Reveries.Core.Entities;
 using Reveries.Core.Interfaces.Repositories;
-using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.DTOs;
+using Reveries.Infrastructure.Persistence.Interfaces;
 using Reveries.Infrastructure.Persistence.Mappers;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
@@ -137,6 +137,21 @@ public class BookRepository : IBookRepository
                            """;
         
         return await QueryBooksAsync(sql);
+    }
+
+    public async Task UpdateBookSeriesAsync(Book book)
+    {
+        const string sql = """
+                           UPDATE books
+                           SET series_id = @SeriesId,
+                               series_number = @SeriesNumber
+                           WHERE id = @Id;
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+        var bookDto = book.ToDto();
+
+        await connection.ExecuteAsync(sql, bookDto);
     }
 
     private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)

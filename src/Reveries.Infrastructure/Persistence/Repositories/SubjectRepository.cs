@@ -2,9 +2,9 @@ using Dapper;
 using Reveries.Core.Entities;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Interfaces.Repositories;
-using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.Context;
 using Reveries.Infrastructure.Persistence.DTOs;
+using Reveries.Infrastructure.Persistence.Interfaces;
 using Reveries.Infrastructure.Persistence.Mappers;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;

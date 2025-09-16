@@ -22,4 +22,6 @@ public interface IBookManagementService
     /// The database ID of the newly created book.
     /// </returns>
     Task<int> CreateBookWithRelationsAsync(Book book, CancellationToken cancellationToken = default);
+    
+    Task UpdateBooksWithSeriesAsync(List<Book> books, CancellationToken cancellationToken = default);
 }

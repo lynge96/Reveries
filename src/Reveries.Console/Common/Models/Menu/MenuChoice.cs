@@ -11,6 +11,7 @@ public enum MenuChoice
     SearchPublisher,
     // Database operations
     BooksInDatabase,
+    BookSeries,
     
     Exit,
     Back
