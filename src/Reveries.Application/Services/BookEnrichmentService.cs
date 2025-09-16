@@ -100,7 +100,13 @@ public class BookEnrichmentService : IBookEnrichmentService
             Binding = Prefer(isbndbBook.Binding, googleBook.Binding),
             Edition = Prefer(googleBook.Edition, isbndbBook.Edition),
             SeriesNumber = isbndbBook.SeriesNumber,
-            Dimensions = isbndbBook.Dimensions,
+            Dimensions = new BookDimensions
+            {
+                HeightCm = isbndbBook.Dimensions?.HeightCm ?? googleBook.Dimensions?.HeightCm,
+                WidthCm = isbndbBook.Dimensions?.WidthCm ?? googleBook.Dimensions?.WidthCm,
+                ThicknessCm = isbndbBook.Dimensions?.ThicknessCm ?? googleBook.Dimensions?.ThicknessCm,
+                WeightG = isbndbBook.Dimensions?.WeightG
+            },
             
             // Navigation properties
             Authors = googleBook.Authors.Count != 0 ? googleBook.Authors : isbndbBook.Authors,

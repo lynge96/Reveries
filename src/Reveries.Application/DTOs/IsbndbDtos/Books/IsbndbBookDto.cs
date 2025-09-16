@@ -4,8 +4,8 @@ namespace Reveries.Application.DTOs.IsbndbDtos.Books;
 
 public class IsbndbBookDto
 {
-    public required string Title { get; init; } = string.Empty; // giver mening at kræve Title
-    public string? Image { get; init; } // kan godt være null fra API’et
+    public required string Title { get; init; } = string.Empty;
+    public string? Image { get; init; }
     [JsonPropertyName("image_original")]
     public string? ImageOriginal { get; init; }
     [JsonPropertyName("title_long")]

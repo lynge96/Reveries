@@ -1,9 +1,10 @@
+using System.Globalization;
 using Reveries.Application.DTOs.IsbndbDtos.Books;
 using Reveries.Core.Entities;
 
 namespace Reveries.Application.Common.Mappers;
 
-public static class DimensionsStructuredDtoExtensions
+public static class DimensionsMapper
 {
     public static BookDimensions? ToModel(this DimensionsStructuredDto? dto)
     {
@@ -24,6 +25,18 @@ public static class DimensionsStructuredDtoExtensions
             HeightCm = (decimal?)convertedDimensions.Height?.Value,
             WeightG = (decimal?)convertedDimensions.Weight?.Value
         };
+    }
+    
+    public static decimal? ParseDimension(this string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var numericPart = value.Replace("cm", "", StringComparison.OrdinalIgnoreCase).Trim();
+
+        return decimal.TryParse(numericPart, NumberStyles.Any, CultureInfo.InvariantCulture, out var result)
+            ? result
+            : null;
     }
     
     private static DimensionDto? ConvertDimension(DimensionDto? dimension)

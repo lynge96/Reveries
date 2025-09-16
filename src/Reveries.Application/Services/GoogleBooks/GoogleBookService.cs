@@ -67,7 +67,9 @@ public class GoogleBookService : IGoogleBookService
             Isbn13 = book.Isbn13 ?? volume.Isbn13,
             Isbn10 = book.Isbn10 ?? volume.Isbn10,
             Pages =  (book.Pages > 0) ? book.Pages : volume.Pages,
-            Synopsis = volume.Synopsis ?? book.Synopsis,
+            Synopsis = (volume.Synopsis?.Length ?? 0) > (book.Synopsis?.Length ?? 0)
+                ? volume.Synopsis
+                : book.Synopsis,
             Authors = book.Authors,
             Edition = book.Edition,
             Publisher = book.Publisher ?? volume.Publisher,
@@ -76,7 +78,8 @@ public class GoogleBookService : IGoogleBookService
             Language = book.Language ?? volume.Language,
             LanguageIso639 = book.LanguageIso639 ?? volume.LanguageIso639,
             Binding = book.Binding,
-            ImageThumbnail = book.ImageThumbnail ?? volume.ImageThumbnail
+            ImageThumbnail = book.ImageThumbnail ?? volume.ImageThumbnail,
+            Dimensions = volume.Dimensions
         };
     }
 }

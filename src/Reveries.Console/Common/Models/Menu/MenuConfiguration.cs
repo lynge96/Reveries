@@ -20,7 +20,7 @@ public static class MenuConfiguration
     public static readonly MenuOption[] DatabaseMenu =
     [
         new(MenuChoice.BooksInDatabase, "Get books from the database", "📚"),
-        new(MenuChoice.BookSeries, "Handle book series", "🔗"),
+        new(MenuChoice.BookSeries, "Create book series", "🔗"),
         new(MenuChoice.Back, "Back", "↩️")
     ];
 }
