@@ -1,3 +1,4 @@
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -11,14 +12,14 @@ namespace Reveries.Console.Handlers;
 public class SearchBookHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchBook;
-    private readonly IBookSaveService _bookSaveService;
+    private readonly ISaveEntityService _saveEntityService;
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
     private readonly IBookLookupService _bookLookupService;
 
-    public SearchBookHandler(IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookLookupService bookLookupService)
+    public SearchBookHandler(ISaveEntityService saveEntityService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookLookupService bookLookupService)
     {
-        _bookSaveService = bookSaveService;
+        _saveEntityService = saveEntityService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
         _bookLookupService = bookLookupService;
@@ -34,12 +35,13 @@ public class SearchBookHandler : BaseHandler
         var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
         
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
-        AnsiConsole.Write(_bookDisplayService.DisplayBooks(filteredBooks));
+        
+        _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
 
         var booksToSave = _bookSelectionService.SelectBooksToSave(filteredBooks);
         
         if (booksToSave.Count > 0)
-            await _bookSaveService.SaveBooksAsync(booksToSave, cancellationToken);
+            await _saveEntityService.SaveBooksAsync(booksToSave, cancellationToken);
     }
 
     private async Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken cancellationToken)
@@ -69,7 +71,7 @@ public class SearchBookHandler : BaseHandler
 
     private static bool IsIsbnFormat(string input)
     {
-        var parts = input.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        var parts = input.Split([','], StringSplitOptions.RemoveEmptyEntries);
         
         const int isbn10Length = 10;
         const int isbn13Length = 13;

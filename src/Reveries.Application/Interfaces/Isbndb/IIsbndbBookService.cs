@@ -22,8 +22,7 @@ public interface IIsbndbBookService
     /// </summary>
     /// <param name="titles">A list of book titles to search for.</param>
     /// <param name="languageCode">Optional language code to filter results, e.g., 'en' or 'da'.</param>
-    /// <param name="format">The desired <see cref="BookFormat"/> to filter results (e.g., physical, digital).</param>
     /// <param name="cancellationToken">A token to cancel the operation if needed.</param>
     /// <returns>A list of <see cref="Book"/> entities that match the search criteria. Returns an empty list if no matches are found.</returns>
-    Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default);
+    Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, CancellationToken cancellationToken = default);
 }

@@ -55,6 +55,7 @@ public class SearchAuthorHandler : BaseHandler
         var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
         
         AnsiConsole.MarkupLine($"Elapsed book search time: {bookSearchElapsedMs} ms".Italic().AsInfo());
-        AnsiConsole.Write(_bookDisplayService.DisplayBooks(filteredBooks));
+        
+        _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
     }
 }

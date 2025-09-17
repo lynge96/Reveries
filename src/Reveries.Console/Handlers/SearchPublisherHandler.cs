@@ -1,4 +1,4 @@
-using Reveries.Application.Interfaces.Isbndb;
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -49,6 +49,7 @@ public class SearchPublisherHandler : BaseHandler
         var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
         
         AnsiConsole.MarkupLine($"Elapsed book search time: {bookSearchElapsedMs} ms".Italic().AsInfo());
-        AnsiConsole.Write(_bookDisplayService.DisplayBooks(filteredBooks));
+        
+        _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
     }
 }

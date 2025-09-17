@@ -1,6 +1,8 @@
 using Reveries.Application.Common.Mappers;
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Entities;
+using Reveries.Core.Enums;
 
 namespace Reveries.Application.Services.Isbndb;
 
@@ -21,7 +23,7 @@ public class IsbndbPublisherService : IIsbndbPublisherService
         
         return apiResponse.Books
             .Select(bookDto => bookDto.ToBook())
-            .Where(book => !string.IsNullOrWhiteSpace(book.Language) && !book.Language.Equals("unknown", StringComparison.InvariantCultureIgnoreCase))
+            .FilterByFormat(BookFormat.PhysicalOnly)
             .ToList();
     }
 

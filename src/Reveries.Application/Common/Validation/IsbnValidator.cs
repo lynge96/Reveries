@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Reveries.Application.Common.Validation.Exceptions;
+using Reveries.Application.Common.Exceptions;
 
 namespace Reveries.Application.Common.Validation;
 

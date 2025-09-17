@@ -1,4 +1,4 @@
-using Reveries.Application.Common.Validation.Exceptions;
+using Reveries.Application.Common.Exceptions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Entities;

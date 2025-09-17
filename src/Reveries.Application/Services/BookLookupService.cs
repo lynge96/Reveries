@@ -1,4 +1,5 @@
 using Reveries.Application.Common.Validation;
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Entities;
@@ -65,7 +66,7 @@ public class BookLookupService : IBookLookupService
         if (missingTitles.Count == 0)
             return booksInDatabase;
         
-        var booksFromApis = await _bookEnrichmentService.SearchBooksByTitleAsync(missingTitles, cancellationToken);
+        var booksFromApis = await _bookEnrichmentService.AggregateBooksByTitlesAsync(missingTitles, cancellationToken);
         
         return booksInDatabase.Concat(booksFromApis).ToList();
     }
@@ -87,7 +88,7 @@ public class BookLookupService : IBookLookupService
         
         var booksInDatabase = await _unitOfWork.Books.GetBooksByPublisherAsync(publisher);
         if (booksInDatabase.Count > 0)
-            return booksInDatabase;
+            return booksInDatabase.ArrangeBooks().ToList();
         
         var booksFromApi = await _isbndbPublisherService.GetBooksByPublisherAsync(publisher, cancellationToken);
         return booksFromApi;

@@ -36,5 +36,5 @@ public interface IBookEnrichmentService
     /// A list of <see cref="Book"/> entities matching the provided titles.
     /// Returns an empty list if no matches are found.
     /// </returns>
-    Task<List<Book>> SearchBooksByTitleAsync(List<string> titles, CancellationToken cancellationToken = default);
+    Task<List<Book>> AggregateBooksByTitlesAsync(List<string> titles, CancellationToken cancellationToken = default);
 }

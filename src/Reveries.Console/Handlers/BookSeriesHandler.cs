@@ -4,6 +4,7 @@ using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
+using Reveries.Console.Services.Interfaces;
 using Reveries.Core.Entities;
 using Spectre.Console;
 
@@ -14,11 +15,11 @@ public partial class BookSeriesHandler : BaseHandler
     [GeneratedRegex(@"\s+")]
     private static partial Regex MyRegex();
     public override MenuChoice MenuChoice => MenuChoice.BookSeries;
-    private readonly IBookSeriesService _bookSeriesService;
+    private readonly ISaveEntityService _saveEntityService;
     
-    public BookSeriesHandler(IBookSeriesService bookSeriesService)
+    public BookSeriesHandler(ISaveEntityService saveEntityService)
     {
-        _bookSeriesService = bookSeriesService;
+        _saveEntityService = saveEntityService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -31,14 +32,7 @@ public partial class BookSeriesHandler : BaseHandler
             return;
         
         var newSeries = new Series(seriesName);
-        var newSeriesId = await _bookSeriesService.CreateSeriesAsync(newSeries);
-        
-        if (newSeriesId == -1)
-        {
-            AnsiConsole.MarkupLine($"The series: {seriesName.AsSecondary().Bold()} already exists in the database".AsWarning());
-            return;
-        }
-        
-        AnsiConsole.MarkupLine($"Success! The series: {newSeriesId.AsSecondary().Bold()} {seriesName.AsSecondary().Bold()} - has been saved in the database.".AsSuccess());
+
+        await _saveEntityService.SaveSeriesAsync(newSeries, cancellationToken);
     }
 }

@@ -36,7 +36,7 @@ public class IsbndbBookService : IIsbndbBookService
         return isbndbBooks;
     }
     
-    public async Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, BookFormat format, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, CancellationToken cancellationToken = default)
     {
         var booksFromApi = new List<Book>();
         
@@ -50,7 +50,7 @@ public class IsbndbBookService : IIsbndbBookService
         }
         
         return booksFromApi
-            .FilterByFormat(format)
+            .FilterByFormat(BookFormat.PhysicalOnly)
             .ToList();
     }
 

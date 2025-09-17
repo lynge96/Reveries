@@ -1,4 +1,4 @@
-namespace Reveries.Application.Common.Validation.Exceptions;
+namespace Reveries.Application.Common.Exceptions;
 
 public class BookAlreadyExistsException : Exception
 {

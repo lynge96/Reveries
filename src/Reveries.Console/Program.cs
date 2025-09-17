@@ -27,8 +27,8 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddTransient<IConsoleAppRunnerService, ConsoleAppRunnerService>();
         services.AddScoped<IMenuOperationService, MenuOperationService>();
-        services.AddScoped<IBookSaveService, BookSaveService>();
-        services.AddScoped<IBookSaveService, BookSaveService>();
+        services.AddScoped<ISaveEntityService, SaveEntityEntityService>();
+        services.AddScoped<ISaveEntityService, SaveEntityEntityService>();
         services.AddScoped<IBookDisplayService, BookDisplayService>();
         services.AddScoped<IBookSelectionService, BookSelectionService>();
         services.AddScoped<IMenuHandler, SearchBookHandler>();

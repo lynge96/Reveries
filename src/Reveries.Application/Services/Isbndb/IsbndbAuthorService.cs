@@ -1,6 +1,8 @@
 using Reveries.Application.Common.Mappers;
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Entities;
+using Reveries.Core.Enums;
 
 namespace Reveries.Application.Services.Isbndb;
 
@@ -38,6 +40,7 @@ public class IsbndbAuthorService : IIsbndbAuthorService
         
         return apiResponse.Books
             .Select(bookDto => bookDto.ToBook())
+            .FilterByFormat(BookFormat.PhysicalOnly)
             .ToList();
     }
 

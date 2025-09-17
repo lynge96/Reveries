@@ -1,4 +1,4 @@
-using Reveries.Application.Common.Validation.Exceptions;
+using Reveries.Application.Common.Exceptions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Services.Interfaces;
@@ -7,13 +7,15 @@ using Spectre.Console;
 
 namespace Reveries.Console.Services;
 
-public class BookSaveService : IBookSaveService
+public class SaveEntityEntityService : ISaveEntityService
 {
     private readonly IBookManagementService _bookManagementService;
+    private readonly IBookSeriesService _bookSeriesService;
 
-    public BookSaveService(IBookManagementService bookManagementService)
+    public SaveEntityEntityService(IBookManagementService bookManagementService, IBookSeriesService bookSeriesService)
     {
         _bookManagementService = bookManagementService;
+        _bookSeriesService = bookSeriesService;
     }
 
     public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default)
@@ -58,6 +60,39 @@ public class BookSaveService : IBookSaveService
                                            Details: Transaction was rolled back
                                         """.AsError());
             }
+        }
+    }
+
+    public async Task SaveSeriesAsync(Series series, CancellationToken cancellationToken = default)
+    {
+        AnsiConsole.MarkupLine($"\nSaving series {series.Name}...".AsSuccess());
+
+        try
+        {
+            var seriesId = await _bookSeriesService.CreateSeriesAsync(series);
+            
+            AnsiConsole.MarkupLine($"""
+                                    ✅ Successfully saved to database:
+                                       Name: {series.Name}
+                                       ID: {seriesId}
+                                    """.AsPrimary());
+        }
+        catch (SeriesAlreadyExistsException ex)
+        {
+            AnsiConsole.MarkupLine($"""
+                                    ⚠️ Series already exists:
+                                       Name: {series.Name}
+                                       Error: {ex.Message}
+                                    """.AsWarning());
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"""
+                                    ❌ Transaction failed:
+                                       Name: {series.Name}
+                                       Error: {ex.Message}
+                                       Details: Transaction was rolled back
+                                    """.AsError());
         }
     }
 }

@@ -39,10 +39,10 @@ public class BookEnrichmentService : IBookEnrichmentService
         return mergedBooks;
     }
 
-    public async Task<List<Book>> SearchBooksByTitleAsync(List<string> titles, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> AggregateBooksByTitlesAsync(List<string> titles, CancellationToken cancellationToken = default)
     {
         var googleBooksTask = _googleService.GetBooksByTitleAsync(titles, cancellationToken);
-        var isbndbTask = _isbndbService.GetBooksByTitlesAsync(titles, null, BookFormat.PhysicalOnly, cancellationToken);
+        var isbndbTask = _isbndbService.GetBooksByTitlesAsync(titles, null, cancellationToken);
         await Task.WhenAll(googleBooksTask, isbndbTask);
         
         var googleBooks = googleBooksTask.Result;
