@@ -36,9 +36,14 @@ public static class ConsolePromptUtility
             .PageSize(pageSize)
             .NotRequired()
             .HighlightStyle(ConsoleThemeExtensions.Secondary)
-            .AddChoices(indexedChoices.Select(c => $"{c.Index}. {c.Value}"))
             .InstructionsText("Press <space> to select, <enter> to confirm".AsInfo().Italic());
 
+        if (indexedChoices.Count != 0)
+        {
+            prompt.AddChoiceGroup("All options",
+                indexedChoices.Select(c => $"{c.Index}. {c.Value}").ToArray());
+        }
+        
         var selected = AnsiConsole.Prompt(prompt);
         
         return selected
