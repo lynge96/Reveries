@@ -13,4 +13,10 @@ public class Author
     public ICollection<AuthorNameVariant> NameVariants { get; set; } = new List<AuthorNameVariant>();
 
     public DateTimeOffset DateCreated { get; set; }
+
+    public override string ToString()
+    {
+        return $"{FirstName} {LastName}";
+    }
+    
 }

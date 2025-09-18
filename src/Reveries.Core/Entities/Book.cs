@@ -26,6 +26,8 @@ public class Book
     
     public DateTime? PublishDate { get; set; }
     
+    public string PublishDateFormatted => PublishDate?.ToString("dd-MM-yyyy") ?? "Unknown Date";
+    
     public string? Synopsis { get; set; }
     
     public string? ImageThumbnail { get; set; }
@@ -40,7 +42,7 @@ public class Book
     
     public ICollection<DeweyDecimal> DeweyDecimals { get; set; } = new List<DeweyDecimal>();
     
-    public ICollection<Subject> Subjects { get; set; } = new List<Subject>();
+    public ICollection<Subject>? Subjects { get; set; } = new List<Subject>();
     
     public int? SeriesNumber { get; set; }
     
@@ -63,5 +65,9 @@ public class Book
         return $"{title} by {string.Join(", ", authors)}";
     }
     
+    public string GetAuthorNames()
+    {
+        return string.Join(", ", Authors.Select(a => a.ToString()));
+    }
 }
 

@@ -1,7 +1,12 @@
-﻿using Reveries.Application.DTOs.Books;
+﻿using Reveries.Application.DTOs.IsbndbDtos.Books;
 
 namespace Reveries.Application.Interfaces.Isbndb;
 
+/// <summary>
+/// Provides methods for retrieving book information from the ISBNdb API.
+/// This client returns raw data transfer objects (DTOs) representing books, 
+/// which can include detailed information, search results, or multiple ISBN lookups.
+/// </summary>
 public interface IIsbndbBookClient
 {
     /// <summary>
@@ -16,7 +21,7 @@ public interface IIsbndbBookClient
     /// <returns>
     /// A <see cref="BookDetailsDto"/> containing the book's detailed information, or <c>null</c> if the book is not found.
     /// </returns>
-    Task<BookDetailsDto?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default);
+    Task<BookDetailsDto?> FetchBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Returns a list of books that match the given query.
@@ -38,7 +43,7 @@ public interface IIsbndbBookClient
     /// <returns>
     /// A <see cref="BooksQueryResponseDto"/> containing matching books and the total count.
     /// </returns>
-    Task<BooksQueryResponseDto?> GetBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll = true, CancellationToken cancellationToken = default);
+    Task<BooksQueryResponseDto?> SearchBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll = true, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Retrieves a list of books matching the provided ISBNs from the data source.
@@ -53,5 +58,5 @@ public interface IIsbndbBookClient
     /// A <see cref="BooksListResponseDto"/> containing the books that match the provided ISBNs, 
     /// or <c>null</c> if no matching books are found or the request fails.
     /// </returns>
-    Task<BooksListResponseDto?> GetBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken cancellationToken = default);
+    Task<BooksListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken cancellationToken = default);
 }

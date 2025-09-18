@@ -1,3 +1,4 @@
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -10,15 +11,17 @@ namespace Reveries.Console.Handlers;
 public class SearchAuthorHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchAuthor;
-    private readonly IAuthorService _authorService;
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
+    private readonly IBookLookupService _bookLookupService;
+    private readonly IAuthorLookupService _authorLookupService;
 
-    public SearchAuthorHandler(IAuthorService authorService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
+    public SearchAuthorHandler(IBookLookupService bookLookupService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IAuthorLookupService authorLookupService)
     {
-        _authorService = authorService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
+        _bookLookupService = bookLookupService;
+        _authorLookupService = authorLookupService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -26,7 +29,7 @@ public class SearchAuthorHandler : BaseHandler
         var authorInput = ConsolePromptUtility.GetUserInput("Enter author name:");
 
         var (authors, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(async () => await _authorService.GetAuthorsByNameAsync(authorInput, cancellationToken));
+            .RunWithStatusAsync(async () => await _authorLookupService.FindAuthorsByNameAsync(authorInput, cancellationToken));
 
         if (authors.Count == 0)
         {
@@ -41,17 +44,18 @@ public class SearchAuthorHandler : BaseHandler
             : ConsolePromptUtility.ShowSelectionPrompt("Select an author to see their books:", authors);
         
         var (bookResults, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(async () => await _authorService.GetBooksForAuthorAsync(selectedAuthor, cancellationToken));
+            .RunWithStatusAsync(async () => await _bookLookupService.FindBooksByAuthorAsync(selectedAuthor.NormalizedName, cancellationToken));
         
         if (bookResults.Count == 0)
         {
-            AnsiConsole.MarkupLine($"No books found for author: {selectedAuthor.AsSecondary()}".AsWarning());
+            AnsiConsole.MarkupLine($"No books found for author: {selectedAuthor.NormalizedName.ToTitleCase().AsSecondary()}".AsWarning());
             return;
         }
         
         var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
         
         AnsiConsole.MarkupLine($"Elapsed book search time: {bookSearchElapsedMs} ms".Italic().AsInfo());
-        AnsiConsole.Write(_bookDisplayService.DisplayBooks(filteredBooks));
+        
+        _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
     }
 }

@@ -5,5 +5,6 @@ namespace Reveries.Console.Services.Interfaces;
 
 public interface IBookDisplayService
 {
-    Tree DisplayBooks(List<Book> books);
+    void DisplayBooksTree(List<Book> books);
+    void DisplayBooksTable(List<Book> books);
 }

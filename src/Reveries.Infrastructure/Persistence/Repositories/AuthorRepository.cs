@@ -1,9 +1,7 @@
 using Dapper;
 using Reveries.Core.Entities;
-using Reveries.Core.Interfaces;
+using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Repositories;
-using Reveries.Infrastructure.Interfaces.Persistence;
-using Reveries.Infrastructure.Persistence.Context;
 using Reveries.Infrastructure.Persistence.DTOs;
 using Reveries.Infrastructure.Persistence.Mappers;
 
@@ -11,9 +9,9 @@ namespace Reveries.Infrastructure.Persistence.Repositories;
 
 public class AuthorRepository : IAuthorRepository
 {
-    private readonly IPostgresDbContext _dbContext;
+    private readonly IDbContext _dbContext;
     
-    public AuthorRepository(IPostgresDbContext dbContext)
+    public AuthorRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }
