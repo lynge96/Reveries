@@ -1,19 +1,17 @@
 using Dapper;
 using Reveries.Core.Entities;
-using Reveries.Core.Interfaces;
+using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Repositories;
-using Reveries.Infrastructure.Persistence.Context;
 using Reveries.Infrastructure.Persistence.DTOs;
-using Reveries.Infrastructure.Persistence.Interfaces;
 using Reveries.Infrastructure.Persistence.Mappers;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
 public class SubjectRepository : ISubjectRepository
 {
-    private readonly IPostgresDbContext _dbContext;
+    private readonly IDbContext _dbContext;
     
-    public SubjectRepository(IPostgresDbContext dbContext)
+    public SubjectRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }

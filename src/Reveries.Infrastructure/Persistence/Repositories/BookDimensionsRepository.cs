@@ -1,15 +1,15 @@
 using Dapper;
 using Reveries.Core.Entities;
+using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Repositories;
-using Reveries.Infrastructure.Persistence.Interfaces;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
 public class BookDimensionsRepository : IBookDimensionsRepository
 {
-    private readonly IPostgresDbContext _dbContext;
+    private readonly IDbContext _dbContext;
     
-    public BookDimensionsRepository(IPostgresDbContext dbContext)
+    public BookDimensionsRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }

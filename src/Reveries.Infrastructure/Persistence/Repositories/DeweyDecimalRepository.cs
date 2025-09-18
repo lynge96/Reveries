@@ -1,16 +1,16 @@
 using Dapper;
 using Reveries.Core.Entities;
+using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Repositories;
 using Reveries.Infrastructure.Persistence.DTOs;
-using Reveries.Infrastructure.Persistence.Interfaces;
 
 namespace Reveries.Infrastructure.Persistence.Repositories;
 
 public class DeweyDecimalRepository : IDeweyDecimalRepository
 {
-    private readonly IPostgresDbContext _dbContext;
+    private readonly IDbContext _dbContext;
     
-    public DeweyDecimalRepository(IPostgresDbContext dbContext)
+    public DeweyDecimalRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }
