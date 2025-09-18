@@ -1,4 +1,5 @@
 using Reveries.Console.Common.Extensions;
+using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services.Interfaces;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
@@ -11,34 +12,24 @@ public class BookSelectionService : IBookSelectionService
     public List<Book> SelectBooksToSave(List<Book> books)
     {
         var booksToPrompt = books.Where(b => b.DataSource != DataSource.Database).ToList();
-
-        var action = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("What do you want to do?".AsPrimary())
-                .AddChoices("Save all books", "Select specific books", "Skip saving")
-        );
-
-        switch (action)
-        {
-            case "Save all books":
-                return booksToPrompt;
-            case "Skip saving":
-                break;
-            case "Select specific books":
-                var selectedBooks = AnsiConsole.Prompt(
-                    new MultiSelectionPrompt<string>()
-                        .Title("Select the books you want to save:".AsPrimary())
-                        .PageSize(10)
-                        .InstructionsText("(Press <space> to select, <enter> to confirm)".AsInfo().Italic())
-                        .AddChoices(booksToPrompt.Select(b => b.ToString()))
-                );
+        if (booksToPrompt.Count == 0)
+            return new List<Book>();
         
-                return booksToPrompt
-                    .Where(b => selectedBooks.Contains(b.ToString()))
-                    .ToList();
-        }
+        var sortedBooks = booksToPrompt
+            .OrderByDescending(b => b.DataSource.HasFlag(DataSource.Database))
+            .ThenBy(b => b.Title)
+            .ThenBy(b => b.DataSource.HasFlag(DataSource.CombinedBookApi))
+            .ToList();
+        
+        var selectedBooks = ConsolePromptUtility.ShowMultiSelectionPrompt("Select books to save:", sortedBooks);
 
-        return new List<Book>();
+        if (selectedBooks.Count == 0)
+        {
+            AnsiConsole.MarkupLine("No books selected.".AsWarning());
+            return new List<Book>();
+        }
+        
+        return selectedBooks!;
     }
 
     public List<Book> FilterBooksByLanguage(IEnumerable<Book> books)
@@ -54,12 +45,7 @@ public class BookSelectionService : IBookSelectionService
         if (availableLanguages.Count <= 1)
             return booksList;
 
-        var selectedLanguages = AnsiConsole.Prompt(
-            new MultiSelectionPrompt<string>()
-                .Title("Select languages to filter by:".AsSuccess().Underline())
-                .PageSize(10)
-                .InstructionsText("Press <space> to select, <enter> to confirm".AsInfo().Italic())
-                .AddChoices(availableLanguages));
+        var selectedLanguages = ConsolePromptUtility.ShowMultiSelectionPrompt("Select languages to filter by:", availableLanguages);
         
         return selectedLanguages.Count == 0 
             ? booksList 

@@ -5,26 +5,16 @@ namespace Reveries.Core.Interfaces.Persistence;
 public interface IUnitOfWork
 {
     IBookRepository Books { get; }
-    
     IAuthorRepository Authors { get; }
-    
+    ISeriesRepository Series { get; }
+    IBookDimensionsRepository BookDimensions { get; }
+    IBookSubjectsRepository BookSubjects { get; }
+    IDeweyDecimalRepository DeweyDecimals { get; }
     IPublisherRepository Publishers { get; }
-    
+    IBookAuthorsRepository BookAuthors { get; }
     ISubjectRepository Subjects { get; }
     
-    IBookAuthorsRepository BookAuthors { get; }
-    
-    IBookSubjectsRepository BookSubjects { get; }
-
-    IBookDimensionsRepository BookDimensions { get; }
-    
-    IDeweyDecimalRepository DeweyDecimals { get; }
-    
-    ISeriesRepository Series { get; }
-
     Task BeginTransactionAsync();
-    
     Task CommitAsync();
-    
     Task RollbackAsync();
 }

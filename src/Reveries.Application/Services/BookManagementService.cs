@@ -1,4 +1,5 @@
-using Reveries.Application.Common.Validation.Exceptions;
+using Reveries.Application.Common.Exceptions;
+using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Entities;
 using Reveries.Core.Interfaces.Persistence;
@@ -7,16 +8,16 @@ namespace Reveries.Application.Services;
 
 public class BookManagementService : IBookManagementService
 {
-    private readonly IAuthorService _authorService;
+    private readonly IIsbndbAuthorService _authorService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public BookManagementService(IAuthorService authorService, IUnitOfWork unitOfWork)
+    public BookManagementService(IIsbndbAuthorService authorService, IUnitOfWork unitOfWork)
     {
         _authorService = authorService;
         _unitOfWork = unitOfWork;
     }
     
-    public async Task<int> SaveCompleteBookAsync(Book book, CancellationToken cancellationToken = default)
+    public async Task<int> CreateBookWithRelationsAsync(Book book, CancellationToken cancellationToken = default)
     {
         await ValidateBookNotExistsAsync(book);
         
@@ -29,12 +30,12 @@ public class BookManagementService : IBookManagementService
             await HandleSubjectsAsync(book);
             await HandleSeriesAsync(book);
             
-            var savedBookId = await _unitOfWork.Books.CreateBookAsync(book);
+            var savedBookId = await _unitOfWork.Books.CreateAsync(book);
             
             if (book.Authors.Count != 0)
                 await SaveBookAuthorsAsync(savedBookId, book.Authors);
             
-            if (book.Subjects.Count != 0)
+            if (book.Subjects != null && book.Subjects.Count != 0)
                 await SaveBookSubjectsAsync(savedBookId, book.Subjects);
             
             if (book.Dimensions != null)
@@ -53,7 +54,15 @@ public class BookManagementService : IBookManagementService
             throw;
         }
     }
-    
+
+    public async Task UpdateBooksAsync(List<Book> books, CancellationToken cancellationToken = default)
+    {
+        foreach (var book in books)
+        {
+            await _unitOfWork.Books.UpdateBookAsync(book);
+        }
+    }
+
     private async Task ValidateBookNotExistsAsync(Book book)
     {
         var existingBook = await _unitOfWork.Books.GetBookByIsbnAsync(book.Isbn13, book.Isbn10);
@@ -85,7 +94,7 @@ public class BookManagementService : IBookManagementService
 
     private async Task EnrichAuthorWithNameVariantsAsync(Author author)
     {
-        var variants = await _authorService.GetAuthorsByNameAsync(author.NormalizedName);
+        var authorList = await _authorService.GetAuthorsByNameAsync(author.NormalizedName);
     
         author.NameVariants = new List<AuthorNameVariant>
         {
@@ -96,21 +105,26 @@ public class BookManagementService : IBookManagementService
             }
         };
     
-        foreach(var variant in variants.Where(v => v != author.NormalizedName))
+        foreach(var authorVariant in authorList.Where(v => v != author))
         {
-            author.NameVariants.Add(new AuthorNameVariant 
-            { 
-                NameVariant = variant,
-                IsPrimary = false
-            });
+            if(!author.NameVariants.Any(v => v.NameVariant.Equals(authorVariant.NormalizedName, StringComparison.OrdinalIgnoreCase)))
+            {
+                author.NameVariants.Add(new AuthorNameVariant 
+                { 
+                    NameVariant = authorVariant.NormalizedName,
+                    IsPrimary = false
+                });
+            }
         }
     }
 
     private async Task HandlePublisherAsync(Book book)
     {
-        if (book.Publisher != null)
+        if (book.Publisher?.Name != null)
         {
-            var existingPublisher = await _unitOfWork.Publishers.GetPublisherByNameAsync(book.Publisher.Name);
+            var publisherList = await _unitOfWork.Publishers.GetPublishersByNameAsync(book.Publisher.Name);
+            var existingPublisher = publisherList.FirstOrDefault();
+            
             if (existingPublisher == null)
             {
                 await _unitOfWork.Publishers.CreatePublisherAsync(book.Publisher);
@@ -124,16 +138,19 @@ public class BookManagementService : IBookManagementService
     
     private async Task HandleSubjectsAsync(Book book)
     {
-        foreach (var subject in book.Subjects)
+        if (book.Subjects != null)
         {
-            var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Genre);
-            if (existingSubject == null)
+            foreach (var subject in book.Subjects)
             {
-                await _unitOfWork.Subjects.CreateSubjectAsync(subject);
-            }
-            else
-            {
-                subject.Id = existingSubject.Id;
+                var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Genre);
+                if (existingSubject == null)
+                {
+                    await _unitOfWork.Subjects.CreateSubjectAsync(subject);
+                }
+                else
+                {
+                    subject.Id = existingSubject.Id;
+                }
             }
         }
     }

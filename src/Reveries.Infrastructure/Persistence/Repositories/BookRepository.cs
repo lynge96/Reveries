@@ -1,7 +1,7 @@
 using Dapper;
 using Reveries.Core.Entities;
+using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Repositories;
-using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.DTOs;
 using Reveries.Infrastructure.Persistence.Mappers;
 
@@ -9,9 +9,9 @@ namespace Reveries.Infrastructure.Persistence.Repositories;
 
 public class BookRepository : IBookRepository
 {
-    private readonly IPostgresDbContext _dbContext;
+    private readonly IDbContext _dbContext;
     
-    public BookRepository(IPostgresDbContext dbContext)
+    public BookRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -55,7 +55,7 @@ public class BookRepository : IBookRepository
         return await QueryBooksAsync(sql, new { Pattern = pattern });
     }
 
-    public async Task<List<Book>> GetBooksWithDetailsByTitlesAsync(List<string>? bookTitles)
+    public async Task<List<Book>> GetDetailedBooksByTitleAsync(List<string>? bookTitles)
     {
         if (bookTitles == null || bookTitles.Count == 0)
             return new List<Book>();
@@ -74,7 +74,7 @@ public class BookRepository : IBookRepository
         return await QueryBooksAsync(sql, new { Patterns = patterns });
     }
     
-    public async Task<List<Book>> GetBooksWithDetailsByIsbnAsync(IEnumerable<string> isbns)
+    public async Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<string> isbns)
     {
         const string sql = """
                            SELECT *
@@ -104,7 +104,7 @@ public class BookRepository : IBookRepository
         return bookDto?.ToDomain();
     }
 
-    public async Task<int> CreateBookAsync(Book book)
+    public async Task<int> CreateAsync(Book book)
     {
         const string sql = """
                                      INSERT INTO books (
@@ -128,14 +128,40 @@ public class BookRepository : IBookRepository
         book.Id = bookId;
         return bookId;
     }
-    
-    private async Task<List<Book>> QueryBooksAsync(string sql, object parameters)
+
+    public async Task<List<Book>> GetAllBooksAsync()
+    {
+        const string sql = """
+                           SELECT *
+                           FROM book_details
+                           """;
+        
+        return await QueryBooksAsync(sql);
+    }
+
+    public async Task UpdateBookAsync(Book book)
+    {
+        const string sql = """
+                           UPDATE books
+                           SET series_id = @SeriesId,
+                               series_number = @SeriesNumber,
+                               is_read = @IsRead
+                           WHERE id = @Id;
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+        var bookDto = book.ToDto();
+
+        await connection.ExecuteAsync(sql, bookDto);
+    }
+
+    private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)
     {
         var dtoList = await QueryBooksDtoAsync(sql, parameters);
         return dtoList.Select(BookAggregateMapperExtensions.MapAggregateDtoToDomain).ToList();
     }
     
-    private async Task<List<BookAggregateDto>> QueryBooksDtoAsync(string sql, object parameters)
+    private async Task<List<BookAggregateDto>> QueryBooksDtoAsync(string sql, object? parameters = null)
     {
         var connection = await _dbContext.GetConnectionAsync();
         var bookDictionary = new Dictionary<int, BookAggregateDto>();
@@ -167,7 +193,7 @@ public class BookRepository : IBookRepository
 
                 return bookDto;
             },
-            parameters,
+            param: parameters,
             splitOn: "publisherid,authorid,subjectid,heightcm,code,seriesid"
         );
 

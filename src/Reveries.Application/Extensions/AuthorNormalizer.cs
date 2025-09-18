@@ -9,8 +9,8 @@ public static class AuthorNameNormalizer
 
         rawName = rawName.Trim().Replace(';', ' ');
 
-        string firstName = string.Empty;
-        string lastName = string.Empty;
+        var firstName = string.Empty;
+        var lastName = string.Empty;
 
         if (rawName.Contains(',')) // Format: Lastname, Firstname Middlename
         {
@@ -41,5 +41,4 @@ public static class AuthorNameNormalizer
 
         return (firstName, lastName, normalizedName);
     }
-
 }

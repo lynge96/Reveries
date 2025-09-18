@@ -1,14 +1,14 @@
 # Reveries 💫
 > Developed by [Anders Lynge Ravnsbæk](https://www.linkedin.com/in/alravnsbaek/)
 
-Reveries is a personal hobby project that I am developing in my spare time alongside job hunting. The project serves both as a way to maintain and expand my coding skills and as an opportunity to experiment with new technologies, best practices, integrations, and patterns that can strengthen my competencies as a developer.  
+Reveries is a personal hobby project that I am developing in my spare time alongside job hunting. The project serves both as a way to maintain and expand my coding skills and as an opportunity to experiment with new technologies, best practices, integrations, and design patterns that can strengthen my skills and competencies as a developer.  
 
-It is therefore both a learning project and a product I personally want to use to support my passion for reading books—and one I look forward to putting into practice.  
+It is therefore both a learning project and a product I personally want to use to support my passion for reading books and one I look forward to putting into use.  
 
 ### Vision 🔭
 Reveries aims to be a digital book hub where you can build and organize your own collection in the form of a virtual bookshelf.  
 
-The goal is to create a platform that makes it easier to get an overview of the books you own, provides insights into your reading habits, and presents metadata and statistics about which books you have read and which are still waiting to be explored.  
+The goal is to create a platform that makes it easier to get an overview of the books you own, provides insights into your reading habits, and presents metadata and statistics about which books you have read and which are still waiting to be explored - and who knows what future features will be implemented.  
 
 The project is being developed as a fullstack application, hosted on a Raspberry Pi and accessible through my private network. This makes it a complete learning environment, covering everything from backend and database to frontend and deployment.  
 
@@ -17,11 +17,11 @@ The plan for the project is outlined below. The choice of technologies is primar
 
 - **Backend**
   - [ ] **C# / .NET API**  
-    The business logic is developed with a focus on SOLID principles and Clean Architecture to ensure scalable and maintainable code.  
+    The business logic is developed with a focus on following SOLID principles and Clean Architecture to ensure scalable and maintainable code.  
   - [x] **Dapper**  
     Used as a micro-ORM instead of EF-Core to gain more control over SQL and create a closer connection between code and database.  
-  - [x] **ISBNDB**  
-    Integration with an external API that provides book data, allowing new titles to be added quickly with rich metadata.  
+  - [x] **External APIs - ISBNDB and Google Books**  
+    Integration with external APIs that provides book data, allowing new titles to be added quickly with rich metadata.  
 
 - **Frontend**
   - [ ] **TypeScript and React**  
@@ -41,8 +41,9 @@ The plan for the project is outlined below. The choice of technologies is primar
 
 ### Technologies 🚀
 - C# / .NET  
-- Dapper  
-- ISBNDB API  
+- [Dapper](https://www.learndapper.com/)
+- [ISBNDB API](https://isbndb.com/)
+- [Google Books API](https://developers.google.com/books)
 - TypeScript / React  
 - PostgreSQL  
 - Redis  

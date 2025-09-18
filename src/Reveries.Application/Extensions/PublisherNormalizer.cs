@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using System.Globalization;
+using Reveries.Core.Entities;
 
 namespace Reveries.Application.Extensions;
 
@@ -18,15 +19,6 @@ public partial class PublisherNormalizer
     
         [GeneratedRegex(@"\s+")]
         public static partial Regex MultipleSpacesPattern();
-    }
-
-    public static IEnumerable<string> GetUniquePublishers(IEnumerable<string> publishers)
-    {
-        return publishers
-            .Select(NormalizePublisher)
-            .Where(p => !string.IsNullOrWhiteSpace(p))
-            .Distinct()
-            .OrderBy(p => p);
     }
 
     private static readonly string[] NoiseWords = { "LTD", "INC", "PUBLISHING" };
@@ -55,7 +47,7 @@ public partial class PublisherNormalizer
         normalized = RegexPatterns.MultipleSpacesPattern().Replace(normalized, " ").Trim();
 
         // Konverter til Title Case
-        normalized = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(normalized.ToLowerInvariant());
+        normalized = normalized.ToTitleCase();
 
         return normalized;
     }

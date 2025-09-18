@@ -1,7 +1,7 @@
 using Dapper;
 using Reveries.Core.Entities;
+using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Repositories;
-using Reveries.Infrastructure.Interfaces.Persistence;
 using Reveries.Infrastructure.Persistence.DTOs;
 using Reveries.Infrastructure.Persistence.Mappers;
 
@@ -9,9 +9,9 @@ namespace Reveries.Infrastructure.Persistence.Repositories;
 
 public class SeriesRepository : ISeriesRepository
 {
-    private readonly IPostgresDbContext _dbContext;
+    private readonly IDbContext _dbContext;
 
-    public SeriesRepository(IPostgresDbContext dbContext)
+    public SeriesRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -22,9 +22,9 @@ public class SeriesRepository : ISeriesRepository
             return null;
     
         const string sql = """
-                           SELECT id as SeriesId, name, date_created as DateCreatedSeries 
+                           SELECT id as SeriesId, name as seriesName, date_created as DateCreatedSeries 
                            FROM series 
-                           WHERE name = @Name
+                           WHERE name ILIKE @Name
                            LIMIT 1;
                            """;
     
@@ -52,4 +52,19 @@ public class SeriesRepository : ISeriesRepository
         series.Id = seriesId;
         return seriesId;
     }
+
+    public async Task<List<Series>> GetSeriesAsync()
+    {
+        const string sql = """
+                           SELECT id as SeriesId, name as seriesName, date_created as DateCreatedSeries
+                           FROM series
+                           """;
+        
+        var connection = await _dbContext.GetConnectionAsync();
+        
+        var seriesDtos = await connection.QueryAsync<SeriesDto>(sql);
+        
+        return seriesDtos.Select(dto => dto.ToDomain()).ToList();
+    }
+
 }

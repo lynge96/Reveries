@@ -32,7 +32,7 @@ public class BookSaveService : IBookSaveService
         {
             try
             {
-                var bookId = await _bookManagementService.SaveCompleteBookAsync(book, cancellationToken);
+                var bookId = await _bookManagementService.CreateBookWithRelationsAsync(book, cancellationToken);
 
                 AnsiConsole.MarkupLine($"""
                                         ✅ Successfully saved to database:

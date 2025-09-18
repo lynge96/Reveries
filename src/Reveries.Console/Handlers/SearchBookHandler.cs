@@ -1,10 +1,10 @@
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services.Interfaces;
 using Reveries.Core.Entities;
-using Reveries.Core.Enums;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;
@@ -12,23 +12,22 @@ namespace Reveries.Console.Handlers;
 public class SearchBookHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchBook;
-    private readonly IBookService _bookService;
-    private readonly IBookSaveService _bookSaveService;
+    private readonly ISaveEntityService _saveEntityService;
     private readonly IBookSelectionService _bookSelectionService;
     private readonly IBookDisplayService _bookDisplayService;
+    private readonly IBookLookupService _bookLookupService;
 
-    public SearchBookHandler(IBookService bookService, IBookSaveService bookSaveService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService)
+    public SearchBookHandler(ISaveEntityService saveEntityService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookLookupService bookLookupService)
     {
-        _bookService = bookService;
-        _bookSaveService = bookSaveService;
+        _saveEntityService = saveEntityService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
+        _bookLookupService = bookLookupService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        // 9780804139021 9780593099322 9781982141172
-        var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma or space:");
+        var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma:");
 
         var (bookResults, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(() => SearchBooksAsync(searchInput, cancellationToken));
@@ -36,18 +35,19 @@ public class SearchBookHandler : BaseHandler
         var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
         
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
-        AnsiConsole.Write(_bookDisplayService.DisplayBooks(filteredBooks));
+        
+        _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
 
         var booksToSave = _bookSelectionService.SelectBooksToSave(filteredBooks);
         
         if (booksToSave.Count > 0)
-            await _bookSaveService.SaveBooksAsync(booksToSave, cancellationToken);
+            await _saveEntityService.SaveBooksAsync(booksToSave, cancellationToken);
     }
 
     private async Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken cancellationToken)
     {
         var tokens = searchInput
-            .Split([',', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Split([','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToList();
 
         var isbnTokens = tokens.Where(IsIsbnFormat).ToList();
@@ -57,14 +57,13 @@ public class SearchBookHandler : BaseHandler
 
         if (isbnTokens.Count != 0)
         {
-            var isbnResults = await _bookService.GetBooksByIsbnStringAsync(isbnTokens, cancellationToken);
-            results.AddRange(isbnResults);
+            var books = await _bookLookupService.FindBooksByIsbnAsync(isbnTokens, cancellationToken);
+            results.AddRange(books);
         }
-
         if (titleTokens.Count != 0)
         {
-            var titleResults = await _bookService.GetBooksByTitleAsync(titleTokens, languageCode: null, BookFormat.PhysicalOnly, cancellationToken);
-            results.AddRange(titleResults);
+            var books = await _bookLookupService.FindBooksByTitleAsync(titleTokens, cancellationToken);
+            results.AddRange(books);
         }
 
         return results;
@@ -72,7 +71,7 @@ public class SearchBookHandler : BaseHandler
 
     private static bool IsIsbnFormat(string input)
     {
-        var parts = input.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        var parts = input.Split([','], StringSplitOptions.RemoveEmptyEntries);
         
         const int isbn10Length = 10;
         const int isbn13Length = 13;

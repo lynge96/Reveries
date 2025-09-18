@@ -14,6 +14,7 @@ public abstract class BaseHandler : IMenuHandler
     
     public async Task HandleAsync(CancellationToken cancellationToken = default)
     {
+        AnsiConsole.Clear();
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(TimeSpan.FromSeconds(30));
         
@@ -32,10 +33,6 @@ public abstract class BaseHandler : IMenuHandler
         catch (OperationCanceledException)
         {
             AnsiConsole.MarkupLine("The search was canceled due to timeout".AsWarning());
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.MarkupLine($"An error occurred: {ex.Message}".AsError());
         }
     }
 }
