@@ -51,7 +51,7 @@ public class BookDisplayService : IBookDisplayService
 
         var columnNames = new[]
         {
-            "", "ISBN", "Read", "Title", "Author", "Pages", "Published", 
+            "#", "ISBN", "Read", "Title", "Author", "Pages", "Published", 
             "Publisher", "#", "Series", "Binding", "Data source"
         };
         table.AddColumns(columnNames.Select(c => c.Bold().AsPrimary()).ToArray());
@@ -70,15 +70,15 @@ public class BookDisplayService : IBookDisplayService
                 book.Publisher?.Name ?? "",
                 book.SeriesNumber.ToString() ?? "",
                 book.Series != null
-                    ? $"{book.Series.Name} {book.Series.Id.ToString().AsInfo()}" 
+                    ? $"{book.Series.Name} {book.Series.Id.ToString().AsInfo()}"
                     : "",
                 book.Binding ?? "",
                 book.DataSource.ToString().AsInfo()
-            ).Collapse();
+            );
         }
         
         var totalPages = books.Sum(b => b.Pages ?? 0);
-        var avgPages = totalPages / books.Count;
+        var avgPages = books.Count > 0 ? totalPages / books.Count : 0;
         
         table.Columns[5].Footer($"Pages: {totalPages}".Bold().AsSecondary());
         table.Columns[6].Footer($"Avg. pages: {avgPages:N0}".Bold().AsSecondary());

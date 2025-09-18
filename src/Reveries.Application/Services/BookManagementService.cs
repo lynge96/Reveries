@@ -55,11 +55,11 @@ public class BookManagementService : IBookManagementService
         }
     }
 
-    public async Task UpdateBooksWithSeriesAsync(List<Book> books, CancellationToken cancellationToken = default)
+    public async Task UpdateBooksAsync(List<Book> books, CancellationToken cancellationToken = default)
     {
         foreach (var book in books)
         {
-            await _unitOfWork.Books.UpdateBookSeriesAsync(book);
+            await _unitOfWork.Books.UpdateBookAsync(book);
         }
     }
 

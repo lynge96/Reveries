@@ -31,20 +31,19 @@ public class DatabaseTableHandler : BaseHandler
         var sortedBooks = booksInDb.ArrangeBooks();
         
         _bookDisplayService.DisplayBooksTable(sortedBooks);
-
-        string[] options = ["Add books to existing series", "Go back"];
-        var selection = ConsolePromptUtility.ShowSelectionPrompt("What do you want to do?", options);
         
-        if (selection == "Go back")
-            return;
-
-        if (selection == "Add books to existing series")
+        var menu = new Dictionary<string, Func<CancellationToken, Task>>
         {
-            await UpdateSelectedBooksWithSeries(sortedBooks, cancellationToken);
-        }
+            ["Add books to existing series"] = ct => UpdateSelectedBooksWithSeriesAsync(sortedBooks, ct),
+            ["Update read status"] = ct => UpdateSelectedBooksReadStatusAsync(sortedBooks, ct),
+            ["Go back"] = _ => Task.CompletedTask
+        };
+
+        var selection = ConsolePromptUtility.ShowSelectionPrompt("What do you want to do?", menu.Keys.ToArray());
+        await menu[selection](cancellationToken);
     }
 
-    private async Task UpdateSelectedBooksWithSeries(List<Book> booksInDb, CancellationToken cancellationToken)
+    private async Task UpdateSelectedBooksWithSeriesAsync(List<Book> books, CancellationToken cancellationToken)
     {
         var seriesInDb = await _bookSeriesService.GetSeriesAsync();
         if (seriesInDb.Count == 0)
@@ -56,8 +55,7 @@ public class DatabaseTableHandler : BaseHandler
         var series = ConsolePromptUtility.ShowSelectionPrompt(
             "Select the series you want to add books to:", seriesInDb);
 
-        var selectedBooks = ConsolePromptUtility.ShowMultiSelectionPrompt("Select the books you want to add:", booksInDb);
-
+        var selectedBooks = ConsolePromptUtility.ShowMultiSelectionPrompt("Select the books you want to add:", books);
         if (selectedBooks.Count == 0)
         {
             AnsiConsole.MarkupLine("No books selected.".AsWarning());
@@ -74,8 +72,29 @@ public class DatabaseTableHandler : BaseHandler
                 book.SeriesNumber = num;
         }
             
-        await _bookManagementService.UpdateBooksWithSeriesAsync(selectedBooks.ToList(), cancellationToken);
+        await _bookManagementService.UpdateBooksAsync(selectedBooks, cancellationToken);
 
+        AnsiConsole.MarkupLine("\nThe following books have been updated:".AsSuccess());
+        
+        _bookDisplayService.DisplayBooksTable(selectedBooks);
+    }
+
+    private async Task UpdateSelectedBooksReadStatusAsync(List<Book> books, CancellationToken cancellationToken)
+    {
+        var selectedBooks = ConsolePromptUtility.ShowMultiSelectionPrompt("Select the books you want update:", books);
+        if (selectedBooks.Count == 0)
+        {
+            AnsiConsole.MarkupLine("No books selected.".AsWarning());
+            return;
+        }
+        
+        foreach (var book in selectedBooks)
+        {
+            book.IsRead = !book.IsRead;
+        }
+        
+        await _bookManagementService.UpdateBooksAsync(selectedBooks, cancellationToken);
+        
         AnsiConsole.MarkupLine("\nThe following books have been updated:".AsSuccess());
         
         _bookDisplayService.DisplayBooksTable(selectedBooks);

@@ -23,5 +23,5 @@ public interface IBookManagementService
     /// </returns>
     Task<int> CreateBookWithRelationsAsync(Book book, CancellationToken cancellationToken = default);
     
-    Task UpdateBooksWithSeriesAsync(List<Book> books, CancellationToken cancellationToken = default);
+    Task UpdateBooksAsync(List<Book> books, CancellationToken cancellationToken = default);
 }
