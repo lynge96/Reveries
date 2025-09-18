@@ -6,7 +6,7 @@ using Reveries.Core.Enums;
 
 namespace Reveries.Application.Common.Mappers;
 
-public static class IsbndbBookDtoMapperExtensions
+public static partial class IsbndbBookDtoMapperExtensions
 {
     public static Book ToBook(this IsbndbBookDto isbndbBookDto)
     {
@@ -58,15 +58,15 @@ public static class IsbndbBookDtoMapperExtensions
         if (string.IsNullOrWhiteSpace(title))
             return (title, null, null);
 
-        var parentheses = Regex.Matches(title, @"\(([^)]+)\)");
+        var parentheses = MyRegex().Matches(title);
         int? seriesNumber = null;
         string? seriesName = null;
 
         // Regex til at fange tal, inkl. "Book 1", "Vol. 2", "Volume 3"
-        var numberPattern = new Regex(@"\b(?:Book|Vol(?:ume)?)?\s*(\d+)\b", RegexOptions.IgnoreCase);
+        var numberPattern = MyRegex1();
 
         // Vi går baglæns igennem parenteser
-        for (int i = parentheses.Count - 1; i >= 0; i--)
+        for (var i = parentheses.Count - 1; i >= 0; i--)
         {
             var content = parentheses[i].Groups[1].Value.Trim();
 
@@ -102,12 +102,20 @@ public static class IsbndbBookDtoMapperExtensions
                 title = title.Replace($"({content})", "").Trim();
             }
         }
-
+        
         // Rens ekstra mellemrum og hængende kolon
-        title = Regex.Replace(title, @"\s{2,}", " ").Trim();
-        title = Regex.Replace(title, @"[:\-\.,]\s*$", "").Trim();
+        title = MyRegex2().Replace(title, " ").Trim();
+        title = MyRegex3().Replace(title, "").Trim();
 
         return (title, seriesName, seriesNumber);
     }
-    
+
+    [GeneratedRegex(@"\(([^)]+)\)")]
+    private static partial Regex MyRegex();
+    [GeneratedRegex(@"\b(?:Book|Vol(?:ume)?)?\s*(\d+)\b", RegexOptions.IgnoreCase, "da-DK")]
+    private static partial Regex MyRegex1();
+    [GeneratedRegex(@"\s{2,}")]
+    private static partial Regex MyRegex2();
+    [GeneratedRegex(@"[:\-\.,]\s*$")]
+    private static partial Regex MyRegex3();
 }
