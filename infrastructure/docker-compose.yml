@@ -16,11 +16,26 @@ services:
     image: redis:7
     container_name: reveries-redis
     restart: always
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: reveries-redisinsight
+    restart: always
+    ports:
+      - "8001:8001"
+    volumes:
+      - redisinsight_data:/db
+    depends_on:
+      - redis
 
 volumes:
   postgres_data:
   redis_data:
+  redisinsight_data:
