@@ -16,7 +16,7 @@ The project is being developed as a fullstack application, hosted on a Raspberry
 The plan for the project is outlined below. The choice of technologies is primarily driven by the desire to gain hands-on experience with widely used and relevant tools from the real world, not necessarily because they represent the most optimal solution for this particular application.  
 
 - **Backend**
-  - [ ] **C# / .NET API**  
+  - [x] **C# / .NET API**  
     The business logic is developed with a focus on following SOLID principles and Clean Architecture to ensure scalable and maintainable code.  
   - [x] **Dapper**  
     Used as a micro-ORM instead of EF-Core to gain more control over SQL and create a closer connection between code and database.  
@@ -46,7 +46,7 @@ The plan for the project is outlined below. The choice of technologies is primar
 - [Google Books API](https://developers.google.com/books)
 - TypeScript / React  
 - PostgreSQL  
-- Redis  
+- [Redis and RedisInsight](https://redis.io/docs/latest/)
 - Docker  
 - GitHub Actions  
 
