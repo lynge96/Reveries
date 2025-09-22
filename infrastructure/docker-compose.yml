@@ -25,7 +25,7 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
 
   redisinsight:
-    image: redislabs/redisinsight:latest
+    image: redis/redisinsight:latest
     container_name: reveries-redisinsight
     restart: always
     ports:
