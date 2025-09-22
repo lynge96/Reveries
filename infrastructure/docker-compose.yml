@@ -23,15 +23,26 @@ services:
       - redis_data:/data
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+    networks:
+      - redis-network
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      retries: 3
+      timeout: 5s
 
   redisinsight:
     image: redis/redisinsight:latest
     container_name: reveries-redisinsight
     restart: always
     ports:
-      - "8001:8001"
+      - "5540:5540"
     volumes:
-      - redisinsight_data:/db
+      - redisinsight_data:/data
+    networks:
+      - redis-network
     depends_on:
       - redis
 
@@ -39,3 +50,6 @@ volumes:
   postgres_data:
   redis_data:
   redisinsight_data:
+networks:
+  redis-network:
+    driver: bridge
