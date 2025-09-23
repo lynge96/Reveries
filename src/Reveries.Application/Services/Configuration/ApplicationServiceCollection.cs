@@ -5,7 +5,7 @@ namespace Reveries.Application.Services.Configuration;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         // Services
         services.AddScoped<IBookManagementService, BookManagementService>();

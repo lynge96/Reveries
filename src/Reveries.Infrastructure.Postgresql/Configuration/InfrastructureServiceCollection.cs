@@ -6,7 +6,7 @@ namespace Reveries.Infrastructure.Postgresql.Configuration;
 
 public static class InfrastructureServiceCollection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<PostgresSettings>(options =>
         {

@@ -1,5 +1,6 @@
 using Reveries.Application.Common.Validation;
 using Reveries.Application.Extensions;
+using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Persistence;
 using Reveries.Application.Interfaces.Services;
@@ -13,45 +14,57 @@ public class BookLookupService : IBookLookupService
     private readonly IBookEnrichmentService _bookEnrichmentService;
     private readonly IIsbndbAuthorService _isbndbAuthorService;
     private readonly IIsbndbPublisherService _isbndbPublisherService;
+    private readonly IBookCacheService _bookCacheService;
 
-    public BookLookupService(IUnitOfWork unitOfWork, IBookEnrichmentService bookEnrichmentService, IIsbndbAuthorService isbndbAuthorService, IIsbndbPublisherService isbndbPublisherService)
+    public BookLookupService(IUnitOfWork unitOfWork, IBookEnrichmentService bookEnrichmentService, IIsbndbAuthorService isbndbAuthorService, IIsbndbPublisherService isbndbPublisherService, IBookCacheService bookCacheService)
     {
         _unitOfWork = unitOfWork;
         _bookEnrichmentService = bookEnrichmentService;
         _isbndbAuthorService = isbndbAuthorService;
         _isbndbPublisherService = isbndbPublisherService;
+        _bookCacheService = bookCacheService;
     }
     
     public async Task<List<Book>> FindBooksByIsbnAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
         var validatedIsbns = IsbnValidationHelper.ValidateIsbns(isbns);
-        if (validatedIsbns.Count == 0)
-            return new List<Book>();
+        if (validatedIsbns.Count == 0) return new List<Book>();
         
-        var databaseBooks = await _unitOfWork.Books.GetDetailedBooksByIsbnsAsync(validatedIsbns);
+        var cacheBooks = await _bookCacheService.GetBooksByIsbnsAsync(validatedIsbns, cancellationToken);
         
-        var foundIsbns = databaseBooks
+        var foundInCache = cacheBooks
             .Select(b => b.Isbn13 ?? b.Isbn10)
             .Where(i => !string.IsNullOrWhiteSpace(i))
             .ToHashSet();
         
-        var missingIsbns = isbns
-            .Where(i => !foundIsbns.Contains(i))
+        var missingIsbns = validatedIsbns.Where(i => !foundInCache.Contains(i)).ToList();
+        
+        var databaseBooks = await _unitOfWork.Books.GetDetailedBooksByIsbnsAsync(missingIsbns);
+        
+        var foundInDb  = databaseBooks
+            .Select(b => b.Isbn13 ?? b.Isbn10)
+            .Where(i => !string.IsNullOrWhiteSpace(i))
+            .ToHashSet();
+        
+        missingIsbns = missingIsbns.Where(i => !foundInDb.Contains(i)).ToList();
+        
+        var apiBooks = missingIsbns.Count > 0
+            ? await _bookEnrichmentService.AggregateBooksByIsbnsAsync(missingIsbns, cancellationToken)
+            : new List<Book>();
+
+        await _bookCacheService.SetBooksByIsbnsAsync(databaseBooks.Concat(apiBooks), cancellationToken);
+        
+        return cacheBooks
+            .Concat(databaseBooks)
+            .Concat(apiBooks)
             .ToList();
-        
-        if (missingIsbns.Count == 0)
-            return databaseBooks;
-        
-        var apiBooks = await _bookEnrichmentService.AggregateBooksByIsbnsAsync(missingIsbns, cancellationToken);
-        
-        return databaseBooks.Concat(apiBooks).ToList();
     }
 
     public async Task<List<Book>> FindBooksByTitleAsync(List<string> titles, CancellationToken cancellationToken = default)
     {
         if (titles.Count == 0)
             return new List<Book>();
-        
+        // TODO: tilføj cache
         var booksInDatabase = await _unitOfWork.Books.GetDetailedBooksByTitleAsync(titles);
         
         var dbTitles = booksInDatabase
