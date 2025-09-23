@@ -1,9 +1,9 @@
 using Reveries.Application.Common.Validation;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
+using Reveries.Application.Interfaces.Persistence;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Entities;
-using Reveries.Core.Interfaces.Persistence;
 
 namespace Reveries.Application.Services;
 

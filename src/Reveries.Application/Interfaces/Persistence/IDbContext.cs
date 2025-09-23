@@ -1,7 +1,7 @@
 using System.Data;
 using Npgsql;
 
-namespace Reveries.Core.Interfaces.Persistence;
+namespace Reveries.Application.Interfaces.Persistence;
 
 public interface IDbContext : IAsyncDisposable
 {

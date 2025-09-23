@@ -1,6 +1,6 @@
 using Reveries.Core.Entities;
 
-namespace Reveries.Core.Interfaces.Persistence.Repositories;
+namespace Reveries.Application.Interfaces.Persistence.Repositories;
 
 public interface IBookAuthorsRepository
 {

@@ -1,7 +1,7 @@
 using System.Data;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using Reveries.Core.Interfaces.Persistence;
+using Reveries.Application.Interfaces.Persistence;
 using Reveries.Infrastructure.Postgresql.Configuration;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence;
