@@ -1,8 +1,9 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using Reveries.Application.DTOs.GoogleBooksDtos;
 using Reveries.Application.Interfaces.GoogleBooks;
+using Reveries.Integration.GoogleBooks.Clients.Interfaces;
 using Reveries.Integration.GoogleBooks.Configuration;
+using Reveries.Integration.GoogleBooks.DTOs;
 
 namespace Reveries.Integration.GoogleBooks.Clients;
 

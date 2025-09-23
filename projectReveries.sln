@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Console", "src\Rev
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Application", "src\Reveries.Application\Reveries.Application.csproj", "{343A1918-C6B9-42E4-9FA8-E91E9CC3A195}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure", "src\Reveries.Infrastructure\Reveries.Infrastructure.csproj", "{8C96F4DE-89B6-4772-8888-662FE8D0462A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure.Postgresql", "src\Reveries.Infrastructure.Postgresql\Reveries.Infrastructure.Postgresql.csproj", "{8C96F4DE-89B6-4772-8888-662FE8D0462A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Integration.Isbndb", "src\Reveries.Integration.Isbndb\Reveries.Integration.Isbndb.csproj", "{5A934463-4889-4C36-8C1A-0CC4CE86496F}"
 EndProject

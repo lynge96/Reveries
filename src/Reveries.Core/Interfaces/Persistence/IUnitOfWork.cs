@@ -1,4 +1,4 @@
-using Reveries.Core.Interfaces.Repositories;
+using Reveries.Core.Interfaces.Persistence.Repositories;
 
 namespace Reveries.Core.Interfaces.Persistence;
 
