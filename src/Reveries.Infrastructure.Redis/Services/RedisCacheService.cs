@@ -22,25 +22,6 @@ public class RedisCacheService : ICacheService
         return JsonSerializer.Deserialize<T>(value!);
     }
 
-    public async Task<IReadOnlyList<T>> GetAsync<T>(IEnumerable<string> keys, CancellationToken cancellationToken = default)
-    {
-        var redisKeys = keys.Select(k => (RedisKey)k).ToArray();
-        var values = await _database.StringGetAsync(redisKeys);
-
-        var list = new List<T>();
-        
-        foreach (var value in values)
-        {
-            if (value.HasValue)
-            {
-                var item = JsonSerializer.Deserialize<T>(value!);
-                if (item != null) list.Add(item);
-            }
-        }
-
-        return list;
-    }
-
     public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null, CancellationToken cancellationToken = default)
     {
         var json = JsonSerializer.Serialize(value);
@@ -52,4 +33,6 @@ public class RedisCacheService : ICacheService
     {
         await _database.KeyDeleteAsync(key);
     }
+
+    public IBatch CreateBatch() => _database.CreateBatch();
 }

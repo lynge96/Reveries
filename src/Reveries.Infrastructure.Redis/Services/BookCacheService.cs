@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
@@ -22,18 +23,21 @@ public class BookCacheService : IBookCacheService
         return await _cache.GetAsync<Book>(key, cancellationToken);
     }
 
-    public async Task SetByIsbnAsync(Book book, CancellationToken cancellationToken = default)
+    public async Task SetBookByIsbnAsync(Book book, CancellationToken cancellationToken = default)
     {
         var key = CacheKeys.BookByIsbn(book.Isbn13 ?? book.Isbn10!);
         
         await _cache.SetAsync(key, book, RedisSettings.Expiration, cancellationToken);
     }
 
-    public async Task RemoveByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
+    public async Task RemoveBookByIsbnAsync(string? isbn, CancellationToken cancellationToken = default)
     {
-        var key = CacheKeys.BookByIsbn(isbn);
+        if (isbn != null)
+        {
+            var key = CacheKeys.BookByIsbn(isbn);
         
-        await _cache.RemoveAsync(key, cancellationToken);
+            await _cache.RemoveAsync(key, cancellationToken);
+        }
     }
     
     public async Task<IReadOnlyList<Book>> GetBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken cancellationToken = default)
@@ -44,14 +48,14 @@ public class BookCacheService : IBookCacheService
         var updatedBooks = books
             .Where(b => b is not null)
             .Select(b => b!.WithDataSource(b, DataSource.Cache))
-            .ToList();
+            .ToImmutableList();
 
         return updatedBooks;
     }
 
     public async Task SetBooksByIsbnsAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default)
     {
-        var tasks = books.Select(book => SetByIsbnAsync(book, cancellationToken));
+        var tasks = books.Select(book => SetBookByIsbnAsync(book, cancellationToken));
         await Task.WhenAll(tasks);
     }
 }
