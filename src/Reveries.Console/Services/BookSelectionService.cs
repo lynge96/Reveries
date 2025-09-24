@@ -11,7 +11,7 @@ public class BookSelectionService : IBookSelectionService
 {
     public List<Book> SelectBooksToSave(List<Book> books)
     {
-        var booksToPrompt = books.Where(b => b.DataSource != DataSource.Database).ToList();
+        var booksToPrompt = books.Where(b => b.DataSource != DataSource.Database && b.DataSource != DataSource.Cache).ToList();
         if (booksToPrompt.Count == 0)
             return new List<Book>();
         
@@ -29,7 +29,7 @@ public class BookSelectionService : IBookSelectionService
             return new List<Book>();
         }
         
-        return selectedBooks!;
+        return selectedBooks;
     }
 
     public List<Book> FilterBooksByLanguage(IEnumerable<Book> books)

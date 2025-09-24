@@ -9,11 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Console", "src\Rev
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Application", "src\Reveries.Application\Reveries.Application.csproj", "{343A1918-C6B9-42E4-9FA8-E91E9CC3A195}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure", "src\Reveries.Infrastructure\Reveries.Infrastructure.csproj", "{8C96F4DE-89B6-4772-8888-662FE8D0462A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure.Postgresql", "src\Reveries.Infrastructure.Postgresql\Reveries.Infrastructure.Postgresql.csproj", "{8C96F4DE-89B6-4772-8888-662FE8D0462A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Integration.Isbndb", "src\Reveries.Integration.Isbndb\Reveries.Integration.Isbndb.csproj", "{5A934463-4889-4C36-8C1A-0CC4CE86496F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Integration.GoogleBooks", "src\Reveries.Integration.GoogleBooks\Reveries.Integration.GoogleBooks.csproj", "{D2CB01C7-7F64-4B73-822D-BE02EF3A6F59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure.Redis", "src\Reveries.Infrastructure.Redis\Reveries.Infrastructure.Redis.csproj", "{BF037684-9602-487C-B70F-5A9AA042BCFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +99,18 @@ Global
 		{D2CB01C7-7F64-4B73-822D-BE02EF3A6F59}.Release|x64.Build.0 = Release|Any CPU
 		{D2CB01C7-7F64-4B73-822D-BE02EF3A6F59}.Release|x86.ActiveCfg = Release|Any CPU
 		{D2CB01C7-7F64-4B73-822D-BE02EF3A6F59}.Release|x86.Build.0 = Release|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Debug|x64.Build.0 = Debug|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Debug|x86.Build.0 = Debug|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|x64.ActiveCfg = Release|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|x64.Build.0 = Release|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|x86.ActiveCfg = Release|Any CPU
+		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
