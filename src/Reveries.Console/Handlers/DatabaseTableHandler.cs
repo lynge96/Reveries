@@ -27,9 +27,12 @@ public class DatabaseTableHandler : BaseHandler
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        var booksInDb = await _bookLookupService.GetAllBooksAsync(cancellationToken);
+        var (booksInDb, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
+            .RunWithStatusAsync(() => _bookLookupService.GetAllBooksAsync(cancellationToken));
         var sortedBooks = booksInDb.ArrangeBooks();
         
+        AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
+
         _bookDisplayService.DisplayBooksTable(sortedBooks);
         
         var menu = new Dictionary<string, Func<CancellationToken, Task>>

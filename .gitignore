@@ -64,3 +64,6 @@ nunit-*.xml
 
 .env
 *.env
+
+.github
+*.github

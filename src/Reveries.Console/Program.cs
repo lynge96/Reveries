@@ -4,13 +4,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Reveries.Application.Services;
+using Reveries.Application.Services.Configuration;
 using Reveries.Console.Handlers;
 using Reveries.Console.Handlers.Interfaces;
 using Reveries.Console.Services;
 using Reveries.Console.Services.Interfaces;
-using Reveries.Infrastructure.Extensions;
-using Reveries.Integration.GoogleBooks.Extensions;
-using Reveries.Integration.Isbndb.Extensions;
+using Reveries.Infrastructure.Postgresql.Configuration;
+using Reveries.Infrastructure.Redis.Configuration;
+using Reveries.Integration.GoogleBooks.Configuration;
+using Reveries.Integration.Isbndb.Configuration;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((config) =>
@@ -20,10 +22,11 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .ConfigureServices((context, services) =>
     {
-        services.AddInfrastructure(context.Configuration);
-        services.AddApplication();
+        services.AddInfrastructureServices(context.Configuration);
+        services.AddApplicationServices();
         services.AddIsbndbServices();
         services.AddGoogleBooksServices();
+        services.AddRedisCacheServices();
 
         services.AddTransient<IConsoleAppRunnerService, ConsoleAppRunnerService>();
         services.AddScoped<IMenuOperationService, MenuOperationService>();
