@@ -32,22 +32,22 @@ The plan for the project is outlined below. The choice of technologies is primar
     Chosen to build experience with one of the most popular relational databases, also widely used in large-scale projects.  
 
 - **Cache**
-  - [ ] **Redis**  
-    Implemented to optimize response times and provide a faster, more responsive user experience.  
+  - [x] **Redis**  
+    Implemented to optimize response times and provide a faster, more responsive user experience. Using a Cache-Aside strategy, data is cached in memory and refreshed from the database when needed.
 
 - **CI/CD**
   - [ ] **Docker and GitHub Actions**  
     Pipelines automatically package new builds into Docker images and deploy them to the Raspberry Pi, ensuring the application always runs the latest version.  
 
 ### Technologies 🚀
-- C# / .NET  
+- [C# / .NET](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/)  
 - [Dapper](https://www.learndapper.com/)
 - [ISBNDB API](https://isbndb.com/)
 - [Google Books API](https://developers.google.com/books)
 - TypeScript / React  
-- PostgreSQL  
+- [PostgreSQL](https://www.postgresql.org/docs/)  
 - [Redis and RedisInsight](https://redis.io/docs/latest/)
-- Docker  
+- [Docker](https://docs.docker.com/)  
 - GitHub Actions  
 
 ### Database Schema 📋

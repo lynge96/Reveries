@@ -16,7 +16,12 @@ services:
     image: redis:7
     container_name: reveries-redis
     restart: always
-    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    command: [
+      "redis-server",
+      "--maxmemory", "512mb",
+      "--maxmemory-policy", "volatile-lru",
+      "--requirepass", "${REDIS_PASSWORD}"
+    ]
     ports:
       - "6379:6379"
     volumes:
@@ -26,12 +31,10 @@ services:
     networks:
       - redis-network
     healthcheck:
-      test:
-        - CMD
-        - redis-cli
-        - ping
-      retries: 3
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
       timeout: 5s
+      retries: 3
 
   redisinsight:
     image: redis/redisinsight:latest
