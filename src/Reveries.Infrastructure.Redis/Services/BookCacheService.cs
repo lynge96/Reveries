@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text.Json;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Core.Entities;
 using Reveries.Core.Enums;
@@ -25,6 +26,8 @@ public class BookCacheService : IBookCacheService
 
     public async Task SetBookByIsbnAsync(Book book, CancellationToken cancellationToken = default)
     {
+        if (book.Isbn13 == null && book.Isbn10 == null) return;
+        
         var key = CacheKeys.BookByIsbn(book.Isbn13 ?? book.Isbn10!);
         
         await _cache.SetAsync(key, book, RedisSettings.Expiration, cancellationToken);
@@ -56,6 +59,52 @@ public class BookCacheService : IBookCacheService
     public async Task SetBooksByIsbnsAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default)
     {
         var tasks = books.Select(book => SetBookByIsbnAsync(book, cancellationToken));
+        await Task.WhenAll(tasks);
+    }
+
+    public async Task<IReadOnlyList<Book>> GetBooksByTitlesAsync(IEnumerable<string> titles, CancellationToken cancellationToken = default)
+    {
+        var batch = _cache.CreateBatch();
+        var titleTasks = titles.ToDictionary(
+            title => title,
+            title => batch.StringGetAsync(CacheKeys.BookIsbnsByTitle(title))
+        );
+        batch.Execute();
+        await Task.WhenAll(titleTasks.Values);
+        
+        var isbnResults = new Dictionary<string, List<string>>();
+        foreach (var kvp in titleTasks)
+        {
+            var redisVal = kvp.Value.Result;
+            if (!redisVal.IsNullOrEmpty)
+            {
+                var isbns = JsonSerializer.Deserialize<List<string>>(redisVal!) ?? new();
+                isbnResults[kvp.Key] = isbns;
+            }
+        }
+        
+        var allIsbns = isbnResults.Values.SelectMany(x => x).Distinct().ToList();
+        
+        if (allIsbns.Count == 0)
+            return new List<Book>();
+        
+        var books = await GetBooksByIsbnsAsync(allIsbns, cancellationToken);
+        return books.ToList();
+    }
+
+    public async Task SetIsbnsByTitleAsync(IEnumerable<string> titles, IEnumerable<string> isbns, CancellationToken cancellationToken = default)
+    {
+        var batch = _cache.CreateBatch();
+
+        var serialized = JsonSerializer.Serialize(isbns.ToList());
+
+        var tasks = titles.Select(title =>
+        {
+            var key = CacheKeys.BookIsbnsByTitle(title);
+            return batch.StringSetAsync(key, serialized, RedisSettings.Expiration);
+        }).ToList();
+        
+        batch.Execute();
         await Task.WhenAll(tasks);
     }
 }

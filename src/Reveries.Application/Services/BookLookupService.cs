@@ -67,22 +67,57 @@ public class BookLookupService : IBookLookupService
         if (titles.Count == 0)
             return new List<Book>();
 
-        var databaseBooks = await _unitOfWork.Books.GetDetailedBooksByTitleAsync(titles);
+        var cacheBooks = await _bookCacheService.GetBooksByTitlesAsync(titles, cancellationToken);
+
+        var foundTitles = cacheBooks
+            .Select(b => b.Title)
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var missingTitles = titles
+            .Where(t => !foundTitles.Contains(t))
+            .ToList();
+        
+        var databaseBooks = missingTitles.Count > 0
+            ? await _unitOfWork.Books.GetDetailedBooksByTitleAsync(missingTitles)
+            : new List<Book>();
 
         var foundTitlesInDb = databaseBooks
             .Select(b => b.Title)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var missingTitles = titles
-            .Where(t => !foundTitlesInDb.Any(dbTitle => dbTitle.Contains(t, StringComparison.OrdinalIgnoreCase)))
+        missingTitles = missingTitles
+            .Where(t => !foundTitlesInDb.Contains(t))
             .ToList();
 
-        var apiBooks = missingTitles.Count != 0
+        var apiBooks = missingTitles.Count > 0
             ? await _bookEnrichmentService.AggregateBooksByTitlesAsync(missingTitles, cancellationToken)
             : new List<Book>();
 
-        return databaseBooks
+        var booksToCache = databaseBooks.Concat(apiBooks).ToList();
+        if (booksToCache.Count != 0)
+        {
+            var titleIsbnMap = booksToCache
+                .GroupBy(b => b.Title, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(b => b.Isbn13 ?? b.Isbn10)
+                        .Where(i => !string.IsNullOrWhiteSpace(i))
+                        .ToList()
+                );
+
+            var allIsbns = titleIsbnMap.Values.SelectMany(x => x).Distinct().ToList();
+            
+            await _bookCacheService.SetIsbnsByTitleAsync(titleIsbnMap.Keys, allIsbns!, cancellationToken);
+            
+            await _bookCacheService.SetBooksByIsbnsAsync(booksToCache, cancellationToken);
+        }
+        
+        return cacheBooks
+            .Concat(databaseBooks)
             .Concat(apiBooks)
+            .GroupBy(b => b.Isbn13 ?? b.Isbn10)
+            .Select(g => g.First())
             .ToList();
     }
     
