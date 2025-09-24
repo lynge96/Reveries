@@ -38,6 +38,8 @@ public class SearchPublisherHandler : BaseHandler
         var (bookResults, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(async () => await _bookLookupService.FindBooksByPublisherAsync(selectedPublisher.Name, cancellationToken));
         
+        AnsiConsole.MarkupLine($"Elapsed book search time: {bookSearchElapsedMs} ms".Italic().AsInfo());
+        
         if (bookResults.Count == 0)
         {
             if (selectedPublisher.Name != null)
@@ -47,8 +49,6 @@ public class SearchPublisherHandler : BaseHandler
         }
 
         var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
-        
-        AnsiConsole.MarkupLine($"Elapsed book search time: {bookSearchElapsedMs} ms".Italic().AsInfo());
         
         _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
     }

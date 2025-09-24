@@ -71,7 +71,10 @@ public class BookEnrichmentService : IBookEnrichmentService
 
         mergedBooks.AddRange(isbndbByIsbn.Values);
 
-        return mergedBooks;
+        return mergedBooks
+            .Where(b => !string.IsNullOrWhiteSpace(b.Isbn10))
+            .Where(b => !string.IsNullOrWhiteSpace(b.Isbn13))
+            .ToList();
     }
     
     private static Book MergeBooks(Book? isbndbBook, Book? googleBook)

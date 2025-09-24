@@ -63,16 +63,16 @@ public class BookDisplayService : IBookDisplayService
                 (i + 1).ToString().AsInfo(),
                 book.Isbn13 ?? book.Isbn10 ?? "",
                 book.IsRead ? "✅" : "❌",
-                book.Title.Bold().AsSecondary(),
-                book.GetAuthorNames(),
-                book.Pages.ToString() ?? "",
+                Markup.Escape(book.Title).Bold().AsSecondary(),
+                Markup.Escape(book.GetAuthorNames()),
+                book.Pages?.ToString() ?? "",
                 book.PublishDateFormatted,
-                book.Publisher?.Name ?? "",
-                book.SeriesNumber.ToString() ?? "",
+                Markup.Escape(book.Publisher?.Name ?? ""),
+                book.SeriesNumber?.ToString() ?? "",
                 book.Series != null
-                    ? $"{book.Series.Name} {book.Series.Id.ToString().AsInfo()}"
+                    ? $"{Markup.Escape(book.Series.Name)} {Markup.Escape(book.Series.Id.ToString()).AsInfo()}"
                     : "",
-                book.Binding ?? "",
+                Markup.Escape(book.Binding ?? ""),
                 book.DataSource.ToString().AsInfo()
             );
         }
@@ -82,7 +82,7 @@ public class BookDisplayService : IBookDisplayService
         
         table.Columns[5].Footer($"Pages: {totalPages}".Bold().AsSecondary());
         table.Columns[6].Footer($"Avg. pages: {avgPages:N0}".Bold().AsSecondary());
-        
+
         AnsiConsole.Write(table);
     }
     

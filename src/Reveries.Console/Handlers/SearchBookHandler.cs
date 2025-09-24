@@ -32,9 +32,9 @@ public class SearchBookHandler : BaseHandler
         var (bookResults, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(() => SearchBooksAsync(searchInput, cancellationToken));
 
-        var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
-        
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
+        
+        var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
         
         _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
 

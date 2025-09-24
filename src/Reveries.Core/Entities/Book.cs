@@ -69,5 +69,35 @@ public class Book
     {
         return string.Join(", ", Authors.Select(a => a.ToString()));
     }
+
+    public Book WithDataSource(Book book, DataSource dataSource)
+    {
+        return new Book{
+            Id = book.Id,
+            Title = book.Title,
+            Isbn10 = book.Isbn10,
+            Isbn13 = book.Isbn13,
+            Authors = book.Authors,
+            Pages = book.Pages,
+            PublishDate = book.PublishDate,
+            Publisher = book.Publisher,
+            Series = book.Series,
+            SeriesNumber = book.SeriesNumber,
+            Binding = book.Binding,
+            Edition = book.Edition,
+            Language = book.Language,
+            LanguageIso639 = book.LanguageIso639,
+            Synopsis = book.Synopsis,
+            ImageThumbnail = book.ImageThumbnail,
+            ImageUrl = book.ImageUrl,
+            Msrp = book.Msrp,
+            DateCreated = book.DateCreated,
+            Dimensions = book.Dimensions,
+            DeweyDecimals = book.DeweyDecimals,
+            Subjects = book.Subjects,
+            IsRead = book.IsRead,
+            DataSource = dataSource
+        };
+    }   
 }
 

@@ -1,8 +1,9 @@
 using Reveries.Application.Common.Exceptions;
+using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
+using Reveries.Application.Interfaces.Persistence;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Entities;
-using Reveries.Core.Interfaces.Persistence;
 
 namespace Reveries.Application.Services;
 
@@ -10,11 +11,13 @@ public class BookManagementService : IBookManagementService
 {
     private readonly IIsbndbAuthorService _authorService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IBookCacheService _bookCacheService;
 
-    public BookManagementService(IIsbndbAuthorService authorService, IUnitOfWork unitOfWork)
+    public BookManagementService(IIsbndbAuthorService authorService, IUnitOfWork unitOfWork, IBookCacheService bookCacheService)
     {
         _authorService = authorService;
         _unitOfWork = unitOfWork;
+        _bookCacheService = bookCacheService;
     }
     
     public async Task<int> CreateBookWithRelationsAsync(Book book, CancellationToken cancellationToken = default)
@@ -45,6 +48,7 @@ public class BookManagementService : IBookManagementService
                 await SaveDeweyDecimalsAsync(savedBookId, book.DeweyDecimals);
             
             await _unitOfWork.CommitAsync();
+            await _bookCacheService.SetBookByIsbnAsync(book, cancellationToken);
 
             return savedBookId;
         }
@@ -60,6 +64,7 @@ public class BookManagementService : IBookManagementService
         foreach (var book in books)
         {
             await _unitOfWork.Books.UpdateBookAsync(book);
+            await _bookCacheService.RemoveBookByIsbnAsync(book.Isbn13 ?? book.Isbn10, cancellationToken);
         }
     }
 
