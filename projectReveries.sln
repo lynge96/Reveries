@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Integration.Google
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure.Redis", "src\Reveries.Infrastructure.Redis\Reveries.Infrastructure.Redis.csproj", "{BF037684-9602-487C-B70F-5A9AA042BCFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Blazor.BookScanner", "src\Reveries.Blazor.BookScanner\Reveries.Blazor.BookScanner.csproj", "{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,12 +113,20 @@ Global
 		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|x64.Build.0 = Release|Any CPU
 		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|x86.ActiveCfg = Release|Any CPU
 		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|x86.Build.0 = Release|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Debug|x64.Build.0 = Debug|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Debug|x86.Build.0 = Debug|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Release|x64.ActiveCfg = Release|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Release|x64.Build.0 = Release|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Release|x86.ActiveCfg = Release|Any CPU
+		{83C2EDC0-F682-4EB7-AE63-AFA7D4B72A0D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{5A934463-4889-4C36-8C1A-0CC4CE86496F} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-		{D2CB01C7-7F64-4B73-822D-BE02EF3A6F59} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal
