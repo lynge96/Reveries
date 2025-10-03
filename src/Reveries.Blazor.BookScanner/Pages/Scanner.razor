@@ -1,0 +1,88 @@
+﻿@page "/"
+@inject IJSRuntime Js
+
+<div class="container mt-5">
+    <h3 class="text-center mb-4 display-6">ISBN Scanner</h3>
+
+    <div class="row">
+        <!-- Venstre kolonne: video -->
+        <div class="col-4">
+            <video id="video" autoplay playsinline class="border rounded shadow" style="max-width: 100%;"></video>
+        </div>
+        
+        <!-- Højre kolonne: bogdata og billede -->
+        <div class="col-md-8">
+            <div class="row">
+                <!-- Venstre: book data -->
+                <h2>Book data</h2>
+
+                <form class="row col-5">
+                    <div class="row-md-6">
+                        <label for="inputIsbn" class="form-label">ISBN</label>
+                        <input disabled readonly class="form-control" value="@isbn" placeholder="Scan book for isbn" id="inputIsbn">
+                    </div>
+
+                    <div class="row-md-6">
+                        <label for="inputTitle" class="form-label">Title</label>
+                        <input disabled readonly class="form-control" id="inputTitle">
+                    </div>
+
+                    <div class="row-md-6">
+                        <label for="inputAuthor" class="form-label">Authors</label>
+                        <input disabled readonly class="form-control" id="inputAuthor">
+                    </div>
+
+                    <div class="row-md-6">
+                        <label for="inputYear" class="form-label">Publication date</label>
+                        <input disabled readonly class="form-control" id="inputYear">
+                    </div>
+
+                    <div class="row-md-6">
+                        <label for="inputPages" class="form-label">Pages</label>
+                        <input disabled readonly class="form-control" id="inputPages">
+                    </div>
+
+                    <div class="row-md-6">
+                        <label for="inputLanguage" class="form-label">Language</label>
+                        <input disabled readonly class="form-control" id="inputLanguage">
+                    </div>
+
+                    <div class="row-md-6">
+                        <label for="inputBinding" class="form-label">Binding</label>
+                        <input disabled readonly class="form-control" id="inputBinding">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="inputSynopsis" class="form-label">Synopsis</label>
+                        <textarea disabled readonly class="form-control" id="inputSynopsis" style="height:150px; overflow:auto;"></textarea>
+                    </div>
+                </form>
+                
+                <!-- Højre: billede -->
+                <div class="col-7">
+                    <img src="https://images.isbndb.com/covers/15354833482300.jpg" class="img-fluid rounded shadow" />
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? isbn;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Js.InvokeVoidAsync("scanner.startContinuousScan", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    public void OnIsbnScanned(string scannedIsbn)
+    {
+        isbn = scannedIsbn;
+        StateHasChanged();
+    }
+}
