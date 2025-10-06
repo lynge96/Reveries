@@ -1,6 +1,7 @@
-@Reveries_Api_HostAddress = http://localhost:5023
+@Reveries_Https = https://localhost:7238
+@Reveries_Http = http://localhost:5023
 
-GET {{Reveries_Api_HostAddress}}/api/Test/ping/
+GET {{Reveries_Https}}/api/Test/ping/
 Accept: application/json
 
 ###
