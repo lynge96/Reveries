@@ -1,21 +1,21 @@
-using Reveries.Core.Entities;
-using Reveries.Infrastructure.Postgresql.DTOs;
+using Reveries.Core.Models;
+using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Mappers;
 
 public static class BookAggregateMapperExtensions
 {
-    public static Book MapAggregateDtoToDomain(this BookAggregateDto dto)
+    public static Book MapAggregateDtoToDomain(this BookAggregateEntity entity)
     {
-        var book = dto.Book.ToDomain();
+        var book = entity.Book.ToDomain();
 
-        book.Publisher = dto.Publisher?.ToDomain();
-        book.Series = dto.Series?.ToDomain();
-        book.Dimensions = dto.Dimensions?.ToDomain();
+        book.Publisher = entity.Publisher?.ToDomain();
+        book.Series = entity.Series?.ToDomain();
+        book.Dimensions = entity.Dimensions?.ToDomain();
 
-        book.Authors = dto.Authors.Select(a => a.ToDomain()).ToList();
-        book.Subjects = dto.Subjects.Select(s => s.ToDomain()).ToList();
-        book.DeweyDecimals = dto.DeweyDecimals.Select(dd => dd.ToDomain()).ToList();
+        book.Authors = entity.Authors.Select(a => a.ToDomain()).ToList();
+        book.Subjects = entity.Subjects.Select(s => s.ToDomain()).ToList();
+        book.DeweyDecimals = entity.DeweyDecimals.Select(dd => dd.ToDomain()).ToList();
 
         return book;
     }

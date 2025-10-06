@@ -1,6 +1,6 @@
-namespace Reveries.Infrastructure.Postgresql.DTOs;
+namespace Reveries.Infrastructure.Postgresql.Entities;
 
-public class SubjectDto
+public class SubjectEntity
 {
     public int SubjectId { get; set; }
     public string Genre { get; set; } = null!;

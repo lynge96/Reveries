@@ -1,6 +1,6 @@
-namespace Reveries.Infrastructure.Postgresql.DTOs;
+namespace Reveries.Infrastructure.Postgresql.Entities;
 
-public class AuthorDto
+public class AuthorEntity
 {
     public int AuthorId { get; set; }
     public string NormalizedName { get; set; } = null!;

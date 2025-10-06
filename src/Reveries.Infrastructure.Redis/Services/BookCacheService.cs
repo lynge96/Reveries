@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using Reveries.Application.Interfaces.Cache;
-using Reveries.Core.Entities;
 using Reveries.Core.Enums;
+using Reveries.Core.Models;
 using Reveries.Infrastructure.Redis.Configuration;
 using Reveries.Infrastructure.Redis.Helpers;
 

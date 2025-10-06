@@ -1,6 +1,6 @@
-namespace Reveries.Infrastructure.Postgresql.DTOs;
+namespace Reveries.Infrastructure.Postgresql.Entities;
 
-public class PublisherDto
+public class PublisherEntity
 {
     public int PublisherId { get; set; }
     public string? Name { get; set; }

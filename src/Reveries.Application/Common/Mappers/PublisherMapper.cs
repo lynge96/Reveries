@@ -1,5 +1,5 @@
 using Reveries.Application.Extensions;
-using Reveries.Core.Entities;
+using Reveries.Core.Models;
 
 namespace Reveries.Application.Common.Mappers;
 

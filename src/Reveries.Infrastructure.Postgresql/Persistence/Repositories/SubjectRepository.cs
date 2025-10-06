@@ -1,8 +1,8 @@
 using Dapper;
 using Reveries.Application.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Persistence.Repositories;
-using Reveries.Core.Entities;
-using Reveries.Infrastructure.Postgresql.DTOs;
+using Reveries.Core.Models;
+using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
@@ -30,7 +30,7 @@ public class SubjectRepository : ISubjectRepository
         
         var connection = await _dbContext.GetConnectionAsync();
     
-        var subjectDto = await connection.QuerySingleOrDefaultAsync<SubjectDto>(sql, new { Genre = genre });
+        var subjectDto = await connection.QuerySingleOrDefaultAsync<SubjectEntity>(sql, new { Genre = genre });
         
         return subjectDto?.ToDomain();
     }

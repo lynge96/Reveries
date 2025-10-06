@@ -1,13 +1,13 @@
-using Reveries.Core.Entities;
-using Reveries.Infrastructure.Postgresql.DTOs;
+using Reveries.Core.Models;
+using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Mappers;
 
 public static class DomainToDtoExtensions
 {
-    public static BookDto ToDto(this Book entity)
+    public static BookEntity ToDto(this Book entity)
     {
-        return new BookDto
+        return new BookEntity
         {
             Id = entity.Id ?? -1,
             Title = entity.Title,
@@ -31,9 +31,9 @@ public static class DomainToDtoExtensions
         };
     }
     
-    public static PublisherDto ToDto(this Publisher entity)
+    public static PublisherEntity ToDto(this Publisher entity)
     {
-        return new PublisherDto
+        return new PublisherEntity
         {
             PublisherId = entity.Id,
             Name = entity.Name,
@@ -41,9 +41,9 @@ public static class DomainToDtoExtensions
         };
     }
 
-    public static SeriesDto ToDto(this Series entity)
+    public static SeriesEntity ToDto(this Series entity)
     {
-        return new SeriesDto
+        return new SeriesEntity
         {
             SeriesId = entity.Id,
             SeriesName = entity.Name,
@@ -51,9 +51,9 @@ public static class DomainToDtoExtensions
         };
     }
 
-    public static DimensionsDto ToDto(this BookDimensions entity)
+    public static DimensionsEntity ToDto(this BookDimensions entity)
     {
-        return new DimensionsDto
+        return new DimensionsEntity
         {
             HeightCm = entity.HeightCm,
             WidthCm = entity.WidthCm,
@@ -62,9 +62,9 @@ public static class DomainToDtoExtensions
         };
     }
 
-    public static AuthorDto ToDto(this Author entity)
+    public static AuthorEntity ToDto(this Author entity)
     {
-        return new AuthorDto
+        return new AuthorEntity
         {
             AuthorId = entity.Id,
             FirstName = entity.FirstName,
@@ -74,9 +74,9 @@ public static class DomainToDtoExtensions
         };
     }
 
-    public static SubjectDto ToDto(this Subject entity)
+    public static SubjectEntity ToDto(this Subject entity)
     {
-        return new SubjectDto
+        return new SubjectEntity
         {
             SubjectId = entity.Id,
             Genre = entity.Genre,
@@ -84,9 +84,9 @@ public static class DomainToDtoExtensions
         };
     }
 
-    public static DeweyDecimalDto ToDto(this DeweyDecimal entity)
+    public static DeweyDecimalEntity ToDto(this DeweyDecimal entity)
     {
-        return new DeweyDecimalDto
+        return new DeweyDecimalEntity
         {
             Code = entity.Code
         };

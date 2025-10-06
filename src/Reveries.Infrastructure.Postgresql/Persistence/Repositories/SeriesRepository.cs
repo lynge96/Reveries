@@ -1,8 +1,8 @@
 using Dapper;
 using Reveries.Application.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Persistence.Repositories;
-using Reveries.Core.Entities;
-using Reveries.Infrastructure.Postgresql.DTOs;
+using Reveries.Core.Models;
+using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
@@ -30,7 +30,7 @@ public class SeriesRepository : ISeriesRepository
     
         var connection = await _dbContext.GetConnectionAsync();
     
-        var seriesDto = await connection.QueryFirstOrDefaultAsync<SeriesDto>(sql, new { Name = seriesName });
+        var seriesDto = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(sql, new { Name = seriesName });
     
         return seriesDto?.ToDomain();
     }
@@ -62,7 +62,7 @@ public class SeriesRepository : ISeriesRepository
         
         var connection = await _dbContext.GetConnectionAsync();
         
-        var seriesDtos = await connection.QueryAsync<SeriesDto>(sql);
+        var seriesDtos = await connection.QueryAsync<SeriesEntity>(sql);
         
         return seriesDtos.Select(dto => dto.ToDomain()).ToList();
     }

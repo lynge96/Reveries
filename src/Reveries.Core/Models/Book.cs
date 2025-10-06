@@ -1,6 +1,6 @@
 ﻿using Reveries.Core.Enums;
 
-namespace Reveries.Core.Entities;
+namespace Reveries.Core.Models;
 
 public class Book
 {

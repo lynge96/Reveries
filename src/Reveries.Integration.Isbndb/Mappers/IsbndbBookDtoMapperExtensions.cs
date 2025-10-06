@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using Reveries.Application.Common.Mappers;
 using Reveries.Application.Extensions;
-using Reveries.Core.Entities;
 using Reveries.Core.Enums;
+using Reveries.Core.Models;
 using Reveries.Integration.Isbndb.DTOs.Books;
 
 namespace Reveries.Integration.Isbndb.Mappers;

@@ -1,6 +1,6 @@
-namespace Reveries.Infrastructure.Postgresql.DTOs;
+namespace Reveries.Infrastructure.Postgresql.Entities;
 
-public class DeweyDecimalDto
+public class DeweyDecimalEntity
 {
     public int BookId { get; set; }
     public string? Code { get; set; } = null!;

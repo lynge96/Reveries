@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using System.Globalization;
-using Reveries.Core.Entities;
 
 namespace Reveries.Application.Extensions;
 

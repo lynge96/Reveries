@@ -1,5 +1,5 @@
 using System.Globalization;
-using Reveries.Core.Entities;
+using Reveries.Core.Models;
 using Reveries.Integration.Isbndb.DTOs.Books;
 
 namespace Reveries.Integration.Isbndb.Mappers;

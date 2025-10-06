@@ -1,7 +1,10 @@
 @Reveries_Https = https://localhost:7238
 @Reveries_Http = http://localhost:5023
 
+###
 GET {{Reveries_Https}}/api/Test/ping/
 Accept: application/json
 
 ###
+GET {{Reveries_Http}}/api/Test/ping/
+Accept: application/json

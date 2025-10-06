@@ -1,6 +1,6 @@
-namespace Reveries.Infrastructure.Postgresql.DTOs;
+namespace Reveries.Infrastructure.Postgresql.Entities;
 
-public class SeriesDto
+public class SeriesEntity
 {
     public int SeriesId { get; set; }
     public string SeriesName { get; set; } = null!;

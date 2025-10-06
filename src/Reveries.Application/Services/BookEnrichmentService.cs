@@ -1,8 +1,8 @@
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Core.Entities;
 using Reveries.Core.Enums;
+using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
 

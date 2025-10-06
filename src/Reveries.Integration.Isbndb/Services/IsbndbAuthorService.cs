@@ -1,8 +1,8 @@
 using Reveries.Application.Common.Mappers;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.Entities;
 using Reveries.Core.Enums;
+using Reveries.Core.Models;
 using Reveries.Integration.Isbndb.Clients.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
 

@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("Development", policy =>
     {
         policy.AllowAnyOrigin()
             .AllowAnyMethod()
@@ -35,7 +35,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("Development");
 
 app.UseRouting();
 
