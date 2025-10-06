@@ -4,7 +4,7 @@ using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Mappers;
 
-public static class DtoToDomainExtensions
+public static class EntityToDomainExtensions
 {
     public static Book ToDomain(this BookEntity entity)
     {

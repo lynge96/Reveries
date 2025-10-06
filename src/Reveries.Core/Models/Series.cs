@@ -1,12 +1,10 @@
 namespace Reveries.Core.Models;
 
-public class Series
+public class Series : BaseEntity
 {
     public int Id { get; set; }
 
     public string Name { get; set; } = null!;
-    
-    public DateTimeOffset DateCreated { get; set; }
 
     public Series()
     {

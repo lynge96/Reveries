@@ -45,7 +45,7 @@ public class SeriesRepository : ISeriesRepository
         
         var connection = await _dbContext.GetConnectionAsync();
 
-        var seriesDto = series.ToDto();
+        var seriesDto = series.ToEntity();
         
         var seriesId = await connection.QuerySingleAsync<int>(sql, seriesDto);
         

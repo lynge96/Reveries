@@ -3,9 +3,9 @@ using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Mappers;
 
-public static class DomainToDtoExtensions
+public static class DomainToEntityExtensions
 {
-    public static BookEntity ToDto(this Book entity)
+    public static BookEntity ToEntity(this Book entity)
     {
         return new BookEntity
         {
@@ -31,7 +31,7 @@ public static class DomainToDtoExtensions
         };
     }
     
-    public static PublisherEntity ToDto(this Publisher entity)
+    public static PublisherEntity ToEntity(this Publisher entity)
     {
         return new PublisherEntity
         {
@@ -41,7 +41,7 @@ public static class DomainToDtoExtensions
         };
     }
 
-    public static SeriesEntity ToDto(this Series entity)
+    public static SeriesEntity ToEntity(this Series entity)
     {
         return new SeriesEntity
         {
@@ -51,7 +51,7 @@ public static class DomainToDtoExtensions
         };
     }
 
-    public static DimensionsEntity ToDto(this BookDimensions entity)
+    public static DimensionsEntity ToEntity(this BookDimensions entity)
     {
         return new DimensionsEntity
         {
@@ -62,7 +62,7 @@ public static class DomainToDtoExtensions
         };
     }
 
-    public static AuthorEntity ToDto(this Author entity)
+    public static AuthorEntity ToEntity(this Author entity)
     {
         return new AuthorEntity
         {
@@ -74,7 +74,7 @@ public static class DomainToDtoExtensions
         };
     }
 
-    public static SubjectEntity ToDto(this Subject entity)
+    public static SubjectEntity ToEntity(this Subject entity)
     {
         return new SubjectEntity
         {
@@ -84,7 +84,7 @@ public static class DomainToDtoExtensions
         };
     }
 
-    public static DeweyDecimalEntity ToDto(this DeweyDecimal entity)
+    public static DeweyDecimalEntity ToEntity(this DeweyDecimal entity)
     {
         return new DeweyDecimalEntity
         {

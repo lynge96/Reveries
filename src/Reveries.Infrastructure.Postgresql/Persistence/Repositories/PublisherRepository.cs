@@ -26,7 +26,7 @@ public class PublisherRepository : IPublisherRepository
         
         var connection = await _dbContext.GetConnectionAsync();
         
-        var publisherDto = publisher.ToDto();
+        var publisherDto = publisher.ToEntity();
         
         var publisherId = await connection.QuerySingleAsync<int>(sql, publisherDto);
 

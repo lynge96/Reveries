@@ -45,7 +45,7 @@ public class SubjectRepository : ISubjectRepository
         
         var connection = await _dbContext.GetConnectionAsync();
 
-        var subjectDto = subject.ToDto();
+        var subjectDto = subject.ToEntity();
 
         var subjectId = await connection.QuerySingleAsync<int>(sql, subjectDto);
         

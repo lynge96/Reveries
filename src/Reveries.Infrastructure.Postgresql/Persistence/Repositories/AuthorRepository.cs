@@ -31,7 +31,7 @@ public class AuthorRepository : IAuthorRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var authorDto = author.ToDto();
+        var authorDto = author.ToEntity();
         
         // Insert the author first
         var authorId = await connection.QuerySingleAsync<int>(authorSql, authorDto);

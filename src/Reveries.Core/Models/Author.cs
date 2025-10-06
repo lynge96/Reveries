@@ -1,6 +1,6 @@
 namespace Reveries.Core.Models;
 
-public class Author
+public class Author : BaseEntity
 {
     public int Id { get; set; }
     
@@ -11,8 +11,6 @@ public class Author
     public string? LastName { get; set; }
 
     public ICollection<AuthorNameVariant> NameVariants { get; set; } = new List<AuthorNameVariant>();
-
-    public DateTimeOffset DateCreated { get; set; }
 
     public override string ToString()
     {

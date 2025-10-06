@@ -50,7 +50,7 @@ public class BookCacheService : IBookCacheService
         
         var updatedBooks = books
             .Where(b => b is not null)
-            .Select(b => b!.WithDataSource(b, DataSource.Cache))
+            .Select(b => Book.WithDataSource(b, DataSource.Cache))
             .ToImmutableList();
 
         return updatedBooks;

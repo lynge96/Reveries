@@ -121,7 +121,7 @@ public class BookRepository : IBookRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var bookDto = book.ToDto();
+        var bookDto = book.ToEntity();
         
         var bookId = await connection.QuerySingleAsync<int>(sql, bookDto);
         
@@ -150,7 +150,7 @@ public class BookRepository : IBookRepository
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
-        var bookDto = book.ToDto();
+        var bookDto = book.ToEntity();
 
         await connection.ExecuteAsync(sql, bookDto);
     }

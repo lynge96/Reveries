@@ -2,7 +2,7 @@
 
 namespace Reveries.Core.Models;
 
-public class Book
+public class Book : BaseEntity
 {
     public int? Id { get; set; }
     
@@ -50,8 +50,6 @@ public class Book
     
     public BookDimensions? Dimensions { get; set; }
     
-    public DateTimeOffset DateCreated  { get; set; }
-    
     public required DataSource DataSource { get; init; }
     
     public override string ToString()
@@ -70,7 +68,7 @@ public class Book
         return string.Join(", ", Authors.Select(a => a.ToString()));
     }
 
-    public Book WithDataSource(Book book, DataSource dataSource)
+    public static Book WithDataSource(Book book, DataSource dataSource)
     {
         return new Book{
             Id = book.Id,
