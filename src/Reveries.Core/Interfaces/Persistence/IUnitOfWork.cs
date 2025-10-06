@@ -1,6 +1,6 @@
-using Reveries.Application.Interfaces.Persistence.Repositories;
+using Reveries.Core.Interfaces.Persistence.Repositories;
 
-namespace Reveries.Application.Interfaces.Persistence;
+namespace Reveries.Core.Interfaces.Persistence;
 
 public interface IUnitOfWork
 {

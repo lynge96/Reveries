@@ -1,7 +1,8 @@
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using Reveries.Application.Interfaces.Persistence;
-using Reveries.Application.Interfaces.Persistence.Repositories;
+using Reveries.Core.Interfaces.Persistence;
+using Reveries.Core.Interfaces.Persistence.Repositories;
 using Reveries.Infrastructure.Postgresql.Persistence;
 using Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 

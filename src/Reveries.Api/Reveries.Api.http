@@ -1,0 +1,6 @@
+@Reveries.Api_HostAddress = http://localhost:5023
+
+GET {{Reveries.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

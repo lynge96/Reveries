@@ -1,5 +1,6 @@
 using Reveries.Application.Interfaces.Persistence;
-using Reveries.Application.Interfaces.Persistence.Repositories;
+using Reveries.Core.Interfaces.Persistence;
+using Reveries.Core.Interfaces.Persistence.Repositories;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence;
 
