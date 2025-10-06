@@ -1,6 +1,6 @@
-@Reveries.Api_HostAddress = http://localhost:5023
+@Reveries_Api_HostAddress = http://localhost:5023
 
-GET {{Reveries.Api_HostAddress}}/weatherforecast/
+GET {{Reveries_Api_HostAddress}}/api/Test/ping/
 Accept: application/json
 
 ###

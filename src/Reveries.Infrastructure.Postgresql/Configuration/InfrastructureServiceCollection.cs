@@ -1,12 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Reveries.Infrastructure.Postgresql.Persistence;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Reveries.Infrastructure.Postgresql.Configuration;
 
 public static class InfrastructureServiceCollection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.Configure<PostgresSettings>(options =>
         {

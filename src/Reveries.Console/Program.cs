@@ -3,7 +3,6 @@ using DotNetEnv;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Reveries.Application.Services;
 using Reveries.Application.Services.Configuration;
 using Reveries.Console.Handlers;
 using Reveries.Console.Handlers.Interfaces;
@@ -20,9 +19,9 @@ var host = Host.CreateDefaultBuilder(args)
         Env.Load();
         config.AddEnvironmentVariables();
     })
-    .ConfigureServices((context, services) =>
+    .ConfigureServices(services =>
     {
-        services.AddInfrastructureServices(context.Configuration);
+        services.AddInfrastructureServices();
         services.AddApplicationServices();
         services.AddIsbndbServices();
         services.AddGoogleBooksServices();
