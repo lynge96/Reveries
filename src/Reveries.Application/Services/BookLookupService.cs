@@ -2,7 +2,6 @@ using Reveries.Application.Common.Validation;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Application.Interfaces.Persistence;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Models;

@@ -72,11 +72,8 @@ public static partial class StringExtensions
         }
     }
     
-    public static string? ToTitleCase(this string? input)
+    public static string ToTitleCase(this string input)
     {
-        if (string.IsNullOrWhiteSpace(input))
-            return input;
-
-        return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input.ToLower());
+        return string.IsNullOrWhiteSpace(input) ? input : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input.ToLower());
     }
 }
