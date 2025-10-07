@@ -1,7 +1,7 @@
-using Reveries.Application.Common.Exceptions;
 using Reveries.Application.Common.Mappers;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Contracts.Books;
+using Reveries.Core.Exceptions;
 
 namespace Reveries.Application.Services;
 
@@ -23,8 +23,6 @@ public class BookService : IBookService
         if (books.Count == 0)
             throw new NotFoundException($"Book with ISBN '{isbn}' was not found.");
 
-        var bookDto = books.First().ToDto();
-
-        return bookDto;
+        return books.First().ToDto();
     }
 }

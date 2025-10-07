@@ -19,10 +19,6 @@ public class BookController : ControllerBase
     public async Task<ActionResult<BookDto>> GetBookByIsbn(string isbn)
     {
         var book = await _bookService.GetBookByIsbnAsync(isbn);
-        
-        if (book == null)
-            return NotFound();
-        
         return Ok(book);
     }
 }

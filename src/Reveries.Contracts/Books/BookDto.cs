@@ -26,4 +26,5 @@ public class BookDto
     public decimal? ThicknessCm { get; set; }
     public List<string>? DeweyDecimal { get; set; }
     public List<string>? Subjects { get; set; }
+    public string? DataSource { get; set; }
 }

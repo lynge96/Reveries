@@ -1,6 +1,5 @@
-using Reveries.Application.Common.Exceptions;
-using Reveries.Application.Interfaces.Persistence;
 using Reveries.Application.Interfaces.Services;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Models;
 
@@ -20,8 +19,7 @@ public class BookSeriesService : IBookSeriesService
         var existingSeries = await _unitOfWork.Series.GetSeriesByNameAsync(series.Name);
         if (existingSeries != null)
         {
-            throw new SeriesAlreadyExistsException(
-                $"A series with the name: {series.Name}, already exists in the database.");
+            throw new SeriesAlreadyExistsException(series.Name);
         }
         
         var seriesId = await _unitOfWork.Series.CreateSeriesAsync(series);

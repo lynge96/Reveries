@@ -1,7 +1,7 @@
-using Reveries.Application.Common.Exceptions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Services.Interfaces;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Spectre.Console;
 

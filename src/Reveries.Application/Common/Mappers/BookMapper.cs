@@ -33,7 +33,8 @@ public static class BookMapper
             HeightCm = book.Dimensions?.HeightCm,
             WidthCm = book.Dimensions?.WidthCm,
             ThicknessCm = book.Dimensions?.ThicknessCm,
-            DeweyDecimal = book.DeweyDecimals?.Select(d => d.Code).ToList() ?? new List<string>()
+            DeweyDecimal = book.DeweyDecimals?.Select(d => d.Code).ToList() ?? new List<string>(),
+            DataSource = book.DataSource.ToString()
         };
     }
 }
