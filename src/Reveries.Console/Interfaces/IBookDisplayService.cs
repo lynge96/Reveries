@@ -1,7 +1,6 @@
 using Reveries.Core.Models;
-using Spectre.Console;
 
-namespace Reveries.Console.Services.Interfaces;
+namespace Reveries.Console.Interfaces;
 
 public interface IBookDisplayService
 {

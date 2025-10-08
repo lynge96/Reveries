@@ -1,5 +1,5 @@
 using Reveries.Console.Common.Extensions;
-using Reveries.Console.Services.Interfaces;
+using Reveries.Console.Interfaces;
 using Reveries.Core.Enums;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
