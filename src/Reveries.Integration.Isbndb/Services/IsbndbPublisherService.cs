@@ -1,4 +1,3 @@
-using Reveries.Application.Common.Mappers;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Enums;
@@ -36,7 +35,7 @@ public class IsbndbPublisherService : IIsbndbPublisherService
             return new List<Publisher>();
         
         var publishers = publisherResponseDto.Publishers
-            .Select(PublisherMapper.ToPublisher)
+            .Select(Publisher.Create)
             .Where(p => !string.IsNullOrWhiteSpace(p.Name))
             .ToList();
         

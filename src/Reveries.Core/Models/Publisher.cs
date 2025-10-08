@@ -21,7 +21,6 @@ public class Publisher : BaseEntity
         return new Publisher
         {
             Name = PublisherNormalizer.NormalizePublisher(name) 
-            
         };
     }
 }

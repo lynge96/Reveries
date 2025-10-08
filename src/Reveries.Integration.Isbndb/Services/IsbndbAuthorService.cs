@@ -1,4 +1,3 @@
-using Reveries.Application.Common.Mappers;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Enums;
@@ -24,7 +23,7 @@ public class IsbndbAuthorService : IIsbndbAuthorService
         var authorResponseDto = await _authorClient.SearchAuthorsByNameAsync(authorName, cancellationToken);
         if (authorResponseDto?.Authors != null)
         {
-            authorList.AddRange(authorResponseDto.Authors.Select(AuthorMapper.ToAuthor));
+            authorList.AddRange(authorResponseDto.Authors.Select(Author.Create));
         }
         
         return authorList

@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace Reveries.Core.Helpers;
 
-public partial class PublisherNormalizer
+public static partial class PublisherNormalizer
 {
     private static partial class RegexPatterns
     {
@@ -19,7 +19,7 @@ public partial class PublisherNormalizer
         public static partial Regex MultipleSpacesPattern();
     }
 
-    private static readonly string[] NoiseWords = { "LTD", "INC", "PUBLISHING" };
+    private static readonly string[] NoiseWords = ["LTD", "INC", "PUBLISHING"];
 
     public static string NormalizePublisher(string publisher)
     {
