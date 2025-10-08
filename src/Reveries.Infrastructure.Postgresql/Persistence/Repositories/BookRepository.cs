@@ -158,7 +158,7 @@ public class BookRepository : IBookRepository
     private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)
     {
         var dtoList = await QueryBooksDtoAsync(sql, parameters);
-        return dtoList.Select(BookAggregateMapperExtensions.MapAggregateDtoToDomain).ToList();
+        return dtoList.Select(BookAggregateEntityMapperExtensions.MapAggregateDtoToDomain).ToList();
     }
     
     private async Task<List<BookAggregateEntity>> QueryBooksDtoAsync(string sql, object? parameters = null)

@@ -28,12 +28,13 @@ public static partial class IsbnValidator
     
     public static void ValidateOrThrow(string? isbn13, string? isbn10)
     {
-        if (isbn13 is not null && !IsValidIsbn13(isbn13))
+        if (!string.IsNullOrEmpty(isbn13) && !TryValidate(isbn13, out _))
             throw new IsbnValidationException($"Invalid ISBN-13 checksum for: {isbn13}");
 
-        if (isbn10 is not null && !IsValidIsbn10(isbn10))
-            throw new IsbnValidationException($"Invalid ISBN-10 checksum for: {isbn10}");
+        if (!string.IsNullOrEmpty(isbn10) && !TryValidate(isbn10, out _))
+            throw new IsbnValidationException($"Invalid ISBN-10 checksum: {isbn10}");
     }
+
 
     private static string Normalize(string input) => input.Replace("-", "").Trim();
     

@@ -11,10 +11,10 @@ public class Book : BaseEntity
     public string? Isbn13 { get; init; }
     public string? Isbn10 { get; init; }
     public required string Title { get; init; }
-    public ICollection<Author> Authors { get; init; } = new List<Author>();
+    public ICollection<Author> Authors { get; set; } = new List<Author>();
     public int? Pages { get; init; }
     public bool IsRead { get; set; }
-    public Publisher? Publisher { get; init; }
+    public Publisher? Publisher { get; set; }
     public string? LanguageIso639 { get; init; }
     public string? Language { get; init; }
     public DateTime? PublishDate { get; init; }
@@ -26,12 +26,12 @@ public class Book : BaseEntity
     public decimal? Msrp { get; init; }
     public string? Binding { get; init; }
     public string? Edition { get; init; }
-    public ICollection<DeweyDecimal>? DeweyDecimals { get; init; }
-    public ICollection<Subject>? Subjects { get; init; }
-    public int? SeriesNumber { get; private set; }
-    public Series? Series { get; private set; }
-    public BookDimensions? Dimensions { get; init; }
-    public DataSource DataSource { get; private set; }
+    public ICollection<DeweyDecimal>? DeweyDecimals { get; set; }
+    public ICollection<Subject>? Subjects { get; set; }
+    public int? SeriesNumber { get; set; }
+    public Series? Series { get; set; }
+    public BookDimensions? Dimensions { get; set; }
+    public required DataSource DataSource { get; set; }
 
     public override string ToString()
     {
@@ -48,7 +48,7 @@ public class Book : BaseEntity
     {
         return string.Join(", ", Authors.Select(a => a.ToString()));
     }
-    
+
     public static Book Create(
         string? isbn13,
         string? isbn10,
@@ -68,7 +68,7 @@ public class Book : BaseEntity
         IEnumerable<string>? subjects,
         IEnumerable<string>? deweyDecimals,
         DataSource dataSource
-        )
+    )
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Book title cannot be empty");
@@ -111,16 +111,6 @@ public class Book : BaseEntity
         };
 
         return book;
-    }
-
-    public void SetSeriesNumber(int? seriesNumber)
-    {
-        SeriesNumber = seriesNumber;
-    }
-
-    public void UpdateSeries(Series series)
-    {
-        Series = series;
     }
     
     public Book UpdateDataSource(DataSource newDataSource)

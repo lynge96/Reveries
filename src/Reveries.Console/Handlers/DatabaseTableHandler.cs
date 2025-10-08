@@ -67,12 +67,12 @@ public class DatabaseTableHandler : BaseHandler
         
         foreach (var book in selectedBooks)
         {
-            book.UpdateSeries(series);
+            book.Series = series;
 
             var numberInSeries = ConsolePromptUtility.GetUserInput(
                 $"What number is {book.Title.AsSecondary()} in the series?");
             if (int.TryParse(numberInSeries, out var num))
-                book.SetSeriesNumber(num);
+                book.SeriesNumber = num;
         }
             
         await _bookManagementService.UpdateBooksAsync(selectedBooks, cancellationToken);

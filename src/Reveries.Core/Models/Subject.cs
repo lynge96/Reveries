@@ -6,7 +6,7 @@ public class Subject : BaseEntity
 {
     public int Id { get; set; }
     
-    public required string Genre { get; set; }
+    public required string Genre { get; init; }
 
     public override string ToString()
     {

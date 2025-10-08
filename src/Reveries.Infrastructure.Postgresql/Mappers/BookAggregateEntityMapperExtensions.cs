@@ -3,7 +3,7 @@ using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Mappers;
 
-public static class BookAggregateMapperExtensions
+public static class BookAggregateEntityMapperExtensions
 {
     public static Book MapAggregateDtoToDomain(this BookAggregateEntity entity)
     {
