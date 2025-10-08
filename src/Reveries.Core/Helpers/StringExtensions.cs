@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Reveries.Application.Extensions;
+namespace Reveries.Core.Helpers;
 
 public static partial class StringExtensions
 {

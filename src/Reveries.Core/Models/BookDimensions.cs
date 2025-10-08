@@ -9,4 +9,15 @@ public class BookDimensions
     public decimal? ThicknessCm { get; set; }
     
     public decimal? WeightG { get; set; }
+
+    public static BookDimensions Create(decimal? heightCm, decimal? widthCm, decimal? thicknessCm, decimal? weightG)
+    {
+        return new BookDimensions
+        {
+            HeightCm = heightCm ?? null,
+            WidthCm = widthCm ?? null,
+            ThicknessCm = thicknessCm ?? null,
+            WeightG = weightG ?? null
+        };
+    }
 }

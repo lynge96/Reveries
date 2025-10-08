@@ -26,16 +26,13 @@ public static partial class IsbnValidator
             : IsValidIsbn10(normalized);
     }
     
-    public static void ValidateOrThrow(string isbn)
+    public static void ValidateOrThrow(string? isbn13, string? isbn10)
     {
-        if (!TryValidate(isbn, out var normalized))
-            throw new IsbnValidationException($"Invalid ISBN: {isbn}");
+        if (isbn13 is not null && !IsValidIsbn13(isbn13))
+            throw new IsbnValidationException($"Invalid ISBN-13 checksum for: {isbn13}");
 
-        if (normalized.Length == 13 && !IsValidIsbn13(normalized))
-            throw new IsbnValidationException($"Invalid ISBN-13 checksum for: {isbn}");
-
-        if (normalized.Length == 10 && !IsValidIsbn10(normalized))
-            throw new IsbnValidationException($"Invalid ISBN-10 checksum for: {isbn}");
+        if (isbn10 is not null && !IsValidIsbn10(isbn10))
+            throw new IsbnValidationException($"Invalid ISBN-10 checksum for: {isbn10}");
     }
 
     private static string Normalize(string input) => input.Replace("-", "").Trim();

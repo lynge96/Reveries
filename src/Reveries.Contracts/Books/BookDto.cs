@@ -5,7 +5,7 @@ public class BookDto
     public string? Isbn10 { get; set; }
     public string? Isbn13 { get; set; }
     public string? Title { get; set; }
-    public int? SeriesNumber { get; set; }
+    public int? NumberInSeries { get; set; }
     public string? Series { get; set; }
     public List<string>? Authors { get; set; }
     public string? Publisher { get; set; }
@@ -20,11 +20,16 @@ public class BookDto
     public string? ImageUrl { get; set; }
     public decimal? Msrp { get; set; }
     public bool IsRead { get; set; }
+    public DimensionsDto? Dimensions { get; set; }
+    public List<string>? DeweyDecimal { get; set; }
+    public List<string>? Subjects { get; set; }
+    public string? DataSource { get; set; }
+}
+
+public class DimensionsDto
+{
     public decimal? WeightG { get; set; }
     public decimal? HeightCm { get; set; }
     public decimal? WidthCm { get; set; }
     public decimal? ThicknessCm { get; set; }
-    public List<string>? DeweyDecimal { get; set; }
-    public List<string>? Subjects { get; set; }
-    public string? DataSource { get; set; }
 }

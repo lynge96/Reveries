@@ -1,4 +1,4 @@
-namespace Reveries.Application.Extensions;
+namespace Reveries.Core.Helpers;
 
 public static class AuthorNameNormalizer
 {

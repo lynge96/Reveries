@@ -1,5 +1,5 @@
-using Reveries.Application.Extensions;
 using Reveries.Contracts.Books;
+using Reveries.Core.Helpers;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Common.Mappers;
@@ -27,12 +27,15 @@ public static class BookMapper
             Edition = book.Edition,
             Subjects = book.Subjects?.Select(s => s.Genre).ToList() ?? new List<string>(),
             Series = book.Series?.Name,
-            SeriesNumber = book.SeriesNumber,
+            NumberInSeries = book.SeriesNumber,
             IsRead = book.IsRead,
-            WeightG = book.Dimensions?.WeightG,
-            HeightCm = book.Dimensions?.HeightCm,
-            WidthCm = book.Dimensions?.WidthCm,
-            ThicknessCm = book.Dimensions?.ThicknessCm,
+            Dimensions = new DimensionsDto
+            {
+                WeightG = book.Dimensions?.WeightG,
+                HeightCm = book.Dimensions?.HeightCm,
+                WidthCm = book.Dimensions?.WidthCm,
+                ThicknessCm = book.Dimensions?.ThicknessCm,
+            },
             DeweyDecimal = book.DeweyDecimals?.Select(d => d.Code).ToList() ?? new List<string>(),
             DataSource = book.DataSource.ToString()
         };

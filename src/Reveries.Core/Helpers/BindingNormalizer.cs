@@ -1,4 +1,4 @@
-namespace Reveries.Application.Extensions;
+namespace Reveries.Core.Helpers;
 
 public static class BindingNormalizer
 {
@@ -17,7 +17,7 @@ public static class BindingNormalizer
         { "hb", "Hardback" }
     };
 
-    public static string Normalize(this string? rawBinding)
+    public static string NormalizeBinding(this string? rawBinding)
     {
         if (string.IsNullOrWhiteSpace(rawBinding))
             return "Unknown";

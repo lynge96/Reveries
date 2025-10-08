@@ -3,7 +3,7 @@ using DotNetEnv;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Reveries.Application.Services.Configuration;
+using Reveries.Application.Configuration;
 using Reveries.Console.Handlers;
 using Reveries.Console.Handlers.Interfaces;
 using Reveries.Console.Services;

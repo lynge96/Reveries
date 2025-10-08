@@ -1,12 +1,10 @@
 using System.Text.RegularExpressions;
-using Reveries.Application.Extensions;
-using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services.Interfaces;
+using Reveries.Core.Helpers;
 using Reveries.Core.Models;
-using Spectre.Console;
 
 namespace Reveries.Console.Handlers;
 
@@ -31,7 +29,7 @@ public partial class BookSeriesHandler : BaseHandler
         if (!confirm)
             return;
         
-        var newSeries = new Series(seriesName);
+        var newSeries = Series.Create(seriesName);
 
         await _saveEntityService.SaveSeriesAsync(newSeries, cancellationToken);
     }

@@ -1,3 +1,5 @@
+using Reveries.Core.Helpers;
+
 namespace Reveries.Core.Models;
 
 public class Subject : BaseEntity
@@ -9,6 +11,14 @@ public class Subject : BaseEntity
     public override string ToString()
     {
         return Genre;
+    }
+    
+    public static Subject Create(string genre)
+    {
+        return new Subject
+        {
+            Genre = genre.ToTitleCase()
+        };
     }
 }
 

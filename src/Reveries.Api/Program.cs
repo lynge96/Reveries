@@ -1,11 +1,19 @@
 using Reveries.Api.Middleware;
-using Reveries.Application.Services.Configuration;
+using Reveries.Application.Configuration;
 using Reveries.Infrastructure.Postgresql.Configuration;
 using Reveries.Infrastructure.Redis.Configuration;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.Isbndb.Configuration;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (!File.Exists(".env"))
+    throw new FileNotFoundException("Missing .env file in project root");
+
+Env.Load();
+
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddCors(options =>
 {

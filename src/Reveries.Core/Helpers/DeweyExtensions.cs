@@ -1,6 +1,6 @@
 using Reveries.Core.Models;
 
-namespace Reveries.Application.Extensions;
+namespace Reveries.Core.Helpers;
 
 public static partial class DeweyExtensions
 {

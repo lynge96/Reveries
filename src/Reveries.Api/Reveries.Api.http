@@ -8,3 +8,7 @@ Accept: application/json
 ###
 GET {{Reveries_Http}}/api/Test/ping/
 Accept: application/json
+
+### Get Book
+GET {{Reveries_Https}}/api/Book/9780316539883
+Accept: application/json

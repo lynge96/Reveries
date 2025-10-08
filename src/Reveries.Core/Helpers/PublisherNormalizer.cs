@@ -1,7 +1,6 @@
 using System.Text.RegularExpressions;
-using System.Globalization;
 
-namespace Reveries.Application.Extensions;
+namespace Reveries.Core.Helpers;
 
 public partial class PublisherNormalizer
 {
