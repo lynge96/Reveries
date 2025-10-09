@@ -1,4 +1,4 @@
-using Reveries.Application.Extensions;
+using Reveries.Core.Helpers;
 
 namespace Reveries.Infrastructure.Redis.Helpers;
 

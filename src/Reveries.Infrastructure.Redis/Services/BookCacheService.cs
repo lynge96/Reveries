@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using Reveries.Application.Interfaces.Cache;
-using Reveries.Core.Entities;
 using Reveries.Core.Enums;
+using Reveries.Core.Models;
 using Reveries.Infrastructure.Redis.Configuration;
 using Reveries.Infrastructure.Redis.Helpers;
 
@@ -50,7 +50,7 @@ public class BookCacheService : IBookCacheService
         
         var updatedBooks = books
             .Where(b => b is not null)
-            .Select(b => b!.WithDataSource(b, DataSource.Cache))
+            .Select(b => b!.UpdateDataSource(DataSource.Cache))
             .ToImmutableList();
 
         return updatedBooks;

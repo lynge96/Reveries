@@ -1,8 +1,8 @@
 using Dapper;
 using Reveries.Application.Interfaces.Persistence;
-using Reveries.Application.Interfaces.Persistence.Repositories;
-using Reveries.Core.Entities;
-using Reveries.Infrastructure.Postgresql.DTOs;
+using Reveries.Core.Interfaces.Persistence.Repositories;
+using Reveries.Core.Models;
+using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
@@ -99,7 +99,7 @@ public class BookRepository : IBookRepository
     
         var connection = await _dbContext.GetConnectionAsync();
 
-        var bookDto = await connection.QuerySingleOrDefaultAsync<BookDto>(sql, new { Isbn13 = isbn13, Isbn10 = isbn10 });
+        var bookDto = await connection.QuerySingleOrDefaultAsync<BookEntity>(sql, new { Isbn13 = isbn13, Isbn10 = isbn10 });
     
         return bookDto?.ToDomain();
     }
@@ -121,7 +121,7 @@ public class BookRepository : IBookRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var bookDto = book.ToDto();
+        var bookDto = book.ToEntity();
         
         var bookId = await connection.QuerySingleAsync<int>(sql, bookDto);
         
@@ -150,7 +150,7 @@ public class BookRepository : IBookRepository
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
-        var bookDto = book.ToDto();
+        var bookDto = book.ToEntity();
 
         await connection.ExecuteAsync(sql, bookDto);
     }
@@ -158,21 +158,21 @@ public class BookRepository : IBookRepository
     private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)
     {
         var dtoList = await QueryBooksDtoAsync(sql, parameters);
-        return dtoList.Select(BookAggregateMapperExtensions.MapAggregateDtoToDomain).ToList();
+        return dtoList.Select(BookAggregateEntityMapperExtensions.MapAggregateDtoToDomain).ToList();
     }
     
-    private async Task<List<BookAggregateDto>> QueryBooksDtoAsync(string sql, object? parameters = null)
+    private async Task<List<BookAggregateEntity>> QueryBooksDtoAsync(string sql, object? parameters = null)
     {
         var connection = await _dbContext.GetConnectionAsync();
-        var bookDictionary = new Dictionary<int, BookAggregateDto>();
+        var bookDictionary = new Dictionary<int, BookAggregateEntity>();
 
-        await connection.QueryAsync<BookDto, PublisherDto, AuthorDto, SubjectDto, DimensionsDto, DeweyDecimalDto, SeriesDto, BookDto>(
+        await connection.QueryAsync<BookEntity, PublisherEntity, AuthorEntity, SubjectEntity, DimensionsEntity, DeweyDecimalEntity, SeriesEntity, BookEntity>(
             sql,
             (bookDto, publisher, author, subject, dimensions, deweyDecimal, series) =>
             {
                 if (!bookDictionary.TryGetValue(bookDto.Id, out var bookEntry))
                 {
-                    bookEntry = new BookAggregateDto
+                    bookEntry = new BookAggregateEntity
                     {
                         Book = bookDto,
                         Publisher = publisher,

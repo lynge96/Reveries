@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Reveries.Contracts\Reveries.Contracts.csproj" />
     <ProjectReference Include="..\Reveries.Core\Reveries.Core.csproj" />
   </ItemGroup>
 

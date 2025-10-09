@@ -1,5 +1,5 @@
-﻿using Reveries.Core.Entities;
-using Reveries.Core.Enums;
+﻿using Reveries.Core.Enums;
+using Reveries.Core.Models;
 
 namespace Reveries.Application.Interfaces.Isbndb;
 
