@@ -1,8 +1,8 @@
 using Dapper;
 using Reveries.Application.Interfaces.Persistence;
-using Reveries.Application.Interfaces.Persistence.Repositories;
-using Reveries.Core.Entities;
-using Reveries.Infrastructure.Postgresql.DTOs;
+using Reveries.Core.Interfaces.Persistence.Repositories;
+using Reveries.Core.Models;
+using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
@@ -31,7 +31,7 @@ public class AuthorRepository : IAuthorRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var authorDto = author.ToDto();
+        var authorDto = author.ToEntity();
         
         // Insert the author first
         var authorId = await connection.QuerySingleAsync<int>(authorSql, authorDto);
@@ -94,7 +94,7 @@ public class AuthorRepository : IAuthorRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var authorDtos = await connection.QueryAsync<AuthorDto>(
+        var authorDtos = await connection.QueryAsync<AuthorEntity>(
             sql,
             new { Pattern = $"%{name}%" });
 

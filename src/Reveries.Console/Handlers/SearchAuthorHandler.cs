@@ -3,7 +3,8 @@ using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
-using Reveries.Console.Services.Interfaces;
+using Reveries.Console.Interfaces;
+using Reveries.Core.Helpers;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;

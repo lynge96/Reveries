@@ -1,9 +1,10 @@
-using Reveries.Application.Common.Exceptions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Persistence;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Core.Entities;
+using Reveries.Core.Exceptions;
+using Reveries.Core.Interfaces.Persistence;
+using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
 
@@ -74,7 +75,7 @@ public class BookManagementService : IBookManagementService
         if (existingBook != null)
         {
             var isbnUsed = existingBook.Isbn13 == book.Isbn13 ? book.Isbn13 : book.Isbn10;
-            throw new BookAlreadyExistsException($"A book with ISBN {isbnUsed} already exists in the database.");
+            throw new BookAlreadyExistsException(isbnUsed!);
         }
     }
 

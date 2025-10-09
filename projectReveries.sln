@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Integration.Google
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure.Redis", "src\Reveries.Infrastructure.Redis\Reveries.Infrastructure.Redis.csproj", "{BF037684-9602-487C-B70F-5A9AA042BCFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Api", "src\Reveries.Api\Reveries.Api.csproj", "{1BFA5027-2089-47F1-A188-B8EE06D9023B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Contracts", "src\Reveries.Contracts\Reveries.Contracts.csproj", "{7A178805-CFE5-4103-9137-A470F4021F9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +115,30 @@ Global
 		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|x64.Build.0 = Release|Any CPU
 		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|x86.ActiveCfg = Release|Any CPU
 		{BF037684-9602-487C-B70F-5A9AA042BCFD}.Release|x86.Build.0 = Release|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Debug|x64.Build.0 = Debug|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Debug|x86.Build.0 = Debug|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Release|x64.ActiveCfg = Release|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Release|x64.Build.0 = Release|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Release|x86.ActiveCfg = Release|Any CPU
+		{1BFA5027-2089-47F1-A188-B8EE06D9023B}.Release|x86.Build.0 = Release|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Debug|x64.Build.0 = Debug|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Debug|x86.Build.0 = Debug|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Release|x64.ActiveCfg = Release|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Release|x64.Build.0 = Release|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Release|x86.ActiveCfg = Release|Any CPU
+		{7A178805-CFE5-4103-9137-A470F4021F9D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

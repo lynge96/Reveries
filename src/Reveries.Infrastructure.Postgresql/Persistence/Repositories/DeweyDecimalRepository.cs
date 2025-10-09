@@ -1,8 +1,8 @@
 using Dapper;
 using Reveries.Application.Interfaces.Persistence;
-using Reveries.Application.Interfaces.Persistence.Repositories;
-using Reveries.Core.Entities;
-using Reveries.Infrastructure.Postgresql.DTOs;
+using Reveries.Core.Interfaces.Persistence.Repositories;
+using Reveries.Core.Models;
+using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
@@ -27,7 +27,7 @@ public class DeweyDecimalRepository : IDeweyDecimalRepository
                            """;
 
         var parameters = decimals
-            .Select(d => new DeweyDecimalDto { BookId = bookId, Code = d.Code })
+            .Select(d => new DeweyDecimalEntity { BookId = bookId, Code = d.Code })
             .ToList();
 
         var connection = await _dbContext.GetConnectionAsync();

@@ -1,8 +1,8 @@
 ﻿using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.Entities;
 using Reveries.Core.Enums;
-using Reveries.Integration.Isbndb.Clients.Interfaces;
+using Reveries.Core.Models;
+using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
 
 namespace Reveries.Integration.Isbndb.Services;

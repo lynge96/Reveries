@@ -1,7 +1,7 @@
 using System.Net;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
-using Reveries.Console.Handlers.Interfaces;
+using Reveries.Console.Interfaces;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;

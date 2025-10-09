@@ -18,11 +18,4 @@
     <PackageReference Include="Npgsql" Version="9.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="..\..\.env">
-      <Link>.env</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
 </Project>
