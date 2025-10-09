@@ -5,10 +5,16 @@
 GET {{Reveries_Https}}/api/Test/ping/
 Accept: application/json
 
-###
-GET {{Reveries_Http}}/api/Test/ping/
+### Swagger
+GET {{Reveries_Https}}/swagger/v1/swagger.json
 Accept: application/json
 
 ### Get Book
-GET {{Reveries_Https}}/api/Book/9780316539883
+GET {{Reveries_Https}}/api/v1/Books/9780316539883
 Accept: application/json
+
+### Get All Books
+GET {{Reveries_Https}}/api/v1/Books
+
+### Get All Read Books
+GET {{Reveries_Https}}/api/v1/Books?isRead=true

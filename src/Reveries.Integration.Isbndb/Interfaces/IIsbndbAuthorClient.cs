@@ -1,6 +1,6 @@
 ﻿using Reveries.Integration.Isbndb.DTOs.Authors;
 
-namespace Reveries.Integration.Isbndb.Clients.Interfaces;
+namespace Reveries.Integration.Isbndb.Interfaces;
 
 /// <summary>
 /// Provides methods to interact with the ISBNdb API for author-related data.

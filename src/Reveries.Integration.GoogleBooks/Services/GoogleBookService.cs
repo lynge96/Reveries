@@ -1,7 +1,7 @@
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
-using Reveries.Integration.GoogleBooks.Clients.Interfaces;
+using Reveries.Integration.GoogleBooks.Interfaces;
 using Reveries.Integration.GoogleBooks.Mappers;
 
 namespace Reveries.Integration.GoogleBooks.Services;

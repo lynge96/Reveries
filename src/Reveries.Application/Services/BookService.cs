@@ -25,4 +25,14 @@ public class BookService : IBookService
 
         return books.First().ToDto();
     }
+
+    public async Task<IEnumerable<BookDto>> GetAllBooksAsync(CancellationToken cancellationToken = default)
+    {
+        var books = await _bookLookupService.GetAllBooksAsync(cancellationToken);
+        
+        if (books.Count == 0)
+            throw new NotFoundException("No books were found.");
+        
+        return books.Select(book => book.ToDto());
+    }
 }

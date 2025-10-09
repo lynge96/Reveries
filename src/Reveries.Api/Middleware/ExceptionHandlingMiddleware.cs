@@ -9,7 +9,7 @@ public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
+    
     public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
     {
         _next = next;
@@ -53,7 +53,7 @@ public class ExceptionHandlingMiddleware
 
             _logger.LogError(exception, "Unhandled exception: {Message}", exception.Message);
         }
-
+        
         await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
     }
 }

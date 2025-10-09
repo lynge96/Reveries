@@ -1,6 +1,6 @@
 ﻿using Reveries.Integration.Isbndb.DTOs.Books;
 
-namespace Reveries.Integration.Isbndb.Clients.Interfaces;
+namespace Reveries.Integration.Isbndb.Interfaces;
 
 /// <summary>
 /// Provides methods for retrieving book information from the ISBNdb API.

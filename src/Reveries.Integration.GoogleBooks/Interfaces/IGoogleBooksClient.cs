@@ -1,6 +1,6 @@
 using Reveries.Integration.GoogleBooks.DTOs;
 
-namespace Reveries.Integration.GoogleBooks.Clients.Interfaces;
+namespace Reveries.Integration.GoogleBooks.Interfaces;
 
 /// <summary>
 /// Client interface for interacting with the Google Books API.

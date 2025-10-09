@@ -1,6 +1,6 @@
 ﻿using Reveries.Integration.Isbndb.DTOs.Publishers;
 
-namespace Reveries.Integration.Isbndb.Clients.Interfaces;
+namespace Reveries.Integration.Isbndb.Interfaces;
 
 /// <summary>
 /// Provides methods to query the ISBNdb API for publisher-related information.

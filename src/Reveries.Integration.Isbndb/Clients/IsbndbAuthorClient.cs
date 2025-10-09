@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Integration.Isbndb.Clients.Interfaces;
 using Reveries.Integration.Isbndb.DTOs.Authors;
+using Reveries.Integration.Isbndb.Interfaces;
 
 namespace Reveries.Integration.Isbndb.Clients;
 

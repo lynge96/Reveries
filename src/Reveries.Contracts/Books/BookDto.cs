@@ -5,8 +5,8 @@ public class BookDto
     public string? Isbn10 { get; set; }
     public string? Isbn13 { get; set; }
     public string? Title { get; set; }
-    public int? NumberInSeries { get; set; }
     public string? Series { get; set; }
+    public int? NumberInSeries { get; set; }
     public List<string>? Authors { get; set; }
     public string? Publisher { get; set; }
     public string? Language { get; set; }
