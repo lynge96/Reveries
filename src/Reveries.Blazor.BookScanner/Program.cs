@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Reveries.Blazor.BookScanner;
 using Reveries.Blazor.BookScanner.Clients;
+using Reveries.Blazor.BookScanner.State;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -11,5 +12,6 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 
 builder.Services.AddScoped<BookApiClient>();
+builder.Services.AddScoped<BookState>();
 
 await builder.Build().RunAsync();

@@ -117,3 +117,57 @@ body {
     background-color: #dcd9d9;
     color: #212529;
 }
+
+#video-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: none;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    border-radius: 0.7rem;
+}
+
+#video {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    display: block;
+    object-fit: cover;
+}
+
+
+@media (max-width: 768px) {
+    #video {
+        aspect-ratio: 3 / 4;
+    }
+}
+    
+@media (max-width: 480px) {
+    #video {
+        aspect-ratio: 9 / 16;
+    }
+}
+
+.isbn-input-group {
+    transition: all 0.3s ease;
+}
+
+.isbn-input-group input {
+    border: 1px solid #ccc;
+    transition: all 0.3s ease;
+}
+
+.isbn-input-group.scanned input,
+.isbn-input-group.scanned button {
+    border-color: #28a745; /* grøn */
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+}
+
+.isbn-input-group button {
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    transition: all 0.3s ease;
+}

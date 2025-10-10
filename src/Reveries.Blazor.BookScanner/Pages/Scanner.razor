@@ -1,75 +1,40 @@
 ﻿@page "/"
-@using Reveries.Blazor.BookScanner.Clients
-@using Reveries.Contracts.Books
 @inject IJSRuntime Js
-@inject BookApiClient BooksApi
 @inject NavigationManager Nav
+@inject BookApiClient BooksApi
+@inject BookState BookState
+@implements IDisposable
 
-<div class="container mt-5">
-    <h3 class="text-center mb-4 display-6">ISBN Scanner</h3>
+<div class="container mt-4">
+    <h1 class="display-6 text-center mb-3">ISBN Scanner</h1>
 
-    <div class="row">
-        <!-- Venstre kolonne: video -->
-        <div class="col-4">
-            <video id="video" autoplay playsinline class="border rounded shadow" style="max-width: 100%;"></video>
-        </div>
-        
-        <!-- Højre kolonne: bogdata og billede -->
-        <div class="col-md-8">
-            <div class="row">
-                <!-- Venstre: book data -->
-                <h2>Book data</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-5 text-center">
+            <!-- Video stream -->
+            <div id="video-container" class="shadow-sm">
+                <video id="video" autoplay playsinline></video>
+            </div>
 
-                <form class="row col-5">
-                    <div class="row-md-6">
-                        <label for="inputIsbn" class="form-label">ISBN</label>
-                        <input disabled readonly class="form-control" value="@_bookDto.Isbn13" placeholder="Scan book for isbn" id="inputIsbn">
-                    </div>
+            <p class="text-muted mt-2">Scan the barcode on your book:</p>
+            
+            <div class="input-group mb-4 isbn-input-group @(HasScanned ? "scanned" : "")">
+                <!-- Reset-knap til venstre -->
+                <button class="btn btn-secondary btn-lg"
+                        type="button"
+                        @onclick="ResetScan"
+                        disabled="@string.IsNullOrWhiteSpace(_scannedIsbn)">
+                    <i class="bi bi-trash3"></i>
+                </button>
 
-                    <div class="row-md-6">
-                        <label for="inputTitle" class="form-label">Title</label>
-                        <input disabled readonly class="form-control" value="@_bookDto.Title" id="inputTitle">
-                    </div>
+                <input disabled @bind="_scannedIsbn"
+                       class="form-control text-center fs-2 py-1"
+                       placeholder="Scan ISBN..." />
 
-                    <div class="row-md-6">
-                        <label for="inputAuthor" class="form-label">Authors</label>
-                        <input disabled readonly class="form-control" 
-                               value="@(_bookDto.Authors != null ? string.Join(", ", _bookDto.Authors) : string.Empty)" 
-                               id="inputAuthor">
-                    </div>
-
-                    <div class="row-md-6">
-                        <label for="inputYear" class="form-label">Publication date</label>
-                        <input disabled readonly class="form-control" value="@_bookDto.PublicationDate" id="inputYear">
-                    </div>
-
-                    <div class="row-md-6">
-                        <label for="inputPages" class="form-label">Pages</label>
-                        <input disabled readonly class="form-control" value="@_bookDto.Pages" id="inputPages">
-                    </div>
-
-                    <div class="row-md-6">
-                        <label for="inputLanguage" class="form-label">Language</label>
-                        <input disabled readonly class="form-control" value="@_bookDto.Language" id="inputLanguage">
-                    </div>
-
-                    <div class="row-md-6">
-                        <label for="inputBinding" class="form-label">Binding</label>
-                        <input disabled readonly class="form-control" value="@_bookDto.Binding" id="inputBinding">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="inputSynopsis" class="form-label">Synopsis</label>
-                        <textarea disabled readonly class="form-control" id="inputSynopsis" style="height:150px; overflow:auto;">
-                            @_bookDto.Synopsis
-                        </textarea>
-                    </div>
-                </form>
-                
-                <!-- Højre: billede -->
-                <div class="col-7">
-                    <img src="@_bookDto.ImageUrl" class="img-fluid rounded shadow" alt=""/>
-                </div>
+                <button class="btn btn-success btn-lg px-4"
+                        @onclick="OnFindBookAsync"
+                        disabled="@string.IsNullOrWhiteSpace(_scannedIsbn)">
+                    <i class="bi bi-search"></i>
+                </button>
             </div>
 
         </div>
@@ -77,30 +42,60 @@
 </div>
 
 @code {
-    BookDto _bookDto = new BookDto();
-
+    private string? _scannedIsbn;
+    private bool HasScanned => !string.IsNullOrWhiteSpace(_scannedIsbn);
+    private BookDto? _bookDto;
+    private DotNetObjectReference<Scanner>? _objRef;
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await Js.InvokeVoidAsync("scanner.startContinuousScan", DotNetObjectReference.Create(this));
+            _objRef = DotNetObjectReference.Create(this);
+            await Js.InvokeVoidAsync("scanner.startContinuousScan", _objRef);
         }
     }
 
     [JSInvokable]
     public async Task OnIsbnScanned(string scannedIsbn)
     {
+        _scannedIsbn = scannedIsbn;
+
         try
         {
-            _bookDto.Isbn13 = scannedIsbn;
-            var apiResult = await BooksApi.GetAsync(scannedIsbn);
-            if (apiResult != null)
-                _bookDto = apiResult;
-            StateHasChanged();
+            _bookDto = await BooksApi.GetAsync(scannedIsbn);
+
+            if (_bookDto != null)
+                BookState.SetBook(_bookDto);
         }
-        catch (Exception ex)
+        catch
         {
-            Console.Error.WriteLine($"Error fetching book: {ex.Message}");
+            _bookDto = null;
+            BookState.Clear();
         }
+
+        StateHasChanged();
+    }
+    
+    private async Task ResetScan()
+    {
+        _scannedIsbn = null;
+        _bookDto = null;
+        BookState.Clear();
+        await Js.InvokeVoidAsync("scanner.resetLastIsbn");
+    }
+    
+    private void OnFindBookAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_scannedIsbn))
+            return;
+
+        Nav.NavigateTo($"/book/{_scannedIsbn}");
+    }
+
+    public void Dispose()
+    {
+        _ = Js.InvokeVoidAsync("scanner.stopContinuousScan");
+        _objRef?.Dispose();
     }
 }

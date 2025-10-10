@@ -1,27 +1,64 @@
 window.scanner = {
+    codeReader: null,
+    currentDeviceId: null,
+    lastIsbn: null,
+
     startContinuousScan: function (dotNetObj) {
-        const codeReader = new ZXing.BrowserMultiFormatReader();
-        let lastIsbn = null;
+        if (this.codeReader) {
+            console.warn("Scanner is already running");
+            return;
+        }
 
-        codeReader.listVideoInputDevices()
+        this.codeReader = new ZXing.BrowserMultiFormatReader();
+
+        this.codeReader.listVideoInputDevices()
             .then(videoInputDevices => {
-                const deviceId = videoInputDevices[0].deviceId;
+                if (videoInputDevices.length === 0) {
+                    console.error("No video input devices found");
+                    return;
+                }
 
-                codeReader.decodeFromVideoDevice(deviceId, 'video', (result, err) => {
+                const preferredDevice = videoInputDevices.find(d => d.label.toLowerCase().includes("back")) || videoInputDevices[0];
+                this.currentDeviceId = preferredDevice.deviceId;
+
+                this.codeReader.decodeFromVideoDevice(this.currentDeviceId, 'video', (result, err) => {
                     if (result) {
                         const text = result.text.replace(/-/g, '');
-                        if (isValidIsbn(text) && text !== lastIsbn) {
-                            lastIsbn = text;
+                        if (isValidIsbn(text) && text !== this.lastIsbn) {
+                            this.lastIsbn = text;
                             dotNetObj.invokeMethodAsync('OnIsbnScanned', text);
                         }
                     }
                 });
             })
-            .catch(err => console.error(err));
+            .catch(err => console.error("Error initializing scanner:", err));
+    },
+
+    stopContinuousScan: function () {
+        if (this.codeReader) {
+            try {
+                this.codeReader.reset();
+            } catch (e) {
+                console.warn("Error stopping scanner:", e);
+            }
+            this.codeReader = null;
+        }
+
+        const video = document.getElementById('video');
+        if (video && video.srcObject) {
+            video.srcObject.getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+        }
+
+        this.lastIsbn = null;
+    },
+
+    resetLastIsbn: function () {
+        this.lastIsbn = null;
     }
 };
 
-// Simpel ISBN check (kun længde og cifre)
 function isValidIsbn(str) {
-    return (/^\d{10}$/.test(str) || /^\d{13}$/.test(str));
+    if (!(/^\d{10}$/.test(str) || /^\d{13}$/.test(str))) return false;
+    return !(str.length === 13 && !str.startsWith("978") && !str.startsWith("979"));
 }
