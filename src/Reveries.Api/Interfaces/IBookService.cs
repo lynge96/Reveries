@@ -1,6 +1,6 @@
 using Reveries.Contracts.Books;
 
-namespace Reveries.Application.Interfaces.Services;
+namespace Reveries.Api.Interfaces;
 
 public interface IBookService
 {

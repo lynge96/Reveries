@@ -1,5 +1,9 @@
 ﻿@page "/"
+@using Reveries.Blazor.BookScanner.Clients
+@using Reveries.Contracts.Books
 @inject IJSRuntime Js
+@inject BookApiClient BooksApi
+@inject NavigationManager Nav
 
 <div class="container mt-5">
     <h3 class="text-center mb-4 display-6">ISBN Scanner</h3>
@@ -19,48 +23,52 @@
                 <form class="row col-5">
                     <div class="row-md-6">
                         <label for="inputIsbn" class="form-label">ISBN</label>
-                        <input disabled readonly class="form-control" value="@isbn" placeholder="Scan book for isbn" id="inputIsbn">
+                        <input disabled readonly class="form-control" value="@_bookDto.Isbn13" placeholder="Scan book for isbn" id="inputIsbn">
                     </div>
 
                     <div class="row-md-6">
                         <label for="inputTitle" class="form-label">Title</label>
-                        <input disabled readonly class="form-control" id="inputTitle">
+                        <input disabled readonly class="form-control" value="@_bookDto.Title" id="inputTitle">
                     </div>
 
                     <div class="row-md-6">
                         <label for="inputAuthor" class="form-label">Authors</label>
-                        <input disabled readonly class="form-control" id="inputAuthor">
+                        <input disabled readonly class="form-control" 
+                               value="@(_bookDto.Authors != null ? string.Join(", ", _bookDto.Authors) : string.Empty)" 
+                               id="inputAuthor">
                     </div>
 
                     <div class="row-md-6">
                         <label for="inputYear" class="form-label">Publication date</label>
-                        <input disabled readonly class="form-control" id="inputYear">
+                        <input disabled readonly class="form-control" value="@_bookDto.PublicationDate" id="inputYear">
                     </div>
 
                     <div class="row-md-6">
                         <label for="inputPages" class="form-label">Pages</label>
-                        <input disabled readonly class="form-control" id="inputPages">
+                        <input disabled readonly class="form-control" value="@_bookDto.Pages" id="inputPages">
                     </div>
 
                     <div class="row-md-6">
                         <label for="inputLanguage" class="form-label">Language</label>
-                        <input disabled readonly class="form-control" id="inputLanguage">
+                        <input disabled readonly class="form-control" value="@_bookDto.Language" id="inputLanguage">
                     </div>
 
                     <div class="row-md-6">
                         <label for="inputBinding" class="form-label">Binding</label>
-                        <input disabled readonly class="form-control" id="inputBinding">
+                        <input disabled readonly class="form-control" value="@_bookDto.Binding" id="inputBinding">
                     </div>
 
                     <div class="mb-3">
                         <label for="inputSynopsis" class="form-label">Synopsis</label>
-                        <textarea disabled readonly class="form-control" id="inputSynopsis" style="height:150px; overflow:auto;"></textarea>
+                        <textarea disabled readonly class="form-control" id="inputSynopsis" style="height:150px; overflow:auto;">
+                            @_bookDto.Synopsis
+                        </textarea>
                     </div>
                 </form>
                 
                 <!-- Højre: billede -->
                 <div class="col-7">
-                    <img src="https://images.isbndb.com/covers/15354833482300.jpg" class="img-fluid rounded shadow" />
+                    <img src="@_bookDto.ImageUrl" class="img-fluid rounded shadow" alt=""/>
                 </div>
             </div>
 
@@ -69,7 +77,7 @@
 </div>
 
 @code {
-    private string? isbn;
+    BookDto _bookDto = new BookDto();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -80,9 +88,19 @@
     }
 
     [JSInvokable]
-    public void OnIsbnScanned(string scannedIsbn)
+    public async Task OnIsbnScanned(string scannedIsbn)
     {
-        isbn = scannedIsbn;
-        StateHasChanged();
+        try
+        {
+            _bookDto.Isbn13 = scannedIsbn;
+            var apiResult = await BooksApi.GetAsync(scannedIsbn);
+            if (apiResult != null)
+                _bookDto = apiResult;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching book: {ex.Message}");
+        }
     }
 }

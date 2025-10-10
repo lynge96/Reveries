@@ -1,9 +1,10 @@
-using Reveries.Application.Common.Mappers;
+using Reveries.Api.Interfaces;
+using Reveries.Api.Mappers;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Contracts.Books;
 using Reveries.Core.Exceptions;
 
-namespace Reveries.Application.Services;
+namespace Reveries.Api.Services;
 
 public class BookService : IBookService
 {

@@ -2,7 +2,7 @@ using Reveries.Contracts.Books;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
 
-namespace Reveries.Application.Common.Mappers;
+namespace Reveries.Api.Mappers;
 
 public static class BookMapper
 {
@@ -17,7 +17,7 @@ public static class BookMapper
             Publisher = book.Publisher?.Name,
             Language = book.Language,
             LanguageCode = book.LanguageIso639,
-            PublishDate = book.PublishDateFormatted,
+            PublicationDate = book.PublishDateFormatted,
             Pages = book.Pages,
             Synopsis = book.Synopsis,
             ImageUrl = book.ImageUrl,

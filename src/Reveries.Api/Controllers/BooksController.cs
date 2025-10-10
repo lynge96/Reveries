@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Reveries.Api.Interfaces;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Contracts.Books;
 
