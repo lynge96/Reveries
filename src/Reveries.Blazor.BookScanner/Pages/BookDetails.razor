@@ -1,4 +1,5 @@
 @page "/book/{Isbn}"
+<PageTitle>Reveries | @(_book?.Title ?? "Book Details")</PageTitle>
 @inject BookApiClient BooksApi
 @inject BookState BookState
 

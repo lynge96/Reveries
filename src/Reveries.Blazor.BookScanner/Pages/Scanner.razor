@@ -1,4 +1,5 @@
 ﻿@page "/"
+<PageTitle>Reveries | Book Scanner</PageTitle>
 @inject IJSRuntime Js
 @inject NavigationManager Nav
 @inject BookApiClient BooksApi
@@ -11,30 +12,21 @@
     <div class="row justify-content-center">
         <div class="col-md-5 text-center">
             <!-- Video stream -->
-            <div id="video-container" class="shadow-sm">
+            <div id="video-container" class="shadow-sm)">
                 <video id="video" autoplay playsinline></video>
             </div>
-
-            <p class="text-muted mt-2">Scan the barcode on your book:</p>
             
-            <div class="input-group mb-4 isbn-input-group @(HasScanned ? "scanned" : "")">
-                <!-- Reset-knap til venstre -->
-                <button class="btn btn-secondary btn-lg"
-                        type="button"
-                        @onclick="ResetScan"
-                        disabled="@string.IsNullOrWhiteSpace(_scannedIsbn)">
-                    <i class="bi bi-trash3"></i>
-                </button>
-
+            <div class="input-group mt-4 isbn-input-group @(HasScannedSuccessfully ? "scan-success" : "") position-relative">
                 <input disabled @bind="_scannedIsbn"
-                       class="form-control text-center fs-2 py-1"
-                       placeholder="Scan ISBN..." />
+                       class="form-control text-center fs-3 py-1"
+                       placeholder="Scan the ISBN-barcode" />
 
-                <button class="btn btn-success btn-lg px-4"
-                        @onclick="OnFindBookAsync"
-                        disabled="@string.IsNullOrWhiteSpace(_scannedIsbn)">
-                    <i class="bi bi-search"></i>
-                </button>
+                @if (HasScannedSuccessfully)
+                {
+                    <span class="input-group-text bg-transparent border-0 position-absolute end-0 top-0 h-100 d-flex align-items-center pe-2">
+                        <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                    </span>
+                }
             </div>
 
         </div>
@@ -43,8 +35,8 @@
 
 @code {
     private string? _scannedIsbn;
-    private bool HasScanned => !string.IsNullOrWhiteSpace(_scannedIsbn);
     private BookDto? _bookDto;
+    private bool HasScannedSuccessfully => _bookDto != null;
     private DotNetObjectReference<Scanner>? _objRef;
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -66,31 +58,22 @@
             _bookDto = await BooksApi.GetAsync(scannedIsbn);
 
             if (_bookDto != null)
+            {
                 BookState.SetBook(_bookDto);
+                
+                StateHasChanged();
+                
+                await Task.Delay(1750);
+                
+                Nav.NavigateTo($"/book/{_scannedIsbn}");
+            }
         }
         catch
         {
             _bookDto = null;
             BookState.Clear();
+            StateHasChanged();
         }
-
-        StateHasChanged();
-    }
-    
-    private async Task ResetScan()
-    {
-        _scannedIsbn = null;
-        _bookDto = null;
-        BookState.Clear();
-        await Js.InvokeVoidAsync("scanner.resetLastIsbn");
-    }
-    
-    private void OnFindBookAsync()
-    {
-        if (string.IsNullOrWhiteSpace(_scannedIsbn))
-            return;
-
-        Nav.NavigateTo($"/book/{_scannedIsbn}");
     }
 
     public void Dispose()
