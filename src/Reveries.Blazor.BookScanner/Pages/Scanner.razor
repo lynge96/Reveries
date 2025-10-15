@@ -12,23 +12,50 @@
     <div class="row justify-content-center">
         <div class="col-md-5 text-center">
             <!-- Video stream -->
-            <div id="video-container" class="shadow-sm)">
+            <div id="video-container" class="shadow-sm">
                 <video id="video" autoplay playsinline></video>
             </div>
             
             <div class="input-group mt-4 isbn-input-group @(HasScannedSuccessfully ? "scan-success" : "") position-relative">
-                <input disabled @bind="_scannedIsbn"
-                       class="form-control text-center fs-3 py-1"
-                       placeholder="Scan the ISBN-barcode" />
+    
+                <!-- Input-feltet -->
+                <input @bind="_scannedIsbn"
+                       disabled="@( !IsManualInputActive )"
+                       class="form-control text-center fs-3 py-2 ps-5"
+                       placeholder="@(IsManualInputActive ? "Enter ISBN manually" : "Scan the ISBN-barcode")"
+                       maxlength="13" />
 
-                @if (HasScannedSuccessfully)
+                <!-- Blyant ikon på venstre side -->
+                <span class="position-absolute start-0 top-0 h-100 d-flex align-items-center ps-3" 
+                      style="cursor:pointer;" 
+                      @onclick="EnableManualInput">
+                    <i class="bi @(IsManualInputActive ? "bi-upc-scan" : "bi-pencil-square") fs-5 text-secondary"></i>
+                </span>
+                
+                <!-- Søgeikon som del af input-feltet til højre -->
+                @if (IsManualInputActive)
                 {
-                    <span class="input-group-text bg-transparent border-0 position-absolute end-0 top-0 h-100 d-flex align-items-center pe-2">
-                        <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                    <span class="input-group-text bg-success" style="cursor:pointer;" @onclick="SearchManualIsbn">
+                        <i class="bi bi-search text-white fs-4"></i>
+                    </span>
+                }
+                
+                <!-- Flueben ved succes -->
+                @if (HasScannedSuccessfully && !IsManualInputActive)
+                {
+                    <span class="input-group-text bg-transparent border-0 position-absolute end-0 top-0 h-100 d-flex align-items-center pe-3">
+                        <i class="bi bi-check-square-fill text-success fs-3"></i>
                     </span>
                 }
             </div>
 
+            <!-- Flueben under input-feltet, centreret -->
+            @if (HasScannedSuccessfully && IsManualInputActive)
+            {
+                <div class="text-center mt-2">
+                    <i class="bi bi-check-square-fill text-success fs-3"></i>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -38,6 +65,22 @@
     private BookDto? _bookDto;
     private bool HasScannedSuccessfully => _bookDto != null;
     private DotNetObjectReference<Scanner>? _objRef;
+    private bool IsManualInputActive;
+    
+    private void EnableManualInput()
+    {
+        IsManualInputActive = !IsManualInputActive;
+        _scannedIsbn = string.Empty;
+    }
+    
+    private async Task SearchManualIsbn()
+    {
+        if (!string.IsNullOrWhiteSpace(_scannedIsbn))
+        {
+            await OnIsbnScanned(_scannedIsbn);
+            IsManualInputActive = false;
+        }
+    }
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
