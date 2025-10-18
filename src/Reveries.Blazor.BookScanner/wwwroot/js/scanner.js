@@ -8,8 +8,14 @@ window.scanner = {
             console.warn("Scanner is already running");
             return;
         }
+        
+        const hints = new Map();
+        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+            ZXing.BarcodeFormat.EAN_13
+        ]);
+        hints.set(ZXing.DecodeHintType.TRY_HARDER, false);
 
-        this.codeReader = new ZXing.BrowserMultiFormatReader();
+        this.codeReader = new ZXing.BrowserMultiFormatReader(hints);
 
         this.codeReader.listVideoInputDevices()
             .then(videoInputDevices => {
@@ -20,8 +26,19 @@ window.scanner = {
 
                 const preferredDevice = videoInputDevices.find(d => d.label.toLowerCase().includes("back")) || videoInputDevices[0];
                 this.currentDeviceId = preferredDevice.deviceId;
+                
+                const constraints = {
+                    video: {
+                        deviceId: this.currentDeviceId,
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        focusMode: 'continuous',
+                        zoom: { ideal: 1.5 }
+                    }
+                };
 
-                this.codeReader.decodeFromVideoDevice(this.currentDeviceId, 'video', (result, err) => {
+                this.codeReader.decodeFromConstraints(constraints, 'video', (result, err) => {
                     if (result) {
                         const text = result.text.replace(/-/g, '');
                         if (isValidIsbn(text) && text !== this.lastIsbn) {
@@ -59,6 +76,8 @@ window.scanner = {
 };
 
 function isValidIsbn(str) {
-    if (!(/^\d{10}$/.test(str) || /^\d{13}$/.test(str))) return false;
-    return !(str.length === 13 && !str.startsWith("978") && !str.startsWith("979"));
+    if (/^\d{13}$/.test(str)) {
+        return str.startsWith("978") || str.startsWith("979");
+    }
+    return /^\d{10}$/.test(str);
 }

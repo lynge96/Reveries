@@ -1,4 +1,5 @@
-﻿@page "/"
+﻿
+@page "/"
 <PageTitle>Reveries | Book Scanner</PageTitle>
 @inject IJSRuntime Js
 @inject NavigationManager Nav
@@ -7,21 +8,26 @@
 @implements IDisposable
 
 <div class="container mt-4">
-    <h1 class="display-6 text-center mb-3">ISBN Scanner</h1>
+    <h1 class="display-5 text-center mb-3">ISBN Scanner</h1>
 
     <div class="row justify-content-center">
-        <div class="col-md-5 text-center">
-            <!-- Video stream -->
-            <div id="video-container" class="shadow-sm">
+        <div class="col-12 col-md-8 col-lg-6 text-center">
+            <!-- Video stream med responsiv container -->
+            <div id="video-container" class="shadow-sm mb-3">
                 <video id="video" autoplay playsinline></video>
+                <div class="scan-region @(HasScannedSuccessfully ? "scan-success" : "")">
+                    <div class="scan-line"></div>
+                </div>
             </div>
             
             <div class="input-group mt-4 isbn-input-group @(HasScannedSuccessfully ? "scan-success" : "") position-relative">
-    
+                
                 <!-- Input-feltet -->
                 <input @bind="_scannedIsbn"
+                       @bind:event="oninput"
+                       @onkeydown="HandleKeyDown"
                        disabled="@( !IsManualInputActive )"
-                       class="form-control text-center fs-3 py-2 ps-5"
+                       class="form-control text-center fs-3 py-2 ps-5 isbn-input @(HasScannedSuccessfully ? "scan-success" : "")"
                        placeholder="@(IsManualInputActive ? "Enter ISBN manually" : "Scan the ISBN-barcode")"
                        maxlength="13" />
 
@@ -32,16 +38,8 @@
                     <i class="bi @(IsManualInputActive ? "bi-upc-scan" : "bi-pencil-square") fs-5 text-secondary"></i>
                 </span>
                 
-                <!-- Søgeikon som del af input-feltet til højre -->
-                @if (IsManualInputActive)
-                {
-                    <span class="input-group-text bg-success" style="cursor:pointer;" @onclick="SearchManualIsbn">
-                        <i class="bi bi-search text-white fs-4"></i>
-                    </span>
-                }
-                
                 <!-- Flueben ved succes -->
-                @if (HasScannedSuccessfully && !IsManualInputActive)
+                @if (HasScannedSuccessfully)
                 {
                     <span class="input-group-text bg-transparent border-0 position-absolute end-0 top-0 h-100 d-flex align-items-center pe-3">
                         <i class="bi bi-check-square-fill text-success fs-3"></i>
@@ -49,28 +47,59 @@
                 }
             </div>
 
-            <!-- Flueben under input-feltet, centreret -->
-            @if (HasScannedSuccessfully && IsManualInputActive)
+            <!-- Søgeknap nedenunder -->
+            @if (IsManualInputActive)
             {
-                <div class="text-center mt-2">
-                    <i class="bi bi-check-square-fill text-success fs-3"></i>
-                </div>
+                <button type="button" 
+                        class="btn btn-success btn-lg w-100 mt-3 search-button"
+                        @onclick="SearchManualIsbn"
+                        disabled="@(string.IsNullOrWhiteSpace(_scannedIsbn))">
+                    <i class="bi bi-search me-2"></i>
+                    Search ISBN
+                </button>
             }
+            
         </div>
     </div>
 </div>
 
 @code {
-    private string? _scannedIsbn;
+    private string? _inputIsbn;
+    private string? _scannedIsbn
+    {
+        get => _inputIsbn;
+        set
+        {
+            if (value != null)
+            {
+                var filtered = new string(value.Where(c => char.IsDigit(c) || c == 'X' || c == 'x').ToArray());
+                _inputIsbn = filtered.ToUpper();
+            }
+            else
+            {
+                _inputIsbn = value;
+            }
+        }
+    }
     private BookDto? _bookDto;
     private bool HasScannedSuccessfully => _bookDto != null;
     private DotNetObjectReference<Scanner>? _objRef;
     private bool IsManualInputActive;
+    private bool _isProcessing;
     
     private void EnableManualInput()
     {
         IsManualInputActive = !IsManualInputActive;
         _scannedIsbn = string.Empty;
+        _bookDto = null;
+    }
+    
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && IsManualInputActive)
+        {
+            await SearchManualIsbn();
+        }
     }
     
     private async Task SearchManualIsbn()
@@ -94,6 +123,9 @@
     [JSInvokable]
     public async Task OnIsbnScanned(string scannedIsbn)
     {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
         _scannedIsbn = scannedIsbn;
 
         try
@@ -116,6 +148,10 @@
             _bookDto = null;
             BookState.Clear();
             StateHasChanged();
+        }
+        finally
+        {
+            _isProcessing = false;
         }
     }
 
