@@ -5,6 +5,7 @@
 @inject NavigationManager Nav
 @inject BookApiClient BooksApi
 @inject BookState BookState
+@using System.Net
 @implements IDisposable
 
 <div class="container mt-4">
@@ -27,7 +28,7 @@
                        @bind:event="oninput"
                        @onkeydown="HandleKeyDown"
                        disabled="@( !IsManualInputActive )"
-                       class="form-control text-center fs-3 py-2 ps-5 isbn-input @(HasScannedSuccessfully ? "scan-success" : "")"
+                       class="form-control text-center fs-3 py-2 ps-5 isbn-input @(HasScannedSuccessfully ? "scan-success" : "") @(_errorMessage != null ? "is-invalid" : "")"
                        placeholder="@(IsManualInputActive ? "Enter ISBN manually" : "Scan the ISBN-barcode")"
                        maxlength="13" />
 
@@ -47,8 +48,17 @@
                 }
             </div>
 
+            <!-- Fejlbesked -->
+            @if (_errorMessage != null)
+            {
+                <div class="alert alert-danger mt-3 d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                    <div>@_errorMessage</div>
+                </div>
+            }
+            
             <!-- Søgeknap nedenunder -->
-            @if (IsManualInputActive)
+            @if (IsManualInputActive && _errorMessage == null)
             {
                 <button type="button" 
                         class="btn btn-success btn-lg w-100 mt-3 search-button"
@@ -79,9 +89,11 @@
             {
                 _inputIsbn = value;
             }
+            _errorMessage = null;
         }
     }
     private BookDto? _bookDto;
+    private string? _errorMessage;
     private bool HasScannedSuccessfully => _bookDto != null;
     private DotNetObjectReference<Scanner>? _objRef;
     private bool IsManualInputActive;
@@ -92,6 +104,7 @@
         IsManualInputActive = !IsManualInputActive;
         _scannedIsbn = string.Empty;
         _bookDto = null;
+        _errorMessage = null;
     }
     
     private async Task HandleKeyDown(KeyboardEventArgs e)
@@ -107,7 +120,10 @@
         if (!string.IsNullOrWhiteSpace(_scannedIsbn))
         {
             await OnIsbnScanned(_scannedIsbn);
-            IsManualInputActive = false;
+            if (_errorMessage == null)
+            {
+                IsManualInputActive = false;
+            }
         }
     }
     
@@ -119,7 +135,7 @@
             await Js.InvokeVoidAsync("scanner.startContinuousScan", _objRef);
         }
     }
-
+    
     [JSInvokable]
     public async Task OnIsbnScanned(string scannedIsbn)
     {
@@ -127,6 +143,7 @@
         
         _isProcessing = true;
         _scannedIsbn = scannedIsbn;
+        _errorMessage = null;
 
         try
         {
@@ -135,16 +152,33 @@
             if (_bookDto != null)
             {
                 BookState.SetBook(_bookDto);
-                
                 StateHasChanged();
-                
                 await Task.Delay(1750);
-                
                 Nav.NavigateTo($"/book/{_scannedIsbn}");
             }
+            else
+            {
+                _errorMessage = "Bogen blev ikke fundet.";
+                BookState.Clear();
+                StateHasChanged();
+            }
         }
-        catch
+        catch (Exception ex)
         {
+            if (ex.Message.Contains("400") || ex.Message.Contains("Invalid ISBN"))
+            {
+                _errorMessage = "Ugyldigt ISBN-nummer. Tjek venligst nummeret og prøv igen.";
+            }
+            else if (ex.Message.Contains("404") || ex.Message.Contains("not found"))
+            {
+                _errorMessage = "Bogen blev ikke fundet. Prøv et andet ISBN-nummer.";
+            }
+            else
+            {
+                _errorMessage = "Der opstod en fejl. Prøv venligst igen.";
+            }
+            
+            Console.WriteLine($"Error: {ex.GetType().Name} - {ex.Message}");
             _bookDto = null;
             BookState.Clear();
             StateHasChanged();
