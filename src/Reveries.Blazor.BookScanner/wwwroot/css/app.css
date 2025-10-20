@@ -20,10 +20,6 @@ a, .btn-link {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-.content {
-    padding-top: 1.1rem;
-}
-
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }
@@ -99,205 +95,32 @@ a, .btn-link {
     .loading-progress-text:after {
         content: var(--blazor-load-percentage-text, "Loading");
     }
-
-code {
-    color: #c02d76;
-}
-
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-    color: var(--bs-secondary-color);
-    text-align: end;
-}
-
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-    text-align: start;
-}
-
+    
 body {
     background-color: #dcd9d9;
     color: #212529;
 }
 
-/*---------------------------------------------------------------------------*/
-.search-button {
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.search-button:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.search-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Responsiv knap på mobil */
-@media (max-width: 768px) {
-    .search-button {
-        font-size: 1.1rem;
-        padding: 1rem 1.5rem;
-    }
-}
-
-.isbn-input-group input {
-    border-top-right-radius: 0.25rem;
-    border-bottom-right-radius: 0.25rem;
-}
-
-.isbn-input-group.scan-success input {
-    border: 2px solid #28a745;
-    box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
-}
-
-.isbn-input-group .input-group-text {
-    pointer-events: none;
-    background: transparent;
-    border: 2px solid #28a745;
-}
-
-.isbn-input.is-invalid {
-    border: 2px solid #dc3545;
-    box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
-}
 
 .alert {
     border-radius: 0.5rem;
     font-size: 1rem;
 }
 
-#video-container {
-    position: relative;
-    width: 100%;
-    max-width: 640px;
-    margin: 0 auto;
-    background: #000;
-    border-radius: 12px;
-    overflow: hidden;
-    aspect-ratio: 4 / 3;
+.alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c2c7;
+    color: #842029;
 }
 
-#video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+.content {
+    padding-top: 1rem;
 }
 
-/* Sigtekorn-stil scan guide */
-.scan-region {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 85%;
-    height: 25%;
-    pointer-events: none;
+.text-center {
+    text-align: center;
 }
 
-/* Hjørne-markører som sigtekorn */
-.scan-region::before,
-.scan-region::after {
-    content: '';
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(230, 206, 206, 0.7);
-}
 
-/* Top venstre hjørne */
-.scan-region::before {
-    top: 0;
-    left: 0;
-    border-right: none;
-    border-bottom: none;
-    border-top-left-radius: 8px;
-}
-
-/* Top højre hjørne */
-.scan-region::after {
-    top: 0;
-    right: 0;
-    border-left: none;
-    border-bottom: none;
-    border-top-right-radius: 8px;
-}
-
-/* Bund venstre hjørne */
-.scan-line::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(200, 200, 200, 0.7);
-    border-right: none;
-    border-top: none;
-    border-bottom-left-radius: 8px;
-}
-
-/* Bund højre hjørne */
-.scan-line::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(200, 200, 200, 0.7);
-    border-left: none;
-    border-top: none;
-    border-bottom-right-radius: 8px;
-}
-
-/* Grønt sigtekorn ved succesfuld scanning */
-.scan-region.scan-success::before,
-.scan-region.scan-success::after {
-    border-color: rgba(40, 167, 69, 0.9);
-}
-
-.scan-region.scan-success .scan-line::before,
-.scan-region.scan-success .scan-line::after {
-    border-color: rgba(40, 167, 69, 0.9);
-}
-
-/* Responsiv tilpasning til mobil - højere video */
-@media (max-width: 768px) {
-    #video-container {
-        aspect-ratio: 9 / 16;
-        max-width: 100%;
-        max-height: 75vh;
-    }
-
-    .scan-region {
-        width: 75%;
-        height: 20%;
-    }
-
-    .scan-region::before,
-    .scan-region::after,
-    .scan-line::before,
-    .scan-line::after {
-        width: 35px;
-        height: 35px;
-    }
-}
-
-/* Desktop */
-@media (min-width: 769px) {
-    #video-container {
-        aspect-ratio: 4 / 3;
-    }
-
-    .scan-region {
-        width: 65%;
-        height: 35%;
-    }
-}
 
 

@@ -6,6 +6,7 @@
 @inject BookApiClient BooksApi
 @inject BookState BookState
 @using System.Net
+@using Reveries.Blazor.BookScanner.Exceptions
 @implements IDisposable
 
 <div class="container mt-4">
@@ -13,33 +14,34 @@
 
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6 text-center">
-            <!-- Video stream med responsiv container -->
+            
+            <!-- 📷 Video stream -->
             <div id="video-container" class="shadow-sm mb-3">
                 <video id="video" autoplay playsinline></video>
                 <div class="scan-region @(HasScannedSuccessfully ? "scan-success" : "")">
                     <div class="scan-line"></div>
                 </div>
             </div>
-            
+
+            <!-- 🔢 Input-felt -->
             <div class="input-group mt-4 isbn-input-group @(HasScannedSuccessfully ? "scan-success" : "") position-relative">
                 
-                <!-- Input-feltet -->
-                <input @bind="_scannedIsbn"
+                <input @bind="ScannedIsbn"
                        @bind:event="oninput"
                        @onkeydown="HandleKeyDown"
-                       disabled="@( !IsManualInputActive )"
+                       disabled="@(!_isManualInputActive)"
                        class="form-control text-center fs-3 py-2 ps-5 isbn-input @(HasScannedSuccessfully ? "scan-success" : "") @(_errorMessage != null ? "is-invalid" : "")"
-                       placeholder="@(IsManualInputActive ? "Enter ISBN manually" : "Scan the ISBN-barcode")"
+                       placeholder="@(_isManualInputActive ? "Enter ISBN manually" : "Scan the ISBN-barcode")"
                        maxlength="13" />
-
-                <!-- Blyant ikon på venstre side -->
-                <span class="position-absolute start-0 top-0 h-100 d-flex align-items-center ps-3" 
-                      style="cursor:pointer;" 
-                      @onclick="EnableManualInput">
-                    <i class="bi @(IsManualInputActive ? "bi-upc-scan" : "bi-pencil-square") fs-5 text-secondary"></i>
-                </span>
                 
-                <!-- Flueben ved succes -->
+                <!-- ✏️ Toggle ikon -->
+                <span class="position-absolute start-0 top-0 h-100 d-flex align-items-center ps-3"
+                      role="button"
+                      @onclick="EnableManualInput">
+                    <i class="bi @(_isManualInputActive ? "bi-upc-scan" : "bi-pencil-square") fs-5 text-secondary"></i>
+                </span>
+
+                <!-- ✅ Succesikon -->
                 @if (HasScannedSuccessfully)
                 {
                     <span class="input-group-text bg-transparent border-0 position-absolute end-0 top-0 h-100 d-flex align-items-center pe-3">
@@ -48,83 +50,79 @@
                 }
             </div>
 
-            <!-- Fejlbesked -->
-            @if (_errorMessage != null)
+            <!-- ⚠️ Fejlbesked -->
+            @if (!string.IsNullOrWhiteSpace(_errorMessage))
             {
                 <div class="alert alert-danger mt-3 d-flex align-items-center" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
-                    <div>@_errorMessage</div>
+                    @_errorMessage
                 </div>
             }
             
-            <!-- Søgeknap nedenunder -->
-            @if (IsManualInputActive && _errorMessage == null)
+            <!-- 🔍 Søgeknap -->
+            @if (_isManualInputActive && _errorMessage is null)
             {
-                <button type="button" 
+                <button type="button"
                         class="btn btn-success btn-lg w-100 mt-3 search-button"
                         @onclick="SearchManualIsbn"
-                        disabled="@(string.IsNullOrWhiteSpace(_scannedIsbn))">
-                    <i class="bi bi-search me-2"></i>
-                    Search ISBN
+                        disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
+                    <i class="bi bi-search me-2"></i> Search ISBN
                 </button>
             }
-            
+
         </div>
     </div>
 </div>
 
 @code {
     private string? _inputIsbn;
-    private string? _scannedIsbn
+    private BookDto? _bookDto;
+    private string? _errorMessage;
+    private bool _isManualInputActive;
+    private bool _isProcessing;
+    private DotNetObjectReference<Scanner>? _objRef;
+
+    private bool HasScannedSuccessfully => _bookDto is not null;
+
+    private string? ScannedIsbn
     {
         get => _inputIsbn;
         set
         {
-            if (value != null)
+            if (value is null)
             {
-                var filtered = new string(value.Where(c => char.IsDigit(c) || c == 'X' || c == 'x').ToArray());
-                _inputIsbn = filtered.ToUpper();
+                _inputIsbn = null;
+                return;
             }
-            else
-            {
-                _inputIsbn = value;
-            }
+
+            _inputIsbn = new string(value.Where(c => char.IsDigit(c) || c is 'X' or 'x').ToArray()).ToUpper();
             _errorMessage = null;
         }
     }
-    private BookDto? _bookDto;
-    private string? _errorMessage;
-    private bool HasScannedSuccessfully => _bookDto != null;
-    private DotNetObjectReference<Scanner>? _objRef;
-    private bool IsManualInputActive;
-    private bool _isProcessing;
     
     private void EnableManualInput()
     {
-        IsManualInputActive = !IsManualInputActive;
-        _scannedIsbn = string.Empty;
+        _isManualInputActive = !_isManualInputActive;
+        ScannedIsbn = string.Empty;
         _bookDto = null;
         _errorMessage = null;
     }
     
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" && IsManualInputActive)
-        {
+        if (e.Key == "Enter" && _isManualInputActive)
             await SearchManualIsbn();
-        }
     }
     
     private async Task SearchManualIsbn()
     {
-        if (!string.IsNullOrWhiteSpace(_scannedIsbn))
-        {
-            await OnIsbnScanned(_scannedIsbn);
-            if (_errorMessage == null)
-            {
-                IsManualInputActive = false;
-            }
-        }
+        if (string.IsNullOrWhiteSpace(ScannedIsbn))
+            return;
+
+        await OnIsbnScanned(ScannedIsbn);
+
+        if (_errorMessage is null)
+            _isManualInputActive = false;
     }
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -142,7 +140,7 @@
         if (_isProcessing) return;
         
         _isProcessing = true;
-        _scannedIsbn = scannedIsbn;
+        ScannedIsbn = scannedIsbn;
         _errorMessage = null;
 
         try
@@ -154,31 +152,28 @@
                 BookState.SetBook(_bookDto);
                 StateHasChanged();
                 await Task.Delay(1750);
-                Nav.NavigateTo($"/book/{_scannedIsbn}");
-            }
-            else
-            {
-                _errorMessage = "Bogen blev ikke fundet.";
-                BookState.Clear();
-                StateHasChanged();
+                Nav.NavigateTo($"/book/{ScannedIsbn}");
             }
         }
         catch (Exception ex)
         {
-            if (ex.Message.Contains("400") || ex.Message.Contains("Invalid ISBN"))
+            switch (ex)
             {
-                _errorMessage = "Ugyldigt ISBN-nummer. Tjek venligst nummeret og prøv igen.";
+                case ApiConnectionException:
+                    _errorMessage = ex.Message;
+                    break;
+                case ApiException { StatusCode: HttpStatusCode.BadRequest }:
+                    _errorMessage = "Invalid ISBN number. Please check the number and try again.";
+                    break;
+                case ApiException { StatusCode: HttpStatusCode.NotFound }:
+                    _errorMessage = "The book was not found. Try a different ISBN number.";
+                    break;
+                default:
+                    _errorMessage = "An unexpected error occurred. Please try again later.";
+                    break;
             }
-            else if (ex.Message.Contains("404") || ex.Message.Contains("not found"))
-            {
-                _errorMessage = "Bogen blev ikke fundet. Prøv et andet ISBN-nummer.";
-            }
-            else
-            {
-                _errorMessage = "Der opstod en fejl. Prøv venligst igen.";
-            }
-            
-            Console.WriteLine($"Error: {ex.GetType().Name} - {ex.Message}");
+
+            Console.WriteLine($"Fejl: {ex.Message}");
             _bookDto = null;
             BookState.Clear();
             StateHasChanged();
