@@ -1,5 +1,4 @@
-﻿
-@page "/"
+﻿@page "/"
 <PageTitle>Reveries | Book Scanner</PageTitle>
 @inject IJSRuntime Js
 @inject NavigationManager Nav
@@ -79,9 +78,7 @@
     private bool _isManualInputActive;
     private bool _isProcessing;
     private DotNetObjectReference<Scanner>? _objRef;
-
     private bool HasScannedSuccessfully => _bookDto is not null;
-
     private string? ScannedIsbn
     {
         get => _inputIsbn;

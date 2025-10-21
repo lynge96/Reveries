@@ -1,6 +1,6 @@
 @page "/book/{Isbn}"
-@using Reveries.Blazor.BookScanner.Extensions
 <PageTitle>Reveries | @(_book?.Title ?? "Book Details")</PageTitle>
+@using Reveries.Blazor.BookScanner.Components
 @inject BookApiClient BooksApi
 @inject BookState BookState
 
@@ -17,17 +17,44 @@ else
                 <img src="@_book.ImageUrl" class="img-fluid rounded shadow" alt="@_book.Title"/>
             </div>
             <div class="col-md-8">
-                <h4>@_book.Title</h4>
+                <h1 class="book-title text-uppercase">@_book.Title</h1>
+
+                @if (!string.IsNullOrEmpty(_book.Isbn13) || !string.IsNullOrEmpty(_book.Isbn10))
+                {
+                    <p><strong>ISBN:</strong> @(_book.Isbn13 ?? _book.Isbn10)</p>
+                }
                 <p><strong>Authors:</strong> @string.Join(", ", _book.Authors ?? [])</p>
-                <p><strong>ISBN:</strong> @_book.Isbn13 ?? @_book.Isbn10</p>
-                <p><strong>Pages:</strong> @_book.Pages</p>
+                <p><strong>Pages:</strong> @_book.Pages pages</p>
                 @if (!string.IsNullOrEmpty(_book.Series))
                 {
                     <p><strong>Series:</strong> @_book.Series</p>
                     <p><strong>Number in series:</strong> @_book.NumberInSeries</p>
                 }
                 <p><strong>Language:</strong> @_book.Language</p>
+                <p><strong>Publisher:</strong> @_book.Publisher</p>
                 <p><strong>Publication:</strong> @_book.PublicationDate</p>
+                <p><strong>Binding</strong> @_book.Binding</p>
+                @if (!string.IsNullOrEmpty(_book.Edition))
+                {
+                    <p><strong>Edition</strong> @_book.Edition</p>
+                }
+                <p><strong>MSRP</strong> @_book.Msrp</p>
+                @if (_book.Subjects != null)
+                {
+                    <p><strong>Subjects</strong> @string.Join(", ", _book.Subjects)</p>
+                }
+                @if (_book.DeweyDecimal!.Count > 0)
+                {
+                    <p><strong>Dewey Decimal</strong> @string.Join(", ", _book.DeweyDecimal)</p>
+                }
+                @if (_book.Dimensions != null)
+                {
+                    <p><strong>Weight</strong> @_book.Dimensions.WeightG g</p>
+                    <p><strong>Dimensions</strong> Height: @_book.Dimensions.HeightCm cm, Thickness: @_book.Dimensions.ThicknessCm cm, Width: @_book.Dimensions.WidthCm cm</p>
+                }
+                <p>
+                    <BookSourceBadge DataSource="@_book.DataSource" />
+                </p>
                 <p>
                     <strong>Synopsis:</strong> @_book.ToSynopsisMarkup()
                 </p>
@@ -52,4 +79,5 @@ else
             _book = await BooksApi.GetAsync(Isbn);
         }
     }
+
 }

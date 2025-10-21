@@ -1,0 +1,36 @@
+@namespace Reveries.Blazor.BookScanner.Components
+
+<span class="badge @GetBadgeClass()">
+    @GetBadgeLabel()
+</span>
+
+@code {
+    [Parameter]
+    public string? DataSource { get; set; }
+
+    private string GetBadgeClass()
+    {
+        return DataSource switch
+        {
+            "Database" => "bg-primary",
+            "IsbndbApi" => "bg-warning text-dark",
+            "GoogleBooksApi" => "bg-danger",
+            "CombinedBookApi" => "bg-success",
+            "Cache" => "bg-secondary",
+            _ => "bg-light text-dark"
+        };
+    }
+
+    private string GetBadgeLabel()
+    {
+        return DataSource switch
+        {
+            "Database" => "Database",
+            "IsbndbApi" => "ISBNdb",
+            "GoogleBooksApi" => "Google Books",
+            "CombinedBookApi" => "Combined",
+            "Cache" => "Cache",
+            _ => "Unknown"
+        };
+    }
+}
