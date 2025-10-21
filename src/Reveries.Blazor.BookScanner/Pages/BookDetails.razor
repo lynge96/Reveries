@@ -1,9 +1,8 @@
 @page "/book/{Isbn}"
+@using Reveries.Blazor.BookScanner.Extensions
 <PageTitle>Reveries | @(_book?.Title ?? "Book Details")</PageTitle>
 @inject BookApiClient BooksApi
 @inject BookState BookState
-
-<h3>Book Details</h3>
 
 @if (_book == null)
 {
@@ -11,24 +10,30 @@
 }
 else
 {
-    <div class="row mt-3">
-        <div class="col-md-4">
-            <img src="@_book.ImageUrl" class="img-fluid rounded shadow" alt="@_book.Title" />
+    <div class="container mt-4">
+        
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <img src="@_book.ImageUrl" class="img-fluid rounded shadow" alt="@_book.Title"/>
+            </div>
+            <div class="col-md-8">
+                <h4>@_book.Title</h4>
+                <p><strong>Authors:</strong> @string.Join(", ", _book.Authors ?? [])</p>
+                <p><strong>ISBN:</strong> @_book.Isbn13 ?? @_book.Isbn10</p>
+                <p><strong>Pages:</strong> @_book.Pages</p>
+                @if (!string.IsNullOrEmpty(_book.Series))
+                {
+                    <p><strong>Series:</strong> @_book.Series</p>
+                    <p><strong>Number in series:</strong> @_book.NumberInSeries</p>
+                }
+                <p><strong>Language:</strong> @_book.Language</p>
+                <p><strong>Publication:</strong> @_book.PublicationDate</p>
+                <p>
+                    <strong>Synopsis:</strong> @_book.ToSynopsisMarkup()
+                </p>
+            </div>
         </div>
-        <div class="col-md-8">
-            <h4>@_book.Title</h4>
-            <p><strong>Authors:</strong> @string.Join(", ", _book.Authors ?? [])</p>
-            <p><strong>ISBN:</strong> @_book.Isbn13</p>
-            <p><strong>Pages:</strong> @_book.Pages</p>
-            @if (!string.IsNullOrEmpty(_book.Series))
-            {
-                <p><strong>Series:</strong> @_book.Series</p>
-                <p><strong>Number in series:</strong> @_book.NumberInSeries</p>
-            }
-            <p><strong>Language:</strong> @_book.Language</p>
-            <p><strong>Publication:</strong> @_book.PublicationDate</p>
-            <p><strong>Synopsis:</strong> @_book.Synopsis</p>
-        </div>
+
     </div>
 }
 

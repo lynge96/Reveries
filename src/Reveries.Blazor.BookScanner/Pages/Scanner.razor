@@ -5,12 +5,10 @@
 @inject NavigationManager Nav
 @inject BookApiClient BooksApi
 @inject BookState BookState
-@using System.Net
-@using Reveries.Blazor.BookScanner.Exceptions
 @implements IDisposable
 
 <div class="container mt-4">
-    <h1 class="display-5 text-center mb-3">ISBN Scanner</h1>
+    <h1 class="display-5 text-center mb-3 mt-5">ISBN Scanner</h1>
 
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6 text-center">
@@ -172,8 +170,7 @@
                     _errorMessage = "An unexpected error occurred. Please try again later.";
                     break;
             }
-
-            Console.WriteLine($"Fejl: {ex.Message}");
+            
             _bookDto = null;
             BookState.Clear();
             StateHasChanged();
