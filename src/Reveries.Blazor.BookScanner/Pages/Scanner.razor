@@ -4,14 +4,18 @@
 @inject NavigationManager Nav
 @inject BookApiClient BooksApi
 @inject BookState BookState
+
 @implements IDisposable
 
 <div class="container mt-4">
-    <h1 class="display-5 text-center mb-3 mt-5">ISBN Scanner</h1>
 
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6 text-center">
             
+            <div>
+                <h1 class="isbn-title mb-3 mt-2">ISBN Scanner</h1>
+            </div>
+
             <!-- 📷 Video stream -->
             <div id="video-container" class="shadow-sm mb-3">
                 <video id="video" autoplay playsinline></video>
@@ -22,15 +26,15 @@
 
             <!-- 🔢 Input-felt -->
             <div class="input-group mt-4 isbn-input-group @(HasScannedSuccessfully ? "scan-success" : "") position-relative">
-                
+
                 <input @bind="ScannedIsbn"
                        @bind:event="oninput"
                        @onkeydown="HandleKeyDown"
                        disabled="@(!_isManualInputActive)"
                        class="form-control text-center fs-3 py-2 ps-5 isbn-input @(HasScannedSuccessfully ? "scan-success" : "") @(_errorMessage != null ? "is-invalid" : "")"
                        placeholder="@(_isManualInputActive ? "Enter ISBN manually" : "Scan the ISBN-barcode")"
-                       maxlength="13" />
-                
+                       maxlength="13"/>
+
                 <!-- ✏️ Toggle ikon -->
                 <span class="position-absolute start-0 top-0 h-100 d-flex align-items-center ps-3"
                       role="button"
@@ -55,16 +59,24 @@
                     @_errorMessage
                 </div>
             }
-            
-            <!-- 🔍 Søgeknap -->
-            @if (_isManualInputActive && _errorMessage is null)
+
+            <!-- 🔍 Søgeknap eller spinner -->
+            @if (_isManualInputActive)
             {
-                <button type="button"
-                        class="btn btn-success btn-lg w-100 mt-3 search-button"
-                        @onclick="SearchManualIsbn"
-                        disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
-                    <i class="bi bi-search me-2"></i> Search ISBN
-                </button>
+                if (_isProcessing)
+                {
+                    <!-- Spinner vises her -->
+                    <LoadingSpinner Message="Loading book details..."/>
+                }
+                else if (_errorMessage is null)
+                {
+                    <button type="button"
+                            class="btn btn-success btn-lg w-100 mt-3 search-button"
+                            @onclick="SearchManualIsbn"
+                            disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
+                        <i class="bi bi-search me-2"></i> Search ISBN
+                    </button>
+                }
             }
 
         </div>

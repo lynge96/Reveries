@@ -1,0 +1,17 @@
+.spinner-border {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.spinner-wrapper {
+    min-height: 56px;
+}
+
+div[d-flex] {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

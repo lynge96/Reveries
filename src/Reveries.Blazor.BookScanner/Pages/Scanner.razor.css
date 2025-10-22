@@ -1,6 +1,10 @@
-/* ------------------------------------------------------------ */
-/* 🎥 Video container & scanner-region                            */
-/* ------------------------------------------------------------ */
+.isbn-title {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 2rem;
+    color: #9152E7FF;
+}
+
 #video-container {
     position: relative;
     width: 100%;
@@ -19,7 +23,6 @@
     display: block;
 }
 
-/* Sigtekorn / scan-guide */
 .scan-region {
     position: absolute;
     top: 50%;
@@ -39,7 +42,6 @@
     border: 3px solid rgba(230, 206, 206, 0.7);
 }
 
-/* Hjørner */
 .scan-region::before {
     top: 0;
     left: 0;
@@ -76,7 +78,6 @@
     border-bottom-right-radius: 8px;
 }
 
-/* Succesfarve */
 .scan-region.scan-success::before,
 .scan-region.scan-success::after,
 .scan-region.scan-success .scan-line::before,
@@ -84,9 +85,6 @@
     border-color: rgba(40, 167, 69, 0.9);
 }
 
-/* ------------------------------------------------------------ */
-/* 🔢 ISBN input group                                           */
-/* ------------------------------------------------------------ */
 .isbn-input-group input {
     border-top-right-radius: 0.25rem;
     border-bottom-right-radius: 0.25rem;
@@ -104,16 +102,13 @@
     box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
 }
 
-/* Ikoner */
 .isbn-input-group .input-group-text {
     background: transparent;
     border: none;
     pointer-events: none;
 }
 
-/* ------------------------------------------------------------ */
-/* 🔍 Search button                                              */
-/* ------------------------------------------------------------ */
+
 .search-button {
     font-weight: 600;
     padding: 0.75rem 1.5rem;
@@ -126,9 +121,6 @@
     cursor: not-allowed;
 }
 
-/* ------------------------------------------------------------ */
-/* 📱 Responsive tweaks                                           */
-/* ------------------------------------------------------------ */
 @media (max-width: 768px) {
     #video-container {
         aspect-ratio: 9 / 16;

@@ -1,15 +1,52 @@
-.synopsis p, .synopsis br {
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
-}
-
 .book-title {
     font-family: 'Poppins', 'Inter', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 500;
+    font-size: 2rem;
+    font-weight: 600;
     text-align: left;
-    color: #15a855;
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.5px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    color: #9152e7;
+}
+
+.book-meta p {
+    margin-bottom: 0.4rem;
+    font-size: 1rem;
+}
+
+.book-details-container {
+    max-width: 1000px;
+}
+
+.synopsis {
+    line-height: 1.6;
+}
+
+.synopsis-text {
+    white-space: pre-line;
+}
+
+.btn-link {
+    font-size: 0.9rem;
+}
+
+.book-cover {
+    max-width: 100%;
+    height: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .book-title {
+        font-size: 1.75rem;
+    }
+
+    .book-cover {
+        max-height: 550px;
+        object-fit: contain;
+    }
+}
+
+@media (hover: hover) {
+    .book-cover:hover {
+        transform: scale(1.01);
+        box-shadow: 0 40px 40px rgba(0, 0, 0, 0.2);
+    }
 }

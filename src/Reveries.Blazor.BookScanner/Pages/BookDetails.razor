@@ -1,72 +1,115 @@
 @page "/book/{Isbn}"
 <PageTitle>Reveries | @(_book?.Title ?? "Book Details")</PageTitle>
-@using Reveries.Blazor.BookScanner.Components
 @inject BookApiClient BooksApi
 @inject BookState BookState
 
 @if (_book == null)
 {
-    <p>Loading...</p>
+    <LoadingSpinner Message="Loading book details..." />
 }
 else
 {
-    <div class="container mt-4">
-        
-        <div class="row mt-5">
-            <div class="col-md-4">
-                <img src="@_book.ImageUrl" class="img-fluid rounded shadow" alt="@_book.Title"/>
-            </div>
-            <div class="col-md-8">
-                <h1 class="book-title text-uppercase">@_book.Title</h1>
+    <div class="container py-4 mt-3 book-details-container">
 
-                @if (!string.IsNullOrEmpty(_book.Isbn13) || !string.IsNullOrEmpty(_book.Isbn10))
-                {
-                    <p><strong>ISBN:</strong> @(_book.Isbn13 ?? _book.Isbn10)</p>
-                }
-                <p><strong>Authors:</strong> @string.Join(", ", _book.Authors ?? [])</p>
-                <p><strong>Pages:</strong> @_book.Pages pages</p>
+        <div class="row g-2">
+            <!-- Image -->
+            <div class="col-12 col-md-5 position-relative text-center mb-3">
+                <img src="@_book.ImageUrl"
+                     class="book-cover img-fluid rounded shadow"
+                     alt="@_book.Title" />
+            </div>
+
+            <!-- Book Details -->
+            <div class="col-12 col-md-7">
+                <!-- Title and Series -->
+                <div>
+                    <h1 class="book-title mb-1">@_book.Title</h1>
+                </div>
                 @if (!string.IsNullOrEmpty(_book.Series))
                 {
-                    <p><strong>Series:</strong> @_book.Series</p>
-                    <p><strong>Number in series:</strong> @_book.NumberInSeries</p>
+                    <h5 class="text-muted mb-3">
+                        Part of "@_book.Series"@(_book.NumberInSeries.HasValue ? $" - Book #{_book.NumberInSeries}" : "")
+                    </h5>
                 }
-                <p><strong>Language:</strong> @_book.Language</p>
-                <p><strong>Publisher:</strong> @_book.Publisher</p>
-                <p><strong>Publication:</strong> @_book.PublicationDate</p>
-                <p><strong>Binding</strong> @_book.Binding</p>
-                @if (!string.IsNullOrEmpty(_book.Edition))
+                
+                <!-- Meta -->
+                <div class="book-meta">
+                    <p><strong>Authors:</strong> @string.Join(", ", _book.Authors ?? [])</p>
+                    @if (!string.IsNullOrEmpty(_book.Isbn13) || !string.IsNullOrEmpty(_book.Isbn10))
+                    {
+                        <p><strong>ISBN:</strong> @(_book.Isbn13 ?? _book.Isbn10)</p>
+                    }
+                    <p><strong>Publisher:</strong> @_book.Publisher</p>
+                    <p><strong>Publication:</strong> @_book.PublicationDate</p>
+                    <p><strong>Language:</strong> @_book.Language</p>
+                    <p><strong>Pages:</strong> @_book.Pages</p>
+                    <p><strong>Binding:</strong> @_book.Binding</p>
+                    @if (!string.IsNullOrEmpty(_book.Edition))
+                    {
+                        <p><strong>Edition:</strong> @_book.Edition</p>
+                    }
+                    @if (_book.Subjects?.Any() == true)
+                    {
+                        <p><strong>Subjects:</strong> @string.Join(", ", _book.Subjects)</p>
+                    }
+                    @if (_book.DeweyDecimal?.Any() == true)
+                    {
+                        <p><strong>Dewey Decimal:</strong> @string.Join(", ", _book.DeweyDecimal)</p>
+                    }
+                    @if (_book.Dimensions != null)
+                    {
+                        <p><strong>Dimensions:</strong> @_book.Dimensions.HeightCm cm × @_book.Dimensions.WidthCm cm × @_book.Dimensions.ThicknessCm cm</p>
+                    }
+                    @if (_book.Dimensions?.WeightG != null)
+                    {
+                        <p><strong>Weight:</strong> @_book.Dimensions.WeightG g</p>
+                    }
+                    @if (_book.Msrp != null)
+                    {
+                        <p><strong>MSRP:</strong> @_book.Msrp</p>
+                    }
+                </div>
+                    <!-- Source badge-->
+                    <BookSourceBadge DataSource="@_book.DataSource"/>
+
+                <!-- Synopsis -->
+                @if (!string.IsNullOrEmpty(_book.Synopsis))
                 {
-                    <p><strong>Edition</strong> @_book.Edition</p>
+                    <p><strong>Synopsis:</strong></p>
+                    <div class="synopsis">
+                        <p class="synopsis-text mb-1">
+                            @(_showFullSynopsis
+                                ? _book.Synopsis
+                                : _book.Synopsis.Length > MaxSynopsisLength
+                                    ? _book.Synopsis.Substring(0, MaxSynopsisLength) + "..."
+                                    : _book.Synopsis)
+                        </p>
+
+                        @if (_book.Synopsis.Length > MaxSynopsisLength)
+                        {
+                            <button class="btn btn-link p-0 text-muted fw-semibold"
+                                    @onclick="ToggleSynopsis">
+                                @(_showFullSynopsis ? "Show less" : "Show more")
+                            </button>
+                        }
+                    </div>
                 }
-                <p><strong>MSRP</strong> @_book.Msrp</p>
-                @if (_book.Subjects != null)
-                {
-                    <p><strong>Subjects</strong> @string.Join(", ", _book.Subjects)</p>
-                }
-                @if (_book.DeweyDecimal!.Count > 0)
-                {
-                    <p><strong>Dewey Decimal</strong> @string.Join(", ", _book.DeweyDecimal)</p>
-                }
-                @if (_book.Dimensions != null)
-                {
-                    <p><strong>Weight</strong> @_book.Dimensions.WeightG g</p>
-                    <p><strong>Dimensions</strong> Height: @_book.Dimensions.HeightCm cm, Thickness: @_book.Dimensions.ThicknessCm cm, Width: @_book.Dimensions.WidthCm cm</p>
-                }
-                <p>
-                    <BookSourceBadge DataSource="@_book.DataSource" />
-                </p>
-                <p>
-                    <strong>Synopsis:</strong> @_book.ToSynopsisMarkup()
-                </p>
+
             </div>
         </div>
-
     </div>
 }
 
 @code {
     [Parameter] public string? Isbn { get; set; }
     private BookDto? _book;
+    private bool _showFullSynopsis;
+    private const int MaxSynopsisLength = 300;
+
+    private void ToggleSynopsis()
+    {
+        _showFullSynopsis = !_showFullSynopsis;
+    }
 
     protected override async Task OnInitializedAsync()
     {
