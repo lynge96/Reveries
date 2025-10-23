@@ -64,7 +64,10 @@ public class Book : BaseEntity
         decimal? msrp,
         string? binding,
         string? edition,
-        BookDimensions? dimensions,
+        decimal? weight,
+        decimal? thickness,
+        decimal? height,
+        decimal? width,
         IEnumerable<string>? subjects,
         IEnumerable<string>? deweyDecimals,
         DataSource dataSource
@@ -97,10 +100,10 @@ public class Book : BaseEntity
             Binding = binding?.NormalizeBinding(),
             Edition = edition,
             Dimensions = BookDimensions.Create(
-                dimensions?.HeightCm, 
-                dimensions?.WidthCm, 
-                dimensions?.ThicknessCm, 
-                dimensions?.WeightG),
+                height, 
+                width, 
+                thickness, 
+                weight),
             Subjects = (subjects ?? [])
                 .Select(Subject.Create)
                 .ToList(),
