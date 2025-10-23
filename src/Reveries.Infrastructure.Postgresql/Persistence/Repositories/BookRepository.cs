@@ -157,11 +157,11 @@ public class BookRepository : IBookRepository
 
     private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)
     {
-        var dtoList = await QueryBooksDtoAsync(sql, parameters);
-        return dtoList.Select(BookAggregateEntityMapperExtensions.MapAggregateDtoToDomain).ToList();
+        var bookAggregateList = await GetBookAggregatesAsync(sql, parameters);
+        return bookAggregateList.Select(BookAggregateEntityMapperExtensions.MapAggregateDtoToDomain).ToList();
     }
     
-    private async Task<List<BookAggregateEntity>> QueryBooksDtoAsync(string sql, object? parameters = null)
+    private async Task<List<BookAggregateEntity>> GetBookAggregatesAsync(string sql, object? parameters = null)
     {
         var connection = await _dbContext.GetConnectionAsync();
         var bookDictionary = new Dictionary<int, BookAggregateEntity>();
@@ -170,26 +170,11 @@ public class BookRepository : IBookRepository
             sql,
             (bookEntity, publisherEntity, authorEntity, subjectEntity, dimensionsEntity, deweyDecimalEntity, seriesEntity) =>
             {
-                if (!bookDictionary.TryGetValue(bookEntity.Id, out var bookEntry))
-                {
-                    bookEntry = new BookAggregateEntity
-                    {
-                        Book = bookEntity,
-                        Publisher = publisherEntity,
-                        Dimensions = dimensionsEntity,
-                        Series = seriesEntity
-                    };
-                    bookDictionary.Add(bookEntity.Id, bookEntry);
-                }
+                var aggregate = GetOrCreateAggregate(bookDictionary, bookEntity, publisherEntity, dimensionsEntity, seriesEntity);
 
-                if (bookEntry.Authors != null && bookEntry.Authors.All(a => a.AuthorId != authorEntity.AuthorId))
-                    bookEntry.Authors.Add(authorEntity);
-
-                if (bookEntry.Subjects != null && bookEntry.Subjects.All(s => s.SubjectId != subjectEntity.SubjectId))
-                    bookEntry.Subjects.Add(subjectEntity);
-
-                if (bookEntry.DeweyDecimals != null && bookEntry.DeweyDecimals.All(dd => dd.Code != deweyDecimalEntity.Code))
-                    bookEntry.DeweyDecimals.Add(deweyDecimalEntity);
+                AddIfNotNull(aggregate.Authors, authorEntity, a => a.AuthorId);
+                AddIfNotNull(aggregate.Subjects, subjectEntity, s => s.SubjectId);
+                AddIfNotNull(aggregate.DeweyDecimals, deweyDecimalEntity, d => d.Code);
 
                 return bookEntity;
             },
@@ -198,6 +183,36 @@ public class BookRepository : IBookRepository
         );
 
         return bookDictionary.Values.ToList();
+    }
+
+    private static BookAggregateEntity GetOrCreateAggregate(
+        IDictionary<int, BookAggregateEntity> dict,
+        BookEntity bookEntity,
+        PublisherEntity publisherEntity,
+        DimensionsEntity dimensionsEntity,
+        SeriesEntity seriesEntity)
+    {
+        if (!dict.TryGetValue(bookEntity.Id, out var bookAggregateEntity))
+        {
+            bookAggregateEntity = new BookAggregateEntity
+            {
+                Book = bookEntity,
+                Publisher = publisherEntity,
+                Dimensions = dimensionsEntity,
+                Series = seriesEntity
+            };
+            dict.Add(bookEntity.Id, bookAggregateEntity);
+        }
+        return bookAggregateEntity;
+    }
+
+    private static void AddIfNotNull<T>(ICollection<T>? collection, T? item, Func<T, object> keySelector)
+    {
+        if (collection == null || item == null)
+            return;
+
+        if (!collection.Any(x => keySelector(x).Equals(keySelector(item))))
+            collection.Add(item);
     }
 
 }
