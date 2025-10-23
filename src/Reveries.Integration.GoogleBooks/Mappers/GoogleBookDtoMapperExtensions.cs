@@ -1,3 +1,4 @@
+using System.Globalization;
 using Reveries.Core.Enums;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
@@ -53,5 +54,17 @@ public static class GoogleBookDtoMapperExtensions
             .Select(c => c.ToTitleCase())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static decimal? ParseDimension(this string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var numericPart = value.Replace("cm", "", StringComparison.OrdinalIgnoreCase).Trim();
+
+        return decimal.TryParse(numericPart, NumberStyles.Any, CultureInfo.InvariantCulture, out var result)
+            ? result
+            : null;
     }
 }
