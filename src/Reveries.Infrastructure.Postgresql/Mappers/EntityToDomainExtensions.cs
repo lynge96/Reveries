@@ -19,7 +19,6 @@ public static class EntityToDomainExtensions
             PublishDate = entity.PublishDate,
             Synopsis = entity.Synopsis,
             Language = entity.Language,
-            LanguageIso639 = entity.LanguageIso639,
             Edition = entity.Edition,
             Binding = entity.Binding,
             ImageUrl = entity.ImageUrl,
@@ -69,7 +68,7 @@ public static class EntityToDomainExtensions
             Id = entity.AuthorId,
             FirstName = entity.FirstName,
             LastName = entity.LastName,
-            NormalizedName = entity.NormalizedName,
+            NormalizedName = entity.NormalizedName!,
             DateCreated = entity.DateCreatedAuthor
         };
     }
@@ -79,7 +78,7 @@ public static class EntityToDomainExtensions
         return new Subject
         {
             Id = entity.SubjectId,
-            Genre = entity.Genre,
+            Genre = entity.Genre!,
             DateCreated = entity.DateCreatedSubject
         };
     }

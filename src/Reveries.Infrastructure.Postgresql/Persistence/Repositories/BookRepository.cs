@@ -109,11 +109,11 @@ public class BookRepository : IBookRepository
         const string sql = """
                                      INSERT INTO books (
                                          isbn13, isbn10, title, page_count, is_read, publisher_id,
-                                         language_iso639, language, publication_date, synopsis,
+                                         language, publication_date, synopsis,
                                          image_url, msrp, binding, edition, image_thumbnail, series_id, series_number
                                      ) VALUES (
                                          @Isbn13, @Isbn10, @Title, @Pages, @IsRead, @PublisherId,
-                                         @LanguageIso639, @Language, @PublishDate, @Synopsis,
+                                         @Language, @PublishDate, @Synopsis,
                                          @ImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnail, @SeriesId, @SeriesNumber
                                      )
                                      RETURNING id;
@@ -168,30 +168,30 @@ public class BookRepository : IBookRepository
 
         await connection.QueryAsync<BookEntity, PublisherEntity, AuthorEntity, SubjectEntity, DimensionsEntity, DeweyDecimalEntity, SeriesEntity, BookEntity>(
             sql,
-            (bookDto, publisher, author, subject, dimensions, deweyDecimal, series) =>
+            (bookEntity, publisherEntity, authorEntity, subjectEntity, dimensionsEntity, deweyDecimalEntity, seriesEntity) =>
             {
-                if (!bookDictionary.TryGetValue(bookDto.Id, out var bookEntry))
+                if (!bookDictionary.TryGetValue(bookEntity.Id, out var bookEntry))
                 {
                     bookEntry = new BookAggregateEntity
                     {
-                        Book = bookDto,
-                        Publisher = publisher,
-                        Dimensions = dimensions,
-                        Series = series
+                        Book = bookEntity,
+                        Publisher = publisherEntity,
+                        Dimensions = dimensionsEntity,
+                        Series = seriesEntity
                     };
-                    bookDictionary.Add(bookDto.Id, bookEntry);
+                    bookDictionary.Add(bookEntity.Id, bookEntry);
                 }
 
-                if (author != null && !bookEntry.Authors.Any(a => a.AuthorId == author.AuthorId))
-                    bookEntry.Authors.Add(author);
+                if (bookEntry.Authors != null && bookEntry.Authors.All(a => a.AuthorId != authorEntity.AuthorId))
+                    bookEntry.Authors.Add(authorEntity);
 
-                if (subject != null && !bookEntry.Subjects.Any(s => s.SubjectId == subject.SubjectId))
-                    bookEntry.Subjects.Add(subject);
+                if (bookEntry.Subjects != null && bookEntry.Subjects.All(s => s.SubjectId != subjectEntity.SubjectId))
+                    bookEntry.Subjects.Add(subjectEntity);
 
-                if (deweyDecimal != null && !bookEntry.DeweyDecimals.Any(dd => dd.Code == deweyDecimal.Code))
-                    bookEntry.DeweyDecimals.Add(deweyDecimal);
+                if (bookEntry.DeweyDecimals != null && bookEntry.DeweyDecimals.All(dd => dd.Code != deweyDecimalEntity.Code))
+                    bookEntry.DeweyDecimals.Add(deweyDecimalEntity);
 
-                return bookDto;
+                return bookEntity;
             },
             param: parameters,
             splitOn: "publisherid,authorid,subjectid,heightcm,code,seriesid"

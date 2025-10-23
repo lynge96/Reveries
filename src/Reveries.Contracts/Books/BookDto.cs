@@ -10,7 +10,6 @@ public class BookDto
     public List<string>? Authors { get; set; }
     public string? Publisher { get; set; }
     public string? Language { get; set; }
-    public string? LanguageCode { get; set; }
     public int? Pages { get; set; }
     public string? PublicationDate { get; set; }
     public string? Synopsis { get; set; }

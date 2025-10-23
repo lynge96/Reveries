@@ -19,7 +19,6 @@ public static class DomainToEntityExtensions
             PublishDate = entity.PublishDate,
             Synopsis = entity.Synopsis,
             Language = entity.Language,
-            LanguageIso639 = entity.LanguageIso639,
             Edition = entity.Edition,
             Binding = entity.Binding,
             ImageUrl = entity.ImageUrl,

@@ -13,9 +13,9 @@ public static class BookAggregateEntityMapperExtensions
         book.Series = entity.Series?.ToDomain();
         book.Dimensions = entity.Dimensions?.ToDomain();
 
-        book.Authors = entity.Authors.Select(a => a.ToDomain()).ToList();
-        book.Subjects = entity.Subjects.Select(s => s.ToDomain()).ToList();
-        book.DeweyDecimals = entity.DeweyDecimals.Select(dd => dd.ToDomain()).ToList();
+        if (entity.Authors != null) book.Authors = entity.Authors.Select(a => a.ToDomain()).ToList();
+        book.Subjects = entity.Subjects?.Select(s => s.ToDomain()).ToList();
+        book.DeweyDecimals = entity.DeweyDecimals?.Select(dd => dd.ToDomain()).ToList();
 
         return book;
     }

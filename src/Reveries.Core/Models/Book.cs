@@ -15,7 +15,6 @@ public class Book : BaseEntity
     public int? Pages { get; init; }
     public bool IsRead { get; set; }
     public Publisher? Publisher { get; set; }
-    public string? LanguageIso639 { get; init; }
     public string? Language { get; init; }
     public DateTime? PublishDate { get; init; }
     public string PublishDateFormatted => PublishDate?
@@ -91,7 +90,6 @@ public class Book : BaseEntity
             IsRead = false,
             PublishDate = publishDate.ParsePublishDate(),
             Publisher = Publisher.Create(publisher),
-            LanguageIso639 = languageIso639,
             Language = languageIso639.GetLanguageName(),
             Synopsis = synopsis.CleanHtml(),
             ImageThumbnail = imageThumbnail,

@@ -16,7 +16,6 @@ public static class BookMapper
             Authors = book.Authors.Select(a => a.NormalizedName.ToTitleCase()).ToList(),
             Publisher = book.Publisher?.Name,
             Language = book.Language,
-            LanguageCode = book.LanguageIso639,
             PublicationDate = book.PublishDateFormatted,
             Pages = book.Pages,
             Synopsis = book.Synopsis,
