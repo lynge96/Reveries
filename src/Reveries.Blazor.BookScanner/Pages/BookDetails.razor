@@ -15,16 +15,21 @@ else
             <!-- Image -->
             <div class="col-12 col-md-5 position-relative text-center mb-3">
                 <img src="@_book.ImageUrl"
-                     class="book-cover img-fluid rounded shadow"
+                     class="book-cover img-fluid rounded shadow mb-3"
                      alt="@_book.Title" />
+                
+                <!-- Source badge-->
+                <BookSourceBadge DataSource="@_book.DataSource"/>
             </div>
 
             <!-- Book Details -->
             <div class="col-12 col-md-7">
-                <!-- Title and Series -->
+                <!-- Title -->
                 <div>
                     <h1 class="book-title mb-1">@_book.Title</h1>
                 </div>
+                
+                <!-- Series -->
                 @if (!string.IsNullOrEmpty(_book.Series))
                 {
                     <h5 class="text-muted mb-3">
@@ -32,62 +37,160 @@ else
                     </h5>
                 }
                 
+                <!-- Author -->
+                <h5 class="text-muted mb-2">
+                    <i class="bi bi-person"></i>
+                    by @string.Join(", ", _book.Authors ?? [])
+                </h5>
+                
+                <!-- Subjects -->
+                @if (_book.Subjects?.Any() == true)
+                {
+                    <div>
+                        @foreach (var subject in _book.Subjects)
+                        {
+                            <span class="badge text-bg-secondary me-2 mb-1">@subject</span>
+                        }
+                    </div>
+                }
+                
+                <hr class="my-3 border border-secondary opacity-25 rounded" />
+                
                 <!-- Meta -->
-                <div class="book-meta">
-                    <p><strong>Authors:</strong> @string.Join(", ", _book.Authors ?? [])</p>
-                    @if (!string.IsNullOrEmpty(_book.Isbn13) || !string.IsNullOrEmpty(_book.Isbn10))
-                    {
-                        <p><strong>ISBN:</strong> @(_book.Isbn13 ?? _book.Isbn10)</p>
-                    }
-                    <p><strong>Publisher:</strong> @_book.Publisher</p>
-                    <p><strong>Publication:</strong> @_book.PublicationDate</p>
-                    <p><strong>Language:</strong> @_book.Language</p>
-                    <p><strong>Pages:</strong> @_book.Pages</p>
-                    <p><strong>Binding:</strong> @_book.Binding</p>
-                    @if (!string.IsNullOrEmpty(_book.Edition))
-                    {
-                        <p><strong>Edition:</strong> @_book.Edition</p>
-                    }
-                    @if (_book.Subjects?.Any() == true)
-                    {
-                        <p><strong>Subjects:</strong> @string.Join(", ", _book.Subjects)</p>
-                    }
+                <div class="book-meta book-grid mb-3">
+                    <!-- ISBN -->
+                    <div class="book-info">
+                        <i class="bi bi-hash icon"></i>
+                        <div>
+                            <div class="label">ISBN</div>
+                            <div class="value">
+                                @(_book.Isbn13 is not null && _book.Isbn13 != string.Empty 
+                                    ? _book.Isbn13 
+                                    : _book.Isbn10)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pages -->
+                    <div class="book-info">
+                        <i class="bi bi-book icon"></i>
+                        <div>
+                            <div class="label">Pages</div>
+                            <div class="value">@_book.Pages</div>
+                        </div>
+                    </div>
+
+                    <!-- Publisher -->
+                    <div class="book-info">
+                        <i class="bi bi-shop icon"></i>
+                        <div>
+                            <div class="label">Publisher</div>
+                            <div class="value">@_book.Publisher</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Publication date -->
+                    <div class="book-info">
+                        <i class="bi bi-calendar icon"></i>
+                        <div>
+                            <div class="label">Publication Date</div>
+                            <div class="value">@_book.FormattedDate()</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Language -->
+                    <div class="book-info">
+                        <i class="bi bi-globe icon"></i>
+                        <div>
+                            <div class="label">Language</div>
+                            <div class="value">@_book.Language</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Binding -->
+                    <div class="book-info">
+                        <i class="bi bi-journal icon"></i>
+                        <div>
+                            <div class="label">Binding</div>
+                            <div class="value">@_book.Binding</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Edition -->
+                    <div class="book-info">
+                        <i class="bi bi-tag icon"></i>
+                        <div>
+                            <div class="label">Edition</div>
+                            <div class="value">@_book.Edition</div>
+                        </div>
+                    </div>
+
+                    <!-- MSRP -->
+                    <div class="book-info">
+                        <i class="bi bi-currency-dollar icon"></i>
+                        <div>
+                            <div class="label">Price</div>
+                            <div class="value">@_book.Msrp</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dimensions -->
+                    <div class="book-info">
+                        <i class="bi bi-rulers icon"></i>
+                        <div>
+                            <div class="label">Dimensions</div>
+                            <div class="value">@_book.Dimensions?.HeightCm × @_book.Dimensions?.WidthCm × @_book.Dimensions?.ThicknessCm cm</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Weight -->
+                    <div class="book-info">
+                        <i class="bi bi-box icon"></i>
+                        <div>
+                            <div class="label">Weight</div>
+                            @if (_book.Dimensions?.WeightG != null)
+                            {
+                                <div class="value">@_book.Dimensions?.WeightG g</div>
+                            }
+                        </div>
+                    </div>
+                    
                     @if (_book.DeweyDecimal?.Any() == true)
                     {
-                        <p><strong>Dewey Decimal:</strong> @string.Join(", ", _book.DeweyDecimal)</p>
-                    }
-                    @if (_book.Dimensions != null)
-                    {
-                        <p><strong>Dimensions:</strong> @_book.Dimensions.HeightCm cm × @_book.Dimensions.WidthCm cm × @_book.Dimensions.ThicknessCm cm</p>
-                    }
-                    @if (_book.Dimensions?.WeightG != null)
-                    {
-                        <p><strong>Weight:</strong> @_book.Dimensions.WeightG g</p>
-                    }
-                    @if (_book.Msrp != null)
-                    {
-                        <p><strong>MSRP:</strong> @_book.Msrp</p>
+                        <!-- Dewey Decimal -->
+                        <div class="book-info">
+                            <i class="bi bi-123 icon"></i>
+                            <div>
+                                <div class="label">Dewey Decimal</div>
+                                @if (_book.DeweyDecimal != null)
+                                {
+                                    <div class="value">@string.Join(", ", _book.DeweyDecimal)</div>
+                                }
+                            </div>
+                        </div>
                     }
                 </div>
-                    <!-- Source badge-->
-                    <BookSourceBadge DataSource="@_book.DataSource"/>
-
+                
+                <hr class="my-3 border border-secondary opacity-25 rounded" />
+                
                 <!-- Synopsis -->
                 @if (!string.IsNullOrEmpty(_book.Synopsis))
                 {
-                    <p><strong>Synopsis:</strong></p>
+                    <div class="synopsis-title mb-2">
+                        Synopsis
+                    </div>
                     <div class="synopsis">
                         <p class="synopsis-text mb-1">
                             @(_showFullSynopsis
-                                ? _book.Synopsis
+                                ? _book.Synopsis.ToMarkup()
                                 : _book.Synopsis.Length > MaxSynopsisLength
-                                    ? _book.Synopsis.Substring(0, MaxSynopsisLength) + "..."
-                                    : _book.Synopsis)
+                                    ? _book.Synopsis.Substring(0, MaxSynopsisLength).ToMarkup()
+                                    : _book.Synopsis.ToMarkup())
                         </p>
 
                         @if (_book.Synopsis.Length > MaxSynopsisLength)
                         {
-                            <button class="btn btn-link p-0 text-muted fw-semibold"
+                            <button class="btn btn-link p-0 text-muted fw-semibold mb-5"
                                     @onclick="ToggleSynopsis">
                                 @(_showFullSynopsis ? "Show less" : "Show more")
                             </button>
@@ -122,5 +225,4 @@ else
             _book = await BooksApi.GetAsync(Isbn);
         }
     }
-
 }
