@@ -11,6 +11,39 @@
     font-size: 1rem;
 }
 
+.author-info{
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.author-icon{
+    font-size: 1.3rem;
+    color: #0f172a;
+}
+
+.author-name {
+    color: #0f172a;
+    font-size: 1.2rem;
+}
+
+.subject-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 0.5rem;
+}
+
+.subject-badge {
+    font-weight: 500;
+    border-radius: 0.5rem;
+    padding: 0.2em 0.5em;
+    font-size: 0.9rem;
+    background-color: #ffed98;
+    color: #0f172a;
+    white-space: nowrap;
+}
+
 .book-details-container {
     max-width: 1000px;
 }

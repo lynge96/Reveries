@@ -1,8 +1,7 @@
 .badge {
     font-family: 'Inter', sans-serif;
     font-weight: 500;
-    border-radius: 0.65rem;
-    padding: 0.5em 0.7em;
+    border-radius: 0.5rem;
+    padding: 0.3em 0.5em;
     font-size: 0.9rem;
-    margin-bottom: 0.5rem;
 }

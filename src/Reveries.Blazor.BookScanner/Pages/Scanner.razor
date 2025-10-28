@@ -158,7 +158,7 @@
             {
                 BookState.SetBook(_bookDto);
                 StateHasChanged();
-                await Task.Delay(1750);
+                await Task.Delay(1200);
                 Nav.NavigateTo($"/book/{ScannedIsbn}");
             }
         }

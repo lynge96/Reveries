@@ -9,7 +9,7 @@
 }
 else
 {
-    <div class="container py-4 mt-3 book-details-container">
+    <div class="container py-4 mt-4 book-details-container">
 
         <div class="row g-2">
             <!-- Image -->
@@ -17,9 +17,6 @@ else
                 <img src="@_book.ImageUrl"
                      class="book-cover img-fluid rounded shadow mb-3"
                      alt="@_book.Title" />
-                
-                <!-- Source badge-->
-                <BookSourceBadge DataSource="@_book.DataSource"/>
             </div>
 
             <!-- Book Details -->
@@ -38,18 +35,19 @@ else
                 }
                 
                 <!-- Author -->
-                <h5 class="text-muted mb-2">
-                    <i class="bi bi-person"></i>
-                    by @string.Join(", ", _book.Authors ?? [])
-                </h5>
+                <div class="author-info">
+                    <i class="bi bi-person author-icon"></i>
+                    <div class="text-muted author-name">by @string.Join(", ", _book.Authors ?? [])</div>
+                </div>
+
                 
                 <!-- Subjects -->
                 @if (_book.Subjects?.Any() == true)
                 {
-                    <div>
+                    <div class="subject-badges">
                         @foreach (var subject in _book.Subjects)
                         {
-                            <span class="badge text-bg-secondary me-2 mb-1">@subject</span>
+                            <span class="subject-badge">@subject</span>
                         }
                     </div>
                 }
@@ -169,6 +167,15 @@ else
                             </div>
                         </div>
                     }
+                    
+                    <!-- Datasource -->
+                    <div class="book-info">
+                        <i class="bi bi-database icon"></i>
+                        <div>
+                            <div class="label">Datasource</div>
+                            <div class="value"><BookSourceBadge DataSource="@_book.DataSource"/></div>
+                        </div>
+                    </div>
                 </div>
                 
                 <hr class="my-3 border border-secondary opacity-25 rounded" />
@@ -200,6 +207,7 @@ else
 
             </div>
         </div>
+        
     </div>
 }
 
