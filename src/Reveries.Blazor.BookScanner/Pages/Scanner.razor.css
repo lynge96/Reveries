@@ -1,10 +1,12 @@
+/* === Titel === */
 .isbn-title {
     font-family: 'Poppins', 'Inter', sans-serif;
     font-weight: 600;
     font-size: 2rem;
-    color: #9152E7FF;
+    color: #9152E7;
 }
 
+/* === Video container og scanning === */
 #video-container {
     position: relative;
     width: 100%;
@@ -34,50 +36,42 @@
 }
 
 .scan-region::before,
-.scan-region::after {
+.scan-region::after,
+.scan-line::before,
+.scan-line::after {
     content: '';
     position: absolute;
     width: 40px;
     height: 40px;
     border: 3px solid rgba(230, 206, 206, 0.7);
+    border-radius: 2px;
 }
 
 .scan-region::before {
-    top: 0;
-    left: 0;
+    top: 0; left: 0;
     border-right: none;
     border-bottom: none;
-    border-top-left-radius: 8px;
-}
-.scan-region::after {
-    top: 0;
-    right: 0;
-    border-left: none;
-    border-bottom: none;
-    border-top-right-radius: 8px;
-}
-.scan-line::before,
-.scan-line::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(200, 200, 200, 0.7);
-}
-.scan-line::before {
-    left: 0;
-    border-right: none;
-    border-top: none;
-    border-bottom-left-radius: 8px;
-}
-.scan-line::after {
-    right: 0;
-    border-left: none;
-    border-top: none;
-    border-bottom-right-radius: 8px;
 }
 
+.scan-region::after {
+    top: 0; right: 0;
+    border-left: none;
+    border-bottom: none;
+}
+
+.scan-line::before {
+    bottom: 0; left: 0;
+    border-right: none;
+    border-top: none;
+}
+
+.scan-line::after {
+    bottom: 0; right: 0;
+    border-left: none;
+    border-top: none;
+}
+
+/* Grøn glød ved succes */
 .scan-region.scan-success::before,
 .scan-region.scan-success::after,
 .scan-region.scan-success .scan-line::before,
@@ -85,42 +79,66 @@
     border-color: rgba(40, 167, 69, 0.9);
 }
 
-.isbn-input-group input {
-    border-top-right-radius: 0.25rem;
-    border-bottom-right-radius: 0.25rem;
-    text-align: center;
-    font-size: 1.5rem;
+/* === Knapper === */
+.action-btn {
+    height: 52px;
+    width: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.3rem;
+    flex-shrink: 0;
+    transition: all 0.2s ease-in-out;
 }
 
-.isbn-input-group.scan-success input {
+.action-btn i {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+/* Aktiv grøn knap glød */
+.btn-success.action-btn {
+    box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
+}
+
+/* === Inputfelt === */
+.isbn-input-wrapper {
+    max-width: 700px;
+    margin: 0 auto;
+    gap: 0.5rem;
+}
+
+.isbn-input-group input {
+    height: 52px;
+    font-size: 1.5rem;
+    text-align: center;
+    border-radius: 0.3rem;
+}
+
+/* Grøn glød ved succesfuld scanning */
+.isbn-input-group.scan-success {
     border: 2px solid #28a745;
     box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
 }
 
+/* Rød kant ved fejl */
 .isbn-input.is-invalid {
     border: 2px solid #dc3545;
     box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
 }
 
+/* Fjerner baggrund på ikon i inputfelt */
 .isbn-input-group .input-group-text {
     background: transparent;
     border: none;
     pointer-events: none;
 }
 
-
-.search-button {
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-.search-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
+/* === Responsiv tilpasning === */
 @media (max-width: 768px) {
     #video-container {
         aspect-ratio: 9 / 16;
@@ -140,8 +158,7 @@
         height: 35px;
     }
 
-    .search-button {
-        font-size: 1.1rem;
-        padding: 1rem 1.5rem;
+    .isbn-input-group input {
+        font-size: 1.5rem;
     }
 }

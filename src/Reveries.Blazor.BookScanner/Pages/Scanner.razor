@@ -16,42 +16,47 @@
                 <h1 class="isbn-title mb-3 mt-2">ISBN Scanner</h1>
             </div>
 
-            <!-- 📷 Video stream -->
-            <div id="video-container" class="shadow-sm mb-3">
+            <!-- Video stream -->
+            <div id="video-container" class="shadow mb-3 rounded">
                 <video id="video" autoplay playsinline></video>
                 <div class="scan-region @(HasScannedSuccessfully ? "scan-success" : "")">
                     <div class="scan-line"></div>
                 </div>
             </div>
 
-            <!-- 🔢 Input-felt -->
-            <div class="input-group mt-4 isbn-input-group @(HasScannedSuccessfully ? "scan-success" : "") position-relative">
+            <!-- Input -->
+            <div class="isbn-input-wrapper d-flex align-items-center justify-content-center mt-3">   
+                
+                <!-- ISBN-felt -->
+                <div class="input-group isbn-input-group shadow-sm @(HasScannedSuccessfully ? "scan-success" : "")">
+                    <input @bind="ScannedIsbn"
+                           @bind:event="oninput"
+                           @onkeydown="HandleKeyDown"
+                           class="form-control text-center @(HasScannedSuccessfully ? "scan-success" : "") @(_errorMessage != null ? "is-invalid" : "")"
+                           placeholder="Enter ISBN manually"
+                           maxlength="13"/>
 
-                <input @bind="ScannedIsbn"
-                       @bind:event="oninput"
-                       @onkeydown="HandleKeyDown"
-                       disabled="@(!_isManualInputActive)"
-                       class="form-control text-center fs-3 py-2 ps-5 isbn-input @(HasScannedSuccessfully ? "scan-success" : "") @(_errorMessage != null ? "is-invalid" : "")"
-                       placeholder="@(_isManualInputActive ? "Enter ISBN manually" : "Scan the ISBN-barcode")"
-                       maxlength="13"/>
-
-                <!-- ✏️ Toggle ikon -->
-                <span class="position-absolute start-0 top-0 h-100 d-flex align-items-center ps-3"
-                      role="button"
-                      @onclick="EnableManualInput">
-                    <i class="bi @(_isManualInputActive ? "bi-upc-scan" : "bi-pencil-square") fs-5 text-secondary"></i>
-                </span>
-
-                <!-- ✅ Succesikon -->
-                @if (HasScannedSuccessfully)
-                {
-                    <span class="input-group-text bg-transparent border-0 position-absolute end-0 top-0 h-100 d-flex align-items-center pe-3">
-                        <i class="bi bi-check-square-fill text-success fs-3"></i>
-                    </span>
-                }
+                    <!-- Succesikon -->
+                    @if (HasScannedSuccessfully)
+                    {
+                        <span class="input-group-text bg-transparent border-0 position-absolute end-0 top-0 h-100 d-flex align-items-center pe-3">
+                            <i class="bi bi-check-square-fill text-success fs-3"></i>
+                        </span>
+                    }
+                </div>
+                
+                <!-- Search button -->
+                <button type="button"
+                        class="btn btn-success action-btn shadow-sm"
+                        @onclick="SearchManualIsbn"
+                        disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
+                    <i class="bi bi-search"></i>
+                </button>
+                
+                
             </div>
-
-            <!-- ⚠️ Fejlbesked -->
+            
+            <!-- Fejlbesked -->
             @if (!string.IsNullOrWhiteSpace(_errorMessage))
             {
                 <div class="alert alert-danger mt-3 d-flex align-items-center" role="alert">
@@ -59,25 +64,13 @@
                     @_errorMessage
                 </div>
             }
-
-            <!-- 🔍 Søgeknap eller spinner -->
-            @if (_isManualInputActive)
+            
+            @if (_isProcessing)
             {
-                if (_isProcessing)
-                {
-                    <!-- Spinner vises her -->
-                    <LoadingSpinner Message="Loading book details..."/>
-                }
-                else if (_errorMessage is null)
-                {
-                    <button type="button"
-                            class="btn btn-success btn-lg w-100 mt-3 search-button"
-                            @onclick="SearchManualIsbn"
-                            disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
-                        <i class="bi bi-search me-2"></i> Search ISBN
-                    </button>
-                }
+                <!-- Spinner vises her -->
+                <LoadingSpinner Message="Loading book details..."/>
             }
+
 
         </div>
     </div>
@@ -87,7 +80,6 @@
     private string? _inputIsbn;
     private BookDto? _bookDto;
     private string? _errorMessage;
-    private bool _isManualInputActive;
     private bool _isProcessing;
     private DotNetObjectReference<Scanner>? _objRef;
     private bool HasScannedSuccessfully => _bookDto is not null;
@@ -107,17 +99,9 @@
         }
     }
     
-    private void EnableManualInput()
-    {
-        _isManualInputActive = !_isManualInputActive;
-        ScannedIsbn = string.Empty;
-        _bookDto = null;
-        _errorMessage = null;
-    }
-    
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" && _isManualInputActive)
+        if (e.Key == "Enter")
             await SearchManualIsbn();
     }
     
@@ -127,9 +111,6 @@
             return;
 
         await OnIsbnScanned(ScannedIsbn);
-
-        if (_errorMessage is null)
-            _isManualInputActive = false;
     }
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -156,8 +137,11 @@
 
             if (_bookDto != null)
             {
+                await Js.InvokeVoidAsync("preloadImage", _bookDto.ImageUrl);    // Preloading image
+                
                 BookState.SetBook(_bookDto);
                 StateHasChanged();
+                
                 await Task.Delay(1200);
                 Nav.NavigateTo($"/book/{ScannedIsbn}");
             }

@@ -30,7 +30,7 @@
 .subject-badges {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.7rem;
+    gap: 0.6rem;
     margin-top: 0.5rem;
 }
 
