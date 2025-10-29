@@ -135,6 +135,10 @@
     border-radius: 0.3rem;
 }
 
+.isbn-input-group input:focus::placeholder {
+    color: transparent;
+}
+
 .isbn-input-group:focus-within {
     border-color: #9152E7; /* lilla glød når input har fokus */
     box-shadow: 0 0 8px rgba(145, 82, 231, 0.4);
@@ -142,19 +146,19 @@
 
 .isbn-input-wrapper .form-control:focus {
     box-shadow: 0 0 8px rgba(145, 82, 231, 0.4);
-    border: 2px solid #9152E7;
+    border: 3px solid #9152E7;
     outline: none;
 }
 
 /* Grøn kant ved succesfuld scanning */
 .isbn-input.scan-success {
-    border: 2px solid #28a745;
+    border: 3px solid #28a745;
     box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
 }
 
 /* Rød kant ved fejl */
 .isbn-input.is-invalid {
-    border: 2px solid #dc3545;
+    border: 3px solid #dc3545;
     box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
 }
 
