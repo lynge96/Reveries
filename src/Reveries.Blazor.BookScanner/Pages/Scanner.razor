@@ -33,26 +33,18 @@
                            @bind:event="oninput"
                            @onkeydown="HandleKeyDown"
                            class="form-control text-center @(HasScannedSuccessfully ? "scan-success" : "") @(_errorMessage != null ? "is-invalid" : "")"
-                           placeholder="Enter ISBN manually"
+                           placeholder="Enter ISBN or scan"
                            maxlength="13"/>
 
-                    <!-- Succesikon -->
-                    @if (HasScannedSuccessfully)
-                    {
-                        <span class="input-group-text bg-transparent border-0 position-absolute end-0 top-0 h-100 d-flex align-items-center pe-3">
-                            <i class="bi bi-check-square-fill text-success fs-3"></i>
-                        </span>
-                    }
+                    <!-- Search button -->
+                    <button type="button"
+                            class="btn action-btn shadow-sm"
+                            @onclick="SearchManualIsbn"
+                            disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
+                        <i class="bi @(HasScannedSuccessfully ? "bi-check-lg" : "bi-search")"></i>
+                    </button>
+                    
                 </div>
-                
-                <!-- Search button -->
-                <button type="button"
-                        class="btn btn-success action-btn shadow-sm"
-                        @onclick="SearchManualIsbn"
-                        disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
-                    <i class="bi bi-search"></i>
-                </button>
-                
                 
             </div>
             
