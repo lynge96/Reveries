@@ -1,12 +1,8 @@
 .spinner-border {
-    width: 2.5rem;
-    height: 2.5rem;
-    color: #9152E7;
+    color: #ffffff;
+    font-size: 1.2rem;
 }
 
-.spinner-wrapper {
-    min-height: 56px;
-}
 
 div[d-flex] {
     animation: fadeIn 0.3s ease-in-out;

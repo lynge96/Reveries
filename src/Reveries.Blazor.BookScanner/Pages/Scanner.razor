@@ -7,18 +7,18 @@
 
 @implements IDisposable
 
-<div class="mt-4">
+<div class="scanner-page mt-4 d-flex justify-content-center">
 
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
+    <div class="row">
+        <div class="col-12">
             
-            <div class="text-start">
+            <div class="text-start ms-2 mt-3">
                 <h1 class="isbn-title mb-1">ISBN Scanner</h1>
-                <p class="isbn-subtitle mb-3">Scan a book barcode or enter ISBN manually</p>
+                <p class="isbn-subtitle">Scan a book barcode or enter ISBN manually</p>
             </div>
 
             <!-- Scanner card -->
-            <div class="scanner-card p-4 rounded text-center">
+            <div class="scanner-card p-4 pt-3 rounded">
                 
                 <!-- Video stream -->
                 <div class="text-start d-flex align-items-center gap-2 mb-2">
@@ -26,7 +26,7 @@
                     <p class="card-title">Barcode Scanner</p>
                 </div>
                 
-                <div id="video-container" class="mb-4 rounded">
+                <div id="video-container" class="mb-4 rounded shadow-sm">
                     <video id="video" autoplay playsinline></video>
                     <div class="scan-region @(HasScannedSuccessfully ? "scan-success" : "")">
                         <div class="scan-line"></div>
@@ -45,34 +45,49 @@
                 </div>
 
                 <!-- ISBN-felt -->
-                <input class="form-control text-start @(HasScannedSuccessfully ? "scan-success" : "") @(_errorMessage != null ? "is-invalid" : "")"
+                <input class="form-control text-start)"
                        @bind="ScannedIsbn"
                        @bind:event="oninput"
                        @onkeydown="HandleKeyDown"
                        placeholder="Enter 10 or 13 digit ISBN"
                        maxlength="13"/>
                 
-                <!-- Search button -->
-                <button type="button"
-                        class="btn action-btn mt-4"
-                        @onclick="SearchManualIsbn"
-                        disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
-                    <i class="bi @(HasScannedSuccessfully ? "bi-check-lg" : "bi-search")"></i>
-                </button>
+                <div>
+                    <!-- Search button -->
+                    <button type="button"
+                            class="btn action-btn mt-3 col-12 p-2 d-flex align-items-center justify-content-center gap-2"
+                            @onclick="SearchManualIsbn"
+                            disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
+
+                        @if (HasScannedSuccessfully)
+                        {
+                            <!-- Succes: flueben -->
+                            <i class="bi bi-check-lg text-light me-2"></i>
+                            <span>Book Found</span>
+
+                        }
+                        else if (_isProcessing)
+                        {
+                            <!-- Spinner under søgning -->
+                            <div class="spinner-border spinner-border-sm text-light me-2" role="status"></div>
+                            <span>Searching...</span>
+                        }
+                        else
+                        {
+                            <!-- Standard: søg -->
+                            <i class="bi bi-search text-light me-2"></i>
+                            <span>Find Book</span>
+                        }
+                    </button>
+                </div>
                 
                 <!-- Fejlbesked -->
                 @if (!string.IsNullOrWhiteSpace(_errorMessage))
                 {
-                    <div class="alert alert-danger mt-3 d-flex align-items-center" role="alert">
+                    <div class="alert mt-3 d-flex align-items-center gap-2 text-start py-2" role="alert">
                         <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
                         @_errorMessage
                     </div>
-                }
-
-                @if (_isProcessing)
-                {
-                    <!-- Spinner vises her -->
-                    <LoadingSpinner Message="Loading book details..."/>
                 }
 
             </div>
@@ -87,6 +102,7 @@
     private bool _isProcessing;
     private DotNetObjectReference<Scanner>? _objRef;
     private bool HasScannedSuccessfully => _bookDto is not null;
+
     private string? ScannedIsbn
     {
         get => _inputIsbn;
@@ -113,7 +129,7 @@
     {
         if (string.IsNullOrWhiteSpace(ScannedIsbn))
             return;
-
+            
         await OnIsbnScanned(ScannedIsbn);
     }
     
@@ -123,6 +139,7 @@
         {
             _objRef = DotNetObjectReference.Create(this);
             await Js.InvokeVoidAsync("scanner.startContinuousScan", _objRef);
+            await Js.InvokeVoidAsync("disableScroll");
         }
     }
     
@@ -134,7 +151,8 @@
         _isProcessing = true;
         ScannedIsbn = scannedIsbn;
         _errorMessage = null;
-
+        await Task.Delay(600);
+        
         try
         {
             _bookDto = await BooksApi.GetAsync(scannedIsbn);
@@ -146,7 +164,7 @@
                 BookState.SetBook(_bookDto);
                 StateHasChanged();
                 
-                await Task.Delay(1200);
+                await Task.Delay(600);
                 Nav.NavigateTo($"/book/{ScannedIsbn}");
             }
         }
@@ -158,7 +176,9 @@
                     _errorMessage = ex.Message;
                     break;
                 case ApiException { StatusCode: HttpStatusCode.BadRequest }:
-                    _errorMessage = "Invalid ISBN number. Please check the number and try again.";
+                    _errorMessage = scannedIsbn.Length is not (10 or 13)
+                        ? "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN."
+                        : "Invalid ISBN number. Please check the number and try again.";
                     break;
                 case ApiException { StatusCode: HttpStatusCode.NotFound }:
                     _errorMessage = "The book was not found. Try a different ISBN number.";
@@ -181,6 +201,7 @@
     public void Dispose()
     {
         _ = Js.InvokeVoidAsync("scanner.stopContinuousScan");
+        _ = Js.InvokeVoidAsync("enableScroll");
         _objRef?.Dispose();
     }
 }
