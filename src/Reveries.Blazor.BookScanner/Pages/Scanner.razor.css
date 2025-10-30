@@ -2,8 +2,25 @@
 .isbn-title {
     font-family: 'Poppins', 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #9152E7;
+}
+
+.isbn-subtitle {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: #0F172A7F;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    color: #0F172AFF;
+}
+
+.card-icon {
+    font-size: 1.2rem;
+    color: rgba(15, 23, 42, 0.7);
 }
 
 /* === Video container og scanning === */
@@ -79,6 +96,16 @@
     border-color: rgba(40, 167, 69, 0.9);
 }
 
+/* === Scanner Card === */
+.scanner-card {
+    background-color: #ffffff;
+    border-radius: 2rem;
+    padding: 2rem;
+    margin-top: 1rem;
+    border: 1px solid rgba(224, 224, 224, 0.5);
+    max-width: 680px;
+}
+
 /* === Knapper === */
 .action-btn {
     height: 52px;
@@ -122,31 +149,26 @@
 }
 
 /* === Inputfelt === */
-.isbn-input-wrapper {
-    max-width: 700px;
-    margin: 0 auto;
-    gap: 0.5rem;
+.form-control {
+    background-color: #e8e8e8;
+    border: 3px solid transparent;
+    font-size: 1.1rem;
+    font-weight: 300;
+    border-radius: 0.5rem;
 }
 
-.isbn-input-group input {
-    height: 52px;
-    font-size: 1.5rem;
-    text-align: center;
-    border-radius: 0.3rem;
+.form-control::placeholder {
+    color: rgba(0,0,0,0.4);
 }
 
-.isbn-input-group input:focus::placeholder {
+.form-control:focus::placeholder {
     color: transparent;
 }
 
-.isbn-input-group:focus-within {
-    border-color: #9152E7; /* lilla glød når input har fokus */
+.form-control:focus {
     box-shadow: 0 0 8px rgba(145, 82, 231, 0.4);
-}
-
-.isbn-input-wrapper .form-control:focus {
-    box-shadow: 0 0 8px rgba(145, 82, 231, 0.4);
-    border: 3px solid #9152E7;
+    border-radius: 0.5rem;
+    border-color: #9152E7;
     outline: none;
 }
 
@@ -183,6 +205,13 @@
     }
 
     .isbn-input-group input {
-        font-size: 1.3rem;
+        font-size: 1rem;
+    }
+
+    .isbn-title {
+        font-size: 1.4rem;
+    }
+    .isbn-subtitle {
+        font-size: 1rem;
     }
 }

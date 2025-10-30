@@ -7,63 +7,75 @@
 
 @implements IDisposable
 
-<div class="container mt-4">
+<div class="mt-4">
 
     <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6 text-center">
+        <div class="col-12 col-md-8 col-lg-6">
             
-            <div>
-                <h1 class="isbn-title mb-3 mt-2">ISBN Scanner</h1>
+            <div class="text-start">
+                <h1 class="isbn-title mb-1">ISBN Scanner</h1>
+                <p class="isbn-subtitle mb-3">Scan a book barcode or enter ISBN manually</p>
             </div>
 
-            <!-- Video stream -->
-            <div id="video-container" class="shadow mb-3 rounded">
-                <video id="video" autoplay playsinline></video>
-                <div class="scan-region @(HasScannedSuccessfully ? "scan-success" : "")">
-                    <div class="scan-line"></div>
-                </div>
-            </div>
-
-            <!-- Input -->
-            <div class="isbn-input-wrapper d-flex align-items-center justify-content-center mt-3">   
+            <!-- Scanner card -->
+            <div class="scanner-card p-4 rounded text-center">
                 
+                <!-- Video stream -->
+                <div class="text-start d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-upc-scan card-icon"></i>
+                    <p class="card-title">Barcode Scanner</p>
+                </div>
+                
+                <div id="video-container" class="mb-4 rounded">
+                    <video id="video" autoplay playsinline></video>
+                    <div class="scan-region @(HasScannedSuccessfully ? "scan-success" : "")">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+
+                <!-- Input -->
+                <div class="text-start d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-search card-icon"></i>
+                    <p class="card-title">Manual Entry</p>
+                </div>
+                
+                <!-- Label -->   
+                <div class="text-start">
+                    <label class="text-muted"><strong>ISBN Code</strong></label>
+                </div>
+
                 <!-- ISBN-felt -->
-                <div class="input-group isbn-input-group shadow-sm @(HasScannedSuccessfully ? "scan-success" : "")">
-                    <input @bind="ScannedIsbn"
-                           @bind:event="oninput"
-                           @onkeydown="HandleKeyDown"
-                           class="form-control text-center @(HasScannedSuccessfully ? "scan-success" : "") @(_errorMessage != null ? "is-invalid" : "")"
-                           placeholder="Enter ISBN or scan"
-                           maxlength="13"/>
-
-                    <!-- Search button -->
-                    <button type="button"
-                            class="btn action-btn shadow-sm"
-                            @onclick="SearchManualIsbn"
-                            disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
-                        <i class="bi @(HasScannedSuccessfully ? "bi-check-lg" : "bi-search")"></i>
-                    </button>
-                    
-                </div>
+                <input class="form-control text-start @(HasScannedSuccessfully ? "scan-success" : "") @(_errorMessage != null ? "is-invalid" : "")"
+                       @bind="ScannedIsbn"
+                       @bind:event="oninput"
+                       @onkeydown="HandleKeyDown"
+                       placeholder="Enter 10 or 13 digit ISBN"
+                       maxlength="13"/>
                 
+                <!-- Search button -->
+                <button type="button"
+                        class="btn action-btn mt-4"
+                        @onclick="SearchManualIsbn"
+                        disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
+                    <i class="bi @(HasScannedSuccessfully ? "bi-check-lg" : "bi-search")"></i>
+                </button>
+                
+                <!-- Fejlbesked -->
+                @if (!string.IsNullOrWhiteSpace(_errorMessage))
+                {
+                    <div class="alert alert-danger mt-3 d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        @_errorMessage
+                    </div>
+                }
+
+                @if (_isProcessing)
+                {
+                    <!-- Spinner vises her -->
+                    <LoadingSpinner Message="Loading book details..."/>
+                }
+
             </div>
-            
-            <!-- Fejlbesked -->
-            @if (!string.IsNullOrWhiteSpace(_errorMessage))
-            {
-                <div class="alert alert-danger mt-3 d-flex align-items-center" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
-                    @_errorMessage
-                </div>
-            }
-            
-            @if (_isProcessing)
-            {
-                <!-- Spinner vises her -->
-                <LoadingSpinner Message="Loading book details..."/>
-            }
-
-
         </div>
     </div>
 </div>
