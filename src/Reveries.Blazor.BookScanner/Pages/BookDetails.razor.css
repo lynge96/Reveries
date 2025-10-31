@@ -1,3 +1,54 @@
+/* === Fullscreen container === */
+.book-details-page {
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.book-card {
+    background-color: #ffffff;
+    border: 1px solid rgba(224, 224, 224, 0.5);
+    max-width: 1000px;
+    min-height: 100vh;
+    justify-content: center;
+}
+
+/* === Knapper === */
+.action-btn {
+    align-items: center;
+    border: none;
+    border-radius: 0.5rem;
+    background-color: #9152E7;
+    transition: all 0.2s ease-in-out;
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+
+.action-btn:hover:not(:disabled) {
+    background-color: #7a3ecc;  /* lidt mørkere ved hover */
+}
+
+.action-btn:active:not(:disabled) {
+    color: #ffffff;
+    background-color: #692fb8;  /* endnu mørkere ved klik */
+}
+
+.action-btn:focus,
+.action-btn:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.action-btn i {
+    font-size: 1.1rem;
+    color: #ffffff;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
 .book-title {
     font-family: 'Poppins', 'Inter', sans-serif;
     font-size: 2rem;
@@ -11,6 +62,11 @@
     font-size: 1rem;
 }
 
+.series-info{
+    font-size: 1.2rem;
+    font-family: 'Poppins', 'Inter', sans-serif;
+}
+
 .author-info{
     display: flex;
     align-items: center;
@@ -19,7 +75,7 @@
 
 .author-icon{
     font-size: 1.3rem;
-    color: #0f172a;
+    color: #64748b;
 }
 
 .author-name {
@@ -42,10 +98,6 @@
     background-color: #ffed98;
     color: #0f172a;
     white-space: nowrap;
-}
-
-.book-details-container {
-    max-width: 1000px;
 }
 
 .synopsis {
@@ -96,7 +148,6 @@
 .book-info .icon {
     font-size: 1.25rem;
     color: #64748b;
-    margin-top: 0.125rem;
 }
 
 .label {
@@ -111,7 +162,7 @@
 
 @media (max-width: 768px) {
     .book-title {
-        font-size: 1.75rem;
+        font-size: 1.6rem;
     }
 
     .book-cover {
@@ -120,9 +171,39 @@
     }
     
     .book-grid{
-        row-gap: 1rem;
+        row-gap: 0.8rem;
         column-gap: 1.5rem;
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .series-info{
+        font-size: 1.1rem;
+        font-family: 'Poppins', 'Inter', sans-serif;
+        color: rgba(15, 23, 42, 0.7);
+    }
+
+    .author-icon{
+        font-size: 1.1rem;
+    }
+
+    .author-name {
+        font-size: 1.1rem;
+    }
+    
+    .subject-badges {
+        gap: 0.4rem;
+    }
+
+    .subject-badge {
+        font-size: 0.8rem;
+    }
+
+    .action-btn {
+        font-size: 1rem;
+    }
+
+    .action-btn i {
+        font-size: 1rem;
     }
 }
 
