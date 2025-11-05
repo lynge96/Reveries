@@ -3,6 +3,7 @@ using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Models;
 
@@ -154,4 +155,12 @@ public class BookLookupService : IBookLookupService
         
         return databaseBooks;
     }
+
+    public async Task<Book?> FindBookById(int id, CancellationToken cancellationToken = default)
+    {
+        var databaseBook = await _unitOfWork.Books.GetBookByIdAsync(id);
+        
+        return databaseBook ?? null;
+    }
+    
 }

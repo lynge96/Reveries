@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Interfaces;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Contracts.Books;
+using Reveries.Contracts.DTOs;
 
 namespace Reveries.Api.Controllers;
 
@@ -23,15 +23,34 @@ public class BooksController : ControllerBase
         
         if (isRead.HasValue)
             books = books.Where(b => b.IsRead == isRead.Value);
-        
+
         return Ok(books);
     }
     
     [HttpGet("{isbn}")]
-    public async Task<ActionResult<BookDto>> GetBookByIsbn(string isbn)
+    public async Task<ActionResult<BookDto>> GetByIsbn(string isbn)
     {
         var book = await _bookService.GetBookByIsbnAsync(isbn);
         
         return Ok(book);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<BookDto>> GetById(int id, CancellationToken ct)
+    {
+        var book = await _bookService.GetBookByIdAsync(id, ct);
+        
+        return Ok(book);
+    }
+    
+    [HttpPost]
+    public async Task<ActionResult<int>> Create([FromBody] BookDto bookData, CancellationToken ct)
+    {
+        var bookId = await _bookService.CreateBookAsync(bookData, ct);
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = bookId },
+            bookId);
     }
 }

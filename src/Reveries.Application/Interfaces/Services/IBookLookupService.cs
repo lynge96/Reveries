@@ -46,4 +46,7 @@ public interface IBookLookupService
     Task<List<Book>> FindBooksByPublisherAsync(string? publisher, CancellationToken cancellationToken = default);
     
     Task<List<Book>> GetAllBooksAsync(CancellationToken cancellationToken = default);
+    
+    Task<Book?> FindBookById(int id, CancellationToken cancellationToken = default);
+    
 }

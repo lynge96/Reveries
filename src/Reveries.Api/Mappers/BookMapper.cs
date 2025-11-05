@@ -1,4 +1,5 @@
-using Reveries.Contracts.Books;
+using Reveries.Contracts.DTOs;
+using Reveries.Core.Enums;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
 
@@ -38,5 +39,42 @@ public static class BookMapper
             DeweyDecimal = book.DeweyDecimals?.Select(d => d.Code).ToList() ?? new List<string>(),
             DataSource = book.DataSource.ToString()
         };
+    }
+
+    public static Book ToDomain(this BookDto bookDto)
+    {
+        var dataSourceParsed = Enum.TryParse<DataSource>(bookDto.DataSource, true, out var ds);
+
+        return new Book
+        {
+            Isbn13 = bookDto.Isbn13,
+            Isbn10 = bookDto.Isbn10,
+            Title = bookDto.Title!,
+            Authors = bookDto.Authors?.Select(Author.Create).ToList() ?? [],
+            Publisher = bookDto.Publisher != null ? Publisher.Create(bookDto.Publisher) : null,
+            Language = bookDto.Language,
+            PublishDate = bookDto.PublicationDate.ParsePublishDate(),
+            Pages = bookDto.Pages,
+            Synopsis = bookDto.Synopsis,
+            ImageThumbnail = bookDto.ImageThumbnail,
+            ImageUrl = bookDto.ImageUrl,
+            Msrp = bookDto.Msrp,
+            Binding = bookDto.Binding,
+            Edition = bookDto.Edition,
+            Subjects = bookDto.Subjects?.Select(Subject.Create).ToList(),
+            Series = bookDto.Series != null ? Series.Create(bookDto.Series) : null,
+            SeriesNumber = bookDto.NumberInSeries,
+            IsRead = bookDto.IsRead,
+            Dimensions = new BookDimensions
+            {
+                HeightCm = bookDto.Dimensions?.HeightCm,
+                ThicknessCm = bookDto.Dimensions?.ThicknessCm,
+                WidthCm = bookDto.Dimensions?.WidthCm,
+                WeightG = bookDto.Dimensions?.WeightG
+            },
+            DeweyDecimals = bookDto.DeweyDecimal?.Select(c => new DeweyDecimal { Code = c }).ToList(),
+            DataSource = dataSourceParsed ? ds : DataSource.Unknown,
+        };
+
     }
 }

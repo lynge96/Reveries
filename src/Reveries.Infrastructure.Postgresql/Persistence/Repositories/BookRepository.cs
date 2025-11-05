@@ -104,6 +104,20 @@ public class BookRepository : IBookRepository
         return bookDto?.ToDomain();
     }
 
+    public async Task<Book?> GetBookByIdAsync(int id)
+    {
+        const string sql = """
+                           SELECT *
+                           FROM book_details
+                           WHERE id = @Id
+                           LIMIT 1
+                           """;
+
+        var bookList = await QueryBooksAsync(sql, new { Id = id });
+        
+        return bookList.FirstOrDefault();
+    }
+
     public async Task<int> CreateAsync(Book book)
     {
         const string sql = """

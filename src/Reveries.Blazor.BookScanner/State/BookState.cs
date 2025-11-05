@@ -1,4 +1,4 @@
-using Reveries.Contracts.Books;
+using Reveries.Contracts.DTOs;
 
 namespace Reveries.Blazor.BookScanner.State;
 

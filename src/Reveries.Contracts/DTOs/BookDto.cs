@@ -1,6 +1,6 @@
-namespace Reveries.Contracts.Books;
+namespace Reveries.Contracts.DTOs;
 
-public class BookDto
+public record BookDto
 {
     public string? Isbn10 { get; set; }
     public string? Isbn13 { get; set; }
@@ -23,12 +23,4 @@ public class BookDto
     public List<string>? DeweyDecimal { get; set; }
     public List<string>? Subjects { get; set; }
     public string? DataSource { get; set; }
-}
-
-public class DimensionsDto
-{
-    public decimal? WeightG { get; set; }
-    public decimal? HeightCm { get; set; }
-    public decimal? WidthCm { get; set; }
-    public decimal? ThicknessCm { get; set; }
 }
