@@ -1,4 +1,12 @@
 /* === Fullscreen container === */
+.book-details-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* horisontal centrering */
+    justify-content: center; /* lodret centrering */
+    min-height: 100vh;       /* fylder hele vinduets højde */
+}
+
 .book-details-page {
     min-height: 100vh;
     overflow: hidden;
@@ -13,6 +21,29 @@
 }
 
 /* === Knapper === */
+.return-btn{
+    border: none;
+    font-size: 1rem;
+    font-family: 'Poppins', 'Inter', sans-serif;
+    color: #0f172a;
+}
+
+.return-btn:hover:not(:disabled) {
+    background-color: #9152e7;
+    color: #ffffff;
+}
+
+.action-btn:active:not(:disabled) {
+    color: #ffffff;
+    background-color: #9152e7;
+}
+
+.return-btn:focus,
+.return-btn:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 .action-btn {
     align-items: center;
     border: none;
