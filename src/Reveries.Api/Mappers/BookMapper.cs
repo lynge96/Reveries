@@ -11,13 +11,14 @@ public static class BookMapper
     {
         return new BookDto
         {
+            Id = book.Id,
             Isbn10 = book.Isbn10,
             Isbn13 = book.Isbn13,
             Title = book.Title,
             Authors = book.Authors.Select(a => a.NormalizedName.ToTitleCase()).ToList(),
             Publisher = book.Publisher?.Name,
             Language = book.Language,
-            PublicationDate = book.PublishDateFormatted,
+            PublicationDate = book.PublishDate,
             Pages = book.Pages,
             Synopsis = book.Synopsis,
             ImageUrl = book.ImageUrl,
@@ -47,13 +48,14 @@ public static class BookMapper
 
         return new Book
         {
+            Id = bookDto.Id,
             Isbn13 = bookDto.Isbn13,
             Isbn10 = bookDto.Isbn10,
             Title = bookDto.Title!,
             Authors = bookDto.Authors?.Select(Author.Create).ToList() ?? [],
             Publisher = bookDto.Publisher != null ? Publisher.Create(bookDto.Publisher) : null,
             Language = bookDto.Language,
-            PublishDate = bookDto.PublicationDate.ParsePublishDate(),
+            PublishDate = bookDto.PublicationDate,
             Pages = bookDto.Pages,
             Synopsis = bookDto.Synopsis,
             ImageThumbnail = bookDto.ImageThumbnail,

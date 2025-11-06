@@ -2,6 +2,7 @@ namespace Reveries.Contracts.DTOs;
 
 public record BookDto
 {
+    public int? Id { get; set; }
     public string? Isbn10 { get; set; }
     public string? Isbn13 { get; set; }
     public string? Title { get; set; }

@@ -13,9 +13,26 @@ public static class BookDtoExtensions
 
     public static string FormattedDate(this BookDto? bookDto)
     {
-        if (DateTime.TryParse(bookDto?.PublicationDate, out var parsedDate))
+        var raw = bookDto?.PublicationDate?.Trim();
+        
+        if (string.IsNullOrWhiteSpace(raw))
+            return "Unknown";
+        
+        // Full date (e.g. 2021-01-01)
+        if (DateTime.TryParse(raw, out var fullDate))
         {
-            return parsedDate.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture);
+            return fullDate.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture);
+        }
+        // Partial date (e.g. 2021-01)
+        if (DateTime.TryParseExact(raw, "yyyy-MM", CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out var yearMonth))
+        {
+            return yearMonth.ToString("MMMM yyyy", CultureInfo.InvariantCulture);
+        }
+        // Year (e.g. 2021)
+        if (int.TryParse(raw, out var year))
+        {
+            return year.ToString();
         }
 
         return "Unknown";

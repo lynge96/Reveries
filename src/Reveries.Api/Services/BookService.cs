@@ -37,7 +37,7 @@ public class BookService : IBookService
         if (book == null)
             throw new NotFoundException("No book was found with the given id.");
         
-        var bookDto = book?.ToDto();
+        var bookDto = book.ToDto();
         
         return bookDto;
     }

@@ -24,11 +24,34 @@ else
                     <img src="@_book.ImageUrl"
                          class="book-cover img-fluid rounded shadow mb-3"
                          alt="@_book.Title" />
-
+                    
+                    <!-- Add book button -->
                     <button type="button"
-                            class="btn action-btn w-100 mt-1">
-                        <i class="bi bi-bookmark-fill me-2"></i>
-                        <span>Add book to shelf</span>
+                            class="btn action-btn w-100 mt-1"
+                            @onclick="@SaveBook"
+                            disabled="@(_book.Id != null)">
+                        @if (_book.Id == null)
+                        {
+                            <i class="bi bi-bookmark-fill me-2"></i>
+                            <span>Add book to shelf</span>
+                        }
+                        else if (_isSaving)
+                        {
+                            <div class="spinner-border spinner-border-sm text-light me-2" role="status"></div>
+                            <span>Saving...</span>
+                        }
+                        else if (_bookAdded)
+                        {
+                            <div class="book-added d-flex align-items-center justify-content-center">
+                                <i class="bi bi-bookmark-check me-2"></i>
+                                <span>Book added to shelf</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <i class="bi bi-check-lg me-2"></i>
+                            <span>Already on the shelf</span>
+                        }
                     </button>
                 </div>
 
@@ -182,28 +205,23 @@ else
                     <!-- Synopsis -->
                     @if (!string.IsNullOrEmpty(_book.Synopsis))
                     {
-                        <div class="synopsis-title mb-2">
-                            Synopsis
-                        </div>
+                        <div class="synopsis-title mb-2">Synopsis</div>
+
                         <div class="synopsis">
                             <p class="synopsis-text mb-1">
-                                @(_showFullSynopsis
-                                    ? _book.Synopsis.ToMarkup()
-                                    : _book.Synopsis.Length > MaxSynopsisLength
-                                        ? _book.Synopsis.Substring(0, MaxSynopsisLength).ToMarkup()
-                                        : _book.Synopsis.ToMarkup())
+                                @GetSynopsisMarkup()
                             </p>
 
                             @if (_book.Synopsis.Length > MaxSynopsisLength)
                             {
-                                <button class="btn btn-link p-0 text-muted fw-semibold mb-5"
+                                <button class="btn btn-link p-0 text-muted mb-5"
                                         @onclick="ToggleSynopsis">
                                     @(_showFullSynopsis ? "Show less" : "Show more")
                                 </button>
                             }
                         </div>
                     }
-
+                    
                 </div>
             </div>
             
@@ -215,6 +233,8 @@ else
     private BookDto? _book;
     private bool _showFullSynopsis;
     private const int MaxSynopsisLength = 300;
+    private bool _isSaving;
+    private bool _bookAdded;
 
     private void ToggleSynopsis()
     {
@@ -230,6 +250,38 @@ else
         else if (!string.IsNullOrEmpty(Isbn))
         {
             _book = await BooksApi.GetAsync(Isbn);
+        }
+    }
+
+    private async Task SaveBook()
+    {
+        try
+        {
+            _isSaving = true;
+            StateHasChanged();
+
+            var bookId = await BooksApi.CreateAsync(_book!);
+
+            if (bookId > 0)
+            {
+                _book!.Id = bookId;
+                _bookAdded = true;
+                
+                Console.WriteLine($"Book created with ID {bookId}");
+            }
+        }
+        catch (ApiException ex)
+        {
+            Console.WriteLine($"API error: {ex.Message}");
+        }
+        catch (ApiConnectionException)
+        {
+            Console.WriteLine("Could not connect to API");
+        }
+        finally
+        {
+            _isSaving = false;
+            StateHasChanged();
         }
     }
     
@@ -256,4 +308,19 @@ else
             </div>
         </div>
     </div>;
+    
+    private MarkupString GetSynopsisMarkup()
+    {
+        if (string.IsNullOrEmpty(_book?.Synopsis))
+            return new MarkupString(string.Empty);
+
+        var synopsisText = _showFullSynopsis
+            ? _book.Synopsis
+            : _book.Synopsis.Length > MaxSynopsisLength
+                ? _book.Synopsis.Substring(0, MaxSynopsisLength) + "..."
+                : _book.Synopsis;
+        
+        return new MarkupString(synopsisText);
+    }
+
 }

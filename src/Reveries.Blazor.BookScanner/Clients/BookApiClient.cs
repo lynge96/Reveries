@@ -13,11 +13,6 @@ public class BookApiClient
         _httpClient = httpClient;
     }
     
-    public async Task<IEnumerable<BookDto>?> GetAllAsync()
-    {
-        return await _httpClient.GetFromJsonAsync<IEnumerable<BookDto>>("books");
-    }
-    
     public async Task<BookDto?> GetAsync(string isbn)
     {
         try
@@ -33,10 +28,39 @@ public class BookApiClient
             var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
             throw new ApiException(error?.Message ?? "Unknown error", response.StatusCode);
         }
-        catch (HttpRequestException ex) when (ex.InnerException is null 
-                                              || ex.InnerException.Message.Contains("NetworkError", StringComparison.OrdinalIgnoreCase))
+        catch (HttpRequestException ex) when (ex.StatusCode is null)
         {
             throw new ApiConnectionException("Could not establish a connection to the API.", ex);
         }
+        catch (TaskCanceledException ex)
+        {
+            throw new ApiConnectionException("The API request timed out.", ex);
+        }
     }
+
+    public async Task<int> CreateAsync(BookDto bookDto)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("books", bookDto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var bookId = await response.Content.ReadFromJsonAsync<int>();
+                return bookId;
+            }
+
+            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+            throw new ApiException(error?.Message ?? "Unknown API error", response.StatusCode);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode is null)
+        {
+            throw new ApiConnectionException("Could not establish a connection to the API.", ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+            throw new ApiConnectionException("The API request timed out.", ex);
+        }
+    }
+    
 }

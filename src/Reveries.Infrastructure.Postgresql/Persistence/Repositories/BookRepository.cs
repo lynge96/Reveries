@@ -110,7 +110,6 @@ public class BookRepository : IBookRepository
                            SELECT *
                            FROM book_details
                            WHERE id = @Id
-                           LIMIT 1
                            """;
 
         var bookList = await QueryBooksAsync(sql, new { Id = id });
