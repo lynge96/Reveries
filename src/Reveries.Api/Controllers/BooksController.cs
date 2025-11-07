@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Interfaces;
-using Reveries.Application.Interfaces.Services;
 using Reveries.Contracts.DTOs;
+using Reveries.Core.Validation;
 
 namespace Reveries.Api.Controllers;
 
@@ -28,9 +28,11 @@ public class BooksController : ControllerBase
     }
     
     [HttpGet("{isbn}")]
-    public async Task<ActionResult<BookDto>> GetByIsbn(string isbn)
+    public async Task<ActionResult<BookDto>> GetByIsbn(string isbn, CancellationToken ct)
     {
-        var book = await _bookService.GetBookByIsbnAsync(isbn);
+        IsbnValidator.TryValidate(isbn, out var validatedIsbn);
+        
+        var book = await _bookService.GetBookByIsbnAsync(validatedIsbn, ct);
         
         return Ok(book);
     }

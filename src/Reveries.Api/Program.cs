@@ -9,10 +9,11 @@ if (!File.Exists(".env"))
 Env.Load();
 builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.AddReveriesServices();
-builder.Services.AddCorsPolicies();
-builder.Services.AddSwaggerDocumentation();
-builder.Services.AddControllers();
+builder.Services
+    .AddReveriesServices()
+    .AddCorsPolicies()
+    .AddSwaggerDocumentation()
+    .AddControllers();
 
 var app = builder.Build();
 

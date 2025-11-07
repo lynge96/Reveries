@@ -1,4 +1,4 @@
-namespace Reveries.Api.Models;
+namespace Reveries.Api.Middleware;
 
 public class ErrorResponse
 {

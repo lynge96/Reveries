@@ -16,10 +16,10 @@ public static partial class IsbnValidator
         normalized = Normalize(isbn);
 
         if (normalized.Length is not (10 or 13))
-            return false;
+            throw new IsbnValidationException($"Invalid ISBN length: {isbn}, must be 10 or 13 digits");
 
         if (!IsbnPattern().IsMatch(normalized))
-            return false;
+            throw new IsbnValidationException($"Invalid ISBN format: {isbn}");
 
         return normalized.Length == 13
             ? IsValidIsbn13(normalized)

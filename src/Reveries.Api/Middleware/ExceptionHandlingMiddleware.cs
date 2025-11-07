@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text.Json;
-using Reveries.Api.Models;
 using Reveries.Core.Exceptions;
 
 namespace Reveries.Api.Middleware;

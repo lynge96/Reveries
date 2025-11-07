@@ -29,6 +29,7 @@
     position: relative;
     width: 100%;
     max-width: 640px;
+    min-width: 630px;
     margin: 0 auto;
     background: #0F172A7F;
     border-radius: 12px;
@@ -203,6 +204,7 @@
     #video-container {
         aspect-ratio: 9 / 16;
         max-height: 40vh;
+        min-width: 0px;
     }
 
     .scan-region {
