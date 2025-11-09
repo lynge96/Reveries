@@ -104,16 +104,29 @@ public class BookRepository : IBookRepository
         return bookDto?.ToDomain();
     }
 
+    public async Task<Book?> GetBookByIdAsync(int id)
+    {
+        const string sql = """
+                           SELECT *
+                           FROM book_details
+                           WHERE id = @Id
+                           """;
+
+        var bookList = await QueryBooksAsync(sql, new { Id = id });
+        
+        return bookList.FirstOrDefault();
+    }
+
     public async Task<int> CreateAsync(Book book)
     {
         const string sql = """
                                      INSERT INTO books (
                                          isbn13, isbn10, title, page_count, is_read, publisher_id,
-                                         language_iso639, language, publication_date, synopsis,
+                                         language, publication_date, synopsis,
                                          image_url, msrp, binding, edition, image_thumbnail, series_id, series_number
                                      ) VALUES (
                                          @Isbn13, @Isbn10, @Title, @Pages, @IsRead, @PublisherId,
-                                         @LanguageIso639, @Language, @PublishDate, @Synopsis,
+                                         @Language, @PublishDate, @Synopsis,
                                          @ImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnail, @SeriesId, @SeriesNumber
                                      )
                                      RETURNING id;
@@ -157,41 +170,43 @@ public class BookRepository : IBookRepository
 
     private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)
     {
-        var dtoList = await QueryBooksDtoAsync(sql, parameters);
-        return dtoList.Select(BookAggregateEntityMapperExtensions.MapAggregateDtoToDomain).ToList();
+        var bookAggregateList = await GetBookAggregatesAsync(sql, parameters);
+        return bookAggregateList.Select(BookAggregateEntityMapperExtensions.MapAggregateToDomain).ToList();
     }
     
-    private async Task<List<BookAggregateEntity>> QueryBooksDtoAsync(string sql, object? parameters = null)
+    private async Task<List<BookAggregateEntity>> GetBookAggregatesAsync(string sql, object? parameters = null)
     {
         var connection = await _dbContext.GetConnectionAsync();
         var bookDictionary = new Dictionary<int, BookAggregateEntity>();
 
-        await connection.QueryAsync<BookEntity, PublisherEntity, AuthorEntity, SubjectEntity, DimensionsEntity, DeweyDecimalEntity, SeriesEntity, BookEntity>(
+        await connection.QueryAsync<BookEntity, PublisherEntity, AuthorEntity?, SubjectEntity?, DimensionsEntity, DeweyDecimalEntity?, SeriesEntity, BookEntity>(
             sql,
-            (bookDto, publisher, author, subject, dimensions, deweyDecimal, series) =>
+            (bookEntity, publisherEntity, authorEntity, subjectEntity, dimensionsEntity, deweyDecimalEntity, seriesEntity) =>
             {
-                if (!bookDictionary.TryGetValue(bookDto.Id, out var bookEntry))
+                if (!bookDictionary.TryGetValue(bookEntity.Id, out var bookEntry))
                 {
                     bookEntry = new BookAggregateEntity
                     {
-                        Book = bookDto,
-                        Publisher = publisher,
-                        Dimensions = dimensions,
-                        Series = series
+                        Book = bookEntity,
+                        Publisher = publisherEntity,
+                        Dimensions = dimensionsEntity,
+                        Series = seriesEntity
                     };
-                    bookDictionary.Add(bookDto.Id, bookEntry);
+                    bookDictionary.Add(bookEntity.Id, bookEntry);
                 }
+                
+                if (authorEntity is not null && bookEntry.Authors.All(a => a?.AuthorId != authorEntity.AuthorId))
+                    bookEntry.Authors.Add(authorEntity);
 
-                if (author != null && !bookEntry.Authors.Any(a => a.AuthorId == author.AuthorId))
-                    bookEntry.Authors.Add(author);
+                if (subjectEntity is not null && bookEntry.Subjects.All(s => s?.SubjectId != subjectEntity.SubjectId))
+                    bookEntry.Subjects.Add(subjectEntity);
 
-                if (subject != null && !bookEntry.Subjects.Any(s => s.SubjectId == subject.SubjectId))
-                    bookEntry.Subjects.Add(subject);
-
-                if (deweyDecimal != null && !bookEntry.DeweyDecimals.Any(dd => dd.Code == deweyDecimal.Code))
-                    bookEntry.DeweyDecimals.Add(deweyDecimal);
-
-                return bookDto;
+                if (deweyDecimalEntity is not null && bookEntry.DeweyDecimals.All(dd => dd?.Code != deweyDecimalEntity.Code))
+                {
+                    bookEntry.DeweyDecimals.Add(deweyDecimalEntity);
+                }
+                
+                return bookEntity;
             },
             param: parameters,
             splitOn: "publisherid,authorid,subjectid,heightcm,code,seriesid"

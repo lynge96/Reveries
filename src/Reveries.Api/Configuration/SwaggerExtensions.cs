@@ -25,8 +25,9 @@ public static class SwaggerExtensions
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
-            options.DocumentTitle = "Reveries API UI";
-            options.SwaggerEndpoint("/v1/swagger.json", "Reveries API v1");
+            options.DocumentTitle = "Reveries API";
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "Reveries API v1");
+            options.RoutePrefix = string.Empty;
         });
 
         return app;

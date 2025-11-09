@@ -45,7 +45,7 @@ public class BookManagementService : IBookManagementService
             if (book.Dimensions != null)
                 await SaveBookDimensionsAsync(savedBookId, book.Dimensions);
             
-            if (book.DeweyDecimals.Count != 0)
+            if (book.DeweyDecimals != null && book.DeweyDecimals.Count != 0)
                 await SaveDeweyDecimalsAsync(savedBookId, book.DeweyDecimals);
             
             await _unitOfWork.CommitAsync();

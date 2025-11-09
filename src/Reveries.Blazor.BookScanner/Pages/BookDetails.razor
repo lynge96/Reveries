@@ -1,0 +1,348 @@
+@page "/book/{Isbn}"
+@using Reveries.Contracts.DTOs
+<PageTitle>Reveries | @(_book?.Title ?? "Book Details")</PageTitle>
+@inject BookApiClient BooksApi
+@inject BookState BookState
+@inject NavigationManager Nav
+
+@if (_book == null)
+{
+    <LoadingSpinner Message="Loading book details..." />
+}
+else
+{
+    <div class="book-details-wrapper">
+        
+        
+        <div class="book-details-page">
+            
+            <!-- Back to scanner button -->
+            <div class="mb-2 mt-3">
+                <button type="button"
+                        class="btn return-btn"
+                        @onclick="@GoBack">
+                    <i class="bi bi-caret-left-fill icon"></i>
+                    <span>Back to Scanner</span>
+                </button>
+            </div>
+
+            <div class="book-card px-3 pt-3 pt-md-4 rounded">
+                <div class="row g-2 justify-content-evenly">
+
+                    <!-- Mobil: Header øverst -->
+                    <div class="col-12 d-md-none order-1">
+                        @BookHeader
+                    </div>
+
+                    <!-- Image -->
+                    <div class="col-12 col-md-4 text-center order-2 order-md-1">
+                        <img src="@_book.ImageUrl"
+                             class="book-cover img-fluid rounded shadow mb-3"
+                             alt="@_book.Title"/>
+
+                        <!-- Add book button -->
+                        <button type="button"
+                                class="btn action-btn w-100 mt-1"
+                                @onclick="@SaveBook"
+                                disabled="@(_book.Id != null)">
+                            @if (_book.Id == null)
+                            {
+                                <i class="bi bi-bookmark-fill me-2"></i>
+                                <span>Add book to shelf</span>
+                            }
+                            else if (_isSaving)
+                            {
+                                <div class="spinner-border spinner-border-sm text-light me-2" role="status"></div>
+                                <span>Saving...</span>
+                            }
+                            else if (_bookAdded)
+                            {
+                                <div class="book-added d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-bookmark-check me-2"></i>
+                                    <span>Book added to shelf</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <i class="bi bi-check-lg me-2"></i>
+                                <span>Already on the shelf</span>
+                            }
+                        </button>
+                    </div>
+
+                    <!-- Book Details -->
+                    <div class="col-12 col-md-7 ms-lg-4 order-3 order-md-2">
+
+                        <!-- Desktop: Header inde i detaljekolonnen -->
+                        <div class="d-none d-md-block">
+                            @BookHeader
+                        </div>
+
+                        <!-- Subjects -->
+                        @if (_book.Subjects?.Any() == true)
+                        {
+                            <div class="subject-badges">
+                                @foreach (var subject in _book.Subjects)
+                                {
+                                    <span class="subject-badge">@subject</span>
+                                }
+                            </div>
+                        }
+
+                        <hr class="my-3 border border-secondary opacity-15 rounded"/>
+
+                        <!-- Meta -->
+                        <div class="book-meta book-grid mb-3">
+                            <!-- ISBN -->
+                            <div class="book-info">
+                                <i class="bi bi-hash icon"></i>
+                                <div>
+                                    <div class="label">ISBN</div>
+                                    <div class="value">
+                                        @(_book.Isbn13 is not null && _book.Isbn13 != string.Empty
+                                            ? _book.Isbn13
+                                            : _book.Isbn10)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pages -->
+                            <div class="book-info">
+                                <i class="bi bi-book icon"></i>
+                                <div>
+                                    <div class="label">Pages</div>
+                                    <div class="value">@_book.Pages</div>
+                                </div>
+                            </div>
+
+                            <!-- Publisher -->
+                            <div class="book-info">
+                                <i class="bi bi-shop icon"></i>
+                                <div>
+                                    <div class="label">Publisher</div>
+                                    <div class="value">@_book.Publisher</div>
+                                </div>
+                            </div>
+
+                            <!-- Publication date -->
+                            <div class="book-info">
+                                <i class="bi bi-calendar icon"></i>
+                                <div>
+                                    <div class="label">Publication Date</div>
+                                    <div class="value">@_book.FormattedDate()</div>
+                                </div>
+                            </div>
+
+                            <!-- Language -->
+                            <div class="book-info">
+                                <i class="bi bi-globe icon"></i>
+                                <div>
+                                    <div class="label">Language</div>
+                                    <div class="value">@_book.Language</div>
+                                </div>
+                            </div>
+
+                            <!-- Binding -->
+                            <div class="book-info">
+                                <i class="bi bi-journal icon"></i>
+                                <div>
+                                    <div class="label">Binding</div>
+                                    <div class="value">@_book.Binding</div>
+                                </div>
+                            </div>
+
+                            <!-- Edition -->
+                            <div class="book-info">
+                                <i class="bi bi-tag icon"></i>
+                                <div>
+                                    <div class="label">Edition</div>
+                                    <div class="value">@_book.Edition</div>
+                                </div>
+                            </div>
+
+                            <!-- MSRP -->
+                            <div class="book-info">
+                                <i class="bi bi-currency-dollar icon"></i>
+                                <div>
+                                    <div class="label">Price</div>
+                                    <div class="value">@_book.Msrp</div>
+                                </div>
+                            </div>
+
+                            <!-- Dimensions -->
+                            <div class="book-info">
+                                <i class="bi bi-rulers icon"></i>
+                                <div>
+                                    <div class="label">Dimensions</div>
+                                    <div class="value">@_book.Dimensions?.HeightCm × @_book.Dimensions?.WidthCm × @_book.Dimensions?.ThicknessCm cm</div>
+                                </div>
+                            </div>
+
+                            <!-- Weight -->
+                            <div class="book-info">
+                                <i class="bi bi-box icon"></i>
+                                <div>
+                                    <div class="label">Weight</div>
+                                    @if (_book.Dimensions?.WeightG != null)
+                                    {
+                                        <div class="value">@_book.Dimensions?.WeightG g</div>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (_book.DeweyDecimal?.Any() == true)
+                            {
+                                <!-- Dewey Decimal -->
+                                <div class="book-info">
+                                    <i class="bi bi-123 icon"></i>
+                                    <div>
+                                        <div class="label">Dewey Decimal</div>
+                                        @if (_book.DeweyDecimal != null)
+                                        {
+                                            <div class="value">@string.Join(", ", _book.DeweyDecimal)</div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Datasource -->
+                            <div class="book-info">
+                                <i class="bi bi-database icon"></i>
+                                <div>
+                                    <div class="label">Datasource</div>
+                                    <div class="value"><BookSourceBadge DataSource="@_book.DataSource"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-3 border border-secondary opacity-15 rounded"/>
+
+                        <!-- Synopsis -->
+                        @if (!string.IsNullOrEmpty(_book.Synopsis))
+                        {
+                            <div class="synopsis-title mb-2">Synopsis</div>
+
+                            <div class="synopsis">
+                                <p class="synopsis-text mb-1">
+                                    @GetSynopsisMarkup()
+                                </p>
+
+                                @if (_book.Synopsis.Length > MaxSynopsisLength)
+                                {
+                                    <button class="btn btn-link p-0 text-muted mb-5"
+                                            @onclick="ToggleSynopsis">
+                                        @(_showFullSynopsis ? "Show less" : "Show more")
+                                    </button>
+                                }
+                            </div>
+                        }
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+@code {
+    [Parameter] public string? Isbn { get; set; }
+    private BookDto? _book;
+    private bool _showFullSynopsis;
+    private const int MaxSynopsisLength = 300;
+    private bool _isSaving;
+    private bool _bookAdded;
+
+    private void ToggleSynopsis()
+    {
+        _showFullSynopsis = !_showFullSynopsis;
+    }
+
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("/scanner");
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (BookState.CurrentBook != null && BookState.CurrentBook.Isbn13 == Isbn)
+        {
+            _book = BookState.CurrentBook;
+        }
+        else if (!string.IsNullOrEmpty(Isbn))
+        {
+            _book = await BooksApi.GetAsync(Isbn);
+        }
+    }
+
+    private async Task SaveBook()
+    {
+        try
+        {
+            _isSaving = true;
+            StateHasChanged();
+
+            var bookId = await BooksApi.CreateAsync(_book!);
+
+            if (bookId > 0)
+            {
+                _book!.Id = bookId;
+                _bookAdded = true;
+                
+                Console.WriteLine($"Book created with ID {bookId}");
+            }
+        }
+        catch (ApiException ex)
+        {
+            Console.WriteLine($"API error: {ex.Message}");
+        }
+        catch (ApiConnectionException)
+        {
+            Console.WriteLine("Could not connect to API");
+        }
+        finally
+        {
+            _isSaving = false;
+            StateHasChanged();
+        }
+    }
+    
+    private RenderFragment BookHeader => @<div>
+        <!-- Title -->
+        <div>
+            <h1 class="book-title mb-1">@_book!.Title</h1>
+        </div>
+
+        <!-- Series -->
+        @if (!string.IsNullOrEmpty(_book.Series))
+        {
+            <h5 class="series-info text-muted mb-1">
+                In the <strong>@_book.Series</strong> series
+                @(_book.NumberInSeries.HasValue ? $" - Book {_book.NumberInSeries}" : "")
+            </h5>
+        }
+
+        <!-- Author -->
+        <div class="author-info d-flex align-items-center gap-2">
+            <i class="bi bi-person author-icon"></i>
+            <div class="text-muted author-name">
+                by @string.Join(", ", _book.Authors ?? [])
+            </div>
+        </div>
+    </div>;
+    
+    private MarkupString GetSynopsisMarkup()
+    {
+        if (string.IsNullOrEmpty(_book?.Synopsis))
+            return new MarkupString(string.Empty);
+
+        var synopsisText = _showFullSynopsis
+            ? _book.Synopsis
+            : _book.Synopsis.Length > MaxSynopsisLength
+                ? _book.Synopsis.Substring(0, MaxSynopsisLength) + "..."
+                : _book.Synopsis;
+        
+        return new MarkupString(synopsisText);
+    }
+
+}

@@ -21,7 +21,6 @@ public static class BookMerger
             Isbn10 = Prefer(isbndbBook.Isbn10, googleBook.Isbn10),
             Title = Prefer(googleBook.Title, isbndbBook.Title)!,
             Pages = isbndbBook.Pages > 0 ? isbndbBook.Pages : googleBook.Pages,
-            LanguageIso639 = Prefer(isbndbBook.LanguageIso639, googleBook.LanguageIso639),
             Language = Prefer(isbndbBook.Language, googleBook.Language),
             PublishDate = isbndbBook.PublishDate ?? googleBook.PublishDate,
             Synopsis = googleBook.Synopsis ?? isbndbBook.Synopsis,

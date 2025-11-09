@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Reveries.Core.Enums;
+﻿using Reveries.Core.Enums;
 using Reveries.Core.Helpers;
 using Reveries.Core.Validation;
 
@@ -15,11 +14,8 @@ public class Book : BaseEntity
     public int? Pages { get; init; }
     public bool IsRead { get; set; }
     public Publisher? Publisher { get; set; }
-    public string? LanguageIso639 { get; init; }
     public string? Language { get; init; }
-    public DateTime? PublishDate { get; init; }
-    public string PublishDateFormatted => PublishDate?
-        .ToString("dd-MM-yyyy", CultureInfo.InvariantCulture) ?? "Unknown Date";
+    public string? PublishDate { get; init; }
     public string? Synopsis { get; init; }
     public string? ImageThumbnail { get; init; }
     public string? ImageUrl { get; init; }
@@ -64,7 +60,10 @@ public class Book : BaseEntity
         decimal? msrp,
         string? binding,
         string? edition,
-        BookDimensions? dimensions,
+        decimal? weight,
+        decimal? thickness,
+        decimal? height,
+        decimal? width,
         IEnumerable<string>? subjects,
         IEnumerable<string>? deweyDecimals,
         DataSource dataSource
@@ -86,9 +85,8 @@ public class Book : BaseEntity
                 .ToList(),
             Pages = pages,
             IsRead = false,
-            PublishDate = publishDate.ParsePublishDate(),
+            PublishDate = publishDate,
             Publisher = Publisher.Create(publisher),
-            LanguageIso639 = languageIso639,
             Language = languageIso639.GetLanguageName(),
             Synopsis = synopsis.CleanHtml(),
             ImageThumbnail = imageThumbnail,
@@ -97,10 +95,10 @@ public class Book : BaseEntity
             Binding = binding?.NormalizeBinding(),
             Edition = edition,
             Dimensions = BookDimensions.Create(
-                dimensions?.HeightCm, 
-                dimensions?.WidthCm, 
-                dimensions?.ThicknessCm, 
-                dimensions?.WeightG),
+                height, 
+                width, 
+                thickness, 
+                weight),
             Subjects = (subjects ?? [])
                 .Select(Subject.Create)
                 .ToList(),

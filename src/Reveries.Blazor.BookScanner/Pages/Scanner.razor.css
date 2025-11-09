@@ -1,0 +1,241 @@
+/* === Titel === */
+.isbn-title {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: #9152E7;
+}
+
+.isbn-subtitle {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: #0F172A7F;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: #0F172AFF;
+}
+
+.card-icon {
+    font-size: 1.2rem;
+    color: rgba(15, 23, 42, 0.7);
+}
+
+/* === Video container og scanning === */
+#video-container {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    min-width: 630px;
+    margin: 0 auto;
+    background: #0F172A7F;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+}
+
+#video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.scan-region {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 25%;
+    pointer-events: none;
+}
+
+.scan-region::before,
+.scan-region::after,
+.scan-line::before,
+.scan-line::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(230, 206, 206, 0.7);
+    border-radius: 2px;
+}
+
+.scan-region::before {
+    top: 0; left: 0;
+    border-right: none;
+    border-bottom: none;
+}
+
+.scan-region::after {
+    top: 0; right: 0;
+    border-left: none;
+    border-bottom: none;
+}
+
+.scan-line::before {
+    bottom: 0; left: 0;
+    border-right: none;
+    border-top: none;
+}
+
+.scan-line::after {
+    bottom: 0; right: 0;
+    border-left: none;
+    border-top: none;
+}
+
+/* Grøn glød ved succes */
+.scan-region.scan-success::before,
+.scan-region.scan-success::after,
+.scan-region.scan-success .scan-line::before,
+.scan-region.scan-success .scan-line::after {
+    border-color: rgba(40, 167, 69, 0.9);
+}
+
+/* === Fullscreen container === */
+.scanner-page {
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* === Scanner Card === */
+.scanner-card {
+    background-color: #ffffff;
+    border-radius: 2rem;
+    border: 1px solid rgba(224, 224, 224, 0.5);
+    max-width: 680px;
+    min-height: 100vh;
+    justify-content: center;
+}
+
+/* === Knapper === */
+.action-btn {
+    align-items: center;
+    border: none;
+    border-radius: 0.5rem;
+    background-color: #9152E7;
+    transition: all 0.2s ease-in-out;
+    font-size: 1.2rem;
+    color: #ffffff;
+}
+
+.action-btn:hover:not(:disabled) {
+    background-color: #7a3ecc;  /* lidt mørkere ved hover */
+}
+
+.action-btn:active:not(:disabled) {
+    color: #ffffff;
+    background-color: #692fb8;  /* endnu mørkere ved klik */
+}
+
+.action-btn:focus,
+.action-btn:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.action-btn i {
+    font-size: 1.2rem;
+    color: #ffffff;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.action-btn i.bi-check-lg {
+    font-size: 1.2rem;
+    color: #ffffff;
+}
+
+/* === Inputfelt === */
+.form-control {
+    background-color: #e8e8e8;
+    border: 3px solid #e8e8e8;
+    font-size: 1.1rem;
+    font-weight: 300;
+    border-radius: 0.5rem;
+}
+
+.form-control::placeholder {
+    color: rgba(0,0,0,0.4);
+}
+
+.form-control:focus::placeholder {
+    color: transparent;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 8px rgba(145, 82, 231, 0.4);
+    border-radius: 0.5rem;
+    border-color: #9152E7;
+    outline: none;
+}
+
+/* Grøn kant ved succesfuld scanning */
+.isbn-input.scan-success {
+    border: 3px solid #28a745;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
+}
+
+/* Rød kant ved fejl */
+.isbn-input.is-invalid {
+    border: 3px solid #dc3545;
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
+}
+
+.alert{
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    color: indianred;
+    background-color: rgba(255, 228, 225, 0.5);
+}
+
+/* === Responsiv tilpasning === */
+@media (max-width: 768px) {
+    #video-container {
+        aspect-ratio: 9 / 16;
+        max-height: 40vh;
+        min-width: 0px;
+    }
+
+    .scan-region {
+        width: 75%;
+        height: 40%;
+    }
+
+    .scan-region::before,
+    .scan-region::after,
+    .scan-line::before,
+    .scan-line::after {
+        width: 35px;
+        height: 35px;
+    }
+
+    .isbn-input-group input {
+        font-size: 1rem;
+    }
+
+    .isbn-title {
+        font-size: 1.4rem;
+    }
+    .isbn-subtitle {
+        font-size: 1rem;
+    }
+
+    .action-btn i {
+        font-size: 1rem;
+    }
+    .action-btn {
+        font-size: 1rem;
+        height: 2.2rem;
+    }
+}

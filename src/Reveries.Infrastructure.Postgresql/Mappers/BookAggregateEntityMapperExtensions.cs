@@ -5,7 +5,7 @@ namespace Reveries.Infrastructure.Postgresql.Mappers;
 
 public static class BookAggregateEntityMapperExtensions
 {
-    public static Book MapAggregateDtoToDomain(this BookAggregateEntity entity)
+    public static Book MapAggregateToDomain(this BookAggregateEntity entity)
     {
         var book = entity.Book.ToDomain();
 
@@ -13,9 +13,18 @@ public static class BookAggregateEntityMapperExtensions
         book.Series = entity.Series?.ToDomain();
         book.Dimensions = entity.Dimensions?.ToDomain();
 
-        book.Authors = entity.Authors.Select(a => a.ToDomain()).ToList();
-        book.Subjects = entity.Subjects.Select(s => s.ToDomain()).ToList();
-        book.DeweyDecimals = entity.DeweyDecimals.Select(dd => dd.ToDomain()).ToList();
+        book.Authors = entity.Authors?
+            .Where(a => a is not null)
+            .Select(a => a!.ToDomain())
+            .ToList() ?? new();
+        book.Subjects = entity.Subjects?
+            .Where(s => s is not null)
+            .Select(s => s!.ToDomain())
+            .ToList();
+        book.DeweyDecimals = entity.DeweyDecimals?
+            .Where(dd => dd is not null)
+            .Select(dd => dd!.ToDomain())
+            .ToList() ?? new();
 
         return book;
     }

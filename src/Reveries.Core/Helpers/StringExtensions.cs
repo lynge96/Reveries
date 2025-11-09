@@ -26,19 +26,20 @@ public static partial class StringExtensions
             return string.Empty;
 
         // Først erstat HTML line breaks med mellemrum
-        var noHtmlBreaks = RegexPatterns.HtmlLineBreaksPattern().Replace(input, " ");
+        // var noHtmlBreaks = RegexPatterns.HtmlLineBreaksPattern().Replace(input, " ");
     
         // Fjern HTML tags
-        var noHtml = RegexPatterns.HtmlTagsPattern().Replace(noHtmlBreaks, string.Empty);
+        // var noHtml = RegexPatterns.HtmlTagsPattern().Replace(noHtmlBreaks, string.Empty);
     
         // Erstat alle typer af linjeskift med mellemrum
-        var noLineBreaks = RegexPatterns.LineBreaksPattern().Replace(noHtml, " ");
+        // var noLineBreaks = RegexPatterns.LineBreaksPattern().Replace(noHtml, " ");
     
         // Fjern mellemrum
-        var singleSpaces = RegexPatterns.MultipleSpacesPattern().Replace(noLineBreaks, " ");
+        // var singleSpaces = RegexPatterns.MultipleSpacesPattern().Replace(noLineBreaks, " ");
     
         // Trim mellemrum i start og slut
-        return singleSpaces.Trim();
+        // return singleSpaces.Trim();
+        return input;
     }
     
     public static DateTime? ParsePublishDate(this string? dateString)

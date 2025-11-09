@@ -1,3 +1,4 @@
+using System.Globalization;
 using Reveries.Core.Enums;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
@@ -9,6 +10,12 @@ public static class GoogleBookDtoMapperExtensions
 {
     public static Book ToBook(this GoogleVolumeInfoDto googleBookDto)
     {
+        var thickness = googleBookDto.Dimensions?.Thickness.ParseDimension();
+        var height = googleBookDto.Dimensions?.Height.ParseDimension();
+        var width = googleBookDto.Dimensions?.Width.ParseDimension();
+        
+        var (normalizedHeight, normalizedWidth, normalizedThickness) = DimensionNormalizer.NormalizeDimensions(height, width, thickness);
+
         return Book.Create(
             isbn13: googleBookDto.IndustryIdentifiers?
                 .FirstOrDefault(i => i.Type == "ISBN_13")?.Identifier,
@@ -26,11 +33,10 @@ public static class GoogleBookDtoMapperExtensions
             msrp: null,
             binding: googleBookDto.PrintType,
             edition: googleBookDto.Subtitle,
-            dimensions: BookDimensions.Create(
-                heightCm: googleBookDto.Dimensions?.Height.ParseDimension(),
-                widthCm: googleBookDto.Dimensions?.Width.ParseDimension(),
-                thicknessCm: googleBookDto.Dimensions?.Thickness.ParseDimension(),
-                weightG: null), 
+            weight: null,
+            thickness: normalizedThickness,
+            height: normalizedHeight,
+            width: normalizedWidth,
             subjects: googleBookDto.Categories.ExtractUniqueSubjects(),
             deweyDecimals: null,
             dataSource: DataSource.GoogleBooksApi
@@ -45,7 +51,20 @@ public static class GoogleBookDtoMapperExtensions
         return categories
             .Where(c => !string.IsNullOrWhiteSpace(c))
             .SelectMany(c => c.Split('/', StringSplitOptions.TrimEntries))
+            .Select(c => c.ToTitleCase())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static decimal? ParseDimension(this string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var numericPart = value.Replace("cm", "", StringComparison.OrdinalIgnoreCase).Trim();
+
+        return decimal.TryParse(numericPart, NumberStyles.Any, CultureInfo.InvariantCulture, out var result)
+            ? result
+            : null;
     }
 }

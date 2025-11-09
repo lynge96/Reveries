@@ -1,4 +1,7 @@
+using Reveries.Api.Interfaces;
+using Reveries.Api.Services;
 using Reveries.Application.Configuration;
+using Reveries.Application.Interfaces.Services;
 using Reveries.Infrastructure.Postgresql.Configuration;
 using Reveries.Infrastructure.Redis.Configuration;
 using Reveries.Integration.GoogleBooks.Configuration;
@@ -15,7 +18,8 @@ public static class ReveriesServicesExtensions
             .AddInfrastructureServices()
             .AddIsbndbServices()
             .AddGoogleBooksServices()
-            .AddRedisCacheServices();
+            .AddRedisCacheServices()
+            .AddScoped<IBookService, BookService>();
         
         return services;
     }

@@ -77,7 +77,6 @@ public class GoogleBookService : IGoogleBookService
             PublishDate = book.PublishDate ?? volume.PublishDate,
             Subjects = volume.Subjects,
             Language = book.Language ?? volume.Language,
-            LanguageIso639 = book.LanguageIso639 ?? volume.LanguageIso639,
             Binding = book.Binding,
             ImageThumbnail = book.ImageThumbnail ?? volume.ImageThumbnail,
             Dimensions = volume.Dimensions

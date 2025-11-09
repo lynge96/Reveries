@@ -1,6 +1,7 @@
 using DotNetEnv;
 using Reveries.Api.Configuration;
 using Reveries.Api.Middleware;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,10 +10,13 @@ if (!File.Exists(".env"))
 Env.Load();
 builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.AddReveriesServices();
-builder.Services.AddCorsPolicies();
-builder.Services.AddSwaggerDocumentation();
-builder.Services.AddControllers();
+builder.Services
+    .AddReveriesServices()
+    .AddCorsPolicies()
+    .AddSwaggerDocumentation()
+    .AddControllers();
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 var app = builder.Build();
 

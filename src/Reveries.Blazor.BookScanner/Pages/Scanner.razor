@@ -1,0 +1,209 @@
+﻿@page "/"
+@page "/scanner"
+<PageTitle>Reveries | Book Scanner</PageTitle>
+@inject IJSRuntime Js
+@inject NavigationManager Nav
+@inject BookApiClient BooksApi
+@inject BookState BookState
+
+@using Reveries.Contracts.DTOs
+@implements IDisposable
+
+<div class="scanner-page mt-4 d-flex justify-content-center">
+
+    <div class="row">
+        <div class="col-12">
+            
+            <div class="text-start ms-2 mt-3">
+                <h1 class="isbn-title mb-1">ISBN Scanner</h1>
+                <p class="isbn-subtitle">Scan a book barcode or enter ISBN manually</p>
+            </div>
+
+            <!-- Scanner card -->
+            <div class="scanner-card p-4 pt-3 rounded">
+                
+                <!-- Video stream -->
+                <div class="text-start d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-upc-scan card-icon"></i>
+                    <p class="card-title">Barcode Scanner</p>
+                </div>
+                
+                <div id="video-container" class="mb-4 rounded shadow-sm">
+                    <video id="video" autoplay playsinline></video>
+                    <div class="scan-region @(HasScannedSuccessfully ? "scan-success" : "")">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+
+                <!-- Input -->
+                <div class="text-start d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-search card-icon"></i>
+                    <p class="card-title">Manual Entry</p>
+                </div>
+                
+                <!-- Label -->   
+                <div class="text-start">
+                    <label class="text-muted"><strong>ISBN Code</strong></label>
+                </div>
+
+                <!-- ISBN-felt -->
+                <input class="form-control text-start)"
+                       @bind="ScannedIsbn"
+                       @bind:event="oninput"
+                       @onkeydown="HandleKeyDown"
+                       placeholder="Enter 10 or 13 digit ISBN"
+                       maxlength="13"/>
+                
+                <div>
+                    <!-- Search button -->
+                    <button type="button"
+                            class="btn action-btn mt-3 col-12 p-2 d-flex align-items-center justify-content-center gap-2"
+                            @onclick="SearchManualIsbn"
+                            disabled="@string.IsNullOrWhiteSpace(ScannedIsbn)">
+
+                        @if (HasScannedSuccessfully)
+                        {
+                            <!-- Succes: flueben -->
+                            <i class="bi bi-check-lg text-light me-2"></i>
+                            <span>Book Found</span>
+
+                        }
+                        else if (_isProcessing)
+                        {
+                            <!-- Spinner under søgning -->
+                            <div class="spinner-border spinner-border-sm text-light me-2" role="status"></div>
+                            <span>Searching...</span>
+                        }
+                        else
+                        {
+                            <!-- Standard: søg -->
+                            <i class="bi bi-search text-light me-2"></i>
+                            <span>Find Book</span>
+                        }
+                    </button>
+                </div>
+                
+                <!-- Fejlbesked -->
+                @if (!string.IsNullOrWhiteSpace(_errorMessage))
+                {
+                    <div class="alert mt-3 d-flex align-items-center gap-2 text-start py-2" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        @_errorMessage
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? _inputIsbn;
+    private BookDto? _bookDto;
+    private string? _errorMessage;
+    private bool _isProcessing;
+    private DotNetObjectReference<Scanner>? _objRef;
+    private bool HasScannedSuccessfully => _bookDto is not null;
+
+    private string? ScannedIsbn
+    {
+        get => _inputIsbn;
+        set
+        {
+            if (value is null)
+            {
+                _inputIsbn = null;
+                return;
+            }
+
+            _inputIsbn = new string(value.Where(c => char.IsDigit(c) || c is 'X' or 'x').ToArray()).ToUpper();
+            _errorMessage = null;
+        }
+    }
+    
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await SearchManualIsbn();
+    }
+    
+    private async Task SearchManualIsbn()
+    {
+        if (string.IsNullOrWhiteSpace(ScannedIsbn))
+            return;
+            
+        await OnIsbnScanned(ScannedIsbn);
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _objRef = DotNetObjectReference.Create(this);
+            await Js.InvokeVoidAsync("scanner.startContinuousScan", _objRef);
+            await Js.InvokeVoidAsync("disableScroll");
+        }
+    }
+    
+    [JSInvokable]
+    public async Task OnIsbnScanned(string scannedIsbn)
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        ScannedIsbn = scannedIsbn;
+        _errorMessage = null;
+        await Task.Delay(600);
+        
+        try
+        {
+            _bookDto = await BooksApi.GetAsync(scannedIsbn);
+
+            if (_bookDto != null)
+            {
+                await Js.InvokeVoidAsync("preloadImage", _bookDto.ImageUrl);    // Preloading image
+                
+                BookState.SetBook(_bookDto);
+                StateHasChanged();
+                
+                await Task.Delay(600);
+                Nav.NavigateTo($"/book/{ScannedIsbn}");
+            }
+        }
+        catch (Exception ex)
+        {
+            switch (ex)
+            {
+                case ApiConnectionException:
+                    _errorMessage = ex.Message;
+                    break;
+                case ApiException { StatusCode: HttpStatusCode.BadRequest }:
+                    _errorMessage = scannedIsbn.Length is not (10 or 13)
+                        ? "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN."
+                        : "Invalid ISBN number. Please check the number and try again.";
+                    break;
+                case ApiException { StatusCode: HttpStatusCode.NotFound }:
+                    _errorMessage = "The book was not found. Try a different ISBN number.";
+                    break;
+                default:
+                    _errorMessage = "An unexpected error occurred. Please try again later.";
+                    break;
+            }
+            
+            _bookDto = null;
+            BookState.Clear();
+            StateHasChanged();
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        _ = Js.InvokeVoidAsync("scanner.stopContinuousScan");
+        _ = Js.InvokeVoidAsync("enableScroll");
+        _objRef?.Dispose();
+    }
+}

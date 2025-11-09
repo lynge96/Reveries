@@ -72,6 +72,4 @@ public static partial class BookExtensions
 
         return (title.ToTitleCase(), seriesName?.ToTitleCase(), seriesNumber);
     }
-
-
 }
