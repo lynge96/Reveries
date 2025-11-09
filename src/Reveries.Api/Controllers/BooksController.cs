@@ -1,7 +1,9 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Interfaces;
 using Reveries.Contracts.DTOs;
 using Reveries.Core.Validation;
+using ValidationException = Reveries.Core.Exceptions.ValidationException;
 
 namespace Reveries.Api.Controllers;
 
@@ -10,10 +12,12 @@ namespace Reveries.Api.Controllers;
 public class BooksController : ControllerBase
 {
     private readonly IBookService _bookService;
+    private readonly IValidator<CreateBookDto> _createBookValidator;
 
-    public BooksController(IBookService bookService)
+    public BooksController(IBookService bookService, IValidator<CreateBookDto> createBookValidator)
     {
         _bookService = bookService;
+        _createBookValidator = createBookValidator;
     }
 
     [HttpGet]
@@ -48,6 +52,11 @@ public class BooksController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<int>> Create([FromBody] CreateBookDto bookData, CancellationToken ct)
     {
+        var validationResult = await _createBookValidator.ValidateAsync(bookData, ct);
+        
+        if (!validationResult.IsValid)
+            throw new ValidationException(validationResult.Errors);
+        
         var bookId = await _bookService.CreateBookAsync(bookData, ct);
 
         return CreatedAtAction(

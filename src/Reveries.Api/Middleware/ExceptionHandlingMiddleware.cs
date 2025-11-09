@@ -36,21 +36,34 @@ public class ExceptionHandlingMiddleware
             TraceId = context.TraceIdentifier
         };
 
-        if (exception is BaseAppException appEx)
+        switch (exception)
         {
-            context.Response.StatusCode = (int)appEx.StatusCode;
-            errorResponse.StatusCode = (int)appEx.StatusCode;
-            errorResponse.Error = appEx.ErrorType;
-            errorResponse.Message = appEx.Message;
-        }
-        else
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            errorResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
-            errorResponse.Error = "ServerError";
-            errorResponse.Message = "An unexpected error occurred.";
+            case ValidationException validationEx:
+                context.Response.StatusCode = (int)validationEx.StatusCode;
+                errorResponse.StatusCode = (int)validationEx.StatusCode;
+                errorResponse.Error = validationEx.ErrorType;
+                errorResponse.Message = validationEx.Message;
+                errorResponse.Details = validationEx.Failures.Select(f => new
+                {
+                    Field = f.PropertyName,
+                    Error = f.ErrorMessage
+                });
+                break;
 
-            _logger.LogError(exception, "Unhandled exception: {Message}", exception.Message);
+            case BaseAppException appEx:
+                context.Response.StatusCode = (int)appEx.StatusCode;
+                errorResponse.StatusCode = (int)appEx.StatusCode;
+                errorResponse.Error = appEx.ErrorType;
+                errorResponse.Message = appEx.Message;
+                break;
+
+            default:
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                errorResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
+                errorResponse.Error = "ServerError";
+                errorResponse.Message = "An unexpected error occurred.";
+                _logger.LogError(exception, "Unhandled exception: {Message}", exception.Message);
+                break;
         }
         
         await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
