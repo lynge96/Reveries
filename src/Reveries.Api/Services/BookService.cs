@@ -52,7 +52,7 @@ public class BookService : IBookService
         return books.Select(book => book.ToDto());
     }
 
-    public async Task<int> CreateBookAsync(BookDto bookDto, CancellationToken cancellationToken = default)
+    public async Task<int> CreateBookAsync(CreateBookDto bookDto, CancellationToken cancellationToken = default)
     {
         var book = bookDto.ToDomain();
 

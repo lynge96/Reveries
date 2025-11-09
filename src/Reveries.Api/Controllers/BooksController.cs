@@ -30,7 +30,7 @@ public class BooksController : ControllerBase
     [HttpGet("{isbn}")]
     public async Task<ActionResult<BookDto>> GetByIsbn(string isbn, CancellationToken ct)
     {
-        IsbnValidator.TryValidate(isbn, out var validatedIsbn);
+        IsbnValidator.NormalizeAndValidate(isbn, out var validatedIsbn);
         
         var book = await _bookService.GetBookByIsbnAsync(validatedIsbn, ct);
         
@@ -46,7 +46,7 @@ public class BooksController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult<int>> Create([FromBody] BookDto bookData, CancellationToken ct)
+    public async Task<ActionResult<int>> Create([FromBody] CreateBookDto bookData, CancellationToken ct)
     {
         var bookId = await _bookService.CreateBookAsync(bookData, ct);
 

@@ -11,7 +11,7 @@ public static partial class IsbnValidator
     [GeneratedRegex(@"^(?:\d{9}[\dxX]|\d{13})$")]
     private static partial Regex IsbnPattern();
     
-    public static bool TryValidate(string isbn, out string normalized)
+    public static bool NormalizeAndValidate(string isbn, out string normalized)
     {
         normalized = Normalize(isbn);
 
@@ -28,10 +28,10 @@ public static partial class IsbnValidator
     
     public static void ValidateOrThrow(string? isbn13, string? isbn10)
     {
-        if (!string.IsNullOrEmpty(isbn13) && !TryValidate(isbn13, out _))
+        if (!string.IsNullOrEmpty(isbn13) && !NormalizeAndValidate(isbn13, out _))
             throw new IsbnValidationException($"Invalid ISBN-13 checksum for: {isbn13}");
 
-        if (!string.IsNullOrEmpty(isbn10) && !TryValidate(isbn10, out _))
+        if (!string.IsNullOrEmpty(isbn10) && !NormalizeAndValidate(isbn10, out _))
             throw new IsbnValidationException($"Invalid ISBN-10 checksum: {isbn10}");
     }
 

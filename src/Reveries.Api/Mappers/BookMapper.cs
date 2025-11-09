@@ -42,13 +42,12 @@ public static class BookMapper
         };
     }
 
-    public static Book ToDomain(this BookDto bookDto)
+    public static Book ToDomain(this CreateBookDto bookDto)
     {
         var dataSourceParsed = Enum.TryParse<DataSource>(bookDto.DataSource, true, out var ds);
 
         return new Book
         {
-            Id = bookDto.Id,
             Isbn13 = bookDto.Isbn13,
             Isbn10 = bookDto.Isbn10,
             Title = bookDto.Title!,
@@ -66,7 +65,7 @@ public static class BookMapper
             Subjects = bookDto.Subjects?.Select(Subject.Create).ToList(),
             Series = bookDto.Series != null ? Series.Create(bookDto.Series) : null,
             SeriesNumber = bookDto.NumberInSeries,
-            IsRead = bookDto.IsRead,
+            // IsRead = bookDto.IsRead,
             Dimensions = new BookDimensions
             {
                 HeightCm = bookDto.Dimensions?.HeightCm,

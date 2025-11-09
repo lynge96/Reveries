@@ -42,7 +42,29 @@ public class BookApiClient
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("books", bookDto);
+            var createDto = new CreateBookDto
+            {
+                Isbn13 = bookDto.Isbn13,
+                Isbn10 = bookDto.Isbn10,
+                Title = bookDto.Title,
+                Authors = bookDto.Authors,
+                Publisher = bookDto.Publisher,
+                Language = bookDto.Language,
+                PublicationDate = bookDto.PublicationDate,
+                Synopsis = bookDto.Synopsis,
+                ImageUrl = bookDto.ImageUrl,
+                ImageThumbnail = bookDto.ImageThumbnail,
+                Msrp = bookDto.Msrp,
+                Binding = bookDto.Binding,
+                Edition = bookDto.Edition,
+                Subjects = bookDto.Subjects,
+                Series = bookDto.Series,
+                NumberInSeries = bookDto.NumberInSeries,
+                DeweyDecimal = bookDto.DeweyDecimal,
+                DataSource = bookDto.DataSource
+            };
+            
+            var response = await _httpClient.PostAsJsonAsync("books", createDto);
 
             if (response.IsSuccessStatusCode)
             {
