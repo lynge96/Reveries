@@ -11,16 +11,12 @@ public static class RedisServiceCollectionExtensions
 {
     public static IServiceCollection AddRedisCacheServices(this IServiceCollection services)
     {
-        services.Configure<RedisSettings>(options =>
+        services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
         {
-            options.ConnectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") 
-                             ?? throw new InvalidOperationException("REDIS_CONNECTION_STRING missing");
-        });
-
-        services.AddSingleton<IConnectionMultiplexer>(sp =>
-        {
-            var settings = sp.GetRequiredService<IOptions<RedisSettings>>().Value;
-            return ConnectionMultiplexer.Connect(settings.ConnectionString);
+            var settings = serviceProvider.GetRequiredService<IOptions<RedisSettings>>().Value;
+            var connectionString = settings.GetConnectionString();
+            
+            return ConnectionMultiplexer.Connect(connectionString);
         });
         
         services.AddScoped<ICacheService, RedisCacheService>();

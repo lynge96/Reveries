@@ -1,8 +1,7 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Core.Configuration;
-using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
 
@@ -12,15 +11,17 @@ public class GoogleBooksClient : IGoogleBooksClient
 {
     private readonly HttpClient _httpClient;
     private readonly GoogleBooksSettings _settings;
+    private readonly ILogger<GoogleBooksClient> _logger;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
     
-    public GoogleBooksClient(HttpClient httpClient, IOptions<GoogleBooksSettings> settings)
+    public GoogleBooksClient(HttpClient httpClient, IOptions<GoogleBooksSettings> settings, ILogger<GoogleBooksClient> logger)
     {
         _httpClient = httpClient;
         _settings = settings.Value;
+        _logger = logger;
     }
     
     public async Task<GoogleBookResponseDto?> FetchBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)

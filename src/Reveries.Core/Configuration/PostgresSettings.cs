@@ -12,16 +12,10 @@ public sealed class PostgresSettings
     public int TimeoutSeconds { get; init; }
     public int CommandTimeoutSeconds { get; init; }
     
-    public string GetConnectionString()
-    {
-        if (!string.IsNullOrWhiteSpace(ConnectionString))
-            return ConnectionString;
-
-        return $"Host={Host};Port={Port};Database={Database};Username={Username};Password={Password};" +
-               $"Timeout={TimeoutSeconds};CommandTimeout={CommandTimeoutSeconds};" +
-               $"Pooling=true;MinPoolSize={Pool.Min};MaxPoolSize={Pool.Max};Application Name=Reveries";
-    }
-    
+    public string GetConnectionString() => 
+        string.IsNullOrWhiteSpace(ConnectionString)
+            ? $"Host={Host};Port={Port};Database={Database};Username={Username};Password={Password};"
+            : ConnectionString;
 }
 
 public sealed class PoolSettings

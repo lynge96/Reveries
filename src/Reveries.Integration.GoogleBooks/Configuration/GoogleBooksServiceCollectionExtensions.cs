@@ -8,8 +8,7 @@ public static class GoogleBooksServiceCollectionExtensions
 {
     public static IServiceCollection AddGoogleBooksServices(this IServiceCollection services)
     {
-        services.AddHttpClient();
-        services.AddGoogleBooks();
+        services.AddGoogleBooksClients();
         services.AddScoped<IGoogleBookService, GoogleBookService>();
         
         return services;

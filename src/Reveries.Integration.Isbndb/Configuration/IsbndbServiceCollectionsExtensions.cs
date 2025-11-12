@@ -8,8 +8,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddIsbndbServices(this IServiceCollection services)
     {
-        services.AddHttpClient();
-        services.ConfigureIsbndbSettings();
+        services.AddIsbndbClients();
 
         services.AddScoped<IIsbndbBookService, IsbndbBookService>();
         services.AddScoped<IIsbndbAuthorService, IsbndbAuthorService>();

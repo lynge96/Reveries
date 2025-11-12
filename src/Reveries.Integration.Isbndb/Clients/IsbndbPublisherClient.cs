@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Integration.Isbndb.DTOs.Publishers;
 using Reveries.Integration.Isbndb.Interfaces;
@@ -9,14 +10,16 @@ namespace Reveries.Integration.Isbndb.Clients;
 public class IsbndbPublisherClient : IIsbndbPublisherClient
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<IsbndbPublisherClient> _logger;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
     
-    public IsbndbPublisherClient(HttpClient httpClient)
+    public IsbndbPublisherClient(HttpClient httpClient, ILogger<IsbndbPublisherClient> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
     }
     
     public Task<PublisherDetailsReponseDto?> FetchPublisherDetailsAsync(string publisherName, string? languageCode, CancellationToken cancellationToken = default)

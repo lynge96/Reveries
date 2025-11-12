@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using Reveries.Integration.Isbndb.DTOs.Books;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers.Converters;
@@ -10,15 +11,17 @@ namespace Reveries.Integration.Isbndb.Clients;
 public class IsbndbBookClient : IIsbndbBookClient
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<IsbndbBookClient> _logger;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         Converters = { new DecimalConverter() }
     };
     
-    public IsbndbBookClient(HttpClient httpClient)
+    public IsbndbBookClient(HttpClient httpClient, ILogger<IsbndbBookClient> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
     }
 
     public async Task<BookDetailsDto?> FetchBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)

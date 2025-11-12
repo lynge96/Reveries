@@ -1,3 +1,4 @@
+using DotNetEnv;
 using Reveries.Core.Configuration;
 
 namespace Reveries.Api.Configuration;
@@ -6,9 +7,6 @@ public static class ConfigurationExtensions
 {
     public static IServiceCollection AddAppConfiguration(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
     {
-        if (env.IsDevelopment() && File.Exists(".env"))
-            DotNetEnv.Env.Load();
-
         // === External APIs ===
         services.AddOptions<IsbndbSettings>()
             .Bind(config.GetSection("ExternalApis:Isbndb"))

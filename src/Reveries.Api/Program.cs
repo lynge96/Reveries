@@ -1,14 +1,17 @@
+using DotNetEnv;
 using FluentValidation;
 using Reveries.Api.Configuration;
 using Reveries.Api.Middleware;
+
+if (File.Exists(".env"))
+    Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilogConfiguration();
 
-builder.Services.AddAppConfiguration(builder.Configuration, builder.Environment);
-
 builder.Services
+    .AddAppConfiguration(builder.Configuration, builder.Environment)
     .AddReveriesServices()
     .AddCorsPolicies()
     .AddSwaggerDocumentation()
