@@ -1,9 +1,11 @@
 using DotNetEnv;
+using FluentValidation;
 using Reveries.Api.Configuration;
 using Reveries.Api.Middleware;
-using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddSerilogConfiguration();
 
 if (!File.Exists(".env"))
     throw new FileNotFoundException("Missing .env file in project root");
