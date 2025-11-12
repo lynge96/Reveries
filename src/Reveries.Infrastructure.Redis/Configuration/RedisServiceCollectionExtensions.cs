@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.Cache;
+using Reveries.Core.Configuration;
 using Reveries.Infrastructure.Redis.Services;
 using StackExchange.Redis;
 

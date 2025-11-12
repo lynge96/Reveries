@@ -1,4 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dapper;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Npgsql;
+using Reveries.Application.Interfaces.Persistence;
+using Reveries.Core.Configuration;
+using Reveries.Core.Interfaces.Persistence;
+using Reveries.Infrastructure.Postgresql.Persistence;
 
 namespace Reveries.Infrastructure.Postgresql.Configuration;
 
@@ -6,21 +15,31 @@ public static class InfrastructureServiceCollection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
-        services.Configure<PostgresSettings>(options =>
+        services.AddRepositories();
+
+        services.AddSingleton<NpgsqlDataSource>(serviceProvider =>
         {
-            options.Host = Environment.GetEnvironmentVariable("DB_HOST") 
-                               ?? throw new InvalidOperationException("DB_HOST missing");
-            options.Database = Environment.GetEnvironmentVariable("POSTGRES_DB") 
-                               ?? throw new InvalidOperationException("POSTGRES_DB missing");
-            options.Username = Environment.GetEnvironmentVariable("POSTGRES_USER") 
-                               ?? throw new InvalidOperationException("POSTGRES_USER missing");
-            options.Password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") 
-                               ?? throw new InvalidOperationException("POSTGRES_PASSWORD missing");
+            var settings = serviceProvider.GetRequiredService<IOptions<PostgresSettings>>().Value;
+            var connectionString = settings.GetConnectionString();
+
+            var builder = new NpgsqlDataSourceBuilder(connectionString);
+            
+            var env = serviceProvider.GetRequiredService<IHostEnvironment>();
+            if (env.IsDevelopment())
+            {
+                builder.UseLoggerFactory(serviceProvider.GetRequiredService<ILoggerFactory>()); // log SQL i dev
+                builder.EnableParameterLogging();
+            }
+
+            return builder.Build();
         });
         
-        services.AddPersistence();
+        services.AddScoped<IDbContext, PostgresDbContext>();
+        
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        DefaultTypeMap.MatchNamesWithUnderscores = true;
         
         return services;
     }
-
 }

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using Reveries.Application.Interfaces.Cache;
+using Reveries.Core.Configuration;
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
 using Reveries.Infrastructure.Redis.Configuration;
@@ -30,7 +31,7 @@ public class BookCacheService : IBookCacheService
         
         var key = CacheKeys.BookByIsbn(book.Isbn13 ?? book.Isbn10!);
         
-        await _cache.SetAsync(key, book, RedisSettings.Expiration, cancellationToken);
+        await _cache.SetAsync(key, book, CacheDefaults.DefaultExpiration, cancellationToken);
     }
 
     public async Task RemoveBookByIsbnAsync(string? isbn, CancellationToken cancellationToken = default)
@@ -101,7 +102,7 @@ public class BookCacheService : IBookCacheService
         var tasks = titles.Select(title =>
         {
             var key = CacheKeys.BookIsbnsByTitle(title);
-            return batch.StringSetAsync(key, serialized, RedisSettings.Expiration);
+            return batch.StringSetAsync(key, serialized, CacheDefaults.DefaultExpiration);
         }).ToList();
         
         batch.Execute();

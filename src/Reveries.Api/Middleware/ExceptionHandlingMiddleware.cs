@@ -35,7 +35,7 @@ public class ExceptionHandlingMiddleware
         {
             TraceId = context.TraceIdentifier
         };
-
+        
         switch (exception)
         {
             case ValidationException validationEx:

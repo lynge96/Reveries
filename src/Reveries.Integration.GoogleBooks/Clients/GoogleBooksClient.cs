@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.GoogleBooks;
+using Reveries.Core.Configuration;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;

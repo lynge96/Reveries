@@ -1,97 +1,70 @@
 using System.Data;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using Reveries.Application.Interfaces.Persistence;
-using Reveries.Infrastructure.Postgresql.Configuration;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence;
 
 public class PostgresDbContext : IDbContext
 {
-    private readonly string _connectionString;
+    private readonly NpgsqlDataSource _dataSource;
+    private readonly ILogger<PostgresDbContext> _logger;
+    
     private NpgsqlConnection? _connection;
     private NpgsqlTransaction? _transaction;
     private bool _disposed;
     
-    public PostgresDbContext(IOptions<PostgresSettings> options)
+    public PostgresDbContext(NpgsqlDataSource dataSource, ILogger<PostgresDbContext> logger)
     {
-        var settings = options.Value;
-        _connectionString = new NpgsqlConnectionStringBuilder
-        {
-            Host = settings.Host,
-            Port = settings.Port,
-            Database = settings.Database,
-            Username = settings.Username,
-            Password = settings.Password,
-            Timeout = settings.Timeout,
-            CommandTimeout = settings.CommandTimeout,
-            Pooling = settings.Pooling,
-            MinPoolSize = settings.MinPoolSize,
-            MaxPoolSize = settings.MaxPoolSize,
-            ApplicationName = "Reveries PostgreSQL Database",
-            IncludeErrorDetail = true // For debugging purposes only
-        }.ToString();
+        _dataSource = dataSource;
+        _logger = logger;
     }
     
     public bool HasActiveTransaction => _transaction != null;
     public IDbTransaction? CurrentTransaction => _transaction;
     
-    public async Task<NpgsqlConnection> GetConnectionAsync()
+    public async Task<IDbConnection> GetConnectionAsync(CancellationToken ct = default)
     {
         if (_disposed) throw new ObjectDisposedException(nameof(PostgresDbContext));
 
-        if (_connection == null)
+        if (_connection is { State: ConnectionState.Open }) return _connection;
+
+        if (_connection is null)
         {
-            _connection = new NpgsqlConnection(_connectionString);
+            _connection = await _dataSource.OpenConnectionAsync(ct);
+        }
+        else if (_connection.State != ConnectionState.Open)
+        {
+            await _connection.OpenAsync(ct);
         }
 
-        if (_connection.State == ConnectionState.Open)
-            return _connection;
-
-        var retry = 0;
-        var delay = 1000;
-        while (retry < 4)
-        {
-            try
-            {
-                await _connection.OpenAsync();
-                return _connection;
-            }
-            catch (NpgsqlException)
-            {
-                retry++;
-                if (retry == 4) throw;
-                await Task.Delay(delay);
-                delay *= 2;
-            }
-        }
-        throw new InvalidOperationException("Unable to open PostgreSQL connection.");
+        return _connection!;
     }
 
-    public async Task<IDbTransaction> BeginTransactionAsync()
+    public async Task<IDbTransaction> BeginTransactionAsync(CancellationToken ct = default)
     {
-        if (_transaction != null)
-            throw new InvalidOperationException("Transaction already in progress.");
+        if (_disposed) throw new ObjectDisposedException(nameof(PostgresDbContext));
+        if (_transaction != null) throw new InvalidOperationException("Transaction already in progress.");
 
-        var conn = await GetConnectionAsync();
-        _transaction = await conn.BeginTransactionAsync();
+        var conn = (NpgsqlConnection)await GetConnectionAsync(ct);
+        _transaction = await conn.BeginTransactionAsync(ct);
         return _transaction;
     }
 
-    public async Task CommitTransactionAsync()
+    public async Task CommitTransactionAsync(CancellationToken ct = default)
     {
         if (_transaction == null) return;
-
-        await _transaction.CommitAsync();
+        
+        await _transaction.CommitAsync(ct);
         await _transaction.DisposeAsync();
         _transaction = null;
     }
 
-    public async Task RollbackTransactionAsync()
+    public async Task RollbackTransactionAsync(CancellationToken ct = default)
     {
-        if (_transaction == null) return;
-
-        await _transaction.RollbackAsync();
+        if (_transaction is null) return;
+        
+        await _transaction.RollbackAsync(ct);
         await _transaction.DisposeAsync();
         _transaction = null;
     }
@@ -100,17 +73,27 @@ public class PostgresDbContext : IDbContext
     {
         if (_disposed) return;
 
-        if (_transaction != null)
-            await _transaction.DisposeAsync();
-
-        if (_connection != null)
+        try
         {
-            if (_connection.State == ConnectionState.Open)
-                await _connection.CloseAsync();
-            await _connection.DisposeAsync();
-        }
+            if (_transaction != null)
+            {
+                await _transaction.DisposeAsync();
+            }
 
-        _disposed = true;
-        GC.SuppressFinalize(this);
+            if (_connection != null)
+            {
+                if (_connection.State == ConnectionState.Open)
+                    await _connection.CloseAsync();
+                
+                await _connection.DisposeAsync();
+            }
+        }
+        finally
+        {
+            _transaction = null;
+            _connection = null;
+            _disposed = true;
+            GC.SuppressFinalize(this);
+        }
     }
 }
