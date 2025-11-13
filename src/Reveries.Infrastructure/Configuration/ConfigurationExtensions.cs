@@ -1,11 +1,12 @@
-using DotNetEnv;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Reveries.Core.Configuration;
 
-namespace Reveries.Api.Configuration;
+namespace Reveries.Infrastructure.Configuration;
 
 public static class ConfigurationExtensions
 {
-    public static IServiceCollection AddAppConfiguration(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
+    public static IServiceCollection AddAppConfiguration(this IServiceCollection services, IConfiguration config)
     {
         // === External APIs ===
         services.AddOptions<IsbndbSettings>()

@@ -9,7 +9,7 @@ namespace Reveries.Infrastructure.Redis.Configuration;
 
 public static class RedisServiceCollectionExtensions
 {
-    public static IServiceCollection AddRedisCacheServices(this IServiceCollection services)
+    public static IServiceCollection AddRedisCache(this IServiceCollection services)
     {
         services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
         {

@@ -9,8 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reveries.Application\Reveries.Application.csproj" />
-    <ProjectReference Include="..\Reveries.Infrastructure.Redis\Reveries.Infrastructure.Redis.csproj" />
-    <ProjectReference Include="..\Reveries.Infrastructure.Postgresql\Reveries.Infrastructure.Postgresql.csproj" />
+    <ProjectReference Include="..\Reveries.Infrastructure\Reveries.Infrastructure.csproj" />
     <ProjectReference Include="..\Reveries.Integration.GoogleBooks\Reveries.Integration.GoogleBooks.csproj" />
     <ProjectReference Include="..\Reveries.Integration.Isbndb\Reveries.Integration.Isbndb.csproj" />
   </ItemGroup>
@@ -21,6 +20,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <PackageReference Include="Spectre.Console" Version="0.50.1-preview.0.20" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\Reveries.Api\.env">
+      <Link>.env</Link>
+    </Content>
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,3 @@
-using System.Net;
 using System.Text.Json;
 using Reveries.Core.Exceptions;
 
@@ -29,43 +28,80 @@ public class ExceptionHandlingMiddleware
     
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        context.Response.ContentType = "application/json";
+        var path = context.Request.Path;
+        var traceId = context.TraceIdentifier;
 
-        var errorResponse = new ErrorResponse
-        {
-            TraceId = context.TraceIdentifier
-        };
-        
+        ErrorContext errorCtx;
+
         switch (exception)
         {
-            case ValidationException validationEx:
-                context.Response.StatusCode = (int)validationEx.StatusCode;
-                errorResponse.StatusCode = (int)validationEx.StatusCode;
-                errorResponse.Error = validationEx.ErrorType;
-                errorResponse.Message = validationEx.Message;
-                errorResponse.Details = validationEx.Failures.Select(f => new
-                {
-                    Field = f.PropertyName,
-                    Error = f.ErrorMessage
-                });
+            case ValidationException valEx:
+            {
+                var errors = valEx.Failures
+                    .GroupBy(f => f.PropertyName)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(f => f.ErrorMessage).ToArray());
+
+                errorCtx = new ErrorContext(
+                    Type: valEx.ErrorType,
+                    StatusCode: (int)valEx.StatusCode,
+                    Path: path,
+                    TraceId: traceId,
+                    ErrorMessage: valEx.Message,
+                    ValidationErrors: errors
+                );
+
+                _logger.LogWarning(valEx, "Validation error {@Error}", errorCtx);
+
+                context.Response.StatusCode = (int)valEx.StatusCode;
                 break;
+            }
 
             case BaseAppException appEx:
+            {
+                errorCtx = new ErrorContext(
+                    Type: appEx.ErrorType,
+                    StatusCode: (int)appEx.StatusCode,
+                    Path: path,
+                    TraceId: traceId,
+                    ErrorMessage: appEx.Message
+                );
+
+                _logger.LogWarning(appEx, "Application error {@Error}", errorCtx);
+
                 context.Response.StatusCode = (int)appEx.StatusCode;
-                errorResponse.StatusCode = (int)appEx.StatusCode;
-                errorResponse.Error = appEx.ErrorType;
-                errorResponse.Message = appEx.Message;
                 break;
+            }
 
             default:
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                errorResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
-                errorResponse.Error = "ServerError";
-                errorResponse.Message = "An unexpected error occurred.";
-                _logger.LogError(exception, "Unhandled exception: {Message}", exception.Message);
+            {
+                errorCtx = new ErrorContext(
+                    Type: "Unhandled",
+                    StatusCode: 500,
+                    Path: path,
+                    TraceId: traceId,
+                    ErrorMessage: exception.Message
+                );
+
+                _logger.LogError(exception, "Unhandled exception {@Error}", errorCtx);
+
+                context.Response.StatusCode = 500;
                 break;
+            }
         }
-        
-        await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
-    }
+
+        var response = new ErrorResponse
+        {
+            StatusCode = context.Response.StatusCode,
+            Error = errorCtx.Type,
+            Message = errorCtx.ErrorMessage ?? "An error occurred while processing your request.",
+            TraceId = errorCtx.TraceId,
+            Details = errorCtx.ValidationErrors
+        };
+
+        context.Response.ContentType = "application/json";
+
+        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+    }   
 }

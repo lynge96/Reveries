@@ -13,7 +13,7 @@ namespace Reveries.Infrastructure.Postgresql.Configuration;
 
 public static class InfrastructureServiceCollection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
+    public static IServiceCollection AddPostgresql(this IServiceCollection services)
     {
         services.AddRepositories();
 
@@ -25,9 +25,10 @@ public static class InfrastructureServiceCollection
             var builder = new NpgsqlDataSourceBuilder(connectionString);
             
             var env = serviceProvider.GetRequiredService<IHostEnvironment>();
-            if (env.IsDevelopment())
+            if (env.IsDevelopment()) 
             {
-                builder.UseLoggerFactory(serviceProvider.GetRequiredService<ILoggerFactory>()); // log SQL i dev
+                // log SQL i dev
+                builder.UseLoggerFactory(serviceProvider.GetRequiredService<ILoggerFactory>()); 
                 builder.EnableParameterLogging();
             }
 

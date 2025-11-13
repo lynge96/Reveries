@@ -25,8 +25,8 @@ public class IsbndbBookService : IIsbndbBookService
             case 1:
             {
                 var book = await GetSingleBookAsync(isbns[0], cancellationToken);
-                if (book != null)
-                    isbndbBooks.Add(book);
+                isbndbBooks.Add(book);
+                
                 break;
             }
             case > 1:
@@ -43,11 +43,9 @@ public class IsbndbBookService : IIsbndbBookService
         
         foreach (var title in titles)
         {
-            var response = await _bookClient.SearchBooksByQueryAsync(title, languageCode, shouldMatchAll: true, cancellationToken);
-            if (response?.Books != null)
-            {
-                booksFromApi.AddRange(response.Books.Select(b => b.ToBook()));
-            }
+            var response = await _bookClient.SearchBooksByQueryAsync(title, languageCode, shouldMatchAll: true, ct: cancellationToken);
+
+            booksFromApi.AddRange(response.Books.Select(b => b.ToBook()));
         }
         
         return booksFromApi
@@ -55,15 +53,13 @@ public class IsbndbBookService : IIsbndbBookService
             .ToList();
     }
 
-    private async Task<Book?> GetSingleBookAsync(string isbn, CancellationToken cancellationToken = default)
+    private async Task<Book> GetSingleBookAsync(string isbn, CancellationToken cancellationToken = default)
     {
         var response = await _bookClient.FetchBookByIsbnAsync(isbn, cancellationToken);
 
-        var bookDto = response?.Book;
-        
-        var book = bookDto?.ToBook();
-        
-        return book;
+        var bookDto = response.Book;
+
+        return bookDto.ToBook();
     }
     
     private async Task<List<Book>> GetMultipleBooksAsync(List<string> isbns, CancellationToken cancellationToken = default)
@@ -72,9 +68,6 @@ public class IsbndbBookService : IIsbndbBookService
             throw new ArgumentException("Too many ISBN numbers. Maximum is 100.");
 
         var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, cancellationToken);
-        
-        if (response is null)
-            return new List<Book>();
         
         return response.Data
             .Select(bookDto => bookDto.ToBook())

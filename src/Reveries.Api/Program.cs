@@ -1,18 +1,27 @@
 using DotNetEnv;
 using FluentValidation;
 using Reveries.Api.Configuration;
+using Reveries.Api.Interfaces;
 using Reveries.Api.Middleware;
+using Reveries.Api.Services;
+using Reveries.Application.Configuration;
+using Reveries.Infrastructure.Configuration;
+using Reveries.Integration.GoogleBooks.Configuration;
+using Reveries.Integration.Isbndb.Configuration;
 
-if (File.Exists(".env"))
-    Env.Load();
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilogConfiguration();
 
 builder.Services
-    .AddAppConfiguration(builder.Configuration, builder.Environment)
-    .AddReveriesServices()
+    .AddAppConfiguration(builder.Configuration)
+    .AddApplicationServices()
+    .AddInfrastructure()
+    .AddIsbndbServices()
+    .AddGoogleBooksServices()
+    .AddScoped<IBookService, BookService>()
     .AddCorsPolicies()
     .AddSwaggerDocumentation()
     .AddControllers();
