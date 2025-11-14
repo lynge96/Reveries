@@ -2,7 +2,6 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 using Reveries.Core.Exceptions;
 using Reveries.Integration.Isbndb.DTOs.Books;
 using Reveries.Integration.Isbndb.Interfaces;
@@ -13,7 +12,6 @@ namespace Reveries.Integration.Isbndb.Clients;
 public class IsbndbBookClient : IIsbndbBookClient
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<IsbndbBookClient> _logger;
     
     private const string DependencyName = nameof(IsbndbBookClient);
     
@@ -23,10 +21,9 @@ public class IsbndbBookClient : IIsbndbBookClient
         Converters = { new DecimalConverter() }
     };
     
-    public IsbndbBookClient(HttpClient httpClient, ILogger<IsbndbBookClient> logger)
+    public IsbndbBookClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _logger = logger;
     }
 
     public async Task<BookDetailsDto> FetchBookByIsbnAsync(string isbn, CancellationToken ct = default)

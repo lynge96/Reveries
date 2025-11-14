@@ -19,11 +19,11 @@ public class BookService : IBookService
         _logger = logger;
     }
     
-    public async Task<BookDto?> GetBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
+    public async Task<BookDto?> GetBookByIsbnAsync(string isbn, CancellationToken ct = default)
     {
         _logger.LogInformation("Lookup book by ISBN started {@LookupContext}", new { Operation = "GetBookByIsbn", Isbn = isbn });
         
-        var books = await _bookLookupService.FindBooksByIsbnAsync([isbn], cancellationToken);
+        var books = await _bookLookupService.FindBooksByIsbnAsync([isbn], ct);
 
         if (books.Count == 0)
         {
@@ -34,15 +34,34 @@ public class BookService : IBookService
 
         var bookDto = books.First().ToDto();
         
-        _logger.LogInformation("Lookup succeeded {@LookupContext}", new { Operation = "GetBookByIsbn", Isbn = isbn });
+        _logger.LogInformation("Lookup succeeded {@LookupContext}", new { Operation = "GetBookByIsbn", Isbn = isbn, Title = bookDto.Title });
         return bookDto;
     }
 
-    public async Task<BookDto?> GetBookByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<BookDto>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct = default)
+    {
+        _logger.LogInformation("Lookup books by ISBNs started {@Ctx}", new { Operation = "GetBooksByIsbns", Isbns = isbns });
+        
+        var books = await _bookLookupService.FindBooksByIsbnAsync(isbns, ct);
+
+        if (books.Count == 0)
+        {
+            _logger.LogWarning("Lookup books by ISBNs returned no results: {@Isbns}", isbns);
+            
+            throw new NotFoundException($"Books with ISBNs '{isbns}' were not found.");
+        }
+        
+        var booksDto = books.Select(book => book.ToDto()).ToList();
+        
+        _logger.LogInformation("Lookup succeeded {@Ctx}", new { Operation = "GetBooksByIsbns", Titles = string.Join(", ", booksDto.Select(b => b.Title)) });
+        return booksDto;
+    }
+
+    public async Task<BookDto?> GetBookByIdAsync(int id, CancellationToken ct = default)
     {
         _logger.LogInformation("Lookup book by Id started {@Ctx}", new { Operation = "GetBookById", BookId = id });
         
-        var book = await _bookLookupService.FindBookById(id, cancellationToken);
+        var book = await _bookLookupService.FindBookById(id, ct);
 
         if (book == null)
         {
@@ -57,11 +76,11 @@ public class BookService : IBookService
         return bookDto;
     }
 
-    public async Task<IEnumerable<BookDto>> GetAllBooksAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<BookDto>> GetAllBooksAsync(CancellationToken ct = default)
     {
         _logger.LogInformation("Lookup all books started {@Ctx}", new { Operation = "GetAllBooks" });
         
-        var books = await _bookLookupService.GetAllBooksAsync(cancellationToken);
+        var books = await _bookLookupService.GetAllBooksAsync(ct);
 
         if (books.Count == 0)
         {
@@ -74,13 +93,13 @@ public class BookService : IBookService
         return books.Select(book => book.ToDto());
     }
 
-    public async Task<int> CreateBookAsync(CreateBookDto bookDto, CancellationToken cancellationToken = default)
+    public async Task<int> CreateBookAsync(CreateBookDto bookDto, CancellationToken ct = default)
     {
         _logger.LogInformation("Creating book started {@Ctx}", new { Operation = "CreateBook", BookDto = bookDto });
         
         var book = bookDto.ToDomain();
 
-        var bookId = await _bookManagementService.CreateBookWithRelationsAsync(book, cancellationToken);
+        var bookId = await _bookManagementService.CreateBookWithRelationsAsync(book, ct);
         
         _logger.LogInformation("Book created successfully {@Ctx}", new { Operation = "CreateBook", BookId = bookId });
         return bookId;

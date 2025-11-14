@@ -41,6 +41,20 @@ public class BooksController : ControllerBase
         return Ok(book);
     }
 
+    [HttpPost("isbns")]
+    public async Task<ActionResult<List<BookDto>>> GetByIsbns([FromBody] List<string> isbns,
+        CancellationToken ct)
+    {
+        foreach (var isbn in isbns)
+        {
+            IsbnValidator.NormalizeAndValidate(isbn, out _); // Dobbelttjek validering og exceptions hvis ikke gyldig. Evt rykke validering til application layer
+        }
+        
+        var books = await _bookService.GetBooksByIsbnsAsync(isbns, ct);
+            
+        return Ok(books);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<BookDto>> GetById(int id, CancellationToken ct)
     {
