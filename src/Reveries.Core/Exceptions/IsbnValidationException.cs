@@ -4,5 +4,5 @@ namespace Reveries.Core.Exceptions;
 
 public class IsbnValidationException : BaseAppException
 {
-    public IsbnValidationException(string message) : base(message, HttpStatusCode.BadRequest, "ValidationError") { }
+    public IsbnValidationException(string message) : base(message, HttpStatusCode.BadRequest, "IsbnValidationError") { }
 }

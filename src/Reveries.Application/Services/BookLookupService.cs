@@ -4,6 +4,7 @@ using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Models;
+using Reveries.Core.Validation;
 
 namespace Reveries.Application.Services;
 
@@ -26,14 +27,18 @@ public class BookLookupService : IBookLookupService
     
     public async Task<List<Book>> FindBooksByIsbnAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
-        var cacheBooks = await _bookCacheService.GetBooksByIsbnsAsync(isbns, cancellationToken);
+        var normalizedIsbns = isbns
+            .Select(IsbnValidator.NormalizeAndValidateOrThrow)
+            .ToList();
+        
+        var cacheBooks = await _bookCacheService.GetBooksByIsbnsAsync(normalizedIsbns, cancellationToken);
 
         var foundInCacheIsbns = cacheBooks
             .Select(b => b.Isbn13 ?? b.Isbn10)
             .Where(i => !string.IsNullOrWhiteSpace(i))
             .ToHashSet();
 
-        var missingFromCache = isbns.Where(i => !foundInCacheIsbns.Contains(i)).ToList();
+        var missingFromCache = normalizedIsbns.Where(i => !foundInCacheIsbns.Contains(i)).ToList();
 
         var databaseBooks = missingFromCache.Count != 0
             ? await _unitOfWork.Books.GetDetailedBooksByIsbnsAsync(missingFromCache)

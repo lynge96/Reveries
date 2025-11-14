@@ -1,4 +1,4 @@
-namespace Reveries.Core.Configuration;
+namespace Reveries.Infrastructure.Redis.Configuration;
 
 public class RedisSettings
 {

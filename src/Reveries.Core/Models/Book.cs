@@ -71,7 +71,6 @@ public class Book : BaseEntity
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Book title cannot be empty");
-        IsbnValidator.ValidateOrThrow(isbn13, isbn10);
 
         var (cleanedTitle, seriesName, numberInSeries) = BookExtensions.ParseSeriesInfo(title);
         

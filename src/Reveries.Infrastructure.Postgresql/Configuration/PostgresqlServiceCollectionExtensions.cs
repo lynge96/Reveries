@@ -1,22 +1,29 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Reveries.Application.Interfaces.Persistence;
-using Reveries.Core.Configuration;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Infrastructure.Postgresql.Persistence;
 
 namespace Reveries.Infrastructure.Postgresql.Configuration;
 
-public static class InfrastructureServiceCollection
+public static class PostgresqlServiceCollectionExtensions
 {
-    public static IServiceCollection AddPostgresql(this IServiceCollection services)
+    public static IServiceCollection AddPostgresql(this IServiceCollection services, IConfiguration config)
     {
-        services.AddRepositories();
-
+        services.AddOptions<PostgresSettings>()
+            .Bind(config.GetSection("Postgres"))
+            .Validate(s => !string.IsNullOrWhiteSpace(s.Host), "Postgres: Host missing")
+            .Validate(s => s.Port > 0, "Postgres: Port invalid")
+            .Validate(s => !string.IsNullOrWhiteSpace(s.Database), "Postgres: Database missing")
+            .Validate(s => !string.IsNullOrWhiteSpace(s.Username), "Postgres: Username missing")
+            .Validate(s => !string.IsNullOrWhiteSpace(s.Password) || !string.IsNullOrWhiteSpace(s.ConnectionString), "Postgres: Password or ConnectionString required")
+            .ValidateOnStart();
+        
         services.AddSingleton<NpgsqlDataSource>(serviceProvider =>
         {
             var settings = serviceProvider.GetRequiredService<IOptions<PostgresSettings>>().Value;
@@ -34,6 +41,8 @@ public static class InfrastructureServiceCollection
 
             return builder.Build();
         });
+        
+        services.AddRepositories();
         
         services.AddScoped<IDbContext, PostgresDbContext>();
         

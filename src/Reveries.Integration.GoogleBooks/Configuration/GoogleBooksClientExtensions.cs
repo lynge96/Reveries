@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Reveries.Core.Configuration;
 using Reveries.Integration.GoogleBooks.Clients;
 using Reveries.Integration.GoogleBooks.Interfaces;
 

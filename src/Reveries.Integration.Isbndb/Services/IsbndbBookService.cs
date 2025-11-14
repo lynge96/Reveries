@@ -1,7 +1,10 @@
-﻿using Reveries.Application.Extensions;
+﻿using Microsoft.Extensions.Options;
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Enums;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
+using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
 
@@ -10,10 +13,12 @@ namespace Reveries.Integration.Isbndb.Services;
 public class IsbndbBookService : IIsbndbBookService
 {
     private readonly IIsbndbBookClient _bookClient;
+    private readonly IsbndbSettings _settings;
 
-    public IsbndbBookService(IIsbndbBookClient bookClient)
+    public IsbndbBookService(IIsbndbBookClient bookClient, IOptions<IsbndbSettings> options)
     {
         _bookClient = bookClient;
+        _settings = options.Value;
     }
     
     public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
@@ -64,8 +69,8 @@ public class IsbndbBookService : IIsbndbBookService
     
     private async Task<List<Book>> GetMultipleBooksAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
-        if (isbns.Count > 100)
-            throw new ArgumentException("Too many ISBN numbers. Maximum is 100.");
+        if (isbns.Count > _settings.MaxBulkIsbns)
+            throw new IsbnValidationException($"Too many ISBN numbers. Maximum is {_settings.MaxBulkIsbns}.");
 
         var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, cancellationToken);
         

@@ -96,7 +96,6 @@ public class ExceptionHandlingMiddleware
             StatusCode = context.Response.StatusCode,
             Error = errorCtx.Type,
             Message = errorCtx.ErrorMessage ?? "An error occurred while processing your request.",
-            TraceId = errorCtx.TraceId,
             Details = errorCtx.ValidationErrors
         };
 

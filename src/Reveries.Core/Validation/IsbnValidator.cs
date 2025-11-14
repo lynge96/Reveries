@@ -11,29 +11,31 @@ public static partial class IsbnValidator
     [GeneratedRegex(@"^(?:\d{9}[\dxX]|\d{13})$")]
     private static partial Regex IsbnPattern();
     
-    public static bool NormalizeAndValidate(string isbn, out string normalized)
+    public static string NormalizeAndValidateOrThrow(string? isbn)
     {
-        normalized = Normalize(isbn);
+        if (string.IsNullOrWhiteSpace(isbn))
+            throw new IsbnValidationException("ISBN cannot be null or empty.");
+
+        var normalized = Normalize(isbn);
 
         if (normalized.Length is not (10 or 13))
-            throw new IsbnValidationException($"Invalid ISBN length: {isbn}, must be 10 or 13 digits");
+            throw new IsbnValidationException(
+                $"Invalid ISBN length: '{isbn}'. ISBN must be 10 or 13 digits.");
 
         if (!IsbnPattern().IsMatch(normalized))
-            throw new IsbnValidationException($"Invalid ISBN format: {isbn}");
+            throw new IsbnValidationException($"Invalid ISBN format: '{isbn}'.");
 
-        return normalized.Length == 13
+        var isValid = normalized.Length == 13
             ? IsValidIsbn13(normalized)
             : IsValidIsbn10(normalized);
-    }
-    
-    public static void ValidateOrThrow(string? isbn13, string? isbn10)
-    {
-        if (!string.IsNullOrEmpty(isbn13) && !NormalizeAndValidate(isbn13, out _))
-            throw new IsbnValidationException($"Invalid ISBN-13 checksum for: {isbn13}");
 
-        if (!string.IsNullOrEmpty(isbn10) && !NormalizeAndValidate(isbn10, out _))
-            throw new IsbnValidationException($"Invalid ISBN-10 checksum: {isbn10}");
+        if (!isValid)
+            throw new IsbnValidationException(
+                $"Invalid ISBN checksum for: '{isbn}'.");
+
+        return normalized;
     }
+
 
 
     private static string Normalize(string input) => input.Replace("-", "").Trim();

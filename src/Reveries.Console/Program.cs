@@ -1,29 +1,32 @@
 ﻿using System.Text;
 using DotNetEnv;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Reveries.Application.Configuration;
 using Reveries.Console.Handlers;
 using Reveries.Console.Interfaces;
 using Reveries.Console.Services;
-using Reveries.Infrastructure.Configuration;
+using Reveries.Infrastructure.Postgresql.Configuration;
+using Reveries.Infrastructure.Redis.Configuration;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.Isbndb.Configuration;
 
-Env.Load();
-
 var host = Host.CreateDefaultBuilder(args)
+    .ConfigureAppConfiguration(config =>
+    {
+        Env.Load();
+        config.AddEnvironmentVariables();
+    })
     .ConfigureServices((context, services) =>
     {
         var configuration = context.Configuration;
 
-        services.AddAppConfiguration(configuration);
-
-        services.AddInfrastructure();
+        services.AddRedisCache(configuration);
+        services.AddPostgresql(configuration);
         services.AddApplicationServices();
-        services.AddIsbndbServices();
-        services.AddGoogleBooksServices();
-
+        services.AddIsbndbServices(configuration);
+        services.AddGoogleBooksServices(configuration);
         services.AddTransient<IConsoleAppRunnerService, ConsoleAppRunnerService>();
         services.AddScoped<IMenuOperationService, MenuOperationService>();
         services.AddScoped<ISaveEntityService, SaveEntityEntityService>();
