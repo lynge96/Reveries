@@ -12,6 +12,14 @@ The goal is to create a platform that makes it easier to get an overview of the 
 
 The project is being developed as a fullstack application, hosted on a Raspberry Pi and accessible through my private network. This makes it a complete learning environment, covering everything from backend and database to frontend and deployment.  
 
+### Bookscanner
+For easier creation of books in the system, a book scanner has been made to make it faster and easier to add all the books in your shelf. The scanner scans the ISBN barcode on the book, and the backend quickly retrieves the book metadate from the external APIs.
+
+
+<img width="393" height="1003" alt="Screenshot 2025-11-18 at 20-53-07 Reveries The Will Of The Many" src="https://github.com/user-attachments/assets/71586414-ee14-4308-9226-9cfe197df0b8" />
+<img width="393" height="1584" alt="Screenshot 2025-11-18 at 20-52-24 Reveries The Will Of The Many" src="https://github.com/user-attachments/assets/54ef04cb-632d-4df3-9463-936ede42ac8d" />
+
+
 ### Project Plan 🎯
 The plan for the project is outlined below. The choice of technologies is primarily driven by the desire to gain hands-on experience with widely used and relevant tools from the real world, not necessarily because they represent the most optimal solution for this particular application.  
 
