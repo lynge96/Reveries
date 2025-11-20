@@ -58,7 +58,6 @@ public class IsbndbPublisherClient : IIsbndbPublisherClient
         try
         {
             var result = JsonSerializer.Deserialize<PublisherDetailsReponseDto>(json, JsonOptions);
-
             if (result is null)
             {
                 throw new InvalidOperationException($"Isbndb returned an empty or invalid payload for publisher '{publisherName}'.");
@@ -68,9 +67,7 @@ public class IsbndbPublisherClient : IIsbndbPublisherClient
         }
         catch (JsonException ex)
         {
-            var truncated = json.TruncateForLog();
-            
-            _logger.LogWarning(ex, "Failed to deserialize Isbndb publisher details response for '{publisherName}'. Payload: {payload}", publisherName, truncated);
+            _logger.LogWarning(ex, "Failed to deserialize Isbndb publisher details response for '{publisherName}'. Payload: {payload}", publisherName, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize Isbndb publisher details response for '{publisherName}'.", ex);
         }
     }
@@ -101,7 +98,6 @@ public class IsbndbPublisherClient : IIsbndbPublisherClient
         try
         {
             var result = JsonSerializer.Deserialize<PublisherListResponseDto>(json, JsonOptions);
-
             if (result is null)
             {
                 throw new InvalidOperationException(
@@ -113,9 +109,7 @@ public class IsbndbPublisherClient : IIsbndbPublisherClient
         }
         catch (JsonException ex)
         {
-            var truncated = json.TruncateForLog();
-            
-            _logger.LogWarning(ex, "Failed to deserialize Isbndb publisher search response for '{publisherName}'. Payload: {payload}", publisherName, truncated);
+            _logger.LogWarning(ex, "Failed to deserialize Isbndb publisher search response for '{publisherName}'. Payload: {payload}", publisherName, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize Isbndb publisher search response for '{publisherName}'.", ex);
         }
     }

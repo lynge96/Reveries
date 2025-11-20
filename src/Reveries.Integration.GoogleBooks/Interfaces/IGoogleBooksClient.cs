@@ -14,14 +14,14 @@ public interface IGoogleBooksClient
     /// <param name="isbn">
     /// The ISBN (10 or 13 digits) of the book to fetch.
     /// </param>
-    /// <param name="cancellationToken">
+    /// <param name="ct">
     /// A cancellation token to cancel the request if needed.
     /// </param>
     /// <returns>
     /// A <see cref="GoogleBookResponseDto"/> containing book details if found,
     /// or <c>null</c> if no match is returned.
     /// </returns>
-    Task<GoogleBookResponseDto?> FetchBookByIsbnAsync(string isbn, CancellationToken cancellationToken = default);
+    Task<GoogleBookResponseDto> FetchBookByIsbnAsync(string isbn, CancellationToken ct = default);
 
     /// <summary>
     /// Retrieves detailed book information from the Google Books API
@@ -30,14 +30,14 @@ public interface IGoogleBooksClient
     /// <param name="volumeId">
     /// The unique volume identifier assigned by Google Books.
     /// </param>
-    /// <param name="cancellationToken">
+    /// <param name="ct">
     /// A cancellation token to cancel the request if needed.
     /// </param>
     /// <returns>
     /// A <see cref="GoogleBookItemDto"/> representing the volume,
     /// or <c>null</c> if no volume is found.
     /// </returns>
-    Task<GoogleBookItemDto?> FetchBookByVolumeIdAsync(string volumeId, CancellationToken cancellationToken = default);
+    Task<GoogleBookItemDto> FetchBookByVolumeIdAsync(string volumeId, CancellationToken ct = default);
 
     /// <summary>
     /// Searches the Google Books API for books by their title.
@@ -45,12 +45,12 @@ public interface IGoogleBooksClient
     /// <param name="title">
     /// The title of the book to search for.
     /// </param>
-    /// <param name="cancellationToken">
+    /// <param name="ct">
     /// A cancellation token to cancel the request if needed.
     /// </param>
     /// <returns>
     /// A <see cref="GoogleBookResponseDto"/> containing matching book items,
     /// or <c>null</c> if no results are found.
     /// </returns>
-    Task<GoogleBookResponseDto?> FindBooksByTitleAsync(string title, CancellationToken cancellationToken = default);
+    Task<GoogleBookResponseDto> FindBooksByTitleAsync(string title, CancellationToken ct = default);
 }

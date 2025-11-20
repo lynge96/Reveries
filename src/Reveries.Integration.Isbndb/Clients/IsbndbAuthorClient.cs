@@ -52,7 +52,6 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
         try
         {
             var result = JsonSerializer.Deserialize<AuthorSearchResponseDto>(json, JsonOptions);
-
             if (result is null)
             {
                 throw new InvalidOperationException($"Isbndb returned an empty or invalid author search payload for '{authorName}'.");
@@ -62,9 +61,7 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
         }
         catch (JsonException ex)
         {
-            var truncated = json.TruncateForLog();
-            
-            _logger.LogWarning(ex, "Failed to deserialize Isbndb author search response for '{authorName}'. Payload: {payload}", authorName, truncated);
+            _logger.LogWarning(ex, "Failed to deserialize Isbndb author search response for '{authorName}'. Payload: {payload}", authorName, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize Isbndb author search response for '{authorName}'.", ex);
         }
     }
@@ -95,7 +92,6 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
         try
         {
             var result = JsonSerializer.Deserialize<AuthorBooksResponseDto>(json, JsonOptions);
-
             if (result is null)
             {
                 throw new InvalidOperationException($"Isbndb returned an empty or invalid payload when fetching books for author '{authorName}'.");
@@ -105,9 +101,7 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
         }
         catch (JsonException ex)
         {
-            var truncated = json.TruncateForLog();
-            
-            _logger.LogWarning(ex, "Failed to deserialize Isbndb author books response for '{authorName}'. Payload: {payload}", authorName, truncated);
+            _logger.LogWarning(ex, "Failed to deserialize Isbndb author books response for '{authorName}'. Payload: {payload}", authorName, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize Isbndb author books response for '{authorName}'.", ex);
         }
     }

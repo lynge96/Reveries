@@ -54,7 +54,6 @@ public class IsbndbBookClient : IIsbndbBookClient
         try
         {
             var result = JsonSerializer.Deserialize<BookDetailsDto>(json, JsonOptions);
-
             if (result is null)
             {
                 throw new InvalidOperationException($"Isbndb returned an empty or invalid payload for ISBN '{isbn}'.");
@@ -64,9 +63,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         }
         catch (JsonException ex)
         {
-            var truncated = json.TruncateForLog();
-            
-            _logger.LogWarning(ex, "Failed to deserialize book data for ISBN '{isbn}'. Payload: {payload}", isbn, truncated);
+            _logger.LogWarning(ex, "Failed to deserialize book data for ISBN '{isbn}'. Payload: {payload}", isbn, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize book data for ISBN '{isbn}'.", ex);
         }
     }
@@ -107,7 +104,6 @@ public class IsbndbBookClient : IIsbndbBookClient
         try
         {
             var result = JsonSerializer.Deserialize<BooksQueryResponseDto>(json, JsonOptions);
-
             if (result is null)
             {
                 throw new InvalidOperationException($"The API returned an empty or invalid search result for query '{query}'.");
@@ -117,9 +113,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         }
         catch (JsonException ex)
         {
-            var truncated = json.TruncateForLog();
-            
-            _logger.LogWarning(ex, "Failed to deserialize search result for query '{query}'. Payload: {payload}", query, truncated);
+            _logger.LogWarning(ex, "Failed to deserialize search result for query '{query}'. Payload: {payload}", query, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize search result for query '{query}'.", ex);
         }
     }
@@ -155,7 +149,6 @@ public class IsbndbBookClient : IIsbndbBookClient
         try
         {
             var result = JsonSerializer.Deserialize<BooksListResponseDto>(json, JsonOptions);
-
             if (result is null)
             {
                 throw new InvalidOperationException("Isbndb returned an empty or invalid response for bulk ISBN lookup.");
@@ -165,9 +158,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         }
         catch (JsonException ex)
         {
-            var truncated = json.TruncateForLog();
-            
-            _logger.LogWarning(ex, "Failed to deserialize Isbndb bulk books response for isbns: {isbns} Payload: {payload}", isbns, truncated);
+            _logger.LogWarning(ex, "Failed to deserialize Isbndb bulk books response for isbns: {isbns} Payload: {payload}", isbns, json.TruncateForLog());
             throw new InvalidOperationException("Failed to deserialize Isbndb bulk books response.", ex);
         }
     }
