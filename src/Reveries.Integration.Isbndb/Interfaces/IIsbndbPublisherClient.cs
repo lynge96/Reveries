@@ -40,6 +40,6 @@ public interface IIsbndbPublisherClient
     /// <returns>
     /// A <see cref="PublisherDetailsReponseDto"/> containing details for the matched publisher, or <c>null</c> if no result is found.
     /// </returns>
-    Task<PublisherListResponseDto> FetchPublishersAsync(string publisherName, CancellationToken ct);
+    Task<PublisherListResponseDto> SearchPublishersAsync(string publisherName, CancellationToken ct);
 
 }

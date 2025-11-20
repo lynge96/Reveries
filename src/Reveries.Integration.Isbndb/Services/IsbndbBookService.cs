@@ -48,7 +48,7 @@ public class IsbndbBookService : IIsbndbBookService
         
         foreach (var title in titles)
         {
-            var response = await _bookClient.SearchBooksByQueryAsync(title, languageCode, shouldMatchAll: true, ct: cancellationToken);
+            var response = await _bookClient.SearchBooksAsync(title, languageCode, shouldMatchAll: true, ct: cancellationToken);
 
             booksFromApi.AddRange(response.Books.Select(b => b.ToBook()));
         }

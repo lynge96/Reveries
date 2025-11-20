@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Logging;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Core.Enums;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Reveries.Integration.GoogleBooks.Interfaces;
 using Reveries.Integration.GoogleBooks.Mappers;
@@ -9,23 +11,25 @@ namespace Reveries.Integration.GoogleBooks.Services;
 public class GoogleBookService : IGoogleBookService
 {
     private readonly IGoogleBooksClient _googleBooksClient;
+    private readonly ILogger<GoogleBookService> _logger;
     
-    public GoogleBookService(IGoogleBooksClient googleBooksClient)
+    public GoogleBookService(IGoogleBooksClient googleBooksClient, ILogger<GoogleBookService> logger)
     {
         _googleBooksClient = googleBooksClient;
+        _logger = logger;
     }
     
-    public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct)
     {
         var tasks = isbns.Select(async isbn =>
         {
-            var response = await _googleBooksClient.FetchBookByIsbnAsync(isbn, cancellationToken);
+            var response = await _googleBooksClient.FetchBookByIsbnAsync(isbn, ct);
             if (response?.Items == null || response.Items.Count == 0)
                 return null;
 
             var item = response.Items.First();
 
-            var volumeResponse = await _googleBooksClient.FetchBookByVolumeIdAsync(item.Id, cancellationToken);
+            var volumeResponse = await _googleBooksClient.FetchBookByVolumeIdAsync(item.Id, ct);
             if (volumeResponse?.VolumeInfo == null)
                 return item.VolumeInfo.ToBook();
 
@@ -40,23 +44,41 @@ public class GoogleBookService : IGoogleBookService
         return books.Where(b => b != null).ToList()!;
     }
 
-    public async Task<List<Book>> GetBooksByTitleAsync(List<string> titles, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByTitleAsync(List<string> titles, CancellationToken ct)
     {
         if (titles.Count == 0)
             return [];
 
         var tasks = titles.Select(async title =>
         {
-            var response = await _googleBooksClient.FindBooksByTitleAsync(title, cancellationToken);
-            if (response?.Items == null || response.Items.Count == 0)
-                return [];
+            try
+            {
+                var response = await _googleBooksClient.SearchBooksByTitleAsync(title, ct);
 
-            return response.Items.Select(i => i.VolumeInfo.ToBook());
+                if (response.Items == null || response.Items.Count == 0)
+                    return [];
+
+                return response.Items.Select(i => i.VolumeInfo.ToBook());
+            }
+            catch (NotFoundException)
+            {
+                _logger.LogDebug("GoogleBooks returned no results for title '{Title}'.", title);
+                return [];
+            }
         });
 
         var results = await Task.WhenAll(tasks);
 
-        return results.SelectMany(b => b).ToList();
+        var flattened = results.SelectMany(x => x).ToList();
+        
+        _logger.LogDebug(
+            "GoogleBooks title lookup completed. Searched {TotalTitles} titles, found {TotalBooks} books. Titles: {Titles}",
+            titles.Count,
+            flattened.Count,
+            string.Join(", ", titles)
+        );
+
+        return flattened;
     }
 
     private static Book MergeGoogleBooks(Book book, Book volume)

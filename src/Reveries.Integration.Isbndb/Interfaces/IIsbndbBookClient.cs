@@ -43,7 +43,7 @@ public interface IIsbndbBookClient
     /// <returns>
     /// A <see cref="BooksQueryResponseDto"/> containing matching books and the total count.
     /// </returns>
-    Task<BooksQueryResponseDto> SearchBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll = true,
+    Task<BooksQueryResponseDto> SearchBooksAsync(string query, string? languageCode, bool shouldMatchAll = true,
         CancellationToken ct = default);
     
     /// <summary>

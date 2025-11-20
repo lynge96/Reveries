@@ -30,7 +30,7 @@ public class IsbndbPublisherService : IIsbndbPublisherService
 
     public async Task<List<Publisher>> GetPublishersByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        var publisherResponseDto = await _publisherClient.FetchPublishersAsync(name, cancellationToken);
+        var publisherResponseDto = await _publisherClient.SearchPublishersAsync(name, cancellationToken);
         if (publisherResponseDto?.Publishers == null || !publisherResponseDto.Publishers.Any())
             return new List<Publisher>();
         

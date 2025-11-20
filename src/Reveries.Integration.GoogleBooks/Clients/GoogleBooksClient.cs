@@ -110,7 +110,7 @@ public class GoogleBooksClient : IGoogleBooksClient
         }
     }
 
-    public async Task<GoogleBookResponseDto> FindBooksByTitleAsync(string title, CancellationToken ct)
+    public async Task<GoogleBookResponseDto> SearchBooksByTitleAsync(string title, CancellationToken ct)
     {
         var url = $"volumes?q=intitle:\"{Uri.EscapeDataString(title)}\"&key={_settings.ApiKey}";
         
@@ -118,7 +118,6 @@ public class GoogleBooksClient : IGoogleBooksClient
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("GoogleBooks: Title '{Title}' returned no results.", title);
             throw new NotFoundException($"Google Books returned no results for title '{title}'.");
         }
 

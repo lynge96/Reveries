@@ -68,7 +68,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         }
     }
 
-    public async Task<BooksQueryResponseDto> SearchBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll, CancellationToken ct)
+    public async Task<BooksQueryResponseDto> SearchBooksAsync(string query, string? languageCode, bool shouldMatchAll, CancellationToken ct)
     {
         var basePath = $"books/{Uri.EscapeDataString(query)}";
         

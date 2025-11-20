@@ -72,7 +72,7 @@ public class IsbndbPublisherClient : IIsbndbPublisherClient
         }
     }
     
-    public async Task<PublisherListResponseDto> FetchPublishersAsync(string publisherName, CancellationToken ct)
+    public async Task<PublisherListResponseDto> SearchPublishersAsync(string publisherName, CancellationToken ct)
     {
         var endpoint = $"publishers/{Uri.EscapeDataString(publisherName)}";
 
