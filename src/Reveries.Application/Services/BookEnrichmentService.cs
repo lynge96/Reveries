@@ -20,6 +20,7 @@ public class BookEnrichmentService : IBookEnrichmentService
     
     public async Task<List<Book>> AggregateBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
     {
+        // Lav try-catch på NotFoundException på hver datakilde
         var googleBooksTask = _googleService.GetBooksByIsbnsAsync(isbns, cancellationToken);
         var isbndbTask = _isbndbService.GetBooksByIsbnsAsync(isbns, cancellationToken);
         

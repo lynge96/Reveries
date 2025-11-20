@@ -8,7 +8,7 @@ public class ExternalDependencyException : BaseAppException
     public HttpStatusCode? UpstreamStatus { get; }
 
     public ExternalDependencyException(string dependency, string message, HttpStatusCode? upstreamStatus = null, Exception? innerException = null)
-        : base(message, HttpStatusCode.BadGateway, "ExternalDependencyError")
+        : base(message, HttpStatusCode.ServiceUnavailable, "ExternalDependencyError")
     {
         Dependency = dependency;
         UpstreamStatus = upstreamStatus;

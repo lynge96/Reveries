@@ -2,6 +2,8 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
+using Reveries.Application.Extensions;
 using Reveries.Core.Exceptions;
 using Reveries.Integration.Isbndb.DTOs.Books;
 using Reveries.Integration.Isbndb.Interfaces;
@@ -12,6 +14,7 @@ namespace Reveries.Integration.Isbndb.Clients;
 public class IsbndbBookClient : IIsbndbBookClient
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<IsbndbBookClient> _logger;
     
     private const string DependencyName = nameof(IsbndbBookClient);
     
@@ -21,17 +24,19 @@ public class IsbndbBookClient : IIsbndbBookClient
         Converters = { new DecimalConverter() }
     };
     
-    public IsbndbBookClient(HttpClient httpClient)
+    public IsbndbBookClient(HttpClient httpClient, ILogger<IsbndbBookClient> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
     }
 
-    public async Task<BookDetailsDto> FetchBookByIsbnAsync(string isbn, CancellationToken ct = default)
+    public async Task<BookDetailsDto> FetchBookByIsbnAsync(string isbn, CancellationToken ct)
     {
         using var response = await _httpClient.GetAsync($"book/{isbn}", ct);
         
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
+            _logger.LogDebug("Isbndb: Book with ISBN '{isbn}' was not found.", isbn);
             throw new NotFoundException($"Book with ISBN '{isbn}' was not found in Isbndb.");
         }
 
@@ -52,23 +57,21 @@ public class IsbndbBookClient : IIsbndbBookClient
 
             if (result is null)
             {
-                throw new InvalidOperationException(
-                    $"Isbndb returned an empty or invalid payload for ISBN '{isbn}'."
-                );
+                throw new InvalidOperationException($"Isbndb returned an empty or invalid payload for ISBN '{isbn}'.");
             }
 
             return result;
         }
         catch (JsonException ex)
         {
-            throw new InvalidOperationException(
-                $"Failed to deserialize book data for ISBN '{isbn}'.",
-                ex
-            );
+            var truncated = json.TruncateForLog();
+            
+            _logger.LogWarning(ex, "Failed to deserialize book data for ISBN '{isbn}'. Payload: {payload}", isbn, truncated);
+            throw new InvalidOperationException($"Failed to deserialize book data for ISBN '{isbn}'.", ex);
         }
     }
 
-    public async Task<BooksQueryResponseDto> SearchBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll, CancellationToken cancellationToken = default)
+    public async Task<BooksQueryResponseDto> SearchBooksByQueryAsync(string query, string? languageCode, bool shouldMatchAll, CancellationToken ct)
     {
         var basePath = $"books/{Uri.EscapeDataString(query)}";
         
@@ -82,16 +85,15 @@ public class IsbndbBookClient : IIsbndbBookClient
 
         var uri = QueryHelpers.AddQueryString(basePath, queryParams);
 
-        using var response = await _httpClient.GetAsync(uri, cancellationToken);
+        using var response = await _httpClient.GetAsync(uri, ct);
         
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            throw new NotFoundException(
-                $"No books matched the query '{query}'."
-            );
+            _logger.LogDebug("Isbndb: No books matched the query '{query}'.", query);
+            throw new NotFoundException($"No books matched the query '{query}'.");
         }
 
-        var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        var json = await response.Content.ReadAsStringAsync(ct);
         
         if (!response.IsSuccessStatusCode)
         {
@@ -108,23 +110,21 @@ public class IsbndbBookClient : IIsbndbBookClient
 
             if (result is null)
             {
-                throw new InvalidOperationException(
-                    $"The API returned an empty or invalid search result for query '{query}'."
-                );
+                throw new InvalidOperationException($"The API returned an empty or invalid search result for query '{query}'.");
             }
 
             return result;
         }
         catch (JsonException ex)
         {
-            throw new InvalidOperationException(
-                $"Failed to deserialize search result for query '{query}'.",
-                ex
-            );
+            var truncated = json.TruncateForLog();
+            
+            _logger.LogWarning(ex, "Failed to deserialize search result for query '{query}'. Payload: {payload}", query, truncated);
+            throw new InvalidOperationException($"Failed to deserialize search result for query '{query}'.", ex);
         }
     }
 
-    public async Task<BooksListResponseDto> FetchBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken cancellationToken = default)
+    public async Task<BooksListResponseDto> FetchBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken ct)
     {
         var requestObject = new { isbns = isbns.ToList() };
 
@@ -139,9 +139,9 @@ public class IsbndbBookClient : IIsbndbBookClient
             throw new InvalidOperationException("Failed to serialize request for Isbndb books lookup.", ex);
         }
         
-        using var response = await _httpClient.PostAsync("books", jsonContent, cancellationToken);
+        using var response = await _httpClient.PostAsync("books", jsonContent, ct);
 
-        var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        var json = await response.Content.ReadAsStringAsync(ct);
         
         if (!response.IsSuccessStatusCode)
         {
@@ -158,19 +158,17 @@ public class IsbndbBookClient : IIsbndbBookClient
 
             if (result is null)
             {
-                throw new InvalidOperationException(
-                    "Isbndb returned an empty or invalid response for bulk ISBN lookup."
-                );
+                throw new InvalidOperationException("Isbndb returned an empty or invalid response for bulk ISBN lookup.");
             }
 
             return result;
         }
         catch (JsonException ex)
         {
-            throw new InvalidOperationException(
-                "Failed to deserialize Isbndb bulk books response.",
-                ex
-            );
+            var truncated = json.TruncateForLog();
+            
+            _logger.LogWarning(ex, "Failed to deserialize Isbndb bulk books response for isbns: {isbns} Payload: {payload}", isbns, truncated);
+            throw new InvalidOperationException("Failed to deserialize Isbndb bulk books response.", ex);
         }
     }
     

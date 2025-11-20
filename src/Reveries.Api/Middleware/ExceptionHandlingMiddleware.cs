@@ -57,7 +57,25 @@ public class ExceptionHandlingMiddleware
                 context.Response.StatusCode = (int)valEx.StatusCode;
                 break;
             }
-
+            case ExternalDependencyException depEx:
+            {
+                errorCtx = new ErrorContext(
+                    Type: depEx.ErrorType,
+                    StatusCode: (int)depEx.StatusCode,
+                    Path: path,
+                    TraceId: traceId,
+                    ErrorMessage: depEx.Message
+                );
+                
+                _logger.LogError(depEx, 
+                    "External dependency '{Dependency}' failed with upstream status {UpstreamStatus}. Message: {Message}",
+                    depEx.Dependency,
+                    depEx.UpstreamStatus,
+                    depEx.Message);
+                
+                context.Response.StatusCode = (int)depEx.StatusCode;
+                break;
+            }
             case BaseAppException appEx:
             {
                 errorCtx = new ErrorContext(
@@ -73,7 +91,6 @@ public class ExceptionHandlingMiddleware
                 context.Response.StatusCode = (int)appEx.StatusCode;
                 break;
             }
-
             default:
             {
                 errorCtx = new ErrorContext(
