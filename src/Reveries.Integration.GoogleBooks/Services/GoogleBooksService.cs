@@ -3,17 +3,18 @@ using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Core.Enums;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
+using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
 using Reveries.Integration.GoogleBooks.Mappers;
 
 namespace Reveries.Integration.GoogleBooks.Services;
 
-public class GoogleBookService : IGoogleBookService
+public class GoogleBooksService : IGoogleBookService
 {
     private readonly IGoogleBooksClient _googleBooksClient;
-    private readonly ILogger<GoogleBookService> _logger;
+    private readonly ILogger<GoogleBooksService> _logger;
     
-    public GoogleBookService(IGoogleBooksClient googleBooksClient, ILogger<GoogleBookService> logger)
+    public GoogleBooksService(IGoogleBooksClient googleBooksClient, ILogger<GoogleBooksService> logger)
     {
         _googleBooksClient = googleBooksClient;
         _logger = logger;
@@ -21,27 +22,51 @@ public class GoogleBookService : IGoogleBookService
     
     public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct)
     {
+        if (isbns.Count == 0)
+            return [];
+        
         var tasks = isbns.Select(async isbn =>
         {
-            var response = await _googleBooksClient.FetchBookByIsbnAsync(isbn, ct);
-            if (response?.Items == null || response.Items.Count == 0)
+            try
+            {
+                var response = await _googleBooksClient.FetchBookByIsbnAsync(isbn, ct);
+
+                if (response.Items == null || response.Items.Count == 0)
+                {
+                    _logger.LogDebug("GoogleBooks: ISBN '{Isbn}' returned 0 items.", isbn);
+                    return null;
+                }
+
+                var item = response.Items.First();
+
+                GoogleBookItemDto volumeResponse;
+                try
+                {
+                    volumeResponse = await _googleBooksClient.FetchBookByVolumeIdAsync(item.Id, ct);
+                }
+                catch (NotFoundException)
+                {
+                    _logger.LogDebug("GoogleBooks: Volume '{VolumeId}' for ISBN '{Isbn}' not found. Using primary volume info only.", item.Id, isbn);
+                    return item.VolumeInfo.ToBook();
+                }
+                
+                var primaryBook = item.VolumeInfo.ToBook();
+                var volumeBook = volumeResponse.VolumeInfo.ToBook();
+
+                return MergeGoogleBooks(primaryBook, volumeBook);
+            }
+            catch (NotFoundException)
+            {
+                _logger.LogDebug("GoogleBooks: ISBN '{Isbn}' not found.", isbn);
                 return null;
-
-            var item = response.Items.First();
-
-            var volumeResponse = await _googleBooksClient.FetchBookByVolumeIdAsync(item.Id, ct);
-            if (volumeResponse?.VolumeInfo == null)
-                return item.VolumeInfo.ToBook();
-
-            var primaryBook = item.VolumeInfo.ToBook();
-            var volumeBook = volumeResponse.VolumeInfo.ToBook();
-
-            return MergeGoogleBooks(primaryBook, volumeBook);
+            }
         });
         
-        var books = await Task.WhenAll(tasks);
-        
-        return books.Where(b => b != null).ToList()!;
+        var results = await Task.WhenAll(tasks);
+        var books = results.Where(b => b != null).Select(b => b!).ToList();
+
+        _logger.LogDebug("Completed GoogleBooks ISBN lookup. Requested {RequestedCount} ISBNs, found {FoundCount} books.", isbns.Count, books.Count);
+        return books;
     }
 
     public async Task<List<Book>> GetBooksByTitleAsync(List<string> titles, CancellationToken ct)
@@ -86,18 +111,26 @@ public class GoogleBookService : IGoogleBookService
         return new Book
         {
             DataSource = DataSource.GoogleBooksApi,
-            Title = book.Title,
+            Title = !string.IsNullOrWhiteSpace(book.Title)
+                ? book.Title
+                : volume.Title,
             Isbn13 = book.Isbn13 ?? volume.Isbn13,
             Isbn10 = book.Isbn10 ?? volume.Isbn10,
-            Pages =  (book.Pages > 0) ? book.Pages : volume.Pages,
+            Pages = book.Pages > 0
+                ? book.Pages
+                : (volume.Pages > 0 ? volume.Pages : 0),
             Synopsis = (volume.Synopsis?.Length ?? 0) > (book.Synopsis?.Length ?? 0)
                 ? volume.Synopsis
                 : book.Synopsis,
-            Authors = book.Authors,
+            Authors = book.Authors.Count > 0
+                ? book.Authors
+                : volume.Authors,
             Edition = book.Edition,
             Publisher = book.Publisher ?? volume.Publisher,
             PublishDate = book.PublishDate ?? volume.PublishDate,
-            Subjects = volume.Subjects,
+            Subjects = (volume.Subjects != null && volume.Subjects.Count > 0)
+                ? volume.Subjects
+                : book.Subjects,
             Language = book.Language ?? volume.Language,
             Binding = book.Binding,
             ImageThumbnail = book.ImageThumbnail ?? volume.ImageThumbnail,

@@ -16,7 +16,7 @@ public static class GoogleBooksServiceCollectionExtensions
             .ValidateOnStart();
         
         services.AddGoogleBooksClients();
-        services.AddScoped<IGoogleBookService, GoogleBookService>();
+        services.AddScoped<IGoogleBookService, GoogleBooksService>();
         
         return services;
     }
