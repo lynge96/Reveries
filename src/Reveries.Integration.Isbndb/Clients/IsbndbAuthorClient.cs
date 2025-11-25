@@ -61,7 +61,7 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
         }
         catch (JsonException ex)
         {
-            _logger.LogWarning(ex, "Failed to deserialize Isbndb author search response for '{authorName}'. Payload: {payload}", authorName, json.TruncateForLog());
+            _logger.LogWarning(ex, "Failed to deserialize Isbndb author search response for '{AuthorName}'. Payload: {Payload}", authorName, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize Isbndb author search response for '{authorName}'.", ex);
         }
     }
@@ -101,7 +101,7 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
         }
         catch (JsonException ex)
         {
-            _logger.LogWarning(ex, "Failed to deserialize Isbndb author books response for '{authorName}'. Payload: {payload}", authorName, json.TruncateForLog());
+            _logger.LogWarning(ex, "Failed to deserialize Isbndb author books response for '{AuthorName}'. Payload: {Payload}", authorName, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize Isbndb author books response for '{authorName}'.", ex);
         }
     }
