@@ -13,16 +13,16 @@ public interface IIsbndbBookService
     /// Retrieves books that match the given list of ISBNs.
     /// </summary>
     /// <param name="isbns">A list of 10- or 13-digit ISBNs to search for.</param>
-    /// <param name="cancellationToken">A token to cancel the operation if needed.</param>
+    /// <param name="ct">A token to cancel the operation if needed.</param>
     /// <returns>A list of <see cref="Book"/> entities that match the provided ISBNs. Returns an empty list if none are found.</returns>
-    Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default);
+    Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct = default);
 
     /// <summary>
     /// Searches for books by title and optionally filters by language and book format.
     /// </summary>
     /// <param name="titles">A list of book titles to search for.</param>
     /// <param name="languageCode">Optional language code to filter results, e.g., 'en' or 'da'.</param>
-    /// <param name="cancellationToken">A token to cancel the operation if needed.</param>
+    /// <param name="ct">A token to cancel the operation if needed.</param>
     /// <returns>A list of <see cref="Book"/> entities that match the search criteria. Returns an empty list if no matches are found.</returns>
-    Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, CancellationToken cancellationToken = default);
+    Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, CancellationToken ct = default);
 }

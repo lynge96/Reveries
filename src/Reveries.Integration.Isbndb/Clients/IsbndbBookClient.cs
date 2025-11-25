@@ -36,7 +36,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("Book with ISBN '{isbn}' was not found.", isbn);
+            _logger.LogDebug("Book with ISBN '{Isbn}' was not found.", isbn);
             throw new NotFoundException($"Book with ISBN '{isbn}' was not found in Isbndb.");
         }
 
@@ -63,7 +63,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         }
         catch (JsonException ex)
         {
-            _logger.LogWarning(ex, "Failed to deserialize book data for ISBN '{isbn}'. Payload: {payload}", isbn, json.TruncateForLog());
+            _logger.LogWarning(ex, "Failed to deserialize book data for ISBN '{Isbn}'. Payload: {Payload}", isbn, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize book data for ISBN '{isbn}'.", ex);
         }
     }
@@ -86,7 +86,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("No books matched the query '{query}'.", query);
+            _logger.LogDebug("No books matched the query '{Query}'.", query);
             throw new NotFoundException($"No books matched the query '{query}'.");
         }
 
@@ -113,7 +113,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         }
         catch (JsonException ex)
         {
-            _logger.LogWarning(ex, "Failed to deserialize search result for query '{query}'. Payload: {payload}", query, json.TruncateForLog());
+            _logger.LogWarning(ex, "Failed to deserialize search result for query '{Query}'. Payload: {Payload}", query, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize search result for query '{query}'.", ex);
         }
     }
@@ -158,7 +158,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         }
         catch (JsonException ex)
         {
-            _logger.LogWarning(ex, "Failed to deserialize Isbndb bulk books response for isbns: {isbns} Payload: {payload}", isbns, json.TruncateForLog());
+            _logger.LogWarning(ex, "Failed to deserialize Isbndb bulk books response for isbns: {Isbns} Payload: {Payload}", isbns, json.TruncateForLog());
             throw new InvalidOperationException("Failed to deserialize Isbndb bulk books response.", ex);
         }
     }
