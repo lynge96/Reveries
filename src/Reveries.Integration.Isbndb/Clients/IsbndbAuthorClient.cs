@@ -34,7 +34,7 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
         
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("Isbndb: Author '{AuthorName}' not found.", authorName);
+            _logger.LogDebug("Author '{AuthorName}' not found.", authorName);
             throw new NotFoundException($"No authors matched the name '{authorName}' in Isbndb.");
         }
         
@@ -74,7 +74,7 @@ public class IsbndbAuthorClient : IIsbndbAuthorClient
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("Isbndb: Author '{AuthorName}' not found.", authorName);
+            _logger.LogDebug("Author '{AuthorName}' not found.", authorName);
             throw new NotFoundException($"Author '{authorName}' was not found in Isbndb.");
         }
 

@@ -40,7 +40,7 @@ public class IsbndbPublisherClient : IIsbndbPublisherClient
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("Isbndb: Publisher '{PublisherName}' not found.", publisherName);
+            _logger.LogDebug("Publisher '{PublisherName}' not found.", publisherName);
             throw new NotFoundException($"Publisher '{publisherName}' was not found in Isbndb.");
         }
 
@@ -80,7 +80,7 @@ public class IsbndbPublisherClient : IIsbndbPublisherClient
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("Isbndb: No publishers matched '{PublisherName}'.", publisherName);
+            _logger.LogDebug("No publishers matched '{PublisherName}'.", publisherName);
             throw new NotFoundException($"No publishers matched the name '{publisherName}' in Isbndb.");
         }
 

@@ -36,7 +36,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("Isbndb: Book with ISBN '{isbn}' was not found.", isbn);
+            _logger.LogDebug("Book with ISBN '{isbn}' was not found.", isbn);
             throw new NotFoundException($"Book with ISBN '{isbn}' was not found in Isbndb.");
         }
 
@@ -86,7 +86,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("Isbndb: No books matched the query '{query}'.", query);
+            _logger.LogDebug("No books matched the query '{query}'.", query);
             throw new NotFoundException($"No books matched the query '{query}'.");
         }
 

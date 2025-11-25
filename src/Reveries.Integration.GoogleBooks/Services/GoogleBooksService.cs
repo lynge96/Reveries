@@ -33,7 +33,7 @@ public class GoogleBooksService : IGoogleBookService
 
                 if (response.Items == null || response.Items.Count == 0)
                 {
-                    _logger.LogDebug("GoogleBooks: ISBN '{Isbn}' returned 0 items.", isbn);
+                    _logger.LogDebug("ISBN '{Isbn}' returned 0 items.", isbn);
                     return null;
                 }
 
@@ -46,7 +46,7 @@ public class GoogleBooksService : IGoogleBookService
                 }
                 catch (NotFoundException)
                 {
-                    _logger.LogDebug("GoogleBooks: Volume '{VolumeId}' for ISBN '{Isbn}' not found. Using primary volume info only.", item.Id, isbn);
+                    _logger.LogDebug("Volume '{VolumeId}' for ISBN '{Isbn}' not found. Using primary volume info only.", item.Id, isbn);
                     return item.VolumeInfo.ToBook();
                 }
                 
@@ -57,7 +57,7 @@ public class GoogleBooksService : IGoogleBookService
             }
             catch (NotFoundException)
             {
-                _logger.LogDebug("GoogleBooks: ISBN '{Isbn}' not found.", isbn);
+                _logger.LogDebug("ISBN '{Isbn}' not found.", isbn);
                 return null;
             }
         });

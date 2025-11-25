@@ -38,7 +38,7 @@ public class GoogleBooksClient : IGoogleBooksClient
         
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("GoogleBooks: ISBN '{Isbn}' not found.", isbn);
+            _logger.LogDebug("ISBN '{Isbn}' not found.", isbn);
             throw new NotFoundException($"Google Books had no book with ISBN '{isbn}'.");
         }
         
@@ -78,7 +78,7 @@ public class GoogleBooksClient : IGoogleBooksClient
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            _logger.LogDebug("GoogleBooks: Volume '{VolumeId}' not found.", volumeId);
+            _logger.LogDebug("Volume '{VolumeId}' not found.", volumeId);
             throw new NotFoundException($"Google Books volume '{volumeId}' was not found.");
         }
 
