@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
@@ -16,16 +15,14 @@ public class BookLookupService : IBookLookupService
     private readonly IIsbndbAuthorService _isbndbAuthorService;
     private readonly IIsbndbPublisherService _isbndbPublisherService;
     private readonly IBookCacheService _bookCacheService;
-    private readonly ILogger<BookLookupService> _logger;
 
-    public BookLookupService(IUnitOfWork unitOfWork, IBookEnrichmentService bookEnrichmentService, IIsbndbAuthorService isbndbAuthorService, IIsbndbPublisherService isbndbPublisherService, IBookCacheService bookCacheService, ILogger<BookLookupService> logger)
+    public BookLookupService(IUnitOfWork unitOfWork, IBookEnrichmentService bookEnrichmentService, IIsbndbAuthorService isbndbAuthorService, IIsbndbPublisherService isbndbPublisherService, IBookCacheService bookCacheService)
     {
         _unitOfWork = unitOfWork;
         _bookEnrichmentService = bookEnrichmentService;
         _isbndbAuthorService = isbndbAuthorService;
         _isbndbPublisherService = isbndbPublisherService;
         _bookCacheService = bookCacheService;
-        _logger = logger;
     }
     
     public async Task<List<Book>> FindBooksByIsbnAsync(List<string> isbns, CancellationToken ct)
@@ -146,6 +143,12 @@ public class BookLookupService : IBookLookupService
     
     public async Task<List<Book>> FindBooksByAuthorAsync(string author, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(author);
+        if (string.IsNullOrWhiteSpace(author))
+            return [];
+        
+        ct.ThrowIfCancellationRequested();
+        
         var databaseBooks = await _unitOfWork.Books.GetBooksByAuthorAsync(author);
         if (databaseBooks.Count > 0)
             return databaseBooks;
@@ -154,10 +157,13 @@ public class BookLookupService : IBookLookupService
         return apiBooks;
     }
 
-    public async Task<List<Book>> FindBooksByPublisherAsync(string? publisher, CancellationToken ct)
+    public async Task<List<Book>> FindBooksByPublisherAsync(string publisher, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(publisher);
         if (string.IsNullOrWhiteSpace(publisher))
-            return new List<Book>();
+            return [];
+        
+        ct.ThrowIfCancellationRequested();
         
         var databaseBooks = await _unitOfWork.Books.GetBooksByPublisherAsync(publisher);
         if (databaseBooks.Count > 0)
@@ -171,7 +177,7 @@ public class BookLookupService : IBookLookupService
     {
         var databaseBooks = await _unitOfWork.Books.GetAllBooksAsync();
         if (databaseBooks.Count == 0)
-            return new List<Book>();
+            return [];
         
         await _bookCacheService.SetBooksByIsbnsAsync(databaseBooks, ct);
         

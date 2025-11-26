@@ -19,7 +19,7 @@ public class BookService : IBookService
         _logger = logger;
     }
     
-    public async Task<BookDto?> GetBookByIsbnAsync(string isbn, CancellationToken ct = default)
+    public async Task<BookDto?> GetBookByIsbnAsync(string isbn, CancellationToken ct)
     {
         _logger.LogInformation("Lookup book by ISBN started {@LookupContext}", new { Operation = "GetBookByIsbn", Isbn = isbn });
         
@@ -34,11 +34,11 @@ public class BookService : IBookService
 
         var bookDto = books.First().ToDto();
         
-        _logger.LogInformation("Lookup succeeded {@LookupContext}", new { Operation = "GetBookByIsbn", Isbn = isbn, Title = bookDto.Title });
+        _logger.LogInformation("Lookup succeeded {@LookupContext}", new { Operation = "GetBookByIsbn", Isbn = isbn, bookDto.Title });
         return bookDto;
     }
 
-    public async Task<IEnumerable<BookDto>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct = default)
+    public async Task<IEnumerable<BookDto>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct)
     {
         _logger.LogInformation("Lookup books by ISBNs started {@Ctx}", new { Operation = "GetBooksByIsbns", Isbns = isbns });
         
@@ -57,7 +57,7 @@ public class BookService : IBookService
         return booksDto;
     }
 
-    public async Task<BookDto?> GetBookByIdAsync(int id, CancellationToken ct = default)
+    public async Task<BookDto?> GetBookByIdAsync(int id, CancellationToken ct)
     {
         _logger.LogInformation("Lookup book by Id started {@Ctx}", new { Operation = "GetBookById", BookId = id });
         
@@ -76,7 +76,7 @@ public class BookService : IBookService
         return bookDto;
     }
 
-    public async Task<IEnumerable<BookDto>> GetAllBooksAsync(CancellationToken ct = default)
+    public async Task<IEnumerable<BookDto>> GetAllBooksAsync(CancellationToken ct)
     {
         _logger.LogInformation("Lookup all books started {@Ctx}", new { Operation = "GetAllBooks" });
         
@@ -93,7 +93,7 @@ public class BookService : IBookService
         return books.Select(book => book.ToDto());
     }
 
-    public async Task<int> CreateBookAsync(CreateBookDto bookDto, CancellationToken ct = default)
+    public async Task<int> CreateBookAsync(CreateBookDto bookDto, CancellationToken ct)
     {
         _logger.LogInformation("Creating book started {@Ctx}", new { Operation = "CreateBook", BookDto = bookDto });
         

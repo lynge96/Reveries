@@ -35,7 +35,7 @@ public class IsbndbBookService : IIsbndbBookService
         if (isbns.Count == 1)
         {
             var book = await GetSingleBookAsync(isbns[0], ct);
-            _logger.LogDebug("Single ISBN lookup for '{Isbn}' succeeded.", isbns[0]);
+            _logger.LogDebug("{Service} Single ISBN lookup for '{Isbn}' succeeded.", nameof(GetBooksByIsbnsAsync), isbns[0]);
 
             return [book];
         }
