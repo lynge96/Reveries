@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
@@ -68,7 +69,7 @@ public class BookEnrichmentService : IBookEnrichmentService
         var isbndbBooks = await isbndbTask;
         
         var isbndbByIsbn = isbndbBooks
-            .Select(b => new { Book = b, Key = GetIsbnKey(b) })
+            .Select(b => new { Book = b, Key = BookExtensions.GetIsbnKey(b) })
             .Where(x => x.Key is not null)
             .GroupBy(x => x.Key!)
             .ToDictionary(g => g.Key, g => g.First().Book);
@@ -77,7 +78,7 @@ public class BookEnrichmentService : IBookEnrichmentService
 
         foreach (var googleBook in googleBooks)
         {
-            var key = GetIsbnKey(googleBook);
+            var key = BookExtensions.GetIsbnKey(googleBook);
             if (key is null)
                 continue;
 
@@ -145,12 +146,4 @@ public class BookEnrichmentService : IBookEnrichmentService
             .ToDictionary(x => x.isbn!, x => x.book);
     }
     
-    private static string? GetIsbnKey(Book book)
-    {
-        if (!string.IsNullOrWhiteSpace(book.Isbn13))
-            return book.Isbn13;
-        if (!string.IsNullOrWhiteSpace(book.Isbn10))
-            return book.Isbn10;
-        return null;
-    }
 }
