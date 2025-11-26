@@ -6,7 +6,7 @@ namespace Reveries.Application.Interfaces.GoogleBooks;
 /// Provides methods for retrieving and searching books from Google Books,
 /// mapped into domain <see cref="Book"/> entities.
 /// </summary>
-public interface IGoogleBookService
+public interface IGoogleBooksService
 {
     /// <summary>
     /// Retrieves books from Google Books by a list of ISBNs.

@@ -36,9 +36,7 @@ public static partial class IsbnValidator
         return normalized;
     }
 
-
-
-    private static string Normalize(string input) => input.Replace("-", "").Trim();
+    public static string Normalize(string input) => input.Replace("-", "").Trim().ToUpperInvariant();
     
     /// <summary>
     /// Validates an ISBN-10 string using the standardized check digit algorithm.

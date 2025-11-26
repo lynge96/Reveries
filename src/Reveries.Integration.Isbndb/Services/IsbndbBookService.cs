@@ -1,12 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.Enums;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Reveries.Integration.Isbndb.Configuration;
-using Reveries.Integration.Isbndb.DTOs.Books;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
 
@@ -38,14 +35,14 @@ public class IsbndbBookService : IIsbndbBookService
         if (isbns.Count == 1)
         {
             var book = await GetSingleBookAsync(isbns[0], ct);
-            _logger.LogDebug("IsbndbBookService: Single ISBN lookup for '{Isbn}' succeeded.", isbns[0]);
+            _logger.LogDebug("Single ISBN lookup for '{Isbn}' succeeded.", isbns[0]);
 
             return [book];
         }
         
         var books = await GetMultipleBooksAsync(isbns, ct);
 
-        _logger.LogDebug("IsbndbBookService: Bulk ISBN lookup requested {Requested} ISBNs and returned {Found} books.", isbns.Count, books.Count);
+        _logger.LogDebug("Bulk ISBN lookup requested {Requested} ISBNs and returned {Found} books.", isbns.Count, books.Count);
 
         return books;
     }
@@ -67,13 +64,13 @@ public class IsbndbBookService : IIsbndbBookService
                     .Select(b => b.ToBook())
                     .ToList();
 
-                _logger.LogDebug("IsbndbBookService: Title search '{Title}' returned {Count} books.", title, mapped.Count);
+                _logger.LogDebug("Title search '{Title}' returned {Count} books.", title, mapped.Count);
 
                 return mapped;
             }
             catch (NotFoundException)
             {
-                _logger.LogDebug("IsbndbBookService: Title search '{Title}' returned no results.", title);
+                _logger.LogDebug("Title search '{Title}' returned no results.", title);
 
                 return [];
             }

@@ -9,7 +9,7 @@ using Reveries.Integration.GoogleBooks.Mappers;
 
 namespace Reveries.Integration.GoogleBooks.Services;
 
-public class GoogleBooksService : IGoogleBookService
+public class GoogleBooksService : IGoogleBooksService
 {
     private readonly IGoogleBooksClient _googleBooksClient;
     private readonly ILogger<GoogleBooksService> _logger;
