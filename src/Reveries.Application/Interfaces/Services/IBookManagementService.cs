@@ -15,13 +15,13 @@ public interface IBookManagementService
     /// <param name="book">
     /// The <see cref="Book"/> entity to create. Must contain all relevant details for the book and its relations.
     /// </param>
-    /// <param name="cancellationToken">
+    /// <param name="ct">
     /// A token to monitor for cancellation requests.
     /// </param>
     /// <returns>
     /// The database ID of the newly created book.
     /// </returns>
-    Task<int> CreateBookWithRelationsAsync(Book book, CancellationToken cancellationToken = default);
+    Task<int> CreateBookWithRelationsAsync(Book book, CancellationToken ct = default);
     
-    Task UpdateBooksAsync(List<Book> books, CancellationToken cancellationToken = default);
+    Task UpdateBooksAsync(List<Book> books, CancellationToken ct = default);
 }
