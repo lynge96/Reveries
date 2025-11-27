@@ -13,7 +13,7 @@ public class RedisCacheService : ICacheService
         _database = redis.GetDatabase();
     }
     
-    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
+    public async Task<T?> GetAsync<T>(string key, CancellationToken ct)
     {
         var value = await _database.StringGetAsync(key);
         
@@ -22,14 +22,14 @@ public class RedisCacheService : ICacheService
         return JsonSerializer.Deserialize<T>(value!);
     }
 
-    public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null, CancellationToken cancellationToken = default)
+    public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null, CancellationToken ct = default)
     {
         var json = JsonSerializer.Serialize(value);
         
         await _database.StringSetAsync(key, json, expiry);
     }
 
-    public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
+    public async Task RemoveAsync(string key, CancellationToken ct)
     {
         await _database.KeyDeleteAsync(key);
     }

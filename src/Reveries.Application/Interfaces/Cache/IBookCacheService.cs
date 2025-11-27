@@ -13,6 +13,6 @@ public interface IBookCacheService
     
     // title
     Task<IReadOnlyList<Book>> GetBooksByTitlesAsync(IEnumerable<string> titles, CancellationToken ct = default);
-    Task SetIsbnsByTitleAsync(Dictionary<string, List<string?>> titleIsbnMap, CancellationToken ct = default);
+    Task SetIsbnsByTitleAsync(Dictionary<string, List<string>> titleIsbnMap, CancellationToken ct = default);
     Task CacheBooksByTitlesAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default);
 }

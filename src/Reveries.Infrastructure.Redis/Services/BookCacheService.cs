@@ -1,21 +1,25 @@
 using System.Collections.Immutable;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
 using Reveries.Infrastructure.Redis.Configuration;
-using Reveries.Infrastructure.Redis.Helpers;
 
 namespace Reveries.Infrastructure.Redis.Services;
 
 public class BookCacheService : IBookCacheService
 {
     private readonly ICacheService _cache;
-
-    public BookCacheService(ICacheService cacheService)
+    private readonly ILogger<BookCacheService> _logger;
+    
+    private readonly StringComparer _titleComparer = StringComparer.OrdinalIgnoreCase;
+    
+    public BookCacheService(ICacheService cacheService, ILogger<BookCacheService> logger)
     {
         _cache = cacheService;
+        _logger = logger;
     }
     
     public async Task<Book?> GetBookByIsbnAsync(string isbn, CancellationToken ct)
@@ -46,7 +50,9 @@ public class BookCacheService : IBookCacheService
     
     public async Task<IReadOnlyList<Book>> GetBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken ct)
     {
-        var tasks = isbns.Select(isbn => GetBookByIsbnAsync(isbn, ct));
+        var distinctIsbns = isbns.Distinct().ToList();
+        
+        var tasks = distinctIsbns.Select(isbn => GetBookByIsbnAsync(isbn, ct));
         var books = await Task.WhenAll(tasks);
         
         var updatedBooks = books
@@ -54,6 +60,7 @@ public class BookCacheService : IBookCacheService
             .Select(b => b!.UpdateDataSource(DataSource.Cache))
             .ToImmutableList();
 
+        _logger.LogDebug("Cache ISBN lookup completed. Requested {IsbnCount} Isbns, found {BooksCount} books in cache.", distinctIsbns.Count, updatedBooks.Count);
         return updatedBooks;
     }
 
@@ -65,8 +72,13 @@ public class BookCacheService : IBookCacheService
 
     public async Task<IReadOnlyList<Book>> GetBooksByTitlesAsync(IEnumerable<string> titles, CancellationToken ct)
     {
+        var distinctTitles = titles
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Distinct(_titleComparer)
+            .ToList();
+        
         var batch = _cache.CreateBatch();
-        var titleTasks = titles.ToDictionary(
+        var titleTasks = distinctTitles.ToDictionary(
             title => title,
             title => batch.StringGetAsync(CacheKeys.BookIsbnsByTitle(title))
         );
@@ -74,13 +86,13 @@ public class BookCacheService : IBookCacheService
         await Task.WhenAll(titleTasks.Values);
         
         var isbnResults = new Dictionary<string, List<string>>();
-        foreach (var kvp in titleTasks)
+        foreach (var (title, task) in titleTasks)
         {
-            var redisVal = kvp.Value.Result;
+            var redisVal = await task;
             if (!redisVal.IsNullOrEmpty)
             {
-                var isbns = JsonSerializer.Deserialize<List<string>>(redisVal!) ?? new();
-                isbnResults[kvp.Key] = isbns;
+                var isbns = JsonSerializer.Deserialize<List<string>>(redisVal!) ?? [];
+                isbnResults[title] = isbns;
             }
         }
         
@@ -90,18 +102,18 @@ public class BookCacheService : IBookCacheService
             return new List<Book>();
         
         var books = await GetBooksByIsbnsAsync(allIsbns, ct);
+        
+        _logger.LogDebug("Cache title lookup completed. Requested {IsbnCount} titles, found {BooksCount} books in cache.", distinctTitles.Count, books.Count);
         return books.ToList();
     }
 
-    public async Task SetIsbnsByTitleAsync(Dictionary<string, List<string?>> titleIsbnMap, CancellationToken ct)
+    public async Task SetIsbnsByTitleAsync(Dictionary<string, List<string>> titleIsbnMap, CancellationToken ct)
     {
         if (titleIsbnMap is null)
             throw new ArgumentNullException(nameof(titleIsbnMap));
 
         if (titleIsbnMap.Count == 0)
             return;
-
-        ct.ThrowIfCancellationRequested();
 
         var batch = _cache.CreateBatch();
         var tasks = new List<Task>(titleIsbnMap.Count);
@@ -129,25 +141,23 @@ public class BookCacheService : IBookCacheService
 
         if (booksToCache.Count == 0)
             return;
-        
-        var titleComparer = StringComparer.OrdinalIgnoreCase;
-        
+
         var titleIsbnMap = booksToCache
             .Where(b => !string.IsNullOrWhiteSpace(b.Title))
-            .GroupBy(b => b.Title, titleComparer)
+            .GroupBy(b => b.Title, _titleComparer)
             .ToDictionary(
                 g => g.Key,
                 g => g.Select(BookExtensions.GetIsbnKey)
                     .Where(i => !string.IsNullOrWhiteSpace(i))
                     .Distinct()
                     .ToList(),
-                titleComparer);
+                _titleComparer);
 
         if (titleIsbnMap.Count == 0)
             return;
 
         await Task.WhenAll(
-            SetIsbnsByTitleAsync(titleIsbnMap, ct),
+            SetIsbnsByTitleAsync(titleIsbnMap!, ct),
             SetBooksByIsbnsAsync(booksToCache, ct)
         );
     }

@@ -1,6 +1,6 @@
 using Reveries.Core.Helpers;
 
-namespace Reveries.Infrastructure.Redis.Helpers;
+namespace Reveries.Infrastructure.Redis.Configuration;
 
 public static class CacheKeys
 {
