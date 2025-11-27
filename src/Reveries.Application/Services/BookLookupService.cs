@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
@@ -15,14 +16,16 @@ public class BookLookupService : IBookLookupService
     private readonly IIsbndbAuthorService _isbndbAuthorService;
     private readonly IIsbndbPublisherService _isbndbPublisherService;
     private readonly IBookCacheService _bookCacheService;
+    private readonly ILogger<BookLookupService> _logger;
 
-    public BookLookupService(IUnitOfWork unitOfWork, IBookEnrichmentService bookEnrichmentService, IIsbndbAuthorService isbndbAuthorService, IIsbndbPublisherService isbndbPublisherService, IBookCacheService bookCacheService)
+    public BookLookupService(IUnitOfWork unitOfWork, IBookEnrichmentService bookEnrichmentService, IIsbndbAuthorService isbndbAuthorService, IIsbndbPublisherService isbndbPublisherService, IBookCacheService bookCacheService, ILogger<BookLookupService> logger)
     {
         _unitOfWork = unitOfWork;
         _bookEnrichmentService = bookEnrichmentService;
         _isbndbAuthorService = isbndbAuthorService;
         _isbndbPublisherService = isbndbPublisherService;
         _bookCacheService = bookCacheService;
+        _logger = logger;
     }
     
     public async Task<List<Book>> FindBooksByIsbnAsync(List<string> isbns, CancellationToken ct)
@@ -76,6 +79,15 @@ public class BookLookupService : IBookLookupService
             await _bookCacheService.SetBooksByIsbnsAsync(booksToCache, ct);
         }
         
+        _logger.LogInformation(
+            "Book lookup by ISBN completed. Requested {RequestedCount}. Cache: {CacheCount}, DB: {DbCount}, API: {ApiCount}. Final: {Total}.",
+            isbns.Count,
+            cacheBooks.Count,
+            databaseBooks.Count,
+            apiBooks.Count,
+            cacheBooks.Count + databaseBooks.Count + apiBooks.Count
+        );
+
         return cacheBooks
             .Concat(databaseBooks)
             .Concat(apiBooks)
@@ -133,6 +145,15 @@ public class BookLookupService : IBookLookupService
             await _bookCacheService.CacheBooksByTitlesAsync(booksToCache, ct);
         }
         
+        _logger.LogInformation(
+            "Book lookup by Titles completed. Requested {RequestedCount}. Cache: {CacheCount}, DB: {DbCount}, API: {ApiCount}. Final: {Total}.",
+            titles.Count,
+            cacheBooks.Count,
+            databaseBooks.Count,
+            apiBooks.Count,
+            cacheBooks.Count + databaseBooks.Count + apiBooks.Count
+        );
+
         return cacheBooks
             .Concat(databaseBooks)
             .Concat(apiBooks)
@@ -154,6 +175,15 @@ public class BookLookupService : IBookLookupService
             return databaseBooks;
         
         var apiBooks = await _isbndbAuthorService.GetBooksByAuthorAsync(author, ct);
+        
+        _logger.LogInformation(
+            "Book lookup by Author completed. Requested '{Author}'. DB: {DbCount}, API: {ApiCount}. Final: {Total}.",
+            author,
+            databaseBooks.Count,
+            apiBooks.Count,
+            databaseBooks.Count + apiBooks.Count
+        );
+        
         return apiBooks;
     }
 
@@ -170,6 +200,15 @@ public class BookLookupService : IBookLookupService
             return databaseBooks.ArrangeBooks().ToList();
         
         var apiBooks = await _isbndbPublisherService.GetBooksByPublisherAsync(publisher, ct);
+        
+        _logger.LogInformation(
+            "Book lookup by publisher completed. Requested '{PublisherName}'. DB: {DbCount}, API: {ApiCount}. Final: {Total}.",
+            publisher,
+            databaseBooks.Count,
+            apiBooks.Count,
+            databaseBooks.Count + apiBooks.Count
+        );
+        
         return apiBooks;
     }
 
@@ -181,12 +220,16 @@ public class BookLookupService : IBookLookupService
         
         await _bookCacheService.SetBooksByIsbnsAsync(databaseBooks, ct);
         
+        _logger.LogInformation("Book lookup by all books completed. DB: {DbCount}.", databaseBooks.Count);
+        
         return databaseBooks;
     }
 
     public async Task<Book?> FindBookById(int id, CancellationToken ct)
     {
         var databaseBook = await _unitOfWork.Books.GetBookByIdAsync(id);
+        
+        _logger.LogInformation("Book lookup by Id completed. Id: {BookId}.", id);
         
         return databaseBook ?? null;
     }
