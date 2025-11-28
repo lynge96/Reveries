@@ -2,12 +2,15 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.9 (Debian 16.9-1.pgdg120+1)
--- Dumped by pg_dump version 16.9 (Debian 16.9-1.pgdg120+1)
+\restrict u7fYZoRYyxADbSyZhbUrb0j1V7qnBt5K8p3Tc5zm87XdO8dlByTVfirOLSuXxId
+
+-- Dumped from database version 18.0 (Debian 18.0-1.pgdg13+3)
+-- Dumped by pg_dump version 18.0 (Debian 18.0-1.pgdg13+3)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -24,7 +27,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
@@ -35,7 +38,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: author_name_variants; Type: TABLE; Schema: public; Owner: reveries_user
+-- Name: author_name_variants; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.author_name_variants (
@@ -47,10 +50,8 @@ CREATE TABLE public.author_name_variants (
 );
 
 
-ALTER TABLE public.author_name_variants OWNER TO reveries_user;
-
 --
--- Name: author_name_variants_id_seq; Type: SEQUENCE; Schema: public; Owner: reveries_user
+-- Name: author_name_variants_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.author_name_variants_id_seq
@@ -62,17 +63,15 @@ CREATE SEQUENCE public.author_name_variants_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.author_name_variants_id_seq OWNER TO reveries_user;
-
 --
--- Name: author_name_variants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reveries_user
+-- Name: author_name_variants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.author_name_variants_id_seq OWNED BY public.author_name_variants.id;
 
 
 --
--- Name: authors; Type: TABLE; Schema: public; Owner: reveries_user
+-- Name: authors; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.authors (
@@ -84,10 +83,8 @@ CREATE TABLE public.authors (
 );
 
 
-ALTER TABLE public.authors OWNER TO reveries_user;
-
 --
--- Name: authors_id_seq; Type: SEQUENCE; Schema: public; Owner: reveries_user
+-- Name: authors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.authors_id_seq
@@ -99,17 +96,15 @@ CREATE SEQUENCE public.authors_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.authors_id_seq OWNER TO reveries_user;
-
 --
--- Name: authors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reveries_user
+-- Name: authors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.authors_id_seq OWNED BY public.authors.id;
 
 
 --
--- Name: book_dimensions; Type: TABLE; Schema: public; Owner: reveries_user
+-- Name: book_dimensions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.book_dimensions (
@@ -121,10 +116,8 @@ CREATE TABLE public.book_dimensions (
 );
 
 
-ALTER TABLE public.book_dimensions OWNER TO reveries_user;
-
 --
--- Name: books; Type: TABLE; Schema: public; Owner: reveries_user
+-- Name: books; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.books (
@@ -137,7 +130,6 @@ CREATE TABLE public.books (
     page_count integer,
     synopsis text,
     language character varying(50),
-    language_iso639 character varying(10),
     edition character varying(50),
     binding character varying(50),
     image_url character varying(2000),
@@ -152,10 +144,8 @@ CREATE TABLE public.books (
 );
 
 
-ALTER TABLE public.books OWNER TO reveries_user;
-
 --
--- Name: books_authors; Type: TABLE; Schema: public; Owner: reveries_user
+-- Name: books_authors; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.books_authors (
@@ -165,10 +155,8 @@ CREATE TABLE public.books_authors (
 );
 
 
-ALTER TABLE public.books_authors OWNER TO reveries_user;
-
 --
--- Name: books_subjects; Type: TABLE; Schema: public; Owner: reveries_user
+-- Name: books_subjects; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.books_subjects (
@@ -178,10 +166,8 @@ CREATE TABLE public.books_subjects (
 );
 
 
-ALTER TABLE public.books_subjects OWNER TO reveries_user;
-
 --
--- Name: dewey_decimals; Type: TABLE; Schema: public; Owner: reveries_user
+-- Name: dewey_decimals; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.dewey_decimals (
@@ -190,10 +176,8 @@ CREATE TABLE public.dewey_decimals (
 );
 
 
-ALTER TABLE public.dewey_decimals OWNER TO reveries_user;
-
 --
--- Name: publishers; Type: TABLE; Schema: public; Owner: reveries_user
+-- Name: publishers; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.publishers (
@@ -203,10 +187,8 @@ CREATE TABLE public.publishers (
 );
 
 
-ALTER TABLE public.publishers OWNER TO reveries_user;
-
 --
--- Name: series; Type: TABLE; Schema: public; Owner: reveries_user
+-- Name: series; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.series (
@@ -216,10 +198,8 @@ CREATE TABLE public.series (
 );
 
 
-ALTER TABLE public.series OWNER TO reveries_user;
-
 --
--- Name: subjects; Type: TABLE; Schema: public; Owner: reveries_user
+-- Name: subjects; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.subjects (
@@ -229,10 +209,8 @@ CREATE TABLE public.subjects (
 );
 
 
-ALTER TABLE public.subjects OWNER TO reveries_user;
-
 --
--- Name: book_details; Type: VIEW; Schema: public; Owner: reveries_user
+-- Name: book_details; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.book_details AS
@@ -244,7 +222,6 @@ CREATE VIEW public.book_details AS
     b.page_count AS pages,
     b.synopsis,
     b.language,
-    b.language_iso639 AS languageiso639,
     b.edition,
     b.binding,
     b.image_url AS imageurl,
@@ -283,13 +260,11 @@ CREATE VIEW public.book_details AS
      LEFT JOIN public.series se ON ((b.series_id = se.id)));
 
 
-ALTER VIEW public.book_details OWNER TO reveries_user;
-
 --
--- Name: book_details_with_subject_aggregate; Type: VIEW; Schema: public; Owner: reveries_user
+-- Name: book_details_with_aggregates; Type: VIEW; Schema: public; Owner: -
 --
 
-CREATE VIEW public.book_details_with_subject_aggregate AS
+CREATE VIEW public.book_details_with_aggregates AS
  SELECT b.id,
     b.title,
     b.isbn13,
@@ -299,7 +274,6 @@ CREATE VIEW public.book_details_with_subject_aggregate AS
     b.page_count AS pages,
     b.synopsis,
     b.language,
-    b.language_iso639 AS languageiso639,
     b.edition,
     b.binding,
     b.image_url AS imageurl,
@@ -314,11 +288,11 @@ CREATE VIEW public.book_details_with_subject_aggregate AS
     p.id AS publisherid,
     p.name,
     p.date_created AS datecreatedpublisher,
-    a.id AS authorid,
-    a.normalized_name AS normalizedname,
-    a.first_name AS firstname,
-    a.last_name AS lastname,
-    a.date_created AS datecreatedauthor,
+    string_agg(DISTINCT ((a.id)::character varying)::text, ', '::text) AS authorids,
+    string_agg(DISTINCT (a.normalized_name)::text, ', '::text) AS authornames,
+    string_agg(DISTINCT (a.first_name)::text, ', '::text) AS authorfirstnames,
+    string_agg(DISTINCT (a.last_name)::text, ', '::text) AS authorlastnames,
+    string_agg(DISTINCT ((a.date_created)::character varying)::text, ', '::text) AS datecreatedauthors,
     bd.height_cm AS heightcm,
     bd.width_cm AS widthcm,
     bd.thickness_cm AS thicknesscm,
@@ -336,13 +310,11 @@ CREATE VIEW public.book_details_with_subject_aggregate AS
      LEFT JOIN public.book_dimensions bd ON ((b.id = bd.book_id)))
      LEFT JOIN public.dewey_decimals dd ON ((b.id = dd.book_id)))
      LEFT JOIN public.series se ON ((b.series_id = se.id)))
-  GROUP BY b.id, b.title, b.isbn13, b.isbn10, b.publisher_id, b.publication_date, b.page_count, b.synopsis, b.language, b.language_iso639, b.edition, b.binding, b.image_url, b.msrp, b.is_read, b.date_created, b.image_thumbnail, b.series_number, p.id, p.name, p.date_created, a.id, a.normalized_name, a.first_name, a.last_name, a.date_created, bd.height_cm, bd.width_cm, bd.thickness_cm, bd.weight_g, dd.code, se.id, se.name, se.date_created;
+  GROUP BY b.id, b.title, b.isbn13, b.isbn10, b.publisher_id, b.publication_date, b.page_count, b.synopsis, b.language, b.edition, b.binding, b.image_url, b.msrp, b.is_read, b.date_created, b.image_thumbnail, b.series_number, p.id, p.name, p.date_created, bd.height_cm, bd.width_cm, bd.thickness_cm, bd.weight_g, dd.code, se.id, se.name, se.date_created;
 
-
-ALTER VIEW public.book_details_with_subject_aggregate OWNER TO reveries_user;
 
 --
--- Name: books_id_seq; Type: SEQUENCE; Schema: public; Owner: reveries_user
+-- Name: books_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.books_id_seq
@@ -354,17 +326,15 @@ CREATE SEQUENCE public.books_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.books_id_seq OWNER TO reveries_user;
-
 --
--- Name: books_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reveries_user
+-- Name: books_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.books_id_seq OWNED BY public.books.id;
 
 
 --
--- Name: publishers_id_seq; Type: SEQUENCE; Schema: public; Owner: reveries_user
+-- Name: publishers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.publishers_id_seq
@@ -376,17 +346,15 @@ CREATE SEQUENCE public.publishers_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.publishers_id_seq OWNER TO reveries_user;
-
 --
--- Name: publishers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reveries_user
+-- Name: publishers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.publishers_id_seq OWNED BY public.publishers.id;
 
 
 --
--- Name: series_id_seq; Type: SEQUENCE; Schema: public; Owner: reveries_user
+-- Name: series_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.series_id_seq
@@ -398,17 +366,15 @@ CREATE SEQUENCE public.series_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.series_id_seq OWNER TO reveries_user;
-
 --
--- Name: series_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reveries_user
+-- Name: series_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.series_id_seq OWNED BY public.series.id;
 
 
 --
--- Name: subjects_id_seq; Type: SEQUENCE; Schema: public; Owner: reveries_user
+-- Name: subjects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.subjects_id_seq
@@ -420,59 +386,57 @@ CREATE SEQUENCE public.subjects_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.subjects_id_seq OWNER TO reveries_user;
-
 --
--- Name: subjects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: reveries_user
+-- Name: subjects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.subjects_id_seq OWNED BY public.subjects.id;
 
 
 --
--- Name: author_name_variants id; Type: DEFAULT; Schema: public; Owner: reveries_user
+-- Name: author_name_variants id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.author_name_variants ALTER COLUMN id SET DEFAULT nextval('public.author_name_variants_id_seq'::regclass);
 
 
 --
--- Name: authors id; Type: DEFAULT; Schema: public; Owner: reveries_user
+-- Name: authors id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.authors ALTER COLUMN id SET DEFAULT nextval('public.authors_id_seq'::regclass);
 
 
 --
--- Name: books id; Type: DEFAULT; Schema: public; Owner: reveries_user
+-- Name: books id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books ALTER COLUMN id SET DEFAULT nextval('public.books_id_seq'::regclass);
 
 
 --
--- Name: publishers id; Type: DEFAULT; Schema: public; Owner: reveries_user
+-- Name: publishers id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.publishers ALTER COLUMN id SET DEFAULT nextval('public.publishers_id_seq'::regclass);
 
 
 --
--- Name: series id; Type: DEFAULT; Schema: public; Owner: reveries_user
+-- Name: series id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.series ALTER COLUMN id SET DEFAULT nextval('public.series_id_seq'::regclass);
 
 
 --
--- Name: subjects id; Type: DEFAULT; Schema: public; Owner: reveries_user
+-- Name: subjects id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.subjects ALTER COLUMN id SET DEFAULT nextval('public.subjects_id_seq'::regclass);
 
 
 --
--- Data for Name: author_name_variants; Type: TABLE DATA; Schema: public; Owner: reveries_user
+-- Data for Name: author_name_variants; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.author_name_variants (id, author_id, name_variant, is_primary, date_created) FROM stdin;
@@ -550,7 +514,7 @@ COPY public.author_name_variants (id, author_id, name_variant, is_primary, date_
 
 
 --
--- Data for Name: authors; Type: TABLE DATA; Schema: public; Owner: reveries_user
+-- Data for Name: authors; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.authors (id, normalized_name, first_name, last_name, date_created) FROM stdin;
@@ -566,7 +530,7 @@ COPY public.authors (id, normalized_name, first_name, last_name, date_created) F
 
 
 --
--- Data for Name: book_dimensions; Type: TABLE DATA; Schema: public; Owner: reveries_user
+-- Data for Name: book_dimensions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.book_dimensions (book_id, height_cm, width_cm, thickness_cm, weight_g) FROM stdin;
@@ -590,31 +554,31 @@ COPY public.book_dimensions (book_id, height_cm, width_cm, thickness_cm, weight_
 
 
 --
--- Data for Name: books; Type: TABLE DATA; Schema: public; Owner: reveries_user
+-- Data for Name: books; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.books (id, title, isbn13, isbn10, publisher_id, publication_date, page_count, synopsis, language, language_iso639, edition, binding, image_url, msrp, is_read, date_created, image_thumbnail, series_id, series_number) FROM stdin;
-338	A Little Hatred	9780316187169	031618716X	221	2019-09-17	480	From New York Times bestselling author Joe Abercrombie comes the first book in a new blockbuster fantasy trilogy where the age of the machine dawns, but the age of magic refuses to die. The chimneys of industry rise over Adua and the world seethes with new opportunities. But old scores run deep as ever. On the blood-soaked borders of Angland, Leo dan Brock struggles to win fame on the battlefield, and defeat the marauding armies of Stour Nightfall. He hopes for help from the crown. But King Jezal's son, the feckless Prince Orso, is a man who specializes in disappointments. Savine dan Glokta - socialite, investor, and daughter of the most feared man in the Union - plans to claw her way to the top of the slag-heap of society by any means necessary. But the slums boil over with a rage that all the money in the world cannot control. The age of the machine dawns, but the age of magic refuses to die. With the help of the mad hillwoman Isern-i-Phail, Rikke struggles to control the blessing, or the curse, of the Long Eye. Glimpsing the future is one thing, but with the guiding hand of the First of the Magi still pulling the strings, changing it will be quite another... For more from Joe Abercrombie, check out: The First Law TrilogyThe Blade ItselfBefore They Are HangedLast Argument of Kings Best Served ColdThe HeroesRed Country The Shattered Sea TrilogyHalf a KingHalf a WorldHalf a War	English	en	First Edition	Hardcover	https://images.isbndb.com/covers/15354693482300.jpg	27.00	f	2025-09-18 12:02:25.821847+00	http://books.google.com/books/content?id=VWJCtAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	157	1
-339	Dune	9780593099322	059309932X	222	2019-10-01	688	Frank Herbert’s epic masterpiece—a triumph of the imagination and one of the bestselling science fiction novels of all time. This deluxe hardcover edition of Dune includes: · An iconic new cover · A stamped and foiled case featuring a quote from the Litany Against Fear · Stained edges and fully illustrated endpapers · A beautifully designed poster on the interior of the jacket · A redesigned world map of Dune · An updated Introduction by Brian Herbert Set on the desert planet Arrakis, Dune is the story of Paul Atreides, heir to a noble family tasked with ruling an inhospitable world where the only thing of value is the “spice” melange, a drug capable of extending life and enhancing consciousness. Coveted across the known universe, melange is a prize worth killing for... When House Atreides is betrayed, the destruction of Paul’s family will set the boy on a journey toward a destiny greater than he could ever have imagined. And as he evolves into the mysterious man known as Muad’Dib, he will bring to fruition humankind’s most ancient and unattainable dream. A stunning blend of adventure and mysticism, environmentalism and politics, Dune won the first Nebula Award, shared the Hugo Award, and formed the basis of what is undoubtedly the grandest epic in science fiction. • DUNE: PART TWO • THE MAJOR MOTION PICTURE Directed by Denis Villeneuve, screenplay by Denis Villeneuve and Jon Spaihts, based on the novel Dune by Frank Herbert • Starring Timothée Chalamet, Zendaya, Rebecca Ferguson, Josh Brolin, Austin Butler, Florence Pugh, Dave Bautista, Christopher Walken, Stephen McKinley Henderson, Léa Seydoux, with Stellan Skarsgård, with Charlotte Rampling, and Javier Bardem	English	en	Deluxe Edition	Hardcover	https://images.isbndb.com/covers/3983013482399.jpg	40.00	f	2025-09-18 12:02:26.277722+00	http://books.google.com/books/content?id=-hmtDwAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
-340	Jade City	9780316440868	0316440868	221	2017-11-07	512	In this epic saga of magic and kungfu, four siblings battle rival clans for honor and power in an Asia-inspired fantasy metropolis. * World Fantasy Award for Best Novel, winner* Aurora Award for Best Novel, winner* Nebula Award for Best Novel, nominee* Locus Award for Best Fantasy Novel, finalist Jade is the lifeblood of the island of Kekon. It has been mined, traded, stolen, and killed for -- and for centuries, honorable Green Bone warriors like the Kaul family have used it to enhance their magical abilities and defend the island from foreign invasion. Now, the war is over and a new generation of Kauls vies for control of Kekon's bustling capital city. They care about nothing but protecting their own, cornering the jade market, and defending the districts under their protection. Ancient tradition has little place in this rapidly changing nation. When a powerful new drug emerges that lets anyone -- even foreigners -- wield jade, the simmering tension between the Kauls and the rival Ayt family erupts into open violence. The outcome of this clan war will determine the fate of all Green Bones -- from their grandest patriarch to the lowliest motorcycle runner on the streets -- and of Kekon itself. Jade City is the first novel in an epic trilogy about family, honor, and those who live and die by the ancient laws of blood and jade.	English	en	1	Hardcover	https://images.isbndb.com/covers/17891683482300.jpg	26.00	f	2025-09-18 12:02:26.893163+00	http://books.google.com/books/content?id=N7XYAQAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	158	1
-341	Jade Legacy	9780316440974	0316440973	221	2021-11-30	736	WINNER OF THE LOCUS AWARD FOR BEST FANTASY NOVEL, 2022 "Lee's series will stand as a pillar of epic fantasy and family drama." --Library Journal (starred review) The Kaul siblings battle rival clans for honor and control over an East Asia-inspired fantasy metropolis in Jade Legacy, the page-turning conclusion to the Green Bone Saga. Jade, the mysterious and magical substance once exclusive to the Green Bone warriors of Kekon, is now coveted throughout the world. Everyone wants access to the supernatural abilities it provides. As the struggle over the control of jade grows ever larger and more deadly, the Kaul family, and the ancient ways of the Kekonese Green Bones, will never be the same. Battered by war and tragedy, the Kauls are plagued by resentments and old wounds as their adversaries are on the ascent and their country is riven by dangerous factions and foreign interference. The clan must discern allies from enemies, set aside bloody rivalries, and make terrible sacrifices . . . but even the unbreakable bonds of blood and loyalty may not be enough to ensure the survival of the Green Bone clans and the nation they are sworn to protect. Praise for the Green Bone Saga: "Jade City has it all: a beautifully realized setting, a great cast of characters, and dramatic action scenes. What a fun, gripping read!" --Ann Leckie "An instantly absorbing tale of blood, honor, family, and magic, spiced with unexpectedly tender character beats."--NPR The Green Bone Saga Jade City Jade War Jade Legacy	English	en	\N	Hardcover	https://images.isbndb.com/covers/17892743482300.jpg	0.00	f	2025-09-18 12:02:27.406942+00	http://books.google.com/books/content?id=WGs8zgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	158	3
-342	Jade War	9780316440929	0316440922	221	2019-07-23	608	In Jade War, the sequel to the World Fantasy Award-winning novel Jade City, the Kaul siblings battle rival clans for honor and control over an Asia-inspired fantasy metropolis. On the island of Kekon, the Kaul family is locked in a violent feud for control of the capital city and the supply of magical jade that endows trained Green Bone warriors with supernatural powers they alone have possessed for hundreds of years. Beyond Kekon's borders, war is brewing. Powerful foreign governments and mercenary criminal kingpins alike turn their eyes on the island nation. Jade, Kekon's most prized resource, could make them rich - or give them the edge they'd need to topple their rivals. Faced with threats on all sides, the Kaul family is forced to form new and dangerous alliances, confront enemies in the darkest streets and the tallest office towers, and put honor aside in order to do whatever it takes to ensure their own survival - and that of all the Green Bones of Kekon. Jade War is the second book of the Green Bone Saga, an epic trilogy about family, honor, and those who live and die by the ancient laws of blood and jade. The Green Bone SagaJade CityJade War	English	en	1	Hardcover	https://images.isbndb.com/covers/17892293482300.jpg	26.00	f	2025-09-18 12:02:27.439464+00	http://books.google.com/books/content?id=E99cuwEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	158	2
-343	Scythe	9781406379242	1406379247	223	2018-02-01	448	A dark, gripping and witty thriller in which the only thing humanity has control over is death. In a world where disease, war and crime have been eliminated, the only way to die is to be randomly killed ("gleaned") by professional scythes. Citra and Rowan are teenagers who have been selected to be scythes' apprentices, and despite wanting nothing to do with the vocation, they must learn the art of killing and understand the necessity of what they do. Only one of them will be chosen as a scythe's apprentice and as Citra and Rowan come up against a terrifyingly corrupt Scythedom, it becomes clear that the winning apprentice's first task will be to glean the loser. "Pretty much a perfect teen adventure novel [...] Over the years, I've heard many books touted as the successor to Hunger Games, but Scythe is the first one that I would really, truly stand behind, as it offers teens a complementary reading experience to that series rather than a duplicate one. Like Hunger Games, Scythe invites readers to both turn pages quickly but also furrow their brows over the ethical questions it asks." Maggie Stiefvater, author of The Shiver Trilogy and The Raven Cycle Scythe has been on the New York Times bestseller list for 11 weeks and is a Publishers Weekly Best Book of 2016. It's received five starred reviews in the US and is also the winner of a Michael L. Printz Honor. Universal has optioned the film rights to Scythe.	English	en	\N	Paperback	https://images.isbndb.com/covers/19988903482688.jpg	0.00	f	2025-09-18 12:02:27.464361+00	http://books.google.com/books/content?id=waxTswEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	159	\N
-344	Season of Storms	9781399611138	1399611135	224	2023-01-05	432	Before he was Ciri's guardian, Geralt of Rivia was a legendary swordsman. Season of Storms is an adventure set in the world of the Witcher, the book series that inspired the hit Netflix show and bestselling video games. Now in a brand-new hardcover edition, this is the ultimate way to experience the epic story of the Witcher. Geralt. The witcher whose mission is to protect ordinary people from the monsters created with magic. A mutant who has the task of killing unnatural beings. He uses a magical sign, potions and the pride of every witcher - two swords, steel and silver. But what would happen if Geralt lost his weapons? Andrzej Sapkowski returns to his phenomenal world of the Witcher in a stand-alone novel where Geralt fights, travels and loves again, Dandelion sings and flies from trouble to trouble, sorcerers are scheming ... and across the whole world clouds are gathering. The season of storms is coming... Translated by David French.	English	en	Collector's Hardback Edition	Hardcover	https://images.isbndb.com/covers/8479443482686.jpg	0.00	f	2025-09-18 12:02:28.015143+00	http://books.google.com/books/content?id=Un5PzwEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
-345	The Fury of the Gods	9780356514284	0356514285	225	2024-10-22	560	Varg has overcome the trials of his past and become an accepted member of the Bloodsworn, but now he and his newfound comrades face their biggest challenge yet: slaying a dragon. Elvar is struggling to consolidate her power in Snakavik, where she faces threats from within and without. As she fights to assert her authority in readiness for the coming conflict, she faces a surely insurmountable task: reining in the ferocity of a wolf god. As Biorr and his warband make their way north, eager for blood, Gudvarr pursues a mission of his own, hoping to win Lik-Rifa's favour and further his own ambitions. All paths lead to Snakavik, where the lines are being drawn for the final battle - a titanic clash that will shake the foundations of the world, and bear witness to the true fury of the gods.	English	en	\N	Book	https://images.isbndb.com/covers/25424783482314.jpg	0.00	f	2025-09-18 12:02:28.535386+00	http://books.google.com/books/content?id=xiwNzgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
-346	The Hunger of the Gods	9780356514246	0356514242	225	2022-04-12	656	The Hunger of the Gods continues John Gwynne's acclaimed Norse-inspired epic fantasy series, packed with myth, magic and bloody vengeance Lik-Rifa, the dragon god of legend, has been freed from her eternal prison. Now she plots a new age of blood and conquest. As Orka continues the hunt for her missing son, the Bloodsworn sweep south in a desperate race to save one of their own - and Varg takes the first steps on the path of vengeance. Elvar has sworn to fulfil her blood oath and rescue a prisoner from the clutches of Lik-Rifa and her dragonborn followers, but first she must persuade the Battle-Grim to follow her. Yet even the might of the Bloodsworn and Battle-Grim cannot stand alone against a dragon god. Their hope lies within the mad writings of a chained god. A book of forbidden magic with the power to raise the wolf god Ulfrir from the dead . . .and bring about a battle that will shake the foundations of the earth. Praise for The Bloodsworn series: 'A masterfully crafted, brutally compelling Norse-inspired epic' Anthony Ryan 'Visceral, heart-breaking and unputdownable' Jay Kristoff 'A satisfying and riveting read. The well-realised characters move against a backdrop of a world stunning in its immensity. It's everything I've come to expect from a John Gwynne book' Robin Hobb.	English	en	\N	Book	https://images.isbndb.com/covers/25424403482314.jpg	0.00	f	2025-09-18 12:02:29.052021+00	http://books.google.com/books/content?id=FG4MzgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
-347	The Martian	9780804139021	0804139024	226	2014-02-11	384	#1 NEW YORK TIMES BESTSELLER • NOW A MAJOR MOTION PICTURE A mission to Mars. A freak accident. One man’s struggle to survive. From the author of Project Hail Mary comes “a hugely entertaining novel that reads like a rocket ship afire” (Chicago Tribune). “Brilliant . . . a celebration of human ingenuity [and] the purest example of real-science sci-fi for many years . . . utterly compelling.”—The Wall Street Journal Six days ago, astronaut Mark Watney became one of the first people to walk on Mars. Now, he’s sure he’ll be the first person to die there. After a dust storm nearly kills him and forces his crew to evacuate while thinking him dead, Mark finds himself stranded and completely alone with no way to even signal Earth that he’s alive—and even if he could get word out, his supplies would be gone long before a rescue could arrive. Chances are, though, he won’t have time to starve to death. The damaged machinery, unforgiving environment, or plain-old “human error” are much more likely to kill him first. But Mark isn’t ready to give up yet. Drawing on his ingenuity, his engineering skills—and a relentless, dogged refusal to quit—he steadfastly confronts one seemingly insurmountable obstacle after the next. Will his resourcefulness be enough to overcome the impossible odds against him? NAMED ONE OF PASTE’S BEST NOVELS OF THE DECADE “A hugely entertaining novel [that] reads like a rocket ship afire . . . Weir has fashioned in Mark Watney one of the most appealing, funny, and resourceful characters in recent fiction.”—Chicago Tribune “As gripping as they come . . . You’ll be rooting for Watney the whole way, groaning at every setback and laughing at his pitchblack humor. Utterly nail-biting and memorable.”—Financial Times	English	en	A Novel	Hardcover	https://images.isbndb.com/covers/7945753482474.jpg	27.00	f	2025-09-18 12:02:29.065645+00	http://books.google.com/books/content?id=oGGMDQAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
-348	The Shadow of the Gods	9780316539883	0316539880	221	2021-05-04	528	Set in a Norse-inspired world, and packed with myth, magic, and vengeance, The Shadow of the Gods begins John Gwynne's New York Times bestselling Bloodsworn Saga. The story continues in book two, The Hunger of the Gods, available now! "A masterfully crafted, brutally compelling Norse-inspired epic." --Anthony Ryan, author of The Pariah THE GREATEST SAGAS ARE WRITTEN IN BLOOD. A century has passed since the gods fought and drove themselves to extinction. Now only their bones remain, promising great power to those brave enough to seek them out. As whispers of war echo across the land of Vigrid, fate follows in the footsteps of three warriors: a huntress on a dangerous quest, a noblewoman pursuing battle fame, and a thrall seeking vengeance among the mercenaries known as the Bloodsworn. All three will shape the fate of the world as it once more falls under the shadow of the gods. LOOK OUT FOR THE DELUXE LIMITED HARDCOVER EDITION OF THE SHADOW OF THE GODS―featuring stenciled sprayed edges, a new introduction from the author, a foil stamped case, and custom endpapers. Only available on a limited first print run while supplies last. For more from John Gwynne, check out: The Bloodsworn The Shadow of the Gods The Hunger of the Gods The Fury of the Gods Of Blood and Bone A Time of Dread A Time of Blood A Time of Courage The Faithful and the Fallen Malice Valor Ruin Wrath	English	en	\N	Paperback	https://images.isbndb.com/covers/18881833482300.jpg	0.00	f	2025-09-18 12:02:29.568815+00	http://books.google.com/books/content?id=iDHYzQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	160	1
-349	The Toll	9781406385670	1406385670	223	2019-11-07	528	In the finale to the Arc of a Scythe trilogy, dictators, prophets, and tensions rise. In a world that's conquered death, will humanity finally be torn asunder by the immortal beings it created? Citra and Rowan have disappeared. Endura is gone. It seems like nothing stands between Scythe Goddard and absolute dominion over the world scythedom. With the silence of the Thunderhead and the reverberations of the Great Resonance still shaking the earth to its core, the question remains: Is there anyone left who can stop him? The answer lies in the Tone, the Toll, and the Thunder.--adapted from publisher's description.	English	en	\N	Paperback	https://images.isbndb.com/covers/20053183482688.jpg	0.00	f	2025-09-18 12:02:29.597536+00	http://books.google.com/books/content?id=ZpQpwQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	159	\N
-350	The Trouble with Peace	9780316187183	0316187186	221	2020-09-15	512	A fragile peace gives way to conspiracy, betrayal, and rebellion in this sequel to the New York Times bestselling A Little Hatred from epic fantasy master Joe Abercrombie. Peace is just another kind of battlefield . . . Savine dan Glokta, once Adua's most powerful investor, finds her judgement, fortune and reputation in tatters. But she still has all her ambitions, and no scruple will be permitted to stand in her way. For heroes like Leo dan Brock and Stour Nightfall, only happy with swords drawn, peace is an ordeal to end as soon as possible. But grievances must be nursed, power seized, and allies gathered first, while Rikke must master the power of the Long Eye . . . before it kills her. Unrest worms into every layer of society. The Breakers still lurk in the shadows, plotting to free the common man from his shackles, while noblemen bicker for their own advantage. Orso struggles to find a safe path through the maze of knives that is politics, only for his enemies, and his debts, to multiply. The old ways are swept aside, and the old leaders with them, but those who would seize the reins of power will find no alliance, no friendship, and no peace lasts forever. For more from Joe Abercrombie, check out: The Age of Madness A Little Hatred The Trouble With Peace The First Law Trilogy The Blade Itself Before They Are Hanged Last Argument of Kings Best Served Cold The Heroes Red Country The Shattered Sea Trilogy Half a King Half a World Half a War "A master of his craft." --Forbes "No one writes with the seismic scope or primal intensity of Joe Abercrombie." --Pierce Brown	English	en	\N	Hardcover	https://images.isbndb.com/covers/15354833482300.jpg	0.00	f	2025-09-18 12:02:29.631629+00	http://books.google.com/books/content?id=RGkrzQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	157	2
-351	The Will of the Many	9781982141172	1982141174	227	2023-05-23	640	At the elite Catenan Academy, a young fugitive uncovers layered mysteries and world-changing secrets in this new fantasy series by internationally bestselling author of The Licanius Trilogy, James Islington. AUDI. VIDE. TACE. The Catenan Republic—the Hierarchy—may rule the world now, but they do not know everything. I tell them my name is Vis Telimus. I tell them I was orphaned after a tragic accident three years ago, and that good fortune alone has led to my acceptance into their most prestigious school. I tell them that once I graduate, I will gladly join the rest of civilised society in allowing my strength, my drive and my focus—what they call Will—to be leeched away and added to the power of those above me, as millions already do. As all must eventually do. I tell them that I belong, and they believe me. But the truth is that I have been sent to the Academy to find answers. To solve a murder. To search for an ancient weapon. To uncover secrets that may tear the Republic apart. And that I will never, ever cede my Will to the empire that executed my family. To survive, though, I will still have to rise through the Academy’s ranks. I will have to smile, and make friends, and pretend to be one of them and win. Because if I cannot, then those who want to control me, who know my real name, will no longer have any use for me. And if the Hierarchy finds out who I truly am, they will kill me.	English	en	\N	Hardcover	https://images.isbndb.com/covers/20021253482893.jpg	0.00	f	2025-09-18 12:02:29.644126+00	http://books.google.com/books/content?id=53u7EAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api	161	1
-352	The Wisdom of Crowds	9780316187244	0316187240	221	2021-09-14	528	The New York Times bestselling finale to the Age of Madness trilogyfinds the world in an unstoppable revolution where heroes have nothing left to lose as darkness and destruction overtake everything. Chaos. Fury. Destruction. The Great Change is upon us . . . Some say that to change the world you must first burn it down. Now that belief will be tested in the crucible of revolution: the Breakers and Burners have seized the levers of power, the smoke of riots has replaced the smog of industry, and all must submit to the wisdom of crowds. With nothing left to lose, Citizen Brock is determined to become a new hero for the new age, while Citizeness Savine must turn her talents from profit to survival before she can claw her way to redemption. Orso will find that when the world is turned upside down, no one is lower than a monarch. And in the bloody North, Rikke and her fragile Protectorate are running out of allies . . . while Black Calder gathers his forces and plots his vengeance. The banks have fallen, the sun of the Union has been torn down, and in the darkness behind the scenes, the threads of the Weaver's ruthless plan are slowly being drawn together . . . "No one writes with the seismic scope or primal intensity of Joe Abercrombie." --Pierce Brown For more from Joe Abercrombie, check out: The Age of Madness A Little Hatred The Trouble With Peace The Wisdom of Crowds The First Law Trilogy The Blade Itself Before They Are Hanged Last Argument of Kings Best Served Cold The Heroes Red Country The Shattered Sea Trilogy Half a King Half a World Half a War	English	en	\N	Hardcover	https://images.isbndb.com/covers/15355443482300.jpg	0.00	f	2025-09-18 12:02:30.148139+00	http://books.google.com/books/content?id=M94lzgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	157	3
-353	Thunderhead	9781406379532	1406379530	223	2018-05-01	515	The dark and thrilling sequel to Scythe, the New York Times sci-fi bestseller. The stakes are high in this chilling sci-fi thriller, in which professional scythes control who dies. Everything else is out of human control, managed by the Thunderhead. It's a perfect system - until it isn't. It's been a year since Rowan went off-grid. Hunted by the Scythedom, he has become an urban legend, a vigilante snuffing out corrupt scythes in a trial by fire. Citra, meanwhile, is forging her path as Scythe Anastasia, gleaning with compassion. However, conflict within the Scythedom is growing by the day, and when Citra's life is threatened, it becomes clear that there is a truly terrifying plot afoot. The Thunderhead observes everything, and it does not like what it sees. Will it intervene? Or will it simply watch as this perfect world begins to unravel? The sequel to New York Times bestseller Scythe, which was a Publishers Weekly Best Book of 2016. Scythe has received five starred reviews in the US and is also the winner of a Michael L. Printz Honor. Universal has optioned the film rights. Thunderhead has already received three starred reviews in the US, with Booklist praising Neal Shusterman for achieving "that most difficult of feats: a sequel that surpasses its predecessor". "[...] a genuinely original and chilling dystopian thriller posing some big, thought-provoking questions" - The Bookseller on Scythe.The dark and thrilling sequel to Scythe, the New York Times sci-fi bestseller. The stakes are high in this chilling sci-fi thriller, in which professional scythes control who dies. Everything else is out of human control, managed by the Thunderhead. It's a perfect system - until it isn't. It's been a year since Rowan went off-grid. Hunted by the Scythedom, he has become an urban legend, a vigilante snuffing out corrupt scythes in a trial by fire. Citra, meanwhile, is forging her path as Scythe Anastasia, gleaning with compassion. However, conflict within the Scythedom is growing by the day, and when Citra's life is threatened, it becomes clear that there is a truly terrifying plot afoot. The Thunderhead observes everything, and it does not like what it sees. Will it intervene? Or will it simply watch as this perfect world begins to unravel? The sequel to New York Times bestseller Scythe, which was a Publishers Weekly Best Book of 2016. Scythe has received five starred reviews in the US and is also the winner of a Michael L. Printz Honor. Universal has optioned the film rights. Thunderhead has already received three starred reviews in the US, with Booklist praising Neal Shusterman for achieving "that most difficult of feats: a sequel that surpasses its predecessor". "[...] a genuinely original and chilling dystopian thriller posing some big, thought-provoking questions" - The Bookseller on Scythe.	English	en	\N	Paperback	https://images.isbndb.com/covers/19991803482688.jpg	0.00	f	2025-09-18 12:02:30.163144+00	http://books.google.com/books/content?id=ul0-tAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
+COPY public.books (id, title, isbn13, isbn10, publisher_id, publication_date, page_count, synopsis, language, edition, binding, image_url, msrp, is_read, date_created, image_thumbnail, series_id, series_number) FROM stdin;
+338	A Little Hatred	9780316187169	031618716X	221	2019-09-17	480	From New York Times bestselling author Joe Abercrombie comes the first book in a new blockbuster fantasy trilogy where the age of the machine dawns, but the age of magic refuses to die. The chimneys of industry rise over Adua and the world seethes with new opportunities. But old scores run deep as ever. On the blood-soaked borders of Angland, Leo dan Brock struggles to win fame on the battlefield, and defeat the marauding armies of Stour Nightfall. He hopes for help from the crown. But King Jezal's son, the feckless Prince Orso, is a man who specializes in disappointments. Savine dan Glokta - socialite, investor, and daughter of the most feared man in the Union - plans to claw her way to the top of the slag-heap of society by any means necessary. But the slums boil over with a rage that all the money in the world cannot control. The age of the machine dawns, but the age of magic refuses to die. With the help of the mad hillwoman Isern-i-Phail, Rikke struggles to control the blessing, or the curse, of the Long Eye. Glimpsing the future is one thing, but with the guiding hand of the First of the Magi still pulling the strings, changing it will be quite another... For more from Joe Abercrombie, check out: The First Law TrilogyThe Blade ItselfBefore They Are HangedLast Argument of Kings Best Served ColdThe HeroesRed Country The Shattered Sea TrilogyHalf a KingHalf a WorldHalf a War	English	First Edition	Hardcover	https://images.isbndb.com/covers/15354693482300.jpg	27.00	f	2025-09-18 12:02:25.821847+00	http://books.google.com/books/content?id=VWJCtAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	157	1
+339	Dune	9780593099322	059309932X	222	2019-10-01	688	Frank Herbert’s epic masterpiece—a triumph of the imagination and one of the bestselling science fiction novels of all time. This deluxe hardcover edition of Dune includes: · An iconic new cover · A stamped and foiled case featuring a quote from the Litany Against Fear · Stained edges and fully illustrated endpapers · A beautifully designed poster on the interior of the jacket · A redesigned world map of Dune · An updated Introduction by Brian Herbert Set on the desert planet Arrakis, Dune is the story of Paul Atreides, heir to a noble family tasked with ruling an inhospitable world where the only thing of value is the “spice” melange, a drug capable of extending life and enhancing consciousness. Coveted across the known universe, melange is a prize worth killing for... When House Atreides is betrayed, the destruction of Paul’s family will set the boy on a journey toward a destiny greater than he could ever have imagined. And as he evolves into the mysterious man known as Muad’Dib, he will bring to fruition humankind’s most ancient and unattainable dream. A stunning blend of adventure and mysticism, environmentalism and politics, Dune won the first Nebula Award, shared the Hugo Award, and formed the basis of what is undoubtedly the grandest epic in science fiction. • DUNE: PART TWO • THE MAJOR MOTION PICTURE Directed by Denis Villeneuve, screenplay by Denis Villeneuve and Jon Spaihts, based on the novel Dune by Frank Herbert • Starring Timothée Chalamet, Zendaya, Rebecca Ferguson, Josh Brolin, Austin Butler, Florence Pugh, Dave Bautista, Christopher Walken, Stephen McKinley Henderson, Léa Seydoux, with Stellan Skarsgård, with Charlotte Rampling, and Javier Bardem	English	Deluxe Edition	Hardcover	https://images.isbndb.com/covers/3983013482399.jpg	40.00	f	2025-09-18 12:02:26.277722+00	http://books.google.com/books/content?id=-hmtDwAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
+340	Jade City	9780316440868	0316440868	221	2017-11-07	512	In this epic saga of magic and kungfu, four siblings battle rival clans for honor and power in an Asia-inspired fantasy metropolis. * World Fantasy Award for Best Novel, winner* Aurora Award for Best Novel, winner* Nebula Award for Best Novel, nominee* Locus Award for Best Fantasy Novel, finalist Jade is the lifeblood of the island of Kekon. It has been mined, traded, stolen, and killed for -- and for centuries, honorable Green Bone warriors like the Kaul family have used it to enhance their magical abilities and defend the island from foreign invasion. Now, the war is over and a new generation of Kauls vies for control of Kekon's bustling capital city. They care about nothing but protecting their own, cornering the jade market, and defending the districts under their protection. Ancient tradition has little place in this rapidly changing nation. When a powerful new drug emerges that lets anyone -- even foreigners -- wield jade, the simmering tension between the Kauls and the rival Ayt family erupts into open violence. The outcome of this clan war will determine the fate of all Green Bones -- from their grandest patriarch to the lowliest motorcycle runner on the streets -- and of Kekon itself. Jade City is the first novel in an epic trilogy about family, honor, and those who live and die by the ancient laws of blood and jade.	English	1	Hardcover	https://images.isbndb.com/covers/17891683482300.jpg	26.00	f	2025-09-18 12:02:26.893163+00	http://books.google.com/books/content?id=N7XYAQAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	158	1
+341	Jade Legacy	9780316440974	0316440973	221	2021-11-30	736	WINNER OF THE LOCUS AWARD FOR BEST FANTASY NOVEL, 2022 "Lee's series will stand as a pillar of epic fantasy and family drama." --Library Journal (starred review) The Kaul siblings battle rival clans for honor and control over an East Asia-inspired fantasy metropolis in Jade Legacy, the page-turning conclusion to the Green Bone Saga. Jade, the mysterious and magical substance once exclusive to the Green Bone warriors of Kekon, is now coveted throughout the world. Everyone wants access to the supernatural abilities it provides. As the struggle over the control of jade grows ever larger and more deadly, the Kaul family, and the ancient ways of the Kekonese Green Bones, will never be the same. Battered by war and tragedy, the Kauls are plagued by resentments and old wounds as their adversaries are on the ascent and their country is riven by dangerous factions and foreign interference. The clan must discern allies from enemies, set aside bloody rivalries, and make terrible sacrifices . . . but even the unbreakable bonds of blood and loyalty may not be enough to ensure the survival of the Green Bone clans and the nation they are sworn to protect. Praise for the Green Bone Saga: "Jade City has it all: a beautifully realized setting, a great cast of characters, and dramatic action scenes. What a fun, gripping read!" --Ann Leckie "An instantly absorbing tale of blood, honor, family, and magic, spiced with unexpectedly tender character beats."--NPR The Green Bone Saga Jade City Jade War Jade Legacy	English	\N	Hardcover	https://images.isbndb.com/covers/17892743482300.jpg	0.00	f	2025-09-18 12:02:27.406942+00	http://books.google.com/books/content?id=WGs8zgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	158	3
+342	Jade War	9780316440929	0316440922	221	2019-07-23	608	In Jade War, the sequel to the World Fantasy Award-winning novel Jade City, the Kaul siblings battle rival clans for honor and control over an Asia-inspired fantasy metropolis. On the island of Kekon, the Kaul family is locked in a violent feud for control of the capital city and the supply of magical jade that endows trained Green Bone warriors with supernatural powers they alone have possessed for hundreds of years. Beyond Kekon's borders, war is brewing. Powerful foreign governments and mercenary criminal kingpins alike turn their eyes on the island nation. Jade, Kekon's most prized resource, could make them rich - or give them the edge they'd need to topple their rivals. Faced with threats on all sides, the Kaul family is forced to form new and dangerous alliances, confront enemies in the darkest streets and the tallest office towers, and put honor aside in order to do whatever it takes to ensure their own survival - and that of all the Green Bones of Kekon. Jade War is the second book of the Green Bone Saga, an epic trilogy about family, honor, and those who live and die by the ancient laws of blood and jade. The Green Bone SagaJade CityJade War	English	1	Hardcover	https://images.isbndb.com/covers/17892293482300.jpg	26.00	f	2025-09-18 12:02:27.439464+00	http://books.google.com/books/content?id=E99cuwEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	158	2
+343	Scythe	9781406379242	1406379247	223	2018-02-01	448	A dark, gripping and witty thriller in which the only thing humanity has control over is death. In a world where disease, war and crime have been eliminated, the only way to die is to be randomly killed ("gleaned") by professional scythes. Citra and Rowan are teenagers who have been selected to be scythes' apprentices, and despite wanting nothing to do with the vocation, they must learn the art of killing and understand the necessity of what they do. Only one of them will be chosen as a scythe's apprentice and as Citra and Rowan come up against a terrifyingly corrupt Scythedom, it becomes clear that the winning apprentice's first task will be to glean the loser. "Pretty much a perfect teen adventure novel [...] Over the years, I've heard many books touted as the successor to Hunger Games, but Scythe is the first one that I would really, truly stand behind, as it offers teens a complementary reading experience to that series rather than a duplicate one. Like Hunger Games, Scythe invites readers to both turn pages quickly but also furrow their brows over the ethical questions it asks." Maggie Stiefvater, author of The Shiver Trilogy and The Raven Cycle Scythe has been on the New York Times bestseller list for 11 weeks and is a Publishers Weekly Best Book of 2016. It's received five starred reviews in the US and is also the winner of a Michael L. Printz Honor. Universal has optioned the film rights to Scythe.	English	\N	Paperback	https://images.isbndb.com/covers/19988903482688.jpg	0.00	f	2025-09-18 12:02:27.464361+00	http://books.google.com/books/content?id=waxTswEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	159	\N
+344	Season of Storms	9781399611138	1399611135	224	2023-01-05	432	Before he was Ciri's guardian, Geralt of Rivia was a legendary swordsman. Season of Storms is an adventure set in the world of the Witcher, the book series that inspired the hit Netflix show and bestselling video games. Now in a brand-new hardcover edition, this is the ultimate way to experience the epic story of the Witcher. Geralt. The witcher whose mission is to protect ordinary people from the monsters created with magic. A mutant who has the task of killing unnatural beings. He uses a magical sign, potions and the pride of every witcher - two swords, steel and silver. But what would happen if Geralt lost his weapons? Andrzej Sapkowski returns to his phenomenal world of the Witcher in a stand-alone novel where Geralt fights, travels and loves again, Dandelion sings and flies from trouble to trouble, sorcerers are scheming ... and across the whole world clouds are gathering. The season of storms is coming... Translated by David French.	English	Collector's Hardback Edition	Hardcover	https://images.isbndb.com/covers/8479443482686.jpg	0.00	f	2025-09-18 12:02:28.015143+00	http://books.google.com/books/content?id=Un5PzwEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
+345	The Fury of the Gods	9780356514284	0356514285	225	2024-10-22	560	Varg has overcome the trials of his past and become an accepted member of the Bloodsworn, but now he and his newfound comrades face their biggest challenge yet: slaying a dragon. Elvar is struggling to consolidate her power in Snakavik, where she faces threats from within and without. As she fights to assert her authority in readiness for the coming conflict, she faces a surely insurmountable task: reining in the ferocity of a wolf god. As Biorr and his warband make their way north, eager for blood, Gudvarr pursues a mission of his own, hoping to win Lik-Rifa's favour and further his own ambitions. All paths lead to Snakavik, where the lines are being drawn for the final battle - a titanic clash that will shake the foundations of the world, and bear witness to the true fury of the gods.	English	\N	Book	https://images.isbndb.com/covers/25424783482314.jpg	0.00	f	2025-09-18 12:02:28.535386+00	http://books.google.com/books/content?id=xiwNzgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
+346	The Hunger of the Gods	9780356514246	0356514242	225	2022-04-12	656	The Hunger of the Gods continues John Gwynne's acclaimed Norse-inspired epic fantasy series, packed with myth, magic and bloody vengeance Lik-Rifa, the dragon god of legend, has been freed from her eternal prison. Now she plots a new age of blood and conquest. As Orka continues the hunt for her missing son, the Bloodsworn sweep south in a desperate race to save one of their own - and Varg takes the first steps on the path of vengeance. Elvar has sworn to fulfil her blood oath and rescue a prisoner from the clutches of Lik-Rifa and her dragonborn followers, but first she must persuade the Battle-Grim to follow her. Yet even the might of the Bloodsworn and Battle-Grim cannot stand alone against a dragon god. Their hope lies within the mad writings of a chained god. A book of forbidden magic with the power to raise the wolf god Ulfrir from the dead . . .and bring about a battle that will shake the foundations of the earth. Praise for The Bloodsworn series: 'A masterfully crafted, brutally compelling Norse-inspired epic' Anthony Ryan 'Visceral, heart-breaking and unputdownable' Jay Kristoff 'A satisfying and riveting read. The well-realised characters move against a backdrop of a world stunning in its immensity. It's everything I've come to expect from a John Gwynne book' Robin Hobb.	English	\N	Book	https://images.isbndb.com/covers/25424403482314.jpg	0.00	f	2025-09-18 12:02:29.052021+00	http://books.google.com/books/content?id=FG4MzgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
+347	The Martian	9780804139021	0804139024	226	2014-02-11	384	#1 NEW YORK TIMES BESTSELLER • NOW A MAJOR MOTION PICTURE A mission to Mars. A freak accident. One man’s struggle to survive. From the author of Project Hail Mary comes “a hugely entertaining novel that reads like a rocket ship afire” (Chicago Tribune). “Brilliant . . . a celebration of human ingenuity [and] the purest example of real-science sci-fi for many years . . . utterly compelling.”—The Wall Street Journal Six days ago, astronaut Mark Watney became one of the first people to walk on Mars. Now, he’s sure he’ll be the first person to die there. After a dust storm nearly kills him and forces his crew to evacuate while thinking him dead, Mark finds himself stranded and completely alone with no way to even signal Earth that he’s alive—and even if he could get word out, his supplies would be gone long before a rescue could arrive. Chances are, though, he won’t have time to starve to death. The damaged machinery, unforgiving environment, or plain-old “human error” are much more likely to kill him first. But Mark isn’t ready to give up yet. Drawing on his ingenuity, his engineering skills—and a relentless, dogged refusal to quit—he steadfastly confronts one seemingly insurmountable obstacle after the next. Will his resourcefulness be enough to overcome the impossible odds against him? NAMED ONE OF PASTE’S BEST NOVELS OF THE DECADE “A hugely entertaining novel [that] reads like a rocket ship afire . . . Weir has fashioned in Mark Watney one of the most appealing, funny, and resourceful characters in recent fiction.”—Chicago Tribune “As gripping as they come . . . You’ll be rooting for Watney the whole way, groaning at every setback and laughing at his pitchblack humor. Utterly nail-biting and memorable.”—Financial Times	English	A Novel	Hardcover	https://images.isbndb.com/covers/7945753482474.jpg	27.00	f	2025-09-18 12:02:29.065645+00	http://books.google.com/books/content?id=oGGMDQAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
+348	The Shadow of the Gods	9780316539883	0316539880	221	2021-05-04	528	Set in a Norse-inspired world, and packed with myth, magic, and vengeance, The Shadow of the Gods begins John Gwynne's New York Times bestselling Bloodsworn Saga. The story continues in book two, The Hunger of the Gods, available now! "A masterfully crafted, brutally compelling Norse-inspired epic." --Anthony Ryan, author of The Pariah THE GREATEST SAGAS ARE WRITTEN IN BLOOD. A century has passed since the gods fought and drove themselves to extinction. Now only their bones remain, promising great power to those brave enough to seek them out. As whispers of war echo across the land of Vigrid, fate follows in the footsteps of three warriors: a huntress on a dangerous quest, a noblewoman pursuing battle fame, and a thrall seeking vengeance among the mercenaries known as the Bloodsworn. All three will shape the fate of the world as it once more falls under the shadow of the gods. LOOK OUT FOR THE DELUXE LIMITED HARDCOVER EDITION OF THE SHADOW OF THE GODS―featuring stenciled sprayed edges, a new introduction from the author, a foil stamped case, and custom endpapers. Only available on a limited first print run while supplies last. For more from John Gwynne, check out: The Bloodsworn The Shadow of the Gods The Hunger of the Gods The Fury of the Gods Of Blood and Bone A Time of Dread A Time of Blood A Time of Courage The Faithful and the Fallen Malice Valor Ruin Wrath	English	\N	Paperback	https://images.isbndb.com/covers/18881833482300.jpg	0.00	f	2025-09-18 12:02:29.568815+00	http://books.google.com/books/content?id=iDHYzQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	160	1
+349	The Toll	9781406385670	1406385670	223	2019-11-07	528	In the finale to the Arc of a Scythe trilogy, dictators, prophets, and tensions rise. In a world that's conquered death, will humanity finally be torn asunder by the immortal beings it created? Citra and Rowan have disappeared. Endura is gone. It seems like nothing stands between Scythe Goddard and absolute dominion over the world scythedom. With the silence of the Thunderhead and the reverberations of the Great Resonance still shaking the earth to its core, the question remains: Is there anyone left who can stop him? The answer lies in the Tone, the Toll, and the Thunder.--adapted from publisher's description.	English	\N	Paperback	https://images.isbndb.com/covers/20053183482688.jpg	0.00	f	2025-09-18 12:02:29.597536+00	http://books.google.com/books/content?id=ZpQpwQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	159	\N
+350	The Trouble with Peace	9780316187183	0316187186	221	2020-09-15	512	A fragile peace gives way to conspiracy, betrayal, and rebellion in this sequel to the New York Times bestselling A Little Hatred from epic fantasy master Joe Abercrombie. Peace is just another kind of battlefield . . . Savine dan Glokta, once Adua's most powerful investor, finds her judgement, fortune and reputation in tatters. But she still has all her ambitions, and no scruple will be permitted to stand in her way. For heroes like Leo dan Brock and Stour Nightfall, only happy with swords drawn, peace is an ordeal to end as soon as possible. But grievances must be nursed, power seized, and allies gathered first, while Rikke must master the power of the Long Eye . . . before it kills her. Unrest worms into every layer of society. The Breakers still lurk in the shadows, plotting to free the common man from his shackles, while noblemen bicker for their own advantage. Orso struggles to find a safe path through the maze of knives that is politics, only for his enemies, and his debts, to multiply. The old ways are swept aside, and the old leaders with them, but those who would seize the reins of power will find no alliance, no friendship, and no peace lasts forever. For more from Joe Abercrombie, check out: The Age of Madness A Little Hatred The Trouble With Peace The First Law Trilogy The Blade Itself Before They Are Hanged Last Argument of Kings Best Served Cold The Heroes Red Country The Shattered Sea Trilogy Half a King Half a World Half a War "A master of his craft." --Forbes "No one writes with the seismic scope or primal intensity of Joe Abercrombie." --Pierce Brown	English	\N	Hardcover	https://images.isbndb.com/covers/15354833482300.jpg	0.00	f	2025-09-18 12:02:29.631629+00	http://books.google.com/books/content?id=RGkrzQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	157	2
+351	The Will of the Many	9781982141172	1982141174	227	2023-05-23	640	At the elite Catenan Academy, a young fugitive uncovers layered mysteries and world-changing secrets in this new fantasy series by internationally bestselling author of The Licanius Trilogy, James Islington. AUDI. VIDE. TACE. The Catenan Republic—the Hierarchy—may rule the world now, but they do not know everything. I tell them my name is Vis Telimus. I tell them I was orphaned after a tragic accident three years ago, and that good fortune alone has led to my acceptance into their most prestigious school. I tell them that once I graduate, I will gladly join the rest of civilised society in allowing my strength, my drive and my focus—what they call Will—to be leeched away and added to the power of those above me, as millions already do. As all must eventually do. I tell them that I belong, and they believe me. But the truth is that I have been sent to the Academy to find answers. To solve a murder. To search for an ancient weapon. To uncover secrets that may tear the Republic apart. And that I will never, ever cede my Will to the empire that executed my family. To survive, though, I will still have to rise through the Academy’s ranks. I will have to smile, and make friends, and pretend to be one of them and win. Because if I cannot, then those who want to control me, who know my real name, will no longer have any use for me. And if the Hierarchy finds out who I truly am, they will kill me.	English	\N	Hardcover	https://images.isbndb.com/covers/20021253482893.jpg	0.00	f	2025-09-18 12:02:29.644126+00	http://books.google.com/books/content?id=53u7EAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api	161	1
+352	The Wisdom of Crowds	9780316187244	0316187240	221	2021-09-14	528	The New York Times bestselling finale to the Age of Madness trilogyfinds the world in an unstoppable revolution where heroes have nothing left to lose as darkness and destruction overtake everything. Chaos. Fury. Destruction. The Great Change is upon us . . . Some say that to change the world you must first burn it down. Now that belief will be tested in the crucible of revolution: the Breakers and Burners have seized the levers of power, the smoke of riots has replaced the smog of industry, and all must submit to the wisdom of crowds. With nothing left to lose, Citizen Brock is determined to become a new hero for the new age, while Citizeness Savine must turn her talents from profit to survival before she can claw her way to redemption. Orso will find that when the world is turned upside down, no one is lower than a monarch. And in the bloody North, Rikke and her fragile Protectorate are running out of allies . . . while Black Calder gathers his forces and plots his vengeance. The banks have fallen, the sun of the Union has been torn down, and in the darkness behind the scenes, the threads of the Weaver's ruthless plan are slowly being drawn together . . . "No one writes with the seismic scope or primal intensity of Joe Abercrombie." --Pierce Brown For more from Joe Abercrombie, check out: The Age of Madness A Little Hatred The Trouble With Peace The Wisdom of Crowds The First Law Trilogy The Blade Itself Before They Are Hanged Last Argument of Kings Best Served Cold The Heroes Red Country The Shattered Sea Trilogy Half a King Half a World Half a War	English	\N	Hardcover	https://images.isbndb.com/covers/15355443482300.jpg	0.00	f	2025-09-18 12:02:30.148139+00	http://books.google.com/books/content?id=M94lzgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	157	3
+353	Thunderhead	9781406379532	1406379530	223	2018-05-01	515	The dark and thrilling sequel to Scythe, the New York Times sci-fi bestseller. The stakes are high in this chilling sci-fi thriller, in which professional scythes control who dies. Everything else is out of human control, managed by the Thunderhead. It's a perfect system - until it isn't. It's been a year since Rowan went off-grid. Hunted by the Scythedom, he has become an urban legend, a vigilante snuffing out corrupt scythes in a trial by fire. Citra, meanwhile, is forging her path as Scythe Anastasia, gleaning with compassion. However, conflict within the Scythedom is growing by the day, and when Citra's life is threatened, it becomes clear that there is a truly terrifying plot afoot. The Thunderhead observes everything, and it does not like what it sees. Will it intervene? Or will it simply watch as this perfect world begins to unravel? The sequel to New York Times bestseller Scythe, which was a Publishers Weekly Best Book of 2016. Scythe has received five starred reviews in the US and is also the winner of a Michael L. Printz Honor. Universal has optioned the film rights. Thunderhead has already received three starred reviews in the US, with Booklist praising Neal Shusterman for achieving "that most difficult of feats: a sequel that surpasses its predecessor". "[...] a genuinely original and chilling dystopian thriller posing some big, thought-provoking questions" - The Bookseller on Scythe.The dark and thrilling sequel to Scythe, the New York Times sci-fi bestseller. The stakes are high in this chilling sci-fi thriller, in which professional scythes control who dies. Everything else is out of human control, managed by the Thunderhead. It's a perfect system - until it isn't. It's been a year since Rowan went off-grid. Hunted by the Scythedom, he has become an urban legend, a vigilante snuffing out corrupt scythes in a trial by fire. Citra, meanwhile, is forging her path as Scythe Anastasia, gleaning with compassion. However, conflict within the Scythedom is growing by the day, and when Citra's life is threatened, it becomes clear that there is a truly terrifying plot afoot. The Thunderhead observes everything, and it does not like what it sees. Will it intervene? Or will it simply watch as this perfect world begins to unravel? The sequel to New York Times bestseller Scythe, which was a Publishers Weekly Best Book of 2016. Scythe has received five starred reviews in the US and is also the winner of a Michael L. Printz Honor. Universal has optioned the film rights. Thunderhead has already received three starred reviews in the US, with Booklist praising Neal Shusterman for achieving "that most difficult of feats: a sequel that surpasses its predecessor". "[...] a genuinely original and chilling dystopian thriller posing some big, thought-provoking questions" - The Bookseller on Scythe.	English	\N	Paperback	https://images.isbndb.com/covers/19991803482688.jpg	0.00	f	2025-09-18 12:02:30.163144+00	http://books.google.com/books/content?id=ul0-tAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
 \.
 
 
 --
--- Data for Name: books_authors; Type: TABLE DATA; Schema: public; Owner: reveries_user
+-- Data for Name: books_authors; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.books_authors (book_id, author_id, date_created) FROM stdin;
@@ -638,7 +602,7 @@ COPY public.books_authors (book_id, author_id, date_created) FROM stdin;
 
 
 --
--- Data for Name: books_subjects; Type: TABLE DATA; Schema: public; Owner: reveries_user
+-- Data for Name: books_subjects; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.books_subjects (book_id, subject_id, date_created) FROM stdin;
@@ -732,7 +696,7 @@ COPY public.books_subjects (book_id, subject_id, date_created) FROM stdin;
 
 
 --
--- Data for Name: dewey_decimals; Type: TABLE DATA; Schema: public; Owner: reveries_user
+-- Data for Name: dewey_decimals; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.dewey_decimals (book_id, code) FROM stdin;
@@ -750,7 +714,7 @@ COPY public.dewey_decimals (book_id, code) FROM stdin;
 
 
 --
--- Data for Name: publishers; Type: TABLE DATA; Schema: public; Owner: reveries_user
+-- Data for Name: publishers; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.publishers (id, name, date_created) FROM stdin;
@@ -765,7 +729,7 @@ COPY public.publishers (id, name, date_created) FROM stdin;
 
 
 --
--- Data for Name: series; Type: TABLE DATA; Schema: public; Owner: reveries_user
+-- Data for Name: series; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.series (id, name, date_created) FROM stdin;
@@ -778,7 +742,7 @@ COPY public.series (id, name, date_created) FROM stdin;
 
 
 --
--- Data for Name: subjects; Type: TABLE DATA; Schema: public; Owner: reveries_user
+-- Data for Name: subjects; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.subjects (id, genre, date_created) FROM stdin;
@@ -817,49 +781,49 @@ COPY public.subjects (id, genre, date_created) FROM stdin;
 
 
 --
--- Name: author_name_variants_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reveries_user
+-- Name: author_name_variants_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.author_name_variants_id_seq', 2556, true);
 
 
 --
--- Name: authors_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reveries_user
+-- Name: authors_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.authors_id_seq', 259, true);
 
 
 --
--- Name: books_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reveries_user
+-- Name: books_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.books_id_seq', 353, true);
 
 
 --
--- Name: publishers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reveries_user
+-- Name: publishers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.publishers_id_seq', 227, true);
 
 
 --
--- Name: series_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reveries_user
+-- Name: series_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.series_id_seq', 161, true);
 
 
 --
--- Name: subjects_id_seq; Type: SEQUENCE SET; Schema: public; Owner: reveries_user
+-- Name: subjects_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.subjects_id_seq', 1009, true);
 
 
 --
--- Name: author_name_variants author_name_variants_author_id_name_variant_key; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: author_name_variants author_name_variants_author_id_name_variant_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.author_name_variants
@@ -867,7 +831,7 @@ ALTER TABLE ONLY public.author_name_variants
 
 
 --
--- Name: author_name_variants author_name_variants_pkey; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: author_name_variants author_name_variants_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.author_name_variants
@@ -875,7 +839,7 @@ ALTER TABLE ONLY public.author_name_variants
 
 
 --
--- Name: authors authors_normalized_name_key; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: authors authors_normalized_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.authors
@@ -883,7 +847,7 @@ ALTER TABLE ONLY public.authors
 
 
 --
--- Name: authors authors_pkey; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: authors authors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.authors
@@ -891,7 +855,7 @@ ALTER TABLE ONLY public.authors
 
 
 --
--- Name: book_dimensions book_dimensions_pkey; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: book_dimensions book_dimensions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.book_dimensions
@@ -899,7 +863,7 @@ ALTER TABLE ONLY public.book_dimensions
 
 
 --
--- Name: books_authors books_authors_pkey; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books_authors books_authors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books_authors
@@ -907,7 +871,7 @@ ALTER TABLE ONLY public.books_authors
 
 
 --
--- Name: books books_isbn10_key; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books books_isbn10_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books
@@ -915,7 +879,7 @@ ALTER TABLE ONLY public.books
 
 
 --
--- Name: books books_isbn13_key; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books books_isbn13_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books
@@ -923,7 +887,7 @@ ALTER TABLE ONLY public.books
 
 
 --
--- Name: books books_pkey; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books books_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books
@@ -931,7 +895,7 @@ ALTER TABLE ONLY public.books
 
 
 --
--- Name: books_subjects books_subjects_pkey; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books_subjects books_subjects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books_subjects
@@ -939,7 +903,7 @@ ALTER TABLE ONLY public.books_subjects
 
 
 --
--- Name: dewey_decimals dewey_decimals_pkey; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: dewey_decimals dewey_decimals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.dewey_decimals
@@ -947,7 +911,7 @@ ALTER TABLE ONLY public.dewey_decimals
 
 
 --
--- Name: publishers publishers_name_key; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: publishers publishers_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.publishers
@@ -955,7 +919,7 @@ ALTER TABLE ONLY public.publishers
 
 
 --
--- Name: publishers publishers_pkey; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: publishers publishers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.publishers
@@ -963,7 +927,7 @@ ALTER TABLE ONLY public.publishers
 
 
 --
--- Name: series series_name_key; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: series series_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.series
@@ -971,7 +935,7 @@ ALTER TABLE ONLY public.series
 
 
 --
--- Name: series series_pkey; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: series series_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.series
@@ -979,7 +943,7 @@ ALTER TABLE ONLY public.series
 
 
 --
--- Name: subjects subjects_name_key; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: subjects subjects_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.subjects
@@ -987,7 +951,7 @@ ALTER TABLE ONLY public.subjects
 
 
 --
--- Name: subjects subjects_pkey; Type: CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: subjects subjects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.subjects
@@ -995,112 +959,112 @@ ALTER TABLE ONLY public.subjects
 
 
 --
--- Name: idx_author_name_variants; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_author_name_variants; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_author_name_variants ON public.author_name_variants USING btree (name_variant);
 
 
 --
--- Name: idx_books_authors_author_id; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_books_authors_author_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_books_authors_author_id ON public.books_authors USING btree (author_id);
 
 
 --
--- Name: idx_books_authors_book_author; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_books_authors_book_author; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_books_authors_book_author ON public.books_authors USING btree (book_id, author_id);
 
 
 --
--- Name: idx_books_authors_book_id; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_books_authors_book_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_books_authors_book_id ON public.books_authors USING btree (book_id);
 
 
 --
--- Name: idx_books_isbn10; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_books_isbn10; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_books_isbn10 ON public.books USING btree (isbn10);
 
 
 --
--- Name: idx_books_isbn13; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_books_isbn13; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_books_isbn13 ON public.books USING btree (isbn13);
 
 
 --
--- Name: idx_books_publisher_id; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_books_publisher_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_books_publisher_id ON public.books USING btree (publisher_id);
 
 
 --
--- Name: idx_books_series_id; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_books_series_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_books_series_id ON public.books USING btree (series_id);
 
 
 --
--- Name: idx_books_subjects_book_id; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_books_subjects_book_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_books_subjects_book_id ON public.books_subjects USING btree (book_id);
 
 
 --
--- Name: idx_books_subjects_subject_id; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_books_subjects_subject_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_books_subjects_subject_id ON public.books_subjects USING btree (subject_id);
 
 
 --
--- Name: idx_books_title; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_books_title; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_books_title ON public.books USING btree (title);
 
 
 --
--- Name: idx_dewey_decimals_code; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_dewey_decimals_code; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_dewey_decimals_code ON public.dewey_decimals USING btree (code);
 
 
 --
--- Name: idx_publishers_name; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_publishers_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_publishers_name ON public.publishers USING btree (name);
 
 
 --
--- Name: idx_series_name; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_series_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_series_name ON public.series USING btree (name);
 
 
 --
--- Name: idx_subjects_name; Type: INDEX; Schema: public; Owner: reveries_user
+-- Name: idx_subjects_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_subjects_name ON public.subjects USING btree (genre);
 
 
 --
--- Name: author_name_variants author_name_variants_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: author_name_variants author_name_variants_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.author_name_variants
@@ -1108,7 +1072,7 @@ ALTER TABLE ONLY public.author_name_variants
 
 
 --
--- Name: book_dimensions book_dimensions_book_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: book_dimensions book_dimensions_book_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.book_dimensions
@@ -1116,7 +1080,7 @@ ALTER TABLE ONLY public.book_dimensions
 
 
 --
--- Name: books_authors books_authors_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books_authors books_authors_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books_authors
@@ -1124,7 +1088,7 @@ ALTER TABLE ONLY public.books_authors
 
 
 --
--- Name: books_authors books_authors_book_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books_authors books_authors_book_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books_authors
@@ -1132,7 +1096,7 @@ ALTER TABLE ONLY public.books_authors
 
 
 --
--- Name: books books_publisher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books books_publisher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books
@@ -1140,7 +1104,7 @@ ALTER TABLE ONLY public.books
 
 
 --
--- Name: books books_series_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books books_series_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books
@@ -1148,7 +1112,7 @@ ALTER TABLE ONLY public.books
 
 
 --
--- Name: books_subjects books_subjects_book_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books_subjects books_subjects_book_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books_subjects
@@ -1156,7 +1120,7 @@ ALTER TABLE ONLY public.books_subjects
 
 
 --
--- Name: books_subjects books_subjects_subject_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: books_subjects books_subjects_subject_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.books_subjects
@@ -1164,7 +1128,7 @@ ALTER TABLE ONLY public.books_subjects
 
 
 --
--- Name: dewey_decimals dewey_decimals_book_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: reveries_user
+-- Name: dewey_decimals dewey_decimals_book_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.dewey_decimals
@@ -1174,4 +1138,6 @@ ALTER TABLE ONLY public.dewey_decimals
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict u7fYZoRYyxADbSyZhbUrb0j1V7qnBt5K8p3Tc5zm87XdO8dlByTVfirOLSuXxId
 
