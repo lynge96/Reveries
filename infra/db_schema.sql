@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict u7fYZoRYyxADbSyZhbUrb0j1V7qnBt5K8p3Tc5zm87XdO8dlByTVfirOLSuXxId
+\restrict kA6LZwa3nxeH4xPZSNCLypeBwiXbxaWI3ma28MnsxfuRN8xaX9hK5GEYvBmp2sr
 
 -- Dumped from database version 18.0 (Debian 18.0-1.pgdg13+3)
 -- Dumped by pg_dump version 18.0 (Debian 18.0-1.pgdg13+3)
@@ -126,7 +126,7 @@ CREATE TABLE public.books (
     isbn13 character varying(13),
     isbn10 character varying(10),
     publisher_id integer,
-    publication_date date,
+    publication_date text,
     page_count integer,
     synopsis text,
     language character varying(50),
@@ -510,6 +510,25 @@ COPY public.author_name_variants (id, author_id, name_variant, is_primary, date_
 2554	259	james islington	t	2025-09-18 12:02:29.644126+00
 2555	259	islington james	f	2025-09-18 12:02:29.644126+00
 2556	259	of islington frederic james post	f	2025-09-18 12:02:29.644126+00
+2576	261	marcus aurelius	t	2026-01-07 15:36:42.984912+00
+2577	261	aurelius marcus aurelius	f	2026-01-07 15:36:42.984912+00
+2578	261	marcus marcus aurelius	f	2026-01-07 15:36:42.984912+00
+2579	261	aurelius marcus	f	2026-01-07 15:36:42.984912+00
+2580	261	marcus aurelius aurelius	f	2026-01-07 15:36:42.984912+00
+2581	261	marcus-aurelius	f	2026-01-07 15:36:42.984912+00
+2582	261	marcus. aurelius	f	2026-01-07 15:36:42.984912+00
+2583	261	marcus-aurelius casetta	f	2026-01-07 15:36:42.984912+00
+2584	261	marcus t. aurelius	f	2026-01-07 15:36:42.984912+00
+2585	261	marcus aurelius quote	f	2026-01-07 15:36:42.984912+00
+2586	261	hierocles marcus aurelius	f	2026-01-07 15:36:42.984912+00
+2587	261	marcus aurelius. antoninius	f	2026-01-07 15:36:42.984912+00
+2588	261	marcus (aurelius antoninus.)	f	2026-01-07 15:36:42.984912+00
+2589	261	aurelius marcus (author)	f	2026-01-07 15:36:42.984912+00
+2590	261	marcus aurelius severinus	f	2026-01-07 15:36:42.984912+00
+2591	261	marcus aurelius antoninus	f	2026-01-07 15:36:42.984912+00
+2592	261	emp marcus aurelius	f	2026-01-07 15:36:42.984912+00
+2593	261	marcus aurelius leslie	f	2026-01-07 15:36:42.984912+00
+2594	261	marcus aurelius autonimus	f	2026-01-07 15:36:42.984912+00
 \.
 
 
@@ -526,6 +545,7 @@ COPY public.authors (id, normalized_name, first_name, last_name, date_created) F
 257	john gwynne	John	Gwynne	2025-09-18 12:02:28.535386+00
 258	andy weir	Andy	Weir	2025-09-18 12:02:29.065645+00
 259	james islington	James	Islington	2025-09-18 12:02:29.644126+00
+261	marcus aurelius	Marcus	Aurelius	2026-01-07 15:36:42.984912+00
 \.
 
 
@@ -550,6 +570,7 @@ COPY public.book_dimensions (book_id, height_cm, width_cm, thickness_cm, weight_
 351	22.9	4.3	15.2	706.0
 352	26.9	4.7	16.4	771.1
 353	19.8	2.8	12.9	330.0
+355	17.8	11.1	1.1	100.0
 \.
 
 
@@ -574,6 +595,7 @@ COPY public.books (id, title, isbn13, isbn10, publisher_id, publication_date, pa
 351	The Will of the Many	9781982141172	1982141174	227	2023-05-23	640	At the elite Catenan Academy, a young fugitive uncovers layered mysteries and world-changing secrets in this new fantasy series by internationally bestselling author of The Licanius Trilogy, James Islington. AUDI. VIDE. TACE. The Catenan Republic—the Hierarchy—may rule the world now, but they do not know everything. I tell them my name is Vis Telimus. I tell them I was orphaned after a tragic accident three years ago, and that good fortune alone has led to my acceptance into their most prestigious school. I tell them that once I graduate, I will gladly join the rest of civilised society in allowing my strength, my drive and my focus—what they call Will—to be leeched away and added to the power of those above me, as millions already do. As all must eventually do. I tell them that I belong, and they believe me. But the truth is that I have been sent to the Academy to find answers. To solve a murder. To search for an ancient weapon. To uncover secrets that may tear the Republic apart. And that I will never, ever cede my Will to the empire that executed my family. To survive, though, I will still have to rise through the Academy’s ranks. I will have to smile, and make friends, and pretend to be one of them and win. Because if I cannot, then those who want to control me, who know my real name, will no longer have any use for me. And if the Hierarchy finds out who I truly am, they will kill me.	English	\N	Hardcover	https://images.isbndb.com/covers/20021253482893.jpg	0.00	f	2025-09-18 12:02:29.644126+00	http://books.google.com/books/content?id=53u7EAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api	161	1
 352	The Wisdom of Crowds	9780316187244	0316187240	221	2021-09-14	528	The New York Times bestselling finale to the Age of Madness trilogyfinds the world in an unstoppable revolution where heroes have nothing left to lose as darkness and destruction overtake everything. Chaos. Fury. Destruction. The Great Change is upon us . . . Some say that to change the world you must first burn it down. Now that belief will be tested in the crucible of revolution: the Breakers and Burners have seized the levers of power, the smoke of riots has replaced the smog of industry, and all must submit to the wisdom of crowds. With nothing left to lose, Citizen Brock is determined to become a new hero for the new age, while Citizeness Savine must turn her talents from profit to survival before she can claw her way to redemption. Orso will find that when the world is turned upside down, no one is lower than a monarch. And in the bloody North, Rikke and her fragile Protectorate are running out of allies . . . while Black Calder gathers his forces and plots his vengeance. The banks have fallen, the sun of the Union has been torn down, and in the darkness behind the scenes, the threads of the Weaver's ruthless plan are slowly being drawn together . . . "No one writes with the seismic scope or primal intensity of Joe Abercrombie." --Pierce Brown For more from Joe Abercrombie, check out: The Age of Madness A Little Hatred The Trouble With Peace The Wisdom of Crowds The First Law Trilogy The Blade Itself Before They Are Hanged Last Argument of Kings Best Served Cold The Heroes Red Country The Shattered Sea Trilogy Half a King Half a World Half a War	English	\N	Hardcover	https://images.isbndb.com/covers/15355443482300.jpg	0.00	f	2025-09-18 12:02:30.148139+00	http://books.google.com/books/content?id=M94lzgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	157	3
 353	Thunderhead	9781406379532	1406379530	223	2018-05-01	515	The dark and thrilling sequel to Scythe, the New York Times sci-fi bestseller. The stakes are high in this chilling sci-fi thriller, in which professional scythes control who dies. Everything else is out of human control, managed by the Thunderhead. It's a perfect system - until it isn't. It's been a year since Rowan went off-grid. Hunted by the Scythedom, he has become an urban legend, a vigilante snuffing out corrupt scythes in a trial by fire. Citra, meanwhile, is forging her path as Scythe Anastasia, gleaning with compassion. However, conflict within the Scythedom is growing by the day, and when Citra's life is threatened, it becomes clear that there is a truly terrifying plot afoot. The Thunderhead observes everything, and it does not like what it sees. Will it intervene? Or will it simply watch as this perfect world begins to unravel? The sequel to New York Times bestseller Scythe, which was a Publishers Weekly Best Book of 2016. Scythe has received five starred reviews in the US and is also the winner of a Michael L. Printz Honor. Universal has optioned the film rights. Thunderhead has already received three starred reviews in the US, with Booklist praising Neal Shusterman for achieving "that most difficult of feats: a sequel that surpasses its predecessor". "[...] a genuinely original and chilling dystopian thriller posing some big, thought-provoking questions" - The Bookseller on Scythe.The dark and thrilling sequel to Scythe, the New York Times sci-fi bestseller. The stakes are high in this chilling sci-fi thriller, in which professional scythes control who dies. Everything else is out of human control, managed by the Thunderhead. It's a perfect system - until it isn't. It's been a year since Rowan went off-grid. Hunted by the Scythedom, he has become an urban legend, a vigilante snuffing out corrupt scythes in a trial by fire. Citra, meanwhile, is forging her path as Scythe Anastasia, gleaning with compassion. However, conflict within the Scythedom is growing by the day, and when Citra's life is threatened, it becomes clear that there is a truly terrifying plot afoot. The Thunderhead observes everything, and it does not like what it sees. Will it intervene? Or will it simply watch as this perfect world begins to unravel? The sequel to New York Times bestseller Scythe, which was a Publishers Weekly Best Book of 2016. Scythe has received five starred reviews in the US and is also the winner of a Michael L. Printz Honor. Universal has optioned the film rights. Thunderhead has already received three starred reviews in the US, with Booklist praising Neal Shusterman for achieving "that most difficult of feats: a sequel that surpasses its predecessor". "[...] a genuinely original and chilling dystopian thriller posing some big, thought-provoking questions" - The Bookseller on Scythe.	English	\N	Paperback	https://images.isbndb.com/covers/19991803482688.jpg	0.00	f	2025-09-18 12:02:30.163144+00	http://books.google.com/books/content?id=ul0-tAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
+355	Meditations	9780008425029	0008425027	229	2020-09-02	176	<p>HarperCollins is proud to present its incredible range of best-loved, essential classics.</p> <br> <br> <p>Tranquility is nothing else than the good ordering of the mind</p> <p>The extraordinary writings of Marcus Aurelius (CE 121-180), the only Roman emperor to have also been a Stoic philosopher, have for centuries been praised for their wisdom, insight and guidance by leaders and great thinkers alike. Never intended for publication, Meditations are the personal notes of a warrior-king studying his unique position of power, surrounded by loss and human fragility.</p> <p>Boldly confronting many of our greatest questions, Meditations wrestles with the complexities of human nature, rationality and moral virtue. This timeless and significant text will provide both inspiration and comfort to the twenty-first-century reader.</p>	English	\N	Paperback	https://images.isbndb.com/covers/27170193482190.jpg	0.00	f	2026-01-07 16:01:56.449872+00	http://books.google.com/books/content?id=4WeYzQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api	\N	\N
 \.
 
 
@@ -598,6 +620,7 @@ COPY public.books_authors (book_id, author_id, date_created) FROM stdin;
 351	259	2025-09-18 12:02:29.644126+00
 352	252	2025-09-18 12:02:30.148139+00
 353	255	2025-09-18 12:02:30.163144+00
+355	261	2026-01-07 16:01:56.449872+00
 \.
 
 
@@ -692,6 +715,20 @@ COPY public.books_subjects (book_id, subject_id, date_created) FROM stdin;
 352	984	2025-09-18 12:02:30.148139+00
 352	1008	2025-09-18 12:02:30.148139+00
 353	1009	2025-09-18 12:02:30.163144+00
+355	1023	2026-01-07 16:01:56.449872+00
+355	1024	2026-01-07 16:01:56.449872+00
+355	1025	2026-01-07 16:01:56.449872+00
+355	1026	2026-01-07 16:01:56.449872+00
+355	1027	2026-01-07 16:01:56.449872+00
+355	1028	2026-01-07 16:01:56.449872+00
+355	1029	2026-01-07 16:01:56.449872+00
+355	1030	2026-01-07 16:01:56.449872+00
+355	992	2026-01-07 16:01:56.449872+00
+355	1031	2026-01-07 16:01:56.449872+00
+355	1032	2026-01-07 16:01:56.449872+00
+355	1033	2026-01-07 16:01:56.449872+00
+355	1034	2026-01-07 16:01:56.449872+00
+355	1035	2026-01-07 16:01:56.449872+00
 \.
 
 
@@ -710,6 +747,7 @@ COPY public.dewey_decimals (book_id, code) FROM stdin;
 350	823.92
 351	823.92
 352	823.92
+355	188
 \.
 
 
@@ -725,6 +763,7 @@ COPY public.publishers (id, name, date_created) FROM stdin;
 225	Little Brown Book Group Limited	2025-09-18 12:02:28.535386+00
 226	Ballantine Books	2025-09-18 12:02:29.065645+00
 227	Gallery Saga Press	2025-09-18 12:02:29.644126+00
+229	Harpercollins Publishers Limited	2026-01-07 15:36:42.984912+00
 \.
 
 
@@ -777,6 +816,19 @@ COPY public.subjects (id, genre, date_created) FROM stdin;
 1007	Thrillers & Suspense	2025-09-18 12:02:29.597536+00
 1008	Military	2025-09-18 12:02:30.148139+00
 1009	Subjects	2025-09-18 12:02:30.163144+00
+1023	Biography & Autobiography	2026-01-07 15:36:42.984912+00
+1024	Presidents & Heads Of State	2026-01-07 15:36:42.984912+00
+1025	History	2026-01-07 15:36:42.984912+00
+1026	Ancient	2026-01-07 15:36:42.984912+00
+1027	Rome	2026-01-07 15:36:42.984912+00
+1028	Literary Collections	2026-01-07 15:36:42.984912+00
+1029	Ancient & Classical	2026-01-07 15:36:42.984912+00
+1030	Body, Mind & Spirit	2026-01-07 15:36:42.984912+00
+1031	Philosophy	2026-01-07 15:36:42.984912+00
+1032	History & Surveys	2026-01-07 15:36:42.984912+00
+1033	Ethics & Moral Philosophy	2026-01-07 15:36:42.984912+00
+1034	Mind & Body	2026-01-07 15:36:42.984912+00
+1035	Essays	2026-01-07 15:36:42.984912+00
 \.
 
 
@@ -784,28 +836,28 @@ COPY public.subjects (id, genre, date_created) FROM stdin;
 -- Name: author_name_variants_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.author_name_variants_id_seq', 2556, true);
+SELECT pg_catalog.setval('public.author_name_variants_id_seq', 2594, true);
 
 
 --
 -- Name: authors_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.authors_id_seq', 259, true);
+SELECT pg_catalog.setval('public.authors_id_seq', 261, true);
 
 
 --
 -- Name: books_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.books_id_seq', 353, true);
+SELECT pg_catalog.setval('public.books_id_seq', 355, true);
 
 
 --
 -- Name: publishers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.publishers_id_seq', 227, true);
+SELECT pg_catalog.setval('public.publishers_id_seq', 229, true);
 
 
 --
@@ -819,7 +871,7 @@ SELECT pg_catalog.setval('public.series_id_seq', 161, true);
 -- Name: subjects_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.subjects_id_seq', 1009, true);
+SELECT pg_catalog.setval('public.subjects_id_seq', 1035, true);
 
 
 --
@@ -1139,5 +1191,5 @@ ALTER TABLE ONLY public.dewey_decimals
 -- PostgreSQL database dump complete
 --
 
-\unrestrict u7fYZoRYyxADbSyZhbUrb0j1V7qnBt5K8p3Tc5zm87XdO8dlByTVfirOLSuXxId
+\unrestrict kA6LZwa3nxeH4xPZSNCLypeBwiXbxaWI3ma28MnsxfuRN8xaX9hK5GEYvBmp2sr
 
