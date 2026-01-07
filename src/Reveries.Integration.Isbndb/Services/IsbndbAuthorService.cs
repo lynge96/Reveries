@@ -1,6 +1,6 @@
-using Reveries.Application.Extensions;
+using Microsoft.Extensions.Logging;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.Enums;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
@@ -10,39 +10,67 @@ namespace Reveries.Integration.Isbndb.Services;
 public class IsbndbAuthorService : IIsbndbAuthorService
 {
     private readonly IIsbndbAuthorClient _authorClient;
+    private readonly ILogger<IsbndbAuthorService> _logger;
 
-    public IsbndbAuthorService(IIsbndbAuthorClient authorClient)
+    public IsbndbAuthorService(IIsbndbAuthorClient authorClient, ILogger<IsbndbAuthorService> logger)
     {
         _authorClient = authorClient;
+        _logger = logger;
     }
 
-    public async Task<List<Author>> GetAuthorsByNameAsync(string authorName, CancellationToken cancellationToken = default)
+    public async Task<List<Author>> GetAuthorsByNameAsync(string authorName, CancellationToken ct)
     {
-        var authorList = new List<Author>();
+        if (string.IsNullOrWhiteSpace(authorName))
+            return [];
 
-        var authorResponseDto = await _authorClient.SearchAuthorsByNameAsync(authorName, cancellationToken);
-        if (authorResponseDto?.Authors != null)
+        try
         {
-            authorList.AddRange(authorResponseDto.Authors.Select(Author.Create));
+            var authorResponseDto = await _authorClient.SearchAuthorsByNameAsync(authorName, ct);
+
+            var authors = authorResponseDto.Authors.Any()
+                ? authorResponseDto.Authors.Select(Author.Create)
+                : [];
+
+            var distinctAuthors = authors
+                .GroupBy(a => a.NormalizedName)
+                .Select(g => g.First())
+                .ToList();
+
+            _logger.LogDebug("Search for '{AuthorName}' returned {Count} distinct authors.", authorName, distinctAuthors.Count);
+
+            return distinctAuthors;
         }
-        
-        return authorList
-            .GroupBy(a => a.NormalizedName)
-            .Select(g => g.First())
-            .ToList();
+        catch (NotFoundException)
+        {
+            _logger.LogDebug("No authors found for '{AuthorName}'. Returning empty list.", authorName);
+            return [];
+        }
     }
     
-    public async Task<List<Book>> GetBooksByAuthorAsync(string authorName, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByAuthorAsync(string authorName, CancellationToken ct)
     {
-        var apiResponse = await _authorClient.FetchBooksByAuthorAsync(authorName, cancellationToken);
-    
-        if (apiResponse?.Books == null)
-            return new List<Book>();
-        
-        return apiResponse.Books
-            .Select(bookDto => bookDto.ToBook())
-            .FilterByFormat(BookFormat.PhysicalOnly)
-            .ToList();
+        if (string.IsNullOrWhiteSpace(authorName))
+            return [];
+
+        try
+        {
+            var response  = await _authorClient.FetchBooksByAuthorAsync(authorName, ct);
+
+            var bookDtos = response.Books ?? [];
+
+            var books = bookDtos
+                .Select(b => b.ToBook())
+                .ToList();
+
+            _logger.LogDebug("Found {Count} books for author '{AuthorName}'.", books.Count, authorName);
+            
+            return books;
+        }
+        catch (NotFoundException)
+        {
+            _logger.LogDebug("No books found for author '{AuthorName}'. Returning empty list.", authorName);
+            return [];
+        }
     }
 
 }

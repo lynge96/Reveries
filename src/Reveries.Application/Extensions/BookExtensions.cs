@@ -4,7 +4,7 @@ using Reveries.Core.Models;
 namespace Reveries.Application.Extensions;
 
 
-public static class BookSortingExtensions
+public static class BookExtensions
 {
     public static List<Book> ArrangeBooks(this IEnumerable<Book> books)
     {
@@ -16,5 +16,14 @@ public static class BookSortingExtensions
             .ThenBy(b => b.SeriesNumber)
             .ThenBy(b => b.Title)
             .ToList();
+    }
+    
+    public static string? GetIsbnKey(Book book)
+    {
+        if (!string.IsNullOrWhiteSpace(book.Isbn13))
+            return book.Isbn13;
+        if (!string.IsNullOrWhiteSpace(book.Isbn10))
+            return book.Isbn10;
+        return null;
     }
 }

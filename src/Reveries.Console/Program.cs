@@ -13,22 +13,22 @@ using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.Isbndb.Configuration;
 
 var host = Host.CreateDefaultBuilder(args)
-    .ConfigureAppConfiguration((config) =>
+    .ConfigureAppConfiguration(config =>
     {
         Env.Load();
         config.AddEnvironmentVariables();
     })
-    .ConfigureServices(services =>
+    .ConfigureServices((context, services) =>
     {
-        services.AddInfrastructureServices();
-        services.AddApplicationServices();
-        services.AddIsbndbServices();
-        services.AddGoogleBooksServices();
-        services.AddRedisCacheServices();
+        var configuration = context.Configuration;
 
+        services.AddRedisCache(configuration);
+        services.AddPostgresql(configuration);
+        services.AddApplicationServices();
+        services.AddIsbndbServices(configuration);
+        services.AddGoogleBooksServices(configuration);
         services.AddTransient<IConsoleAppRunnerService, ConsoleAppRunnerService>();
         services.AddScoped<IMenuOperationService, MenuOperationService>();
-        services.AddScoped<ISaveEntityService, SaveEntityEntityService>();
         services.AddScoped<ISaveEntityService, SaveEntityEntityService>();
         services.AddScoped<IBookDisplayService, BookDisplayService>();
         services.AddScoped<IBookSelectionService, BookSelectionService>();

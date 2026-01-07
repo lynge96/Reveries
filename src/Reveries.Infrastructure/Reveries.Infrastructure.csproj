@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Reveries.Infrastructure.Postgresql\Reveries.Infrastructure.Postgresql.csproj" />
+      <ProjectReference Include="..\Reveries.Infrastructure.Redis\Reveries.Infrastructure.Redis.csproj" />
+    </ItemGroup>
+
+</Project>

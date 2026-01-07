@@ -1,7 +1,8 @@
 ﻿namespace Reveries.Integration.Isbndb.Configuration;
 
-public class IsbndbSettings
+public sealed class IsbndbSettings
 {
-    public string ApiKey { get; set; } = string.Empty;
-    public string ApiUrl { get; set; } = string.Empty;
+    public string ApiUrl { get; init; } = null!;
+    public string ApiKey { get; init; } = null!;
+    public int MaxBulkIsbns { get; init; } = 100;
 }

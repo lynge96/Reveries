@@ -2,6 +2,16 @@ namespace Reveries.Infrastructure.Redis.Configuration;
 
 public class RedisSettings
 {
-    public static TimeSpan? Expiration { get; } = TimeSpan.FromMinutes(10);
-    public string ConnectionString { get; set; } = string.Empty;
+    public string ConnectionString { get; init; } = string.Empty;
+    public string Host { get; init; } = null!;
+    public int Port { get; init; }
+    public string? Password { get; init; }
+    
+    public string GetConnectionString()
+    {
+        if (!string.IsNullOrWhiteSpace(ConnectionString)) return ConnectionString;
+        var password = string.IsNullOrWhiteSpace(Password) ? "" : $",password={Password}";
+        return $"{Host}:{Port}{password}";
+    }
+    
 }

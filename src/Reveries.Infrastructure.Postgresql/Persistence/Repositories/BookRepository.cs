@@ -19,7 +19,7 @@ public class BookRepository : IBookRepository
     public async Task<List<Book>> GetBooksByAuthorAsync(string authorName)
     {
         if (string.IsNullOrWhiteSpace(authorName))
-            return new List<Book>();
+            return [];
         
         return await GetBooksByAuthorsAsync(new List<string> { authorName });
     }

@@ -1,15 +1,25 @@
 namespace Reveries.Infrastructure.Postgresql.Configuration;
 
-public class PostgresSettings
+public sealed class PostgresSettings
 {
-    public string Host { get; set; } = "";
-    public int Port { get; set; } = 5432;
-    public string Database { get; set; } = "";
-    public string Username { get; set; } = "";
-    public string Password { get; set; } = "";
-    public int Timeout { get; set; } = 15;
-    public int CommandTimeout { get; set; } = 30;
-    public bool Pooling { get; set; } = true;
-    public int MinPoolSize { get; set; } = 1;
-    public int MaxPoolSize { get; set; } = 100;
+    public string Host { get; init; } = null!;
+    public int Port { get; init; }
+    public string Database { get; init; } = null!;
+    public string Username { get; init; } = null!;
+    public string Password { get; init; } = null!;
+    public string? ConnectionString { get; init; }
+    public PoolSettings Pool { get; init; } = new();
+    public int TimeoutSeconds { get; init; }
+    public int CommandTimeoutSeconds { get; init; }
+    
+    public string GetConnectionString() => 
+        string.IsNullOrWhiteSpace(ConnectionString)
+            ? $"Host={Host};Port={Port};Database={Database};Username={Username};Password={Password};"
+            : ConnectionString;
+}
+
+public sealed class PoolSettings
+{
+    public int Min { get; init; }
+    public int Max { get; init; }
 }

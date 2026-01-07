@@ -1,7 +1,9 @@
+using Microsoft.Extensions.Logging;
+using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Core.Enums;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Reveries.Core.Services;
 
@@ -10,25 +12,36 @@ namespace Reveries.Application.Services;
 public class BookEnrichmentService : IBookEnrichmentService
 {
     private readonly IIsbndbBookService _isbndbService;
-    private readonly IGoogleBookService _googleService;
+    private readonly IGoogleBooksService _googleService;
+    private readonly ILogger<BookEnrichmentService> _logger;
 
-    public BookEnrichmentService(IIsbndbBookService isbndbBookService, IGoogleBookService googleBookService)
+    public BookEnrichmentService(IIsbndbBookService isbndbBookService, IGoogleBooksService googleBooksService, ILogger<BookEnrichmentService> logger)
     {
         _isbndbService = isbndbBookService;
-        _googleService = googleBookService;
+        _googleService = googleBooksService;
+        _logger = logger;
     }
     
-    public async Task<List<Book>> AggregateBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> AggregateBooksByIsbnsAsync(List<string> isbns, CancellationToken ct)
     {
-        var googleBooksTask = _googleService.GetBooksByIsbnsAsync(isbns, cancellationToken);
-        var isbndbTask = _isbndbService.GetBooksByIsbnsAsync(isbns, cancellationToken);
+        if (isbns.Count == 0)
+            return [];
         
-        await Task.WhenAll(googleBooksTask, isbndbTask);
+        ct.ThrowIfCancellationRequested();
         
-        var googleDict = BuildIsbnDictionary(googleBooksTask.Result);
-        var isbndbDict = BuildIsbnDictionary(isbndbTask.Result);
+        var googleTask = FetchGoogleBooksSafeAsync(isbns, ct);
+        var isbndbTask = FetchIsbndbBooksSafeAsync(isbns, ct);
+        
+        await Task.WhenAll(googleTask, isbndbTask);
+        
+        var googleBooks = await googleTask;
+        var isbndbBooks = await isbndbTask;
+        
+        var googleDict = BuildIsbnDictionary(googleBooks);
+        var isbndbDict = BuildIsbnDictionary(isbndbBooks);
         
         var mergedBooks = new List<Book>();
+        
         foreach (var isbn in isbns)
         {
             isbndbDict.TryGetValue(isbn, out var isbndbBook);
@@ -40,42 +53,86 @@ public class BookEnrichmentService : IBookEnrichmentService
         return mergedBooks;
     }
 
-    public async Task<List<Book>> AggregateBooksByTitlesAsync(List<string> titles, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> AggregateBooksByTitlesAsync(List<string> titles, CancellationToken ct)
     {
-        var googleBooksTask = _googleService.GetBooksByTitleAsync(titles, cancellationToken);
-        var isbndbTask = _isbndbService.GetBooksByTitlesAsync(titles, null, cancellationToken);
-        await Task.WhenAll(googleBooksTask, isbndbTask);
+        if (titles.Count == 0)
+            return [];
         
-        var googleBooks = googleBooksTask.Result;
-        var isbndbBooks = isbndbTask.Result;
+        ct.ThrowIfCancellationRequested();
+        
+        var googleTask = _googleService.GetBooksByTitleAsync(titles, ct);
+        var isbndbTask = _isbndbService.GetBooksByTitlesAsync(titles, null, ct);
+
+        await Task.WhenAll(googleTask, isbndbTask);
+        
+        var googleBooks = await googleTask;
+        var isbndbBooks = await isbndbTask;
         
         var isbndbByIsbn = isbndbBooks
-            .Where(b => !string.IsNullOrWhiteSpace(b.Isbn13))
-            .ToDictionary(b => b.Isbn13!, b => b);
+            .Select(b => new { Book = b, Key = BookExtensions.GetIsbnKey(b) })
+            .Where(x => x.Key is not null)
+            .GroupBy(x => x.Key!)
+            .ToDictionary(g => g.Key, g => g.First().Book);
 
-        var mergedBooks = new List<Book>();
+        var mergedByIsbn = new Dictionary<string, Book>();
 
         foreach (var googleBook in googleBooks)
         {
-            if (!string.IsNullOrWhiteSpace(googleBook.Isbn13) && isbndbByIsbn.TryGetValue(googleBook.Isbn13, out var isbndbBook))
-            {
-                var mergedBook = BookMerger.MergeBooks(isbndbBook, googleBook);
-                mergedBooks.Add(mergedBook);
+            var key = BookExtensions.GetIsbnKey(googleBook);
+            if (key is null)
+                continue;
 
-                isbndbByIsbn.Remove(googleBook.Isbn13);
+            if (isbndbByIsbn.TryGetValue(key, out var isbndbBook))
+            {
+                mergedByIsbn[key] = BookMerger.MergeBooks(isbndbBook, googleBook);
+                isbndbByIsbn.Remove(key);
             }
             else
             {
-                mergedBooks.Add(googleBook);
+                mergedByIsbn[key] = googleBook;
             }
         }
 
-        mergedBooks.AddRange(isbndbByIsbn.Values);
+        foreach (var (key, book) in isbndbByIsbn)
+        {
+            mergedByIsbn.TryAdd(key, book);
+        }
 
-        return mergedBooks
-            .Where(b => !string.IsNullOrWhiteSpace(b.Isbn10))
-            .Where(b => !string.IsNullOrWhiteSpace(b.Isbn13))
+        var mergedBooks = mergedByIsbn.Values
+            .Where(b =>
+                !string.IsNullOrWhiteSpace(b.Isbn13) ||
+                !string.IsNullOrWhiteSpace(b.Isbn10))
             .ToList();
+
+        return mergedBooks;
+    }
+    
+    private async Task<List<Book>> FetchGoogleBooksSafeAsync(List<string> isbns, CancellationToken ct)
+    {
+        try
+        {
+            return await _googleService.GetBooksByIsbnsAsync(isbns, ct);
+        }
+        catch (NotFoundException ex)
+        {
+            _logger.LogInformation(ex, "No books found in Google Books for the provided ISBNs: {Isbns}", string.Join(", ", isbns));
+
+            return [];
+        }
+    }
+    
+    private async Task<List<Book>> FetchIsbndbBooksSafeAsync(List<string> isbns, CancellationToken ct)
+    {
+        try
+        {
+            return await _isbndbService.GetBooksByIsbnsAsync(isbns, ct);
+        }
+        catch (NotFoundException ex)
+        {
+            _logger.LogInformation(ex, "No books found in ISBNdb for the provided ISBNs: {Isbns}", string.Join(", ", isbns));
+
+            return [];
+        }
     }
     
     private static Dictionary<string, Book> BuildIsbnDictionary(IEnumerable<Book> books)
@@ -88,4 +145,5 @@ public class BookEnrichmentService : IBookEnrichmentService
             })
             .ToDictionary(x => x.isbn!, x => x.book);
     }
+    
 }

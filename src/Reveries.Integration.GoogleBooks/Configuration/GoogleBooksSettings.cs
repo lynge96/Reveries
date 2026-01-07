@@ -1,7 +1,7 @@
 namespace Reveries.Integration.GoogleBooks.Configuration;
 
-public class GoogleBooksSettings
+public sealed class GoogleBooksSettings
 {
-    public string ApiUrl { get; set; } = string.Empty;
-    public string? ApiKey { get; set; } = string.Empty;
+    public string ApiUrl { get; init; } = null!;
+    public string ApiKey { get; init; } = null!;
 }

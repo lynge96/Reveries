@@ -1,6 +1,6 @@
+using Microsoft.Extensions.Logging;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Application.Interfaces.Persistence;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Interfaces.Persistence;
@@ -13,16 +13,22 @@ public class BookManagementService : IBookManagementService
     private readonly IIsbndbAuthorService _authorService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBookCacheService _bookCacheService;
+    private readonly ILogger<BookManagementService> _logger;
 
-    public BookManagementService(IIsbndbAuthorService authorService, IUnitOfWork unitOfWork, IBookCacheService bookCacheService)
+    public BookManagementService(IIsbndbAuthorService authorService, IUnitOfWork unitOfWork, IBookCacheService bookCacheService, ILogger<BookManagementService> logger)
     {
         _authorService = authorService;
         _unitOfWork = unitOfWork;
         _bookCacheService = bookCacheService;
+        _logger = logger;
     }
     
-    public async Task<int> CreateBookWithRelationsAsync(Book book, CancellationToken cancellationToken = default)
+    public async Task<int> CreateBookWithRelationsAsync(Book book, CancellationToken ct)
     {
+        _logger.LogDebug("Started creation of book '{Title}' with Isbn {Isbn}.", 
+            book.Title, 
+            book.Isbn13 ?? book.Isbn10);
+        
         await ValidateBookNotExistsAsync(book);
         
         try
@@ -49,9 +55,27 @@ public class BookManagementService : IBookManagementService
                 await SaveDeweyDecimalsAsync(savedBookId, book.DeweyDecimals);
             
             await _unitOfWork.CommitAsync();
-            await _bookCacheService.SetBookByIsbnAsync(book, cancellationToken);
+            await _bookCacheService.SetBookByIsbnAsync(book, ct);
 
+            _logger.LogInformation(
+                "Book created successfully. Id={BookId}, ISBN13={Isbn13}, Authors={Authors}, Publisher={Publisher}",
+                savedBookId,
+                book.Isbn13,
+                string.Join(", ", book.Authors.Select(a => a.ToString())),
+                book.Publisher?.ToString());
+            
             return savedBookId;
+        }
+        catch (BookAlreadyExistsException)
+        {
+            _logger.LogInformation(
+                "CreateBookWithRelations aborted. Book already exists. Title={Title}, ISBN13={Isbn13}, ISBN10={Isbn10}",
+                book.Title,
+                book.Isbn13,
+                book.Isbn10);
+            
+            await _unitOfWork.RollbackAsync();
+            throw;
         }
         catch
         {
@@ -60,12 +84,12 @@ public class BookManagementService : IBookManagementService
         }
     }
 
-    public async Task UpdateBooksAsync(List<Book> books, CancellationToken cancellationToken = default)
+    public async Task UpdateBooksAsync(List<Book> books, CancellationToken ct)
     {
         foreach (var book in books)
         {
             await _unitOfWork.Books.UpdateBookAsync(book);
-            await _bookCacheService.RemoveBookByIsbnAsync(book.Isbn13 ?? book.Isbn10, cancellationToken);
+            await _bookCacheService.RemoveBookByIsbnAsync(book.Isbn13 ?? book.Isbn10, ct);
         }
     }
 

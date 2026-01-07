@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Interfaces;
 using Reveries.Contracts.DTOs;
+using Reveries.Contracts.Requests;
 using Reveries.Core.Validation;
 using ValidationException = Reveries.Core.Exceptions.ValidationException;
 
@@ -34,11 +35,23 @@ public class BooksController : ControllerBase
     [HttpGet("{isbn}")]
     public async Task<ActionResult<BookDto>> GetByIsbn(string isbn, CancellationToken ct)
     {
-        IsbnValidator.NormalizeAndValidate(isbn, out var validatedIsbn);
-        
-        var book = await _bookService.GetBookByIsbnAsync(validatedIsbn, ct);
+        var book = await _bookService.GetBookByIsbnAsync(isbn, ct);
         
         return Ok(book);
+    }
+
+    [HttpPost("isbns")]
+    public async Task<ActionResult<List<BookDto>>> GetByIsbns([FromBody] BulkIsbnRequest request,
+        CancellationToken ct)
+    {
+        var isbns = request.Isbns;
+        
+        if (isbns.Count == 0)
+            return BadRequest("At least one ISBN must be provided.");
+        
+        var books = await _bookService.GetBooksByIsbnsAsync(isbns, ct);
+            
+        return Ok(books);
     }
 
     [HttpGet("{id:int}")]

@@ -1,7 +1,9 @@
-﻿using Reveries.Application.Extensions;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.Enums;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
+using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
 
@@ -10,74 +12,98 @@ namespace Reveries.Integration.Isbndb.Services;
 public class IsbndbBookService : IIsbndbBookService
 {
     private readonly IIsbndbBookClient _bookClient;
+    private readonly IsbndbSettings _settings;
+    private readonly ILogger<IsbndbBookService> _logger;
 
-    public IsbndbBookService(IIsbndbBookClient bookClient)
+    public IsbndbBookService(IIsbndbBookClient bookClient, IOptions<IsbndbSettings> options, ILogger<IsbndbBookService> logger)
     {
         _bookClient = bookClient;
+        _settings = options.Value;
+        _logger = logger;
     }
     
-    public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct)
     {
-        var isbndbBooks = new List<Book>();
+        if (isbns.Count == 0)
+            return [];
 
-        switch (isbns.Count)
+        if (isbns.Count > _settings.MaxBulkIsbns)
         {
-            case 1:
-            {
-                var book = await GetSingleBookAsync(isbns[0], cancellationToken);
-                if (book != null)
-                    isbndbBooks.Add(book);
-                break;
-            }
-            case > 1:
-                isbndbBooks = await GetMultipleBooksAsync(isbns, cancellationToken);
-                break;
+            throw new IsbnValidationException($"Too many ISBN numbers. Maximum is {_settings.MaxBulkIsbns}.");
         }
+        
+        if (isbns.Count == 1)
+        {
+            var book = await GetSingleBookAsync(isbns[0], ct);
+            _logger.LogDebug("{Service} Single ISBN lookup for '{Isbn}' succeeded.", nameof(GetBooksByIsbnsAsync), isbns[0]);
 
-        return isbndbBooks;
+            return [book];
+        }
+        
+        var books = await GetMultipleBooksAsync(isbns, ct);
+
+        _logger.LogDebug("Bulk ISBN lookup requested {Requested} ISBNs and returned {Found} books.", isbns.Count, books.Count);
+
+        return books;
     }
     
-    public async Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, CancellationToken ct)
     {
-        var booksFromApi = new List<Book>();
+        if (titles.Count == 0)
+            return [];
         
-        foreach (var title in titles)
+        var tasks = titles.Select(async title =>
         {
-            var response = await _bookClient.SearchBooksByQueryAsync(title, languageCode, shouldMatchAll: true, cancellationToken);
-            if (response?.Books != null)
+            try
             {
-                booksFromApi.AddRange(response.Books.Select(b => b.ToBook()));
+                var response = await _bookClient.SearchBooksAsync(title, languageCode, shouldMatchAll: true, ct);
+
+                var bookDtos = response.Books;
+
+                var mapped = bookDtos
+                    .Select(b => b.ToBook())
+                    .ToList();
+
+                _logger.LogDebug("Title search '{Title}' returned {Count} books.", title, mapped.Count);
+
+                return mapped;
             }
-        }
-        
-        return booksFromApi
-            .FilterByFormat(BookFormat.PhysicalOnly)
+            catch (NotFoundException)
+            {
+                _logger.LogDebug("Title search '{Title}' returned no results.", title);
+
+                return [];
+            }
+        });
+
+        var results = await Task.WhenAll(tasks);
+
+        var allBooks = results
+            .SelectMany(b => b)
             .ToList();
+
+        _logger.LogDebug("Completed title search. Requested {RequestedTitles} titles, found {TotalBooks} books.", titles.Count, allBooks.Count);
+
+        return allBooks;
     }
 
-    private async Task<Book?> GetSingleBookAsync(string isbn, CancellationToken cancellationToken = default)
+    private async Task<Book> GetSingleBookAsync(string isbn, CancellationToken ct)
     {
-        var response = await _bookClient.FetchBookByIsbnAsync(isbn, cancellationToken);
+        var dto = await _bookClient.FetchBookByIsbnAsync(isbn, ct);
 
-        var bookDto = response?.Book;
-        
-        var book = bookDto?.ToBook();
-        
+        var book = dto.Book.ToBook();
+
         return book;
     }
     
-    private async Task<List<Book>> GetMultipleBooksAsync(List<string> isbns, CancellationToken cancellationToken = default)
+    private async Task<List<Book>> GetMultipleBooksAsync(List<string> isbns, CancellationToken ct)
     {
-        if (isbns.Count > 100)
-            throw new ArgumentException("Too many ISBN numbers. Maximum is 100.");
-
-        var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, cancellationToken);
+        var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, ct);
         
-        if (response is null)
-            return new List<Book>();
-        
-        return response.Data
-            .Select(bookDto => bookDto.ToBook())
+        var books = response.Data
+            .Select(b => b.ToBook())
             .ToList();
+
+        return books;
     }
 }

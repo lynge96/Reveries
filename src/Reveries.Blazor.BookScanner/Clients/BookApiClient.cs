@@ -49,6 +49,7 @@ public class BookApiClient
                 Title = bookDto.Title,
                 Authors = bookDto.Authors,
                 Publisher = bookDto.Publisher,
+                Pages = bookDto.Pages,
                 Language = bookDto.Language,
                 PublicationDate = bookDto.PublicationDate,
                 Synopsis = bookDto.Synopsis,
@@ -61,6 +62,7 @@ public class BookApiClient
                 Series = bookDto.Series,
                 NumberInSeries = bookDto.NumberInSeries,
                 DeweyDecimal = bookDto.DeweyDecimal,
+                Dimensions = bookDto.Dimensions,
                 DataSource = bookDto.DataSource
             };
             

@@ -1,6 +1,6 @@
-using Reveries.Application.Extensions;
+using Microsoft.Extensions.Logging;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.Enums;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
@@ -10,40 +10,71 @@ namespace Reveries.Integration.Isbndb.Services;
 public class IsbndbPublisherService : IIsbndbPublisherService
 {
     private readonly IIsbndbPublisherClient _publisherClient;
+    private readonly ILogger<IsbndbPublisherService> _logger;
 
-    public IsbndbPublisherService(IIsbndbPublisherClient publisherClient)
+    public IsbndbPublisherService(IIsbndbPublisherClient publisherClient, ILogger<IsbndbPublisherService> logger)
     {
         _publisherClient = publisherClient;
+        _logger = logger;
     }
 
-    public async Task<List<Book>> GetBooksByPublisherAsync(string publisher, CancellationToken cancellationToken = default)
+    public async Task<List<Book>> GetBooksByPublisherAsync(string publisher, CancellationToken ct)
     {
-        var apiResponse = await _publisherClient.FetchPublisherDetailsAsync(publisher, null, cancellationToken);
-        if (apiResponse?.Books == null)
-            return new List<Book>();
+        if (string.IsNullOrWhiteSpace(publisher))
+            return [];
         
-        return apiResponse.Books
-            .Select(bookDto => bookDto.ToBook())
-            .FilterByFormat(BookFormat.PhysicalOnly)
-            .ToList();
+        try
+        {
+            var response = await _publisherClient.FetchPublisherDetailsAsync(publisher, null, ct);
+
+            var bookDtos = response.Books ?? [];
+
+            var books = bookDtos
+                .Select(dto => dto.ToBook())
+                .ToList();
+
+            _logger.LogDebug("Publisher '{Publisher}' returned {Count} books.", publisher, books.Count);
+
+            return books;
+        }
+        catch (NotFoundException)
+        {
+            _logger.LogDebug("Publisher '{Publisher}' not found. Returning empty list.", publisher);
+
+            return [];
+        }
     }
 
-    public async Task<List<Publisher>> GetPublishersByNameAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<List<Publisher>> GetPublishersByNameAsync(string name, CancellationToken ct)
     {
-        var publisherResponseDto = await _publisherClient.FetchPublishersAsync(name, cancellationToken);
-        if (publisherResponseDto?.Publishers == null || !publisherResponseDto.Publishers.Any())
-            return new List<Publisher>();
+        if (string.IsNullOrWhiteSpace(name))
+            return [];
         
-        var publishers = publisherResponseDto.Publishers
-            .Select(Publisher.Create)
-            .Where(p => !string.IsNullOrWhiteSpace(p.Name))
-            .ToList();
-        
-        var uniquePublishers = publishers
-            .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
-            .ToList();
+        try
+        {
+            var response = await _publisherClient.SearchPublishersAsync(name, ct);
 
-        return uniquePublishers;
+            var publisherNames = response.Publishers ?? [];
+
+            var publishers = publisherNames
+                .Select(Publisher.Create)
+                .Where(p => !string.IsNullOrWhiteSpace(p.Name))
+                .ToList();
+
+            var uniquePublishers = publishers
+                .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
+                .Select(g => g.First())
+                .ToList();
+
+            _logger.LogDebug("Search for '{Name}' returned {Count} distinct publishers.", name, uniquePublishers.Count);
+
+            return uniquePublishers;
+        }
+        catch (NotFoundException)
+        {
+            _logger.LogDebug("No publishers found for '{Name}'. Returning empty list.", name);
+
+            return [];
+        }
     }
 }
