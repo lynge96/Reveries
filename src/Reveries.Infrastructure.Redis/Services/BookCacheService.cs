@@ -91,7 +91,8 @@ public class BookCacheService : IBookCacheService
             var redisVal = await task;
             if (!redisVal.IsNullOrEmpty)
             {
-                var isbns = JsonSerializer.Deserialize<List<string>>(redisVal!) ?? [];
+                var json = (string)redisVal!;
+                var isbns = JsonSerializer.Deserialize<List<string>>(json) ?? [];
                 isbnResults[title] = isbns;
             }
         }
