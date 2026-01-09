@@ -76,8 +76,8 @@ public class Book : BaseEntity
         
         var book = new Book
         {
-            Isbn10 = IsbnValidator.Normalize(isbn10 ?? string.Empty),
-            Isbn13 = IsbnValidator.Normalize(isbn13 ?? string.Empty),
+            Isbn10 = IsbnValidator.NormalizeIsbn(isbn10 ?? string.Empty),
+            Isbn13 = IsbnValidator.NormalizeIsbn(isbn13 ?? string.Empty),
             Title = cleanedTitle,
             Authors = (authors ?? [])
                 .Select(Author.Create)
