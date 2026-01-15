@@ -91,7 +91,7 @@ public class Book : BaseEntity
             ImageThumbnail = imageThumbnail,
             ImageUrl = imageUrl,
             Msrp = msrp,
-            Binding = binding?.NormalizeBinding(),
+            Binding = binding?.GetStandardBinding(),
             Edition = edition,
             Dimensions = BookDimensions.Create(
                 height, 
