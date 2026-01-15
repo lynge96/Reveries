@@ -71,14 +71,12 @@ public class Book : BaseEntity
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Book title cannot be empty");
-
-        var (cleanedTitle, seriesName, numberInSeries) = BookExtensions.ParseSeriesInfo(title);
         
         var book = new Book
         {
             Isbn10 = IsbnValidator.NormalizeIsbn(isbn10 ?? string.Empty),
             Isbn13 = IsbnValidator.NormalizeIsbn(isbn13 ?? string.Empty),
-            Title = cleanedTitle,
+            Title = title,
             Authors = (authors ?? [])
                 .Select(Author.Create)
                 .ToList(),
@@ -101,9 +99,7 @@ public class Book : BaseEntity
             Subjects = (subjects ?? [])
                 .Select(Subject.Create)
                 .ToList(),
-            DeweyDecimals = deweyDecimals.FormatDeweyDecimals(),
-            Series = seriesName != null ? Series.Create(seriesName) : null,
-            SeriesNumber = numberInSeries,
+            DeweyDecimals = deweyDecimals.NormalizeDeweyDecimals(),
             DataSource = dataSource,
         };
 
