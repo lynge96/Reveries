@@ -1,7 +1,7 @@
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
 
-namespace Reveries.Core.Services;
+namespace Reveries.Core.Helpers;
 
 public static class BookMerger
 {

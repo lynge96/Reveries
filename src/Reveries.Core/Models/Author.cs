@@ -24,7 +24,7 @@ public class Author : BaseEntity
         if (string.IsNullOrWhiteSpace(name))
             return new Author{ NormalizedName = "Unknown Author"};
         
-        var (firstName, lastName, normalizedName) = AuthorNameNormalizer.NormalizeAuthorName(name);
+        var (firstName, lastName, normalizedName) = AuthorNameNormalizer.Parse(name);
         
         return new Author
         {

@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Exceptions;
+using Reveries.Core.Helpers;
 using Reveries.Core.Models;
-using Reveries.Core.Services;
+using BookExtensions = Reveries.Application.Extensions.BookExtensions;
 
 namespace Reveries.Application.Services;
 
