@@ -27,19 +27,19 @@ public static partial class PublisherNameNormalizer
     {
         var normalized = publisher;
 
-        // 1. Fjern parentesindhold og alt efter @
+        // 1. Remove parenthetical content and everything after @
         normalized = RegexPatterns.ParenthesesAndAtPattern().Replace(normalized, "");
         
-        // 2. Fjern præfikser som "London :"
+        // 2. Remove prefixes like "London :"
         normalized = RegexPatterns.PrefixPattern().Replace(normalized, "");
 
-        // 3. Behold kun bogstaver, tal, mellemrum, komma og ampersand
+        // 3. Keep only letters, numbers, spaces, commas and ampersands
         normalized = RegexPatterns.SpecialCharsPattern().Replace(normalized, "");
 
-        // 4. Fjern ekstra mellemrum og trim
+        // 4. Remove extra spaces and trim
         normalized = RegexPatterns.MultipleSpacesPattern().Replace(normalized, " ").Trim();
 
-        // 5. Konverter til Title Case
+        // 5. Convert to Title Case
         return normalized.ToTitleCase();
     }
 

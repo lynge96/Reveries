@@ -85,7 +85,7 @@ public class Book : BaseEntity
             PublishDate = publishDate,
             Publisher = Publisher.Create(publisher),
             Language = languageIso639.GetLanguageName(),
-            Synopsis = synopsis.CleanHtml(),
+            Synopsis = synopsis,
             ImageThumbnail = imageThumbnail,
             ImageUrl = imageUrl,
             Msrp = msrp,
