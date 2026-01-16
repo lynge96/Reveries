@@ -16,11 +16,8 @@ public class Publisher : BaseEntity
     public static Publisher Create(string? name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return new Publisher{ Name = "Unknown Publisher"};
+            return new Publisher{ Name = null };
         
-        return new Publisher
-        {
-            Name = PublisherNormalizer.NormalizePublisher(name) 
-        };
+        return new Publisher { Name = PublisherNameNormalizer.StandardizePublisherName(name) };
     }
 }

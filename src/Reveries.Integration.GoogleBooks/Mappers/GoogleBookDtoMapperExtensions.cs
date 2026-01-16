@@ -14,7 +14,7 @@ public static class GoogleBookDtoMapperExtensions
         var height = googleBookDto.Dimensions?.Height.ParseDimension();
         var width = googleBookDto.Dimensions?.Width.ParseDimension();
         
-        var (normalizedHeight, normalizedWidth, normalizedThickness) = DimensionNormalizer.NormalizeDimensions(height, width, thickness);
+        var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
 
         return Book.Create(
             isbn13: googleBookDto.IndustryIdentifiers?
