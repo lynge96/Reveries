@@ -108,33 +108,61 @@ public class GoogleBooksService : IGoogleBooksService
 
     private static Book MergeGoogleBooks(Book book, Book volume)
     {
-        return new Book
-        {
-            DataSource = DataSource.GoogleBooksApi,
-            Title = !string.IsNullOrWhiteSpace(book.Title)
-                ? book.Title
-                : volume.Title,
-            Isbn13 = book.Isbn13 ?? volume.Isbn13,
-            Isbn10 = book.Isbn10 ?? volume.Isbn10,
-            Pages = book.Pages > 0
-                ? book.Pages
-                : (volume.Pages > 0 ? volume.Pages : 0),
-            Synopsis = (volume.Synopsis?.Length ?? 0) > (book.Synopsis?.Length ?? 0)
-                ? volume.Synopsis
-                : book.Synopsis,
-            Authors = book.Authors.Count > 0
-                ? book.Authors
-                : volume.Authors,
-            Edition = book.Edition,
-            Publisher = book.Publisher ?? volume.Publisher,
-            PublishDate = book.PublishDate ?? volume.PublishDate,
-            Subjects = (volume.Subjects != null && volume.Subjects.Count > 0)
-                ? volume.Subjects
-                : book.Subjects,
-            Language = book.Language ?? volume.Language,
-            Binding = book.Binding,
-            ImageThumbnail = book.ImageThumbnail ?? volume.ImageThumbnail,
-            Dimensions = volume.Dimensions
-        };
+        var mergedTitle = !string.IsNullOrWhiteSpace(book.Title)
+            ? book.Title
+            : volume.Title;
+    
+        var mergedAuthors = book.Authors.Count > 0
+            ? book.Authors
+            : volume.Authors;
+    
+        var mergedSubjects = (volume.Subjects?.Count ?? 0) > 0
+            ? volume.Subjects
+            : book.Subjects;
+    
+        var mergedDeweyDecimals = (volume.DeweyDecimals?.Count ?? 0) > 0
+            ? volume.DeweyDecimals
+            : book.DeweyDecimals;
+    
+        var mergedSynopsis = (volume.Synopsis?.Length ?? 0) > (book.Synopsis?.Length ?? 0)
+            ? volume.Synopsis
+            : book.Synopsis;
+    
+        var mergedPages = book.Pages > 0
+            ? book.Pages
+            : volume.Pages > 0 ? volume.Pages : null;
+    
+        var dimensions = volume.Dimensions ?? book.Dimensions;
+    
+        return Book.Reconstitute(
+            id: null,
+            isbn13: book.Isbn13 ?? volume.Isbn13,
+            isbn10: book.Isbn10 ?? volume.Isbn10,
+            title: mergedTitle,
+            pages: mergedPages,
+            isRead: false,
+            publishDate: book.PublishDate ?? volume.PublishDate,
+            language: book.Language ?? volume.Language,
+            synopsis: mergedSynopsis,
+            imageThumbnail: book.ImageThumbnail ?? volume.ImageThumbnail,
+            imageUrl: book.ImageUrl ?? volume.ImageUrl,
+            msrp: book.Msrp ?? volume.Msrp,
+            binding: book.Binding,
+            edition: book.Edition,
+            seriesNumber: book.SeriesNumber,
+            dataSource: DataSource.GoogleBooksApi,
+            publisher: book.Publisher ?? volume.Publisher,
+            series: book.Series,
+            dimensions: new BookDimensions
+            {
+                HeightCm = dimensions?.HeightCm,
+                ThicknessCm = dimensions?.ThicknessCm,
+                WidthCm = dimensions?.WidthCm,
+                WeightG = dimensions?.WeightG
+            },
+            authors: mergedAuthors,
+            subjects: mergedSubjects,
+            deweyDecimals: mergedDeweyDecimals!
+        );
     }
 }

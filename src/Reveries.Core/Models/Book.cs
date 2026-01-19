@@ -6,14 +6,20 @@ namespace Reveries.Core.Models;
 
 public class Book : BaseEntity
 {
+    private readonly List<Author> _authors = [];
+    private readonly List<Subject> _subjects = [];
+    private readonly List<DeweyDecimal> _deweyDecimals = [];
+    
+    private Book() { }
+    
     public int? Id { get; set; }
     public string? Isbn13 { get; init; }
     public string? Isbn10 { get; init; }
     public required string Title { get; init; }
-    public ICollection<Author> Authors { get; set; } = new List<Author>();
+    public IReadOnlyList<Author> Authors => _authors;
     public int? Pages { get; init; }
-    public bool IsRead { get; set; }
-    public Publisher? Publisher { get; set; }
+    public bool IsRead { get; private set; }
+    public Publisher? Publisher { get; init; }
     public string? Language { get; init; }
     public string? PublishDate { get; init; }
     public string? Synopsis { get; init; }
@@ -22,11 +28,11 @@ public class Book : BaseEntity
     public decimal? Msrp { get; init; }
     public string? Binding { get; init; }
     public string? Edition { get; init; }
-    public ICollection<DeweyDecimal>? DeweyDecimals { get; set; }
-    public ICollection<Subject>? Subjects { get; set; }
+    public IReadOnlyList<DeweyDecimal> DeweyDecimals => _deweyDecimals;
+    public IReadOnlyList<Subject> Subjects => _subjects;
     public int? SeriesNumber { get; set; }
     public Series? Series { get; set; }
-    public BookDimensions? Dimensions { get; set; }
+    public BookDimensions? Dimensions { get; init; }
     public required DataSource DataSource { get; set; }
 
     public override string ToString()
@@ -74,12 +80,9 @@ public class Book : BaseEntity
         
         var book = new Book
         {
-            Isbn10 = IsbnValidator.NormalizeIsbn(isbn10 ?? string.Empty),
-            Isbn13 = IsbnValidator.NormalizeIsbn(isbn13 ?? string.Empty),
+            Isbn10 = IsbnValidator.NormalizeIsbn(isbn10 ?? null),
+            Isbn13 = IsbnValidator.NormalizeIsbn(isbn13 ?? null),
             Title = title,
-            Authors = (authors ?? [])
-                .Select(Author.Create)
-                .ToList(),
             Pages = pages,
             IsRead = false,
             PublishDate = publishDate,
@@ -96,20 +99,122 @@ public class Book : BaseEntity
                 width, 
                 thickness, 
                 weight),
-            Subjects = (subjects ?? [])
-                .Select(Subject.Create)
-                .ToList(),
-            DeweyDecimals = deweyDecimals.NormalizeDeweyDecimals(),
             DataSource = dataSource,
         };
 
+        foreach (var authorName in authors ?? [])
+        {
+            book._authors.Add(Author.Create(authorName));
+        }
+        
+        foreach (var subject in subjects ?? [])
+        {
+            book._subjects.Add(Subject.Create(subject));
+        }
+        
+        if (deweyDecimals != null)
+        {
+            foreach (var dewey in deweyDecimals.NormalizeDeweyDecimals()!)
+            {
+                book._deweyDecimals.Add(dewey);
+            }
+        }
+        
         return book;
     }
     
-    public Book UpdateDataSource(DataSource newDataSource)
+    public void UpdateDataSource(DataSource newDataSource)
     {
+        if (DataSource == newDataSource) return;
+        
         DataSource = newDataSource;
-        return this;
+    }
+    
+    public void MarkAsRead()
+    {
+        if (IsRead) return;
+        IsRead = true;
+    }
+
+    public void MarkAsUnread()
+    {
+        if (!IsRead) return;
+        IsRead = false;
+    }
+    
+    public static Book Reconstitute(
+        int? id,
+        string? isbn13,
+        string? isbn10,
+        string title,
+        int? pages,
+        bool isRead,
+        string? publishDate,
+        string? language,
+        string? synopsis,
+        string? imageThumbnail,
+        string? imageUrl,
+        decimal? msrp,
+        string? binding,
+        string? edition,
+        int? seriesNumber,
+        DataSource dataSource,
+        Publisher? publisher = null,
+        Series? series = null,
+        BookDimensions? dimensions = null,
+        IEnumerable<Author>? authors = null,
+        IEnumerable<Subject>? subjects = null,
+        IEnumerable<DeweyDecimal>? deweyDecimals = null
+    )
+    {
+        var book = new Book
+        {
+            Id = id,
+            Isbn13 = isbn13,
+            Isbn10 = isbn10,
+            Title = title,
+            Pages = pages,
+            IsRead = isRead,
+            PublishDate = publishDate,
+            Publisher = publisher,
+            Language = language,
+            Synopsis = synopsis,
+            ImageThumbnail = imageThumbnail,
+            ImageUrl = imageUrl,
+            Msrp = msrp,
+            Binding = binding,
+            Edition = edition,
+            SeriesNumber = seriesNumber,
+            Series = series,
+            Dimensions = dimensions,
+            DataSource = dataSource
+        };
+
+        if (authors != null)
+        {
+            foreach (var author in authors)
+            {
+                book._authors.Add(author);
+            }
+        }
+
+        if (subjects != null)
+        {
+            foreach (var subject in subjects)
+            {
+                book._subjects.Add(subject);
+            }
+        }
+
+        if (deweyDecimals != null)
+        {
+            foreach (var dewey in deweyDecimals)
+            {
+                book._deweyDecimals.Add(dewey);
+            }
+        }
+
+        return book;
     }
 }
 

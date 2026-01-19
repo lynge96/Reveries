@@ -55,13 +55,19 @@ public class BookCacheService : IBookCacheService
         var tasks = distinctIsbns.Select(isbn => GetBookByIsbnAsync(isbn, ct));
         var books = await Task.WhenAll(tasks);
         
-        var updatedBooks = books
+        var foundBooks = books
             .Where(b => b is not null)
-            .Select(b => b!.UpdateDataSource(DataSource.Cache))
+            .Select(b =>
+            {
+                b!.UpdateDataSource(DataSource.Cache);
+                return b;
+            })
             .ToImmutableList();
 
-        _logger.LogDebug("Cache ISBN lookup completed. Requested {IsbnCount} Isbns, found {BooksCount} books in cache.", distinctIsbns.Count, updatedBooks.Count);
-        return updatedBooks;
+        _logger.LogDebug("Cache ISBN lookup completed. Requested {IsbnCount} Isbns, found {BooksCount} books in cache.", 
+            distinctIsbns.Count, foundBooks.Count);
+    
+        return foundBooks;
     }
 
     public async Task SetBooksByIsbnsAsync(IEnumerable<Book> books, CancellationToken ct)

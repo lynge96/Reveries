@@ -14,32 +14,30 @@ public static class BookMerger
         if (googleBook == null)
             return isbndbBook;
         
-        return new Book
-        {
-            DataSource = DataSource.CombinedBookApi,
-
-            Isbn13 = MergeIsbn13(isbndbBook, googleBook),
-            Isbn10 = MergeIsbn10(isbndbBook, googleBook),
-            Title = MergeTitle(isbndbBook, googleBook) ?? string.Empty,
-            Pages = MergePages(isbndbBook, googleBook),
-            Language = MergeLanguage(isbndbBook, googleBook),
-            PublishDate = MergePublishDate(isbndbBook, googleBook),
-            Synopsis = MergeSynopsis(isbndbBook, googleBook),
-            ImageThumbnail = MergeImageThumbnail(isbndbBook, googleBook),
-            ImageUrl = MergeImageUrl(isbndbBook),
-            Msrp = MergeMsrp(isbndbBook),
-            Binding = MergeBinding(isbndbBook, googleBook),
-            Edition = MergeEdition(isbndbBook, googleBook),
-            SeriesNumber = MergeSeriesNumber(isbndbBook),
-            Dimensions = MergeDimensions(isbndbBook, googleBook),
-
-            // Navigation properties
-            Authors = MergeAuthors(isbndbBook, googleBook),
-            Publisher = MergePublisher(isbndbBook, googleBook),
-            DeweyDecimals = MergeDeweyDecimals(isbndbBook),
-            Subjects = MergeSubjects(isbndbBook, googleBook),
-            Series = MergeSeries(isbndbBook)
-        };
+        return Book.Reconstitute(
+            id: null,
+            isbn13: MergeIsbn13(isbndbBook, googleBook),
+            isbn10: MergeIsbn10(isbndbBook, googleBook),
+            title: MergeTitle(isbndbBook, googleBook) ?? string.Empty,
+            pages: MergePages(isbndbBook, googleBook),
+            isRead: false,
+            publishDate: MergePublishDate(isbndbBook, googleBook),
+            language: MergeLanguage(isbndbBook, googleBook),
+            synopsis: MergeSynopsis(isbndbBook, googleBook),
+            imageThumbnail: MergeImageThumbnail(isbndbBook, googleBook),
+            imageUrl: MergeImageUrl(isbndbBook),
+            msrp: MergeMsrp(isbndbBook),
+            binding: MergeBinding(isbndbBook, googleBook),
+            edition: MergeEdition(isbndbBook, googleBook),
+            seriesNumber: MergeSeriesNumber(isbndbBook),
+            dataSource: DataSource.CombinedBookApi,
+            publisher: MergePublisher(isbndbBook, googleBook),
+            series: MergeSeries(isbndbBook),
+            dimensions: MergeDimensions(isbndbBook, googleBook),
+            authors: MergeAuthors(isbndbBook, googleBook),
+            subjects: MergeSubjects(isbndbBook, googleBook),
+            deweyDecimals: MergeDeweyDecimals(isbndbBook)
+        );
     }
     
     private static string? Prefer(params string?[] values)
@@ -100,17 +98,17 @@ public static class BookMerger
         };
     }
 
-    private static ICollection<Author> MergeAuthors(Book isbndb, Book google)
+    private static IReadOnlyList<Author> MergeAuthors(Book isbndb, Book google)
         => google.Authors.Count != 0 ? google.Authors : isbndb.Authors;
     
     private static Publisher? MergePublisher(Book isbndb, Book google)
         => isbndb.Publisher ?? google.Publisher;
 
-    private static ICollection<DeweyDecimal>? MergeDeweyDecimals(Book isbndb)
+    private static IReadOnlyList<DeweyDecimal> MergeDeweyDecimals(Book isbndb)
         => isbndb.DeweyDecimals;
 
-    private static ICollection<Subject>? MergeSubjects(Book isbndb, Book google)
-        => google.Subjects != null && google.Subjects.Count != 0
+    private static IReadOnlyList<Subject> MergeSubjects(Book isbndb, Book google)
+        => google.Subjects.Count != 0
             ? google.Subjects
             : isbndb.Subjects;
 

@@ -71,6 +71,7 @@ public class DatabaseTableHandler : BaseHandler
 
             var numberInSeries = ConsolePromptUtility.GetUserInput(
                 $"What number is {book.Title.AsSecondary()} in the series?");
+            
             if (int.TryParse(numberInSeries, out var num))
                 book.SeriesNumber = num;
         }
@@ -93,7 +94,12 @@ public class DatabaseTableHandler : BaseHandler
         
         foreach (var book in selectedBooks)
         {
-            book.IsRead = !book.IsRead;
+            if (book.IsRead)
+            {
+                book.MarkAsUnread();
+            }
+            
+            book.MarkAsRead();
         }
         
         await _bookManagementService.UpdateBooksAsync(selectedBooks, cancellationToken);

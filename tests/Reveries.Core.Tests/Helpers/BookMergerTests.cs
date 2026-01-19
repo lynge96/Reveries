@@ -8,16 +8,29 @@ public class BookMergerTests
 {
     private static Book IsbndbBook(Action<Book>? configure = null)
     {
-        var book = new Book
-        {
-            DataSource = DataSource.IsbndbApi,
-            Isbn13 = "9781234567890",
-            Title = "ISBNDB Title",
-            Pages = 350,
-            Language = "en",
-            Authors = new List<Author>(),
-            Subjects = new List<Subject>()
-        };
+        var book = Book.Create(
+            isbn13: "9781234567890",
+            isbn10: null,
+            title: "ISBNDB Title",
+            authors: null,
+            pages: 350,
+            publishDate: null,
+            publisher: null,
+            languageIso639: "en",
+            synopsis: null,
+            imageThumbnail: null,
+            imageUrl: null,
+            msrp: null,
+            binding: null,
+            edition: null,
+            weight: null,
+            thickness: null,
+            height: 25,
+            width: null,
+            subjects: null,
+            deweyDecimals: null,
+            dataSource: DataSource.IsbndbApi
+        );
 
         configure?.Invoke(book);
         return book;
@@ -25,16 +38,29 @@ public class BookMergerTests
 
     private static Book GoogleBook(Action<Book>? configure = null)
     {
-        var book = new Book
-        {
-            DataSource = DataSource.GoogleBooksApi,
-            Isbn13 = "9780987654321",
-            Title = "Google Title",
-            Pages = 400,
-            Language = "en",
-            Authors = new List<Author> { Author.Create("Joe Abercrombie") },
-            Subjects = new List<Subject>()
-        };
+        var book = Book.Create(
+            isbn13: "9780987654321",
+            isbn10: null,
+            title: "Google Title",
+            authors: ["Joe Abercrombie"],
+            pages: 400,
+            publishDate: null,
+            publisher: null,
+            languageIso639: "en",
+            synopsis: null,
+            imageThumbnail: null,
+            imageUrl: null,
+            msrp: null,
+            binding: null,
+            edition: null,
+            weight: null,
+            thickness: null,
+            height: null,
+            width: 16,
+            subjects: null,
+            deweyDecimals: null,
+            dataSource: DataSource.GoogleBooksApi
+        );
 
         configure?.Invoke(book);
         return book;
@@ -93,9 +119,8 @@ public class BookMergerTests
     [Fact]
     public void MergeBooks_MergesDimensions_FieldByField()
     {
-        var isbndb = IsbndbBook(b => b.Dimensions = new BookDimensions { HeightCm = 25 });
-
-        var google = GoogleBook(b => b.Dimensions = new BookDimensions { WidthCm = 16 });
+        var isbndb = IsbndbBook();
+        var google = GoogleBook();
 
         var result = BookMerger.MergeBooks(isbndb, google);
 

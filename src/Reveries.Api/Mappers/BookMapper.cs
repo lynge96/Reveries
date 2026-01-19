@@ -46,36 +46,35 @@ public static class BookMapper
     {
         var dataSourceParsed = Enum.TryParse<DataSource>(bookDto.DataSource, true, out var ds);
 
-        return new Book
-        {
-            Isbn13 = bookDto.Isbn13,
-            Isbn10 = bookDto.Isbn10,
-            Title = bookDto.Title!,
-            Authors = bookDto.Authors?.Select(Author.Create).ToList() ?? [],
-            Publisher = bookDto.Publisher != null ? Publisher.Create(bookDto.Publisher) : null,
-            Language = bookDto.Language,
-            PublishDate = bookDto.PublicationDate,
-            Pages = bookDto.Pages,
-            Synopsis = bookDto.Synopsis,
-            ImageThumbnail = bookDto.ImageThumbnail,
-            ImageUrl = bookDto.ImageUrl,
-            Msrp = bookDto.Msrp,
-            Binding = bookDto.Binding,
-            Edition = bookDto.Edition,
-            Subjects = bookDto.Subjects?.Select(Subject.Create).ToList(),
-            Series = bookDto.Series != null ? Series.Create(bookDto.Series) : null,
-            SeriesNumber = bookDto.NumberInSeries,
-            // IsRead = bookDto.IsRead,
-            Dimensions = new BookDimensions
+        return Book.Reconstitute(
+            id: null,
+            isbn10: bookDto.Isbn10,
+            isbn13: bookDto.Isbn13,
+            title: bookDto.Title,
+            pages: bookDto.Pages,
+            isRead: bookDto.IsRead,
+            publishDate: bookDto.PublicationDate,
+            language: bookDto.Language,
+            synopsis: bookDto.Synopsis,
+            imageThumbnail: bookDto.ImageThumbnail,
+            imageUrl: bookDto.ImageUrl,
+            msrp: bookDto.Msrp,
+            binding: bookDto.Binding,
+            edition: bookDto.Edition,
+            seriesNumber: bookDto.NumberInSeries,
+            dataSource: dataSourceParsed ? ds : DataSource.Unknown,
+            publisher: bookDto.Publisher != null ? Publisher.Create(bookDto.Publisher) : null,
+            series: bookDto.Series != null ? Series.Create(bookDto.Series) : null,
+            dimensions: new BookDimensions
             {
                 HeightCm = bookDto.Dimensions?.HeightCm,
                 ThicknessCm = bookDto.Dimensions?.ThicknessCm,
                 WidthCm = bookDto.Dimensions?.WidthCm,
                 WeightG = bookDto.Dimensions?.WeightG
             },
-            DeweyDecimals = bookDto.DeweyDecimal?.Select(c => new DeweyDecimal { Code = c }).ToList(),
-            DataSource = dataSourceParsed ? ds : DataSource.Unknown,
-        };
-
+            authors: bookDto.Authors?.Select(Author.Create).ToList(),
+            subjects: bookDto.Subjects?.Select(Subject.Create).ToList(),
+            deweyDecimals: bookDto.DeweyDecimal?.Select(c => new DeweyDecimal { Code = c }).ToList()
+        );
     }
 }

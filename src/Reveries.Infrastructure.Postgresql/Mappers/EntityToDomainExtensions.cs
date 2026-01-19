@@ -8,26 +8,24 @@ public static class EntityToDomainExtensions
 {
     public static Book ToDomain(this BookEntity entity)
     {
-        return new Book
-        {
-            Id = entity.Id,
-            Title = entity.Title,
-            Isbn13 = entity.Isbn13,
-            Isbn10 = entity.Isbn10,
-            Pages = entity.Pages,
-            IsRead = entity.IsRead,
-            PublishDate = entity.PublishDate,
-            Synopsis = entity.Synopsis,
-            Language = entity.Language,
-            Edition = entity.Edition,
-            Binding = entity.Binding,
-            ImageUrl = entity.ImageUrl,
-            ImageThumbnail = entity.ImageThumbnail,
-            Msrp = entity.Msrp,
-            SeriesNumber = entity.SeriesNumber,
-            DateCreated = entity.DateCreated,
-            DataSource = DataSource.Database
-        };
+        return Book.Reconstitute(
+            id: entity.Id,
+            isbn13: entity.Isbn13,
+            isbn10: entity.Isbn10,
+            title: entity.Title,
+            pages: entity.Pages,
+            isRead: entity.IsRead,
+            publishDate: entity.PublishDate,
+            language: entity.Language,
+            synopsis: entity.Synopsis,
+            imageThumbnail: entity.ImageThumbnail,
+            imageUrl: entity.ImageUrl,
+            msrp: entity.Msrp,
+            binding: entity.Binding,
+            edition: entity.Edition,
+            seriesNumber: entity.SeriesNumber,
+            dataSource: DataSource.Database
+            );
     }
     
     public static Publisher ToDomain(this PublisherEntity entity)

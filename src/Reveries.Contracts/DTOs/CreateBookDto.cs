@@ -4,7 +4,7 @@ public record CreateBookDto
 {
     public string? Isbn10 { get; set; }
     public string? Isbn13 { get; set; }
-    public required string? Title { get; set; }
+    public required string Title { get; set; }
     public string? Series { get; set; }
     public int? NumberInSeries { get; set; }
     public List<string>? Authors { get; set; }
@@ -18,7 +18,7 @@ public record CreateBookDto
     public string? ImageThumbnail { get; set; }
     public string? ImageUrl { get; set; }
     public decimal? Msrp { get; set; }
-    // public bool IsRead { get; set; }
+    public bool IsRead { get; set; }
     public DimensionsDto? Dimensions { get; set; }
     public List<string>? DeweyDecimal { get; set; }
     public List<string>? Subjects { get; set; }
