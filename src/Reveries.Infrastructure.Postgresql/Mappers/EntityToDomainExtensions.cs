@@ -24,7 +24,8 @@ public static class EntityToDomainExtensions
             binding: entity.Binding,
             edition: entity.Edition,
             seriesNumber: entity.SeriesNumber,
-            dataSource: DataSource.Database
+            dataSource: DataSource.Database,
+            dateCreated: entity.DateCreated
             );
     }
     
@@ -61,14 +62,13 @@ public static class EntityToDomainExtensions
 
     public static Author ToDomain(this AuthorEntity entity)
     {
-        return new Author
-        {
-            Id = entity.AuthorId,
-            FirstName = entity.FirstName,
-            LastName = entity.LastName,
-            NormalizedName = entity.NormalizedName!,
-            DateCreated = entity.DateCreatedAuthor
-        };
+        return Author.Reconstitute(
+            id: entity.AuthorId,
+            normalizedName: entity.NormalizedName!,
+            firstName: entity.FirstName,
+            lastName: entity.LastName,
+            dateCreated: entity.DateCreatedAuthor
+            );
     }
 
     public static Subject ToDomain(this SubjectEntity entity)

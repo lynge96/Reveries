@@ -33,7 +33,7 @@ public class Book : BaseEntity
     public int? SeriesNumber { get; set; }
     public Series? Series { get; set; }
     public BookDimensions? Dimensions { get; init; }
-    public required DataSource DataSource { get; set; }
+    public DataSource DataSource { get; private set; }
 
     public override string ToString()
     {
@@ -50,7 +50,22 @@ public class Book : BaseEntity
     {
         return string.Join(", ", Authors.Select(a => a.ToString()));
     }
-
+    
+    /// <summary>
+    /// Factory method for creating a new <see cref="Book"/> from external or user-provided data.
+    ///
+    /// This method represents the "entry point" into the domain. It performs validation,
+    /// normalization, and transformation of raw input into a consistent domain model.
+    /// Examples include normalizing ISBNs, resolving language codes, standardizing bindings,
+    /// and creating related value objects such as authors, subjects, and dimensions.
+    ///
+    /// Use this method when:
+    /// - Importing books from external APIs
+    /// - Creating new books from user input
+    /// - You want domain invariants to be enforced
+    ///
+    /// This method will throw if required invariants are violated (e.g. missing title).
+    /// </summary>
     public static Book Create(
         string? isbn13,
         string? isbn10,
@@ -104,7 +119,11 @@ public class Book : BaseEntity
 
         foreach (var authorName in authors ?? [])
         {
-            book._authors.Add(Author.Create(authorName));
+            book._authors.Add(
+                string.IsNullOrWhiteSpace(authorName)
+                    ? Author.Unknown()
+                    : Author.Create(authorName)
+            );
         }
         
         foreach (var subject in subjects ?? [])
@@ -142,6 +161,21 @@ public class Book : BaseEntity
         IsRead = false;
     }
     
+    /// <summary>
+    /// Recreates a <see cref="Book"/> from already persisted data.
+    ///
+    /// This method is used when loading a book from storage (database, merges, cache, etc.).
+    /// It assumes that all domain invariants were previously validated and therefore
+    /// does NOT perform normalization, validation, or transformation of values.
+    ///
+    /// Use this method when:
+    /// - Hydrating entities from a database
+    /// - Rebuilding an aggregate from persistence
+    /// - You need full control over the internal state
+    ///
+    /// This method should not throw due to domain validation failures,
+    /// as it trusts the persisted data.
+    /// </summary>
     public static Book Reconstitute(
         int? id,
         string? isbn13,
@@ -159,6 +193,7 @@ public class Book : BaseEntity
         string? edition,
         int? seriesNumber,
         DataSource dataSource,
+        DateTimeOffset? dateCreated = null,
         Publisher? publisher = null,
         Series? series = null,
         BookDimensions? dimensions = null,
@@ -187,7 +222,8 @@ public class Book : BaseEntity
             SeriesNumber = seriesNumber,
             Series = series,
             Dimensions = dimensions,
-            DataSource = dataSource
+            DataSource = dataSource,
+            DateCreated = dateCreated
         };
 
         if (authors != null)

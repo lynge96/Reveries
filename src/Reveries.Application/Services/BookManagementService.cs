@@ -126,24 +126,13 @@ public class BookManagementService : IBookManagementService
     {
         var authorList = await _authorService.GetAuthorsByNameAsync(author.NormalizedName);
     
-        author.NameVariants = new List<AuthorNameVariant>
-        {
-            new()
-            {
-                NameVariant = author.NormalizedName,
-                IsPrimary = true
-            }
-        };
+        author.AddNameVariant(author.NormalizedName, true);
     
         foreach(var authorVariant in authorList.Where(v => v != author))
         {
             if(!author.NameVariants.Any(v => v.NameVariant.Equals(authorVariant.NormalizedName, StringComparison.OrdinalIgnoreCase)))
             {
-                author.NameVariants.Add(new AuthorNameVariant 
-                { 
-                    NameVariant = authorVariant.NormalizedName,
-                    IsPrimary = false
-                });
+                author.AddNameVariant(authorVariant.NormalizedName, false);
             }
         }
     }
@@ -168,19 +157,16 @@ public class BookManagementService : IBookManagementService
     
     private async Task HandleSubjectsAsync(Book book)
     {
-        if (book.Subjects != null)
+        foreach (var subject in book.Subjects)
         {
-            foreach (var subject in book.Subjects)
+            var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Genre);
+            if (existingSubject == null)
             {
-                var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Genre);
-                if (existingSubject == null)
-                {
-                    await _unitOfWork.Subjects.CreateSubjectAsync(subject);
-                }
-                else
-                {
-                    subject.Id = existingSubject.Id;
-                }
+                await _unitOfWork.Subjects.CreateSubjectAsync(subject);
+            }
+            else
+            {
+                subject.Id = existingSubject.Id;
             }
         }
     }

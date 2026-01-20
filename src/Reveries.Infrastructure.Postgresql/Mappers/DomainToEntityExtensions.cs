@@ -65,7 +65,7 @@ public static class DomainToEntityExtensions
     {
         return new AuthorEntity
         {
-            AuthorId = entity.Id,
+            AuthorId = entity.Id ?? -1,
             FirstName = entity.FirstName,
             LastName = entity.LastName,
             NormalizedName = entity.NormalizedName,
