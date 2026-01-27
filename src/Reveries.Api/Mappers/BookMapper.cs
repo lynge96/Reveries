@@ -72,7 +72,7 @@ public static class BookMapper
                 bookDto.Dimensions?.WeightG),
             authors: bookDto.Authors?.Select(Author.Create).ToList(),
             subjects: bookDto.Subjects?.Select(Subject.Create).ToList(),
-            deweyDecimals: bookDto.DeweyDecimal?.Select(c => new DeweyDecimal { Code = c }).ToList()
+            deweyDecimals: bookDto.DeweyDecimal?.Select(DeweyDecimal.Create).ToList()
         );
     }
 }

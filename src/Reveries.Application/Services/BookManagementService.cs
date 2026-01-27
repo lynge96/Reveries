@@ -141,16 +141,17 @@ public class BookManagementService : IBookManagementService
     {
         if (book.Publisher?.Name != null)
         {
-            var publisherList = await _unitOfWork.Publishers.GetPublishersByNameAsync(book.Publisher.Name);
-            var existingPublisher = publisherList.FirstOrDefault();
+            var existingPublisher = (await _unitOfWork.Publishers.GetPublishersByNameAsync(book.Publisher.Name))
+                .FirstOrDefault();
             
-            if (existingPublisher == null)
+            if (existingPublisher != null)
             {
-                await _unitOfWork.Publishers.CreatePublisherAsync(book.Publisher);
+                book.SetPublisher(existingPublisher);
             }
             else
             {
-                book.Publisher.Id = existingPublisher.Id;
+                var createdPublisher = await _unitOfWork.Publishers.CreatePublisherAsync(book.Publisher);
+                book.SetPublisher(createdPublisher);
             }
         }
     }

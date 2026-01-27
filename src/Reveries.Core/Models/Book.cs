@@ -19,7 +19,7 @@ public class Book : BaseEntity
     public IReadOnlyList<Author> Authors => _authors;
     public int? Pages { get; init; }
     public bool IsRead { get; private set; }
-    public Publisher? Publisher { get; init; }
+    public Publisher? Publisher { get; private set; }
     public string? Language { get; init; }
     public string? PublishDate { get; init; }
     public string? Synopsis { get; init; }
@@ -120,9 +120,9 @@ public class Book : BaseEntity
         foreach (var authorName in authors ?? [])
         {
             book._authors.Add(
-                string.IsNullOrWhiteSpace(authorName)
-                    ? Author.Unknown()
-                    : Author.Create(authorName)
+                !string.IsNullOrWhiteSpace(authorName)
+                    ? Author.Create(authorName)
+                    : Author.Unknown()
             );
         }
         
@@ -133,8 +133,9 @@ public class Book : BaseEntity
         
         if (deweyDecimals != null)
         {
-            foreach (var dewey in deweyDecimals.NormalizeDeweyDecimals()!)
+            foreach (var code in deweyDecimals.Distinct())
             {
+                var dewey = DeweyDecimal.Create(code);
                 book._deweyDecimals.Add(dewey);
             }
         }
@@ -251,6 +252,11 @@ public class Book : BaseEntity
         }
 
         return book;
+    }
+    
+    public void SetPublisher(Publisher publisher)
+    {
+        Publisher = publisher;
     }
 }
 

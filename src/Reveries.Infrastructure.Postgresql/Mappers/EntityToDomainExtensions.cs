@@ -31,12 +31,7 @@ public static class EntityToDomainExtensions
     
     public static Publisher ToDomain(this PublisherEntity entity)
     {
-        return new Publisher
-        {
-            Id = entity.PublisherId,
-            Name = entity.Name,
-            DateCreated = entity.DateCreatedPublisher
-        };
+        return Publisher.Reconstitute(entity.PublisherId, entity.Name, entity.DateCreatedPublisher);
     }
 
     public static Series ToDomain(this SeriesEntity entity)
@@ -82,9 +77,6 @@ public static class EntityToDomainExtensions
 
     public static DeweyDecimal ToDomain(this DeweyDecimalEntity entity)
     {
-        return new DeweyDecimal
-        {
-            Code = entity.Code
-        };
+        return DeweyDecimal.Create(entity.Code!);
     }
 }

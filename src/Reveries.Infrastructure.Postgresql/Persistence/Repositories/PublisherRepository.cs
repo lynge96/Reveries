@@ -16,7 +16,7 @@ public class PublisherRepository : IPublisherRepository
         _dbContext = dbContext;
     }
     
-    public async Task<int> CreatePublisherAsync(Publisher publisher)
+    public async Task<Publisher> CreatePublisherAsync(Publisher publisher)
     {
         const string sql = """
                            INSERT INTO publishers (name)
@@ -25,13 +25,10 @@ public class PublisherRepository : IPublisherRepository
                            """;
         
         var connection = await _dbContext.GetConnectionAsync();
-        
         var publisherDto = publisher.ToEntity();
-        
         var publisherId = await connection.QuerySingleAsync<int>(sql, publisherDto);
 
-        publisher.Id = publisherId;
-        return publisherId;
+        return publisher.WithId(publisherId);
     }
     
     public async Task<List<Publisher>> GetPublishersByNameAsync(string name)
