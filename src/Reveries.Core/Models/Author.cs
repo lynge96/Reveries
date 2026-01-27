@@ -58,17 +58,43 @@ public class Author : BaseEntity
         };
     }
     
-    public void AddNameVariant(string variant, bool isPrimary)
+    public void AddNameVariant(string variant, bool makePrimary)
     {
         if (string.IsNullOrWhiteSpace(variant))
             return;
 
-        // TODO: Normalisere variant (fjern symboler som punktum og komma) og implementere at der kun kan være én primary
-        var normalized = variant.Trim();
+        var normalized = NormalizeVariant(variant);
 
-        if (_nameVariants.Any(v => v.NameVariant.Equals(normalized, StringComparison.OrdinalIgnoreCase)))
+        if (_nameVariants.Any(v =>
+                NormalizeVariant(v.NameVariant) == normalized))
             return;
 
-        _nameVariants.Add(AuthorNameVariant.Create(normalized, isPrimary));
+        var nameVariant = AuthorNameVariant.Create(variant.Trim());
+
+        _nameVariants.Add(nameVariant);
+
+        if (makePrimary)
+            SetPrimaryVariant(nameVariant);
+    }
+
+    private void SetPrimaryVariant(AuthorNameVariant variant)
+    {
+        if (!_nameVariants.Contains(variant))
+            throw new InvalidOperationException("Variant does not belong to this author.");
+        
+        foreach (var v in _nameVariants)
+            v.UnmarkPrimary();
+
+        variant.MarkAsPrimary();
+    }
+    
+    private static string NormalizeVariant(string variant)
+    {
+        return new string(
+            variant
+                .Trim()
+                .Where(char.IsLetterOrDigit)
+                .ToArray()
+        ).ToLowerInvariant();
     }
 }
