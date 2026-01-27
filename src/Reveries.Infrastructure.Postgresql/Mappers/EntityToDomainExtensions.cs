@@ -49,15 +49,14 @@ public static class EntityToDomainExtensions
         };
     }
 
-    public static BookDimensions ToDomain(this DimensionsEntity entity)
+    public static BookDimensions? ToDomain(this DimensionsEntity entity)
     {
-        return new BookDimensions
-        {
-            HeightCm = entity.HeightCm,
-            WidthCm = entity.WidthCm,
-            ThicknessCm = entity.ThicknessCm,
-            WeightG = entity.WeightG,
-        };
+        return BookDimensions.Create(
+            entity.HeightCm,
+            entity.WidthCm,
+            entity.ThicknessCm,
+            entity.WeightG
+            );
     }
 
     public static Author ToDomain(this AuthorEntity entity)

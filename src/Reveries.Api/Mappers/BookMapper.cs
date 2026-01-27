@@ -65,13 +65,11 @@ public static class BookMapper
             dataSource: dataSourceParsed ? ds : DataSource.Unknown,
             publisher: bookDto.Publisher != null ? Publisher.Create(bookDto.Publisher) : null,
             series: bookDto.Series != null ? Series.Create(bookDto.Series) : null,
-            dimensions: new BookDimensions
-            {
-                HeightCm = bookDto.Dimensions?.HeightCm,
-                ThicknessCm = bookDto.Dimensions?.ThicknessCm,
-                WidthCm = bookDto.Dimensions?.WidthCm,
-                WeightG = bookDto.Dimensions?.WeightG
-            },
+            dimensions: BookDimensions.Create(
+                bookDto.Dimensions?.HeightCm,
+                bookDto.Dimensions?.ThicknessCm,
+                bookDto.Dimensions?.WidthCm,
+                bookDto.Dimensions?.WeightG),
             authors: bookDto.Authors?.Select(Author.Create).ToList(),
             subjects: bookDto.Subjects?.Select(Subject.Create).ToList(),
             deweyDecimals: bookDto.DeweyDecimal?.Select(c => new DeweyDecimal { Code = c }).ToList()

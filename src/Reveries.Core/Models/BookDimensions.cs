@@ -2,22 +2,31 @@ namespace Reveries.Core.Models;
 
 public class BookDimensions
 {
-    public decimal? HeightCm { get; init; }
+    public decimal? HeightCm { get; private init; }
+    public decimal? WidthCm { get; private init; }
+    public decimal? ThicknessCm { get; private init; }
+    public decimal? WeightG { get; private init; }
     
-    public decimal? WidthCm { get; init; }
-    
-    public decimal? ThicknessCm { get; init; }
-    
-    public decimal? WeightG { get; init; }
+    private BookDimensions() { }
 
-    public static BookDimensions Create(decimal? heightCm, decimal? widthCm, decimal? thicknessCm, decimal? weightG)
+    public static BookDimensions? Create(decimal? heightCm, decimal? widthCm, decimal? thicknessCm, decimal? weightG)
     {
+        if (heightCm <= 0) heightCm = null;
+        if (widthCm <= 0) widthCm = null;
+        if (thicknessCm <= 0) thicknessCm = null;
+        if (weightG <= 0) weightG = null;
+        
+        if (heightCm is null && widthCm is null && thicknessCm is null && weightG is null)
+        {
+            return null;
+        }
+
         return new BookDimensions
         {
-            HeightCm = heightCm ?? null,
-            WidthCm = widthCm ?? null,
-            ThicknessCm = thicknessCm ?? null,
-            WeightG = weightG ?? null
+            HeightCm = heightCm,
+            WidthCm = widthCm,
+            ThicknessCm = thicknessCm,
+            WeightG = weightG
         };
     }
 }

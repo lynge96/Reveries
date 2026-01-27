@@ -133,7 +133,7 @@ public class GoogleBooksService : IGoogleBooksService
             : volume.Pages > 0 ? volume.Pages : null;
     
         var dimensions = volume.Dimensions ?? book.Dimensions;
-    
+
         return Book.Reconstitute(
             id: null,
             isbn13: book.Isbn13 ?? volume.Isbn13,
@@ -153,13 +153,12 @@ public class GoogleBooksService : IGoogleBooksService
             dataSource: DataSource.GoogleBooksApi,
             publisher: book.Publisher ?? volume.Publisher,
             series: book.Series,
-            dimensions: new BookDimensions
-            {
-                HeightCm = dimensions?.HeightCm,
-                ThicknessCm = dimensions?.ThicknessCm,
-                WidthCm = dimensions?.WidthCm,
-                WeightG = dimensions?.WeightG
-            },
+            dimensions: BookDimensions.Create(
+                dimensions?.HeightCm,
+                dimensions?.WidthCm,
+                dimensions?.ThicknessCm,
+                dimensions?.WeightG
+            ),
             authors: mergedAuthors,
             subjects: mergedSubjects,
             deweyDecimals: mergedDeweyDecimals!
