@@ -4,20 +4,34 @@ namespace Reveries.Core.Models;
 
 public class Series : BaseEntity
 {
-    public int Id { get; set; }
+    public int? Id { get; private init; }
 
-    public string Name { get; init; } = null!;
-
-    public override string ToString()
-    {
-        return Name;
-    }
+    public string? Name { get; private init; }
     
-    public static Series Create(string name)
+    private Series() { }
+
+    public override string? ToString() => Name;
+    
+    public static Series Create(string? name)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            return new Series{ Name =  null };
+        
         return new Series
         {
             Name = name.ToTitleCase()
         };
     }
+
+    public static Series Reconstitute(int id, string? name, DateTimeOffset? dateCreated = null)
+    {
+        return new Series
+        {
+            Id = id,
+            Name = name,
+            DateCreated = dateCreated
+        };
+    }
+    
+    public Series WithId(int id) => new() { Id = id, Name =  Name, DateCreated =  DateCreated };
 }

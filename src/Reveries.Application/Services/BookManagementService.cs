@@ -111,13 +111,14 @@ public class BookManagementService : IBookManagementService
         
             if (existingAuthor != null)
             {
-                author.Id = existingAuthor.Id;
+                book.AddAuthor(existingAuthor);
             }
             else
             {
                 await EnrichAuthorWithNameVariantsAsync(author);
                 
-                author.Id = await _unitOfWork.Authors.CreateAuthorAsync(author);
+                var createdAuthor = await _unitOfWork.Authors.CreateAuthorAsync(author);
+                book.AddAuthor(createdAuthor);
             }
         }
     }
@@ -161,13 +162,15 @@ public class BookManagementService : IBookManagementService
         foreach (var subject in book.Subjects)
         {
             var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Genre);
-            if (existingSubject == null)
+            
+            if (existingSubject != null)
             {
-                await _unitOfWork.Subjects.CreateSubjectAsync(subject);
+                book.AddSubject(existingSubject);
             }
             else
             {
-                subject.Id = existingSubject.Id;
+                var createdSubject = await _unitOfWork.Subjects.CreateSubjectAsync(subject);
+                book.AddSubject(createdSubject);
             }
         }
     }
@@ -177,13 +180,15 @@ public class BookManagementService : IBookManagementService
         if (book.Series != null)
         {
             var existingSeries = await _unitOfWork.Series.GetSeriesByNameAsync(book.Series.Name);
-            if (existingSeries == null)
+            
+            if (existingSeries != null)
             {
-                await _unitOfWork.Series.CreateSeriesAsync(book.Series);
+                book.SetSeries(existingSeries);
             }
             else
             {
-                book.Series.Id = existingSeries.Id;
+                var createdSeries = await _unitOfWork.Series.CreateSeriesAsync(book.Series);
+                book.SetSeries(createdSeries);
             }
         }
     }

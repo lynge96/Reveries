@@ -19,12 +19,6 @@ public class AuthorTests
     }
     
     [Fact]
-    public void Create_WithEmptyName_ThrowsArgumentException()
-    {
-        Assert.Throws<ArgumentException>(() => Author.Create(""));
-    }
-    
-    [Fact]
     public void AddNameVariant_WithNewVariant_AddsVariant()
     {
         var author = Author.Create("Jane Austen");

@@ -16,7 +16,7 @@ public class AuthorRepository : IAuthorRepository
         _dbContext = dbContext;
     }
     
-    public async Task<int> CreateAuthorAsync(Author author)
+    public async Task<Author> CreateAuthorAsync(Author author)
     {
         const string authorSql = """
                                  INSERT INTO authors (normalized_name, first_name, last_name)
@@ -35,8 +35,8 @@ public class AuthorRepository : IAuthorRepository
         
         // Insert the author first
         var authorId = await connection.QuerySingleAsync<int>(authorSql, authorDto);
-        
-        author.Id = authorId;
+
+        author.WithId(authorId);
 
         // If there are name variants, insert them
         if (author.NameVariants.Count > 0)
@@ -51,7 +51,7 @@ public class AuthorRepository : IAuthorRepository
             await connection.ExecuteAsync(variantSql, variantDtos);
         }
     
-        return authorId;
+        return author;
     }
     
     public async Task<Author?> GetAuthorByNameAsync(string name)

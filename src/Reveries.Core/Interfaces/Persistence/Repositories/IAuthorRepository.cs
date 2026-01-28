@@ -4,7 +4,7 @@ namespace Reveries.Core.Interfaces.Persistence.Repositories;
 
 public interface IAuthorRepository
 {
-    Task<int> CreateAuthorAsync(Author author);
+    Task<Author> CreateAuthorAsync(Author author);
     
     Task<Author?> GetAuthorByNameAsync(string name);
 

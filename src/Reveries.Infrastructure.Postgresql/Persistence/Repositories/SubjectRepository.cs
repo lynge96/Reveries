@@ -35,7 +35,7 @@ public class SubjectRepository : ISubjectRepository
         return subjectDto?.ToDomain();
     }
 
-    public async Task<int> CreateSubjectAsync(Subject subject)
+    public async Task<Subject> CreateSubjectAsync(Subject subject)
     {
         const string sql = """
                            INSERT INTO subjects (genre)
@@ -48,9 +48,8 @@ public class SubjectRepository : ISubjectRepository
         var subjectDto = subject.ToEntity();
 
         var subjectId = await connection.QuerySingleAsync<int>(sql, subjectDto);
-        
-        subject.Id = subjectId;
-        return subjectId;
+
+        return subject.WithId(subjectId);
     }
 
 }

@@ -4,15 +4,12 @@ namespace Reveries.Core.Models;
 
 public class Publisher : BaseEntity
 {
-    public int Id { get; init; }
+    public int? Id { get; private init; }
     public string? Name { get; private init; }
     
     private Publisher() { }
 
-    public override string? ToString()
-    {
-        return Name?.ToTitleCase();
-    }
+    public override string? ToString() => Name?.ToTitleCase();
 
     /// <summary>
     /// Factory method to create a Publisher with a normalized name.
@@ -42,5 +39,5 @@ public class Publisher : BaseEntity
     }
     
     // Factory for creating a new instance with assigned ID
-    public Publisher WithId(int id) => new() { Id = id, Name = Name };
+    public Publisher WithId(int id) => new() { Id = id, Name = Name,  DateCreated = DateCreated };
 }

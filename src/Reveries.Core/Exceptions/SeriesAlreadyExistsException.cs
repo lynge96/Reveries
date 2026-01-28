@@ -4,7 +4,7 @@ namespace Reveries.Core.Exceptions;
 
 public class SeriesAlreadyExistsException : BaseAppException
 {
-    public SeriesAlreadyExistsException(string name) 
+    public SeriesAlreadyExistsException(string? name) 
         : base($"Series '{name}' already exists.", HttpStatusCode.Conflict) 
     { }
 }

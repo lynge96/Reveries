@@ -36,43 +36,22 @@ public static class EntityToDomainExtensions
 
     public static Series ToDomain(this SeriesEntity entity)
     {
-        return new Series
-        {
-            Id = entity.SeriesId,
-            Name = entity.SeriesName,
-            DateCreated = entity.DateCreatedSeries
-        };
+        return Series.Reconstitute(entity.SeriesId, entity.SeriesName, entity.DateCreatedSeries);
     }
 
     public static BookDimensions? ToDomain(this DimensionsEntity entity)
     {
-        return BookDimensions.Create(
-            entity.HeightCm,
-            entity.WidthCm,
-            entity.ThicknessCm,
-            entity.WeightG
-            );
+        return BookDimensions.Create(entity.HeightCm, entity.WidthCm, entity.ThicknessCm, entity.WeightG);
     }
 
     public static Author ToDomain(this AuthorEntity entity)
     {
-        return Author.Reconstitute(
-            id: entity.AuthorId,
-            normalizedName: entity.NormalizedName!,
-            firstName: entity.FirstName,
-            lastName: entity.LastName,
-            dateCreated: entity.DateCreatedAuthor
-            );
+        return Author.Reconstitute(entity.AuthorId, entity.NormalizedName, entity.FirstName, entity.LastName, entity.DateCreatedAuthor);
     }
 
     public static Subject ToDomain(this SubjectEntity entity)
     {
-        return new Subject
-        {
-            Id = entity.SubjectId,
-            Genre = entity.Genre!,
-            DateCreated = entity.DateCreatedSubject
-        };
+        return Subject.Reconstitute(entity.SubjectId, entity.Genre!, entity.DateCreatedSubject);
     }
 
     public static DeweyDecimal ToDomain(this DeweyDecimalEntity entity)

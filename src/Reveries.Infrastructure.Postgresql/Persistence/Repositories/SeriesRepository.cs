@@ -35,7 +35,7 @@ public class SeriesRepository : ISeriesRepository
         return seriesDto?.ToDomain();
     }
 
-    public async Task<int> CreateSeriesAsync(Series series)
+    public async Task<Series> CreateSeriesAsync(Series series)
     {
         const string sql = """
                            INSERT INTO series (name) 
@@ -48,9 +48,8 @@ public class SeriesRepository : ISeriesRepository
         var seriesDto = series.ToEntity();
         
         var seriesId = await connection.QuerySingleAsync<int>(sql, seriesDto);
-        
-        series.Id = seriesId;
-        return seriesId;
+
+        return series.WithId(seriesId);
     }
 
     public async Task<List<Series>> GetSeriesAsync()

@@ -6,28 +6,18 @@ public class Author : BaseEntity
 {
     private readonly List<AuthorNameVariant> _nameVariants = [];
     
-    public int? Id { get; set; }
-    
+    public int? Id { get; private init; }
     public required string NormalizedName { get; init; }
-    
     public string? FirstName { get; init; }
-    
     public string? LastName { get; init; }
-
     public IReadOnlyList<AuthorNameVariant> NameVariants => _nameVariants;
 
     private Author() { }
-    
-    public override string ToString()
-    {
-        return NormalizedName.ToTitleCase();
-    }
+
+    public override string ToString() => NormalizedName.ToTitleCase();
 
     public static Author Create(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Author name cannot be empty.", nameof(name));
-
         var (firstName, lastName, normalizedName) = AuthorNameNormalizer.Parse(name);
         
         return new Author
@@ -46,7 +36,7 @@ public class Author : BaseEntity
         };
     }
 
-    public static Author Reconstitute(int? id, string normalizedName, string? firstName, string? lastName, DateTimeOffset? dateCreated = null)
+    public static Author Reconstitute(int id, string normalizedName, string? firstName, string? lastName, DateTimeOffset? dateCreated = null)
     {
         return new Author
         {
@@ -58,6 +48,25 @@ public class Author : BaseEntity
         };
     }
     
+    public Author WithId(int id)
+    {
+        var author = new Author
+        {
+            Id = id,
+            NormalizedName = NormalizedName,
+            FirstName = FirstName,
+            LastName = LastName,
+            DateCreated = DateCreated
+        };
+        
+        foreach (var variant in _nameVariants)
+        {
+            author._nameVariants.Add(variant);
+        }
+        
+        return author;
+    }
+    
     public void AddNameVariant(string variant, bool makePrimary)
     {
         if (string.IsNullOrWhiteSpace(variant))
@@ -65,8 +74,7 @@ public class Author : BaseEntity
 
         var normalized = NormalizeVariant(variant);
 
-        if (_nameVariants.Any(v =>
-                NormalizeVariant(v.NameVariant) == normalized))
+        if (_nameVariants.Any(v => NormalizeVariant(v.NameVariant) == normalized))
             return;
 
         var nameVariant = AuthorNameVariant.Create(variant.Trim());

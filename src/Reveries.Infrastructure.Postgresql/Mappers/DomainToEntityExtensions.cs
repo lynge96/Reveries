@@ -34,7 +34,7 @@ public static class DomainToEntityExtensions
     {
         return new PublisherEntity
         {
-            PublisherId = entity.Id,
+            PublisherId = entity.Id ?? -1,
             Name = entity.Name,
             DateCreatedPublisher = entity.DateCreated
         };
@@ -44,7 +44,7 @@ public static class DomainToEntityExtensions
     {
         return new SeriesEntity
         {
-            SeriesId = entity.Id,
+            SeriesId = entity.Id ?? -1,
             SeriesName = entity.Name,
             DateCreatedSeries = entity.DateCreated
         };
@@ -77,7 +77,7 @@ public static class DomainToEntityExtensions
     {
         return new SubjectEntity
         {
-            SubjectId = entity.Id,
+            SubjectId = entity.Id ?? -1,
             Genre = entity.Genre,
             DateCreatedSubject = entity.DateCreated
         };

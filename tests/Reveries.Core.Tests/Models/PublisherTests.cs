@@ -48,7 +48,7 @@ public class PublisherTests
         Assert.Equal(123, withId.Id);
         Assert.Equal(original.Name, withId.Name);
         
-        Assert.Equal(0, original.Id);
+        Assert.Null(original.Id);
         Assert.Equal("Random House", original.Name);
     }
 

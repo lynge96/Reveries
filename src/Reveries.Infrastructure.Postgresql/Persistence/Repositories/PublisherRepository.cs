@@ -34,7 +34,7 @@ public class PublisherRepository : IPublisherRepository
     public async Task<List<Publisher>> GetPublishersByNameAsync(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return new List<Publisher>();
+            return [];
 
         const string sql = """
                            SELECT id AS publisherId, name, date_created AS dateCreatedPublisher

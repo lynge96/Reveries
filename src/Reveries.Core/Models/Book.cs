@@ -10,9 +10,7 @@ public class Book : BaseEntity
     private readonly List<Subject> _subjects = [];
     private readonly List<DeweyDecimal> _deweyDecimals = [];
     
-    private Book() { }
-    
-    public int? Id { get; set; }
+    public int? Id { get; init; }
     public string? Isbn13 { get; init; }
     public string? Isbn10 { get; init; }
     public required string Title { get; init; }
@@ -30,11 +28,13 @@ public class Book : BaseEntity
     public string? Edition { get; init; }
     public IReadOnlyList<DeweyDecimal> DeweyDecimals => _deweyDecimals;
     public IReadOnlyList<Subject> Subjects => _subjects;
-    public int? SeriesNumber { get; set; }
-    public Series? Series { get; set; }
+    public int? SeriesNumber { get; private set; }
+    public Series? Series { get; private set; }
     public BookDimensions? Dimensions { get; init; }
     public DataSource DataSource { get; private set; }
 
+    private Book() { }
+    
     public override string ToString()
     {
         var title = string.IsNullOrEmpty(Title) ? "Unknown Title" : Title;
@@ -119,8 +119,7 @@ public class Book : BaseEntity
 
         foreach (var authorName in authors ?? [])
         {
-            book._authors.Add(
-                !string.IsNullOrWhiteSpace(authorName)
+            book._authors.Add(!string.IsNullOrWhiteSpace(authorName)
                     ? Author.Create(authorName)
                     : Author.Unknown()
             );
@@ -131,35 +130,13 @@ public class Book : BaseEntity
             book._subjects.Add(Subject.Create(subject));
         }
         
-        if (deweyDecimals != null)
+        foreach (var code in deweyDecimals ?? [])
         {
-            foreach (var code in deweyDecimals.Distinct())
-            {
-                var dewey = DeweyDecimal.Create(code);
-                book._deweyDecimals.Add(dewey);
-            }
+            var dewey = DeweyDecimal.Create(code);
+            book._deweyDecimals.Add(dewey);
         }
         
         return book;
-    }
-    
-    public void UpdateDataSource(DataSource newDataSource)
-    {
-        if (DataSource == newDataSource) return;
-        
-        DataSource = newDataSource;
-    }
-    
-    public void MarkAsRead()
-    {
-        if (IsRead) return;
-        IsRead = true;
-    }
-
-    public void MarkAsUnread()
-    {
-        if (!IsRead) return;
-        IsRead = false;
     }
     
     /// <summary>
@@ -254,9 +231,48 @@ public class Book : BaseEntity
         return book;
     }
     
+    public void UpdateDataSource(DataSource newDataSource)
+    {
+        if (DataSource == newDataSource) return;
+        
+        DataSource = newDataSource;
+    }
+    
+    public void MarkAsRead()
+    {
+        if (IsRead) return;
+        IsRead = true;
+    }
+
+    public void MarkAsUnread()
+    {
+        if (!IsRead) return;
+        IsRead = false;
+    }
+    
     public void SetPublisher(Publisher publisher)
     {
         Publisher = publisher;
+    }
+    
+    public void SetSeries(Series series, int? numberInSeries = null)
+    {
+        Series = series;
+        SeriesNumber = numberInSeries;
+    }
+
+    public void AddAuthor(Author author)
+    {
+        if (_authors.Any(a => a.Id == author.Id)) return;
+        
+        _authors.Add(author);
+    }
+    
+    public void AddSubject(Subject subject)
+    {
+        if (_subjects.Any(s => s.Id == subject.Id)) return;
+        
+        _subjects.Add(subject);
     }
 }
 
