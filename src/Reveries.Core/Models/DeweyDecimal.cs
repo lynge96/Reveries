@@ -2,22 +2,24 @@ namespace Reveries.Core.Models;
 
 public class DeweyDecimal
 {
-    public string? Code { get; }
+    public string Code { get; }
     
-    private DeweyDecimal(string? code)
+    private DeweyDecimal(string code)
     {
         Code = code;
     }
     
-    public static DeweyDecimal Create(string rawCode)
+    public static DeweyDecimal? Create(string? rawCode)
     {
         var normalized = Normalize(rawCode);
         
-        return new DeweyDecimal(normalized);
+        return normalized is null ? null : new DeweyDecimal(normalized);
     }
     
-    private static string? Normalize(string code)
+    private static string? Normalize(string? code)
     {
+        if (string.IsNullOrWhiteSpace(code)) return null;
+
         var normalized = code.Trim();
         
         if (normalized.Contains("/."))

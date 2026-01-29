@@ -5,7 +5,6 @@ namespace Reveries.Core.Models;
 public class Series : BaseEntity
 {
     public int? Id { get; private init; }
-
     public string? Name { get; private init; }
     
     private Series() { }

@@ -26,7 +26,7 @@ public class IsbnValidatorTests
     public void NormalizeAndValidateOrThrow_WithNullOrWhitespace_ThrowsException(
         string? input)
     {
-        var ex = Assert.Throws<IsbnValidationException>(
+        var ex = Assert.Throws<InvalidIsbnException>(
             () => IsbnValidator.NormalizeAndValidateOrThrow(input));
 
         Assert.Contains("ISBN cannot be null or empty", ex.Message);
@@ -40,7 +40,7 @@ public class IsbnValidatorTests
     public void NormalizeAndValidateOrThrow_WithInvalidIsbn_ThrowsException(
         string input)
     {
-        Assert.Throws<IsbnValidationException>(
+        Assert.Throws<InvalidIsbnException>(
             () => IsbnValidator.NormalizeAndValidateOrThrow(input));
     }
 

@@ -11,7 +11,6 @@ public class AuthorNameParserTests
 
         Assert.Equal(string.Empty, result.FirstName);
         Assert.Equal(string.Empty, result.LastName);
-        Assert.Equal(string.Empty, result.NormalizedName);
     }
     
     [Fact]
@@ -21,7 +20,6 @@ public class AuthorNameParserTests
 
         Assert.Equal("John", result.FirstName);
         Assert.Equal("Smith", result.LastName);
-        Assert.Equal("john smith", result.NormalizedName);
     }
     
     [Fact]
@@ -31,7 +29,6 @@ public class AuthorNameParserTests
 
         Assert.Equal("Stephen", result.FirstName);
         Assert.Equal("King", result.LastName);
-        Assert.Equal("stephen king", result.NormalizedName);
     }
     
     [Fact]
@@ -41,7 +38,6 @@ public class AuthorNameParserTests
 
         Assert.Equal("John Ronald Reuel", result.FirstName);
         Assert.Equal("Tolkien", result.LastName);
-        Assert.Equal("john ronald reuel tolkien", result.NormalizedName);
     }
     
     [Fact]
@@ -51,7 +47,6 @@ public class AuthorNameParserTests
 
         Assert.Equal("George Raymond Richard", result.FirstName);
         Assert.Equal("Martin", result.LastName);
-        Assert.Equal("george raymond richard martin", result.NormalizedName);
     }
     
     [Fact]
@@ -61,7 +56,6 @@ public class AuthorNameParserTests
 
         Assert.Equal("John", result.FirstName);
         Assert.Equal("Smith", result.LastName);
-        Assert.Equal("john smith", result.NormalizedName);
     }
     
     [Theory]

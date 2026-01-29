@@ -1,13 +1,13 @@
 using System.Net;
 
-namespace Reveries.Core.Exceptions;
+namespace Reveries.Application.Exceptions;
 
-public abstract class BaseAppException : Exception
+public abstract class ApplicationException : Exception
 {
     public HttpStatusCode StatusCode { get; }
     public string ErrorType { get; }
 
-    protected BaseAppException(string message, HttpStatusCode statusCode) 
+    protected ApplicationException(string message, HttpStatusCode statusCode) 
         : base(message)
     {
         StatusCode = statusCode;

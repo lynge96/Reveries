@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
@@ -29,7 +30,7 @@ public class IsbndbBookService : IIsbndbBookService
 
         if (isbns.Count > _settings.MaxBulkIsbns)
         {
-            throw new IsbnValidationException($"Too many ISBN numbers. Maximum is {_settings.MaxBulkIsbns}.");
+            throw new InvalidIsbnException($"Too many ISBN numbers. Maximum is {_settings.MaxBulkIsbns}.");
         }
         
         if (isbns.Count == 1)

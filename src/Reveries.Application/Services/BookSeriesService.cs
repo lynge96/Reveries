@@ -1,3 +1,4 @@
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Interfaces.Persistence;

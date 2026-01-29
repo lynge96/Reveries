@@ -2,10 +2,10 @@ namespace Reveries.Core.Helpers;
 
 public static class AuthorNameNormalizer
 {
-    public static (string FirstName, string LastName, string NormalizedName) Parse(string rawName)
+    public static (string FirstName, string LastName) Parse(string rawName)
     {
         if (string.IsNullOrWhiteSpace(rawName))
-            return (string.Empty, string.Empty, string.Empty);
+            return (string.Empty, string.Empty);
 
         // Normalisering: trim og erstat semikolon med mellemrum
         var cleanedName = rawName.Trim().Replace(';', ' ');
@@ -17,7 +17,7 @@ public static class AuthorNameNormalizer
 
         var normalizedName = $"{firstName} {lastName}".Trim().ToLowerInvariant();
         
-        return (firstName, lastName, normalizedName);
+        return (firstName, lastName);
     }
     
     /// Parser format: "Lastname, Firstname Middlename"

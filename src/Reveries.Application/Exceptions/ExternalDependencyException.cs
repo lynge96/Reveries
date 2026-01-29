@@ -1,8 +1,8 @@
 using System.Net;
 
-namespace Reveries.Core.Exceptions;
+namespace Reveries.Application.Exceptions;
 
-public class ExternalDependencyException : BaseAppException
+public class ExternalDependencyException : ApplicationException
 {
     public string Dependency { get; }
     public HttpStatusCode? UpstreamStatus { get; }

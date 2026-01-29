@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Extensions;
 using Reveries.Core.Exceptions;
 using Reveries.Integration.Isbndb.DTOs.Authors;

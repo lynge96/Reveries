@@ -1,9 +1,9 @@
 using System.Net;
 using FluentValidation.Results;
 
-namespace Reveries.Core.Exceptions;
+namespace Reveries.Application.Exceptions;
 
-public class ValidationException : BaseAppException
+public class ValidationException : ApplicationException
 {
     public IEnumerable<ValidationFailure> Failures { get; }
 

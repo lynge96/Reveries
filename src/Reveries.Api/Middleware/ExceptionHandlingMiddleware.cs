@@ -1,5 +1,8 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Reveries.Application.Exceptions;
 using Reveries.Core.Exceptions;
+using ApplicationException = Reveries.Application.Exceptions.ApplicationException;
 
 namespace Reveries.Api.Middleware;
 
@@ -76,7 +79,7 @@ public class ExceptionHandlingMiddleware
                 context.Response.StatusCode = (int)depEx.StatusCode;
                 break;
             }
-            case BaseAppException appEx:
+            case ApplicationException appEx:
             {
                 errorCtx = new ErrorContext(
                     Type: appEx.ErrorType,
@@ -89,6 +92,21 @@ public class ExceptionHandlingMiddleware
                 _logger.LogWarning(appEx, "Application error {@Error}", errorCtx);
 
                 context.Response.StatusCode = (int)appEx.StatusCode;
+                break;
+            }
+            case DomainException domEx:
+            {
+                errorCtx = new ErrorContext(
+                    Type: domEx.ErrorType,
+                    StatusCode: 400,
+                    Path: path,
+                    TraceId: traceId,
+                    ErrorMessage: exception.Message
+                    );
+                
+                _logger.LogError(domEx, "Domain error {@Error}", errorCtx);
+                
+                context.Response.StatusCode = 400;
                 break;
             }
             default:

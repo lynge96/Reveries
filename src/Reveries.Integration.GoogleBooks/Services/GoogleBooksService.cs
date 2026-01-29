@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Core.Enums;
 using Reveries.Core.Exceptions;

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Models;

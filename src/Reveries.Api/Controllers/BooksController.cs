@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Interfaces;
 using Reveries.Contracts.DTOs;
 using Reveries.Contracts.Requests;
-using ValidationException = Reveries.Core.Exceptions.ValidationException;
+using ValidationException = Reveries.Application.Exceptions.ValidationException;
 
 namespace Reveries.Api.Controllers;
 

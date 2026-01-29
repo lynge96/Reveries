@@ -1,5 +1,6 @@
 using Reveries.Api.Interfaces;
 using Reveries.Api.Mappers;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Contracts.DTOs;
 using Reveries.Core.Exceptions;

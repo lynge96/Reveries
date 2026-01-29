@@ -1,8 +1,8 @@
 using System.Net;
 
-namespace Reveries.Core.Exceptions;
+namespace Reveries.Application.Exceptions;
 
-public class SeriesAlreadyExistsException : BaseAppException
+public class SeriesAlreadyExistsException : ApplicationException
 {
     public SeriesAlreadyExistsException(string? name) 
         : base($"Series '{name}' already exists.", HttpStatusCode.Conflict) 

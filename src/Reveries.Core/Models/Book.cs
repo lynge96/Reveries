@@ -1,4 +1,5 @@
 ﻿using Reveries.Core.Enums;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Helpers;
 using Reveries.Core.Validation;
 
@@ -15,7 +16,7 @@ public class Book : BaseEntity
     public string? Isbn10 { get; init; }
     public required string Title { get; init; }
     public IReadOnlyList<Author> Authors => _authors;
-    public int? Pages { get; init; }
+    public int? Pages { get; private set; }
     public bool IsRead { get; private set; }
     public Publisher? Publisher { get; private set; }
     public string? Language { get; init; }
@@ -91,7 +92,7 @@ public class Book : BaseEntity
     )
     {
         if (string.IsNullOrWhiteSpace(title))
-            throw new ArgumentException("Book title cannot be empty");
+            throw new MissingTitleException(title);
         
         var book = new Book
         {
@@ -117,23 +118,24 @@ public class Book : BaseEntity
             DataSource = dataSource,
         };
 
+        book.SetPages(pages);
+        
         foreach (var authorName in authors ?? [])
         {
-            book._authors.Add(!string.IsNullOrWhiteSpace(authorName)
-                    ? Author.Create(authorName)
-                    : Author.Unknown()
-            );
+            var author = Author.Create(authorName);
+            book.AddAuthor(author);
         }
         
         foreach (var subject in subjects ?? [])
         {
-            book._subjects.Add(Subject.Create(subject));
+            var genre = Subject.Create(subject);
+            book.AddSubject(genre);
         }
         
         foreach (var code in deweyDecimals ?? [])
         {
             var dewey = DeweyDecimal.Create(code);
-            book._deweyDecimals.Add(dewey);
+            book.AddDeweyDecimal(dewey);
         }
         
         return book;
@@ -206,26 +208,17 @@ public class Book : BaseEntity
 
         if (authors != null)
         {
-            foreach (var author in authors)
-            {
-                book._authors.Add(author);
-            }
+            book._authors.AddRange(authors);
         }
 
         if (subjects != null)
         {
-            foreach (var subject in subjects)
-            {
-                book._subjects.Add(subject);
-            }
+            book._subjects.AddRange(subjects);
         }
 
         if (deweyDecimals != null)
         {
-            foreach (var dewey in deweyDecimals)
-            {
-                book._deweyDecimals.Add(dewey);
-            }
+            book._deweyDecimals.AddRange(deweyDecimals);
         }
 
         return book;
@@ -249,6 +242,17 @@ public class Book : BaseEntity
         if (!IsRead) return;
         IsRead = false;
     }
+
+    private void SetPages(int? pages)
+    {
+        if (pages is null)
+            return;
+
+        if (pages <= 0)
+            throw new InvalidPageCountException(pages);
+
+        Pages = pages;
+    }
     
     public void SetPublisher(Publisher publisher)
     {
@@ -257,22 +261,29 @@ public class Book : BaseEntity
     
     public void SetSeries(Series series, int? numberInSeries = null)
     {
+        if (numberInSeries <= 0)
+            throw new InvalidSeriesNumberException(numberInSeries);
+            
         Series = series;
         SeriesNumber = numberInSeries;
     }
 
-    public void AddAuthor(Author author)
+    public void AddAuthor(Author? author)
     {
-        if (_authors.Any(a => a.Id == author.Id)) return;
-        
+        if (_authors.Any(a => a.NormalizedName == author?.NormalizedName) || author is null) return;
         _authors.Add(author);
     }
     
-    public void AddSubject(Subject subject)
+    public void AddSubject(Subject? subject)
     {
-        if (_subjects.Any(s => s.Id == subject.Id)) return;
-        
+        if (_subjects.Any(s => s.Genre == subject?.Genre) || subject is null) return;
         _subjects.Add(subject);
+    }
+
+    public void AddDeweyDecimal(DeweyDecimal? deweyDecimal)
+    {
+        if (_deweyDecimals.Any(dd => dd.Code == deweyDecimal?.Code) || deweyDecimal is null) return;
+        _deweyDecimals.Add(deweyDecimal);
     }
 }
 

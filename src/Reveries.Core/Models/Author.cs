@@ -7,7 +7,7 @@ public class Author : BaseEntity
     private readonly List<AuthorNameVariant> _nameVariants = [];
     
     public int? Id { get; private init; }
-    public required string NormalizedName { get; init; }
+    public string NormalizedName => $"{FirstName} {LastName}".Trim().ToLowerInvariant();
     public string? FirstName { get; init; }
     public string? LastName { get; init; }
     public IReadOnlyList<AuthorNameVariant> NameVariants => _nameVariants;
@@ -16,23 +16,17 @@ public class Author : BaseEntity
 
     public override string ToString() => NormalizedName.ToTitleCase();
 
-    public static Author Create(string name)
+    public static Author? Create(string? name)
     {
-        var (firstName, lastName, normalizedName) = AuthorNameNormalizer.Parse(name);
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+        
+        var (firstName, lastName) = AuthorNameNormalizer.Parse(name);
         
         return new Author
         {
             FirstName = firstName,
             LastName = lastName,
-            NormalizedName = normalizedName
-        };
-    }
-    
-    public static Author Unknown()
-    {
-        return new Author
-        {
-            NormalizedName = "Unknown Author"
         };
     }
 
@@ -41,7 +35,6 @@ public class Author : BaseEntity
         return new Author
         {
             Id = id,
-            NormalizedName = normalizedName,
             FirstName = firstName,
             LastName = lastName,
             DateCreated = dateCreated
@@ -53,7 +46,6 @@ public class Author : BaseEntity
         var author = new Author
         {
             Id = id,
-            NormalizedName = NormalizedName,
             FirstName = FirstName,
             LastName = LastName,
             DateCreated = DateCreated

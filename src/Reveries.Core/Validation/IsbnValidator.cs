@@ -14,22 +14,22 @@ public static partial class IsbnValidator
     public static string NormalizeAndValidateOrThrow(string? isbn)
     {
         if (string.IsNullOrWhiteSpace(isbn))
-            throw new IsbnValidationException("ISBN cannot be null or empty.");
+            throw new InvalidIsbnException("ISBN cannot be null or empty.");
 
         var normalized = NormalizeIsbn(isbn);
 
         if (normalized.Length is not (10 or 13))
-            throw new IsbnValidationException($"Invalid ISBN length: '{isbn}'. ISBN must be 10 or 13 digits.");
+            throw new InvalidIsbnException($"Invalid ISBN length: '{isbn}'. ISBN must be 10 or 13 digits.");
 
         if (!IsbnPattern().IsMatch(normalized))
-            throw new IsbnValidationException($"Invalid ISBN format: '{isbn}'.");
+            throw new InvalidIsbnException($"Invalid ISBN format: '{isbn}'.");
 
         var isValid = normalized.Length == 13
             ? IsValidIsbn13(normalized)
             : IsValidIsbn10(normalized);
 
         if (!isValid)
-            throw new IsbnValidationException($"Invalid ISBN checksum for: '{isbn}'.");
+            throw new InvalidIsbnException($"Invalid ISBN checksum for: '{isbn}'.");
 
         return normalized;
     }

@@ -1,3 +1,4 @@
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Interfaces;

@@ -23,7 +23,7 @@ public class AuthorTests
     {
         var author = Author.Create("Jane Austen");
 
-        author.AddNameVariant("J. Austen", false);
+        author!.AddNameVariant("J. Austen", false);
 
         Assert.Single(author.NameVariants);
         Assert.Equal("J. Austen", author.NameVariants[0].NameVariant);
@@ -35,7 +35,7 @@ public class AuthorTests
     {
         var author = Author.Create("Jane Austen");
 
-        author.AddNameVariant("J. Austen", false);
+        author!.AddNameVariant("J. Austen", false);
         author.AddNameVariant("j. austen", true);
 
         Assert.Single(author.NameVariants);
@@ -48,7 +48,7 @@ public class AuthorTests
     {
         var author = Author.Create("Jane Austen");
 
-        author.AddNameVariant(variant, false);
+        author!.AddNameVariant(variant, false);
 
         Assert.Empty(author.NameVariants);
     }
@@ -78,7 +78,7 @@ public class AuthorTests
     {
         var author = Author.Create("Jane Austen");
 
-        author.AddNameVariant("J. Austen", true);
+        author!.AddNameVariant("J. Austen", true);
         author.AddNameVariant("Jane A.", true);
         
         Assert.Equal(2, author.NameVariants.Count);
@@ -94,7 +94,7 @@ public class AuthorTests
     {
         var author = Author.Create("Jane Austen");
 
-        author.AddNameVariant("J. Austen", true);
+        author!.AddNameVariant("J. Austen", true);
         author.AddNameVariant("Jane A.", false);
 
         var primary = author.NameVariants.Single(v => v.IsPrimary);

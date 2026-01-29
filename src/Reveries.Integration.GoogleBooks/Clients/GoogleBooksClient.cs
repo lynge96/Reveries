@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Extensions;
 using Reveries.Core.Exceptions;
 using Reveries.Integration.GoogleBooks.Configuration;
