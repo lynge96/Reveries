@@ -11,27 +11,27 @@ public class Book : BaseEntity
     private readonly List<Subject> _subjects = [];
     private readonly List<DeweyDecimal> _deweyDecimals = [];
     
-    public int? Id { get; init; }
-    public string? Isbn13 { get; init; }
-    public string? Isbn10 { get; init; }
+    public int? Id { get; private init; }
+    public string? Isbn13 { get; private init; }
+    public string? Isbn10 { get; private init; }
     public required string Title { get; init; }
     public IReadOnlyList<Author> Authors => _authors;
     public int? Pages { get; private set; }
     public bool IsRead { get; private set; }
     public Publisher? Publisher { get; private set; }
-    public string? Language { get; init; }
-    public string? PublishDate { get; init; }
-    public string? Synopsis { get; init; }
-    public string? ImageThumbnail { get; init; }
-    public string? ImageUrl { get; init; }
-    public decimal? Msrp { get; init; }
-    public string? Binding { get; init; }
-    public string? Edition { get; init; }
+    public string? Language { get; private init; }
+    public string? PublishDate { get; private init; }
+    public string? Synopsis { get; private init; }
+    public string? ImageThumbnail { get; private init; }
+    public string? ImageUrl { get; private init; }
+    public decimal? Msrp { get; private init; }
+    public string? Binding { get; private init; }
+    public string? Edition { get; private init; }
     public IReadOnlyList<DeweyDecimal> DeweyDecimals => _deweyDecimals;
     public IReadOnlyList<Subject> Subjects => _subjects;
     public int? SeriesNumber { get; private set; }
     public Series? Series { get; private set; }
-    public BookDimensions? Dimensions { get; init; }
+    public BookDimensions? Dimensions { get; private init; }
     public DataSource DataSource { get; private set; }
 
     private Book() { }
@@ -284,6 +284,35 @@ public class Book : BaseEntity
     {
         if (_deweyDecimals.Any(dd => dd.Code == deweyDecimal?.Code) || deweyDecimal is null) return;
         _deweyDecimals.Add(deweyDecimal);
+    }
+    
+    public Book WithId(int id)
+    {
+        return Reconstitute(
+            id: id,
+            isbn13: Isbn13,
+            isbn10: Isbn10,
+            title: Title,
+            pages: Pages,
+            isRead: IsRead,
+            publishDate: PublishDate,
+            language: Language,
+            synopsis: Synopsis,
+            imageThumbnail: ImageThumbnail,
+            imageUrl: ImageUrl,
+            msrp: Msrp,
+            binding: Binding,
+            edition: Edition,
+            seriesNumber: SeriesNumber,
+            dataSource: DataSource,
+            dateCreated: DateCreated,
+            publisher: Publisher,
+            series: Series,
+            dimensions: Dimensions,
+            authors: Authors,
+            subjects: Subjects,
+            deweyDecimals: DeweyDecimals
+        );
     }
 }
 

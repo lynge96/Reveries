@@ -14,7 +14,7 @@ public class BookAuthorsRepository : IBookAuthorsRepository
         _dbContext = dbContext;
     }
 
-    public async Task SaveBookAuthorsAsync(int bookId, IEnumerable<Author> authors)
+    public async Task SaveBookAuthorsAsync(int? bookId, IEnumerable<Author> authors)
     {
         const string sql = """
                            INSERT INTO books_authors (book_id, author_id)

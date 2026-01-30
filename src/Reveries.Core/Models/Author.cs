@@ -7,9 +7,9 @@ public class Author : BaseEntity
     private readonly List<AuthorNameVariant> _nameVariants = [];
     
     public int? Id { get; private init; }
-    public string NormalizedName => $"{FirstName} {LastName}".Trim().ToLowerInvariant();
     public string? FirstName { get; init; }
     public string? LastName { get; init; }
+    public string NormalizedName => $"{FirstName} {LastName}".Trim().ToLowerInvariant();
     public IReadOnlyList<AuthorNameVariant> NameVariants => _nameVariants;
 
     private Author() { }
@@ -51,10 +51,7 @@ public class Author : BaseEntity
             DateCreated = DateCreated
         };
         
-        foreach (var variant in _nameVariants)
-        {
-            author._nameVariants.Add(variant);
-        }
+        author._nameVariants.AddRange(_nameVariants);
         
         return author;
     }

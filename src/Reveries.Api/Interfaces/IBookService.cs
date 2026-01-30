@@ -8,5 +8,5 @@ public interface IBookService
     Task<IEnumerable<BookDto>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct = default);
     Task<BookDto?> GetBookByIdAsync(int id, CancellationToken ct = default);
     Task<IEnumerable<BookDto>> GetAllBooksAsync(CancellationToken ct = default);
-    Task<int> CreateBookAsync(CreateBookDto bookDto, CancellationToken ct = default);
+    Task<int?> CreateBookAsync(CreateBookDto bookDto, CancellationToken ct = default);
 }

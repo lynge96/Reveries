@@ -14,7 +14,7 @@ public class BookSubjectsRepository : IBookSubjectsRepository
         _dbContext = dbContext;
     }
 
-    public async Task SaveBookSubjectsAsync(int bookId, IEnumerable<Subject> subjects)
+    public async Task SaveBookSubjectsAsync(int? bookId, IEnumerable<Subject> subjects)
     {
         const string sql = """
                            INSERT INTO books_subjects (book_id, subject_id)

@@ -24,7 +24,7 @@ public class BookManagementService : IBookManagementService
         _logger = logger;
     }
     
-    public async Task<int> CreateBookWithRelationsAsync(Book book, CancellationToken ct)
+    public async Task<int?> CreateBookWithRelationsAsync(Book book, CancellationToken ct)
     {
         _logger.LogDebug("Started creation of book '{Title}' with Isbn {Isbn}.", 
             book.Title, 
@@ -41,31 +41,31 @@ public class BookManagementService : IBookManagementService
             await HandleSubjectsAsync(book);
             await HandleSeriesAsync(book);
             
-            var savedBookId = await _unitOfWork.Books.CreateAsync(book);
+            var savedBook = await _unitOfWork.Books.CreateAsync(book);
             
             if (book.Authors.Count != 0)
-                await SaveBookAuthorsAsync(savedBookId, book.Authors);
+                await SaveBookAuthorsAsync(savedBook.Id, book.Authors);
             
-            if (book.Subjects != null && book.Subjects.Count != 0)
-                await SaveBookSubjectsAsync(savedBookId, book.Subjects);
+            if (book.Subjects.Count != 0)
+                await SaveBookSubjectsAsync(savedBook.Id, book.Subjects);
             
             if (book.Dimensions != null)
-                await SaveBookDimensionsAsync(savedBookId, book.Dimensions);
+                await SaveBookDimensionsAsync(savedBook.Id, book.Dimensions);
             
-            if (book.DeweyDecimals != null && book.DeweyDecimals.Count != 0)
-                await SaveDeweyDecimalsAsync(savedBookId, book.DeweyDecimals);
+            if (book.DeweyDecimals.Count != 0)
+                await SaveDeweyDecimalsAsync(savedBook.Id, book.DeweyDecimals);
             
             await _unitOfWork.CommitAsync();
             await _bookCacheService.SetBookByIsbnAsync(book, ct);
 
             _logger.LogInformation(
                 "Book created successfully. Id={BookId}, ISBN13={Isbn13}, Authors={Authors}, Publisher={Publisher}",
-                savedBookId,
+                savedBook,
                 book.Isbn13,
                 string.Join(", ", book.Authors.Select(a => a.ToString())),
                 book.Publisher?.ToString());
             
-            return savedBookId;
+            return savedBook.Id;
         }
         catch (BookAlreadyExistsException)
         {
@@ -194,17 +194,17 @@ public class BookManagementService : IBookManagementService
         }
     }
     
-    private async Task SaveBookAuthorsAsync(int bookId, IEnumerable<Author> authors)
+    private async Task SaveBookAuthorsAsync(int? bookId, IEnumerable<Author> authors)
     {
         await _unitOfWork.BookAuthors.SaveBookAuthorsAsync(bookId, authors);
     }
     
-    private async Task SaveBookSubjectsAsync(int bookId, IEnumerable<Subject> subjects)
+    private async Task SaveBookSubjectsAsync(int? bookId, IEnumerable<Subject> subjects)
     {
         await _unitOfWork.BookSubjects.SaveBookSubjectsAsync(bookId, subjects);
     }
     
-    private async Task SaveBookDimensionsAsync(int bookId, BookDimensions? dimensions)
+    private async Task SaveBookDimensionsAsync(int? bookId, BookDimensions? dimensions)
     {
         if (dimensions != null)
         {
@@ -212,7 +212,7 @@ public class BookManagementService : IBookManagementService
         }
     }
 
-    private async Task SaveDeweyDecimalsAsync(int bookId, IEnumerable<DeweyDecimal>? deweyDecimals)
+    private async Task SaveDeweyDecimalsAsync(int? bookId, IEnumerable<DeweyDecimal>? deweyDecimals)
     {
         var decimalsList = deweyDecimals?.ToList();
         if (decimalsList == null || decimalsList.Count == 0)

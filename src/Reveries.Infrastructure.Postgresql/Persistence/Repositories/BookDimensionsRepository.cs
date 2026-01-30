@@ -14,7 +14,7 @@ public class BookDimensionsRepository : IBookDimensionsRepository
         _dbContext = dbContext;
     }
 
-    public async Task SaveBookDimensionsAsync(int bookId, BookDimensions dimensions)
+    public async Task SaveBookDimensionsAsync(int? bookId, BookDimensions dimensions)
     {
         const string sql = """
                            INSERT INTO book_dimensions (

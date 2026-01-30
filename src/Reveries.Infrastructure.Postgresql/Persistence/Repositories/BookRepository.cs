@@ -117,29 +117,25 @@ public class BookRepository : IBookRepository
         return bookList.FirstOrDefault();
     }
 
-    public async Task<int> CreateAsync(Book book)
+    public async Task<Book> CreateAsync(Book book)
     {
         const string sql = """
-                                     INSERT INTO books (
-                                         isbn13, isbn10, title, page_count, is_read, publisher_id,
-                                         language, publication_date, synopsis,
-                                         image_url, msrp, binding, edition, image_thumbnail, series_id, series_number
-                                     ) VALUES (
-                                         @Isbn13, @Isbn10, @Title, @Pages, @IsRead, @PublisherId,
-                                         @Language, @PublishDate, @Synopsis,
-                                         @ImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnail, @SeriesId, @SeriesNumber
-                                     )
-                                     RETURNING id;
-                                     """;
+                           INSERT INTO books (isbn13, isbn10, title, page_count, is_read, publisher_id,
+                           language, publication_date, synopsis,
+                           image_url, msrp, binding, edition, image_thumbnail, series_id, series_number)
+                           VALUES (@Isbn13, @Isbn10, @Title, @Pages, @IsRead, @PublisherId,
+                           @Language, @PublishDate, @Synopsis,
+                           @ImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnail, @SeriesId, @SeriesNumber)
+                           RETURNING id;
+                           """;
 
         var connection = await _dbContext.GetConnectionAsync();
 
         var bookDto = book.ToEntity();
         
         var bookId = await connection.QuerySingleAsync<int>(sql, bookDto);
-        
-        book.Id = bookId;
-        return bookId;
+
+        return book.WithId(bookId);
     }
 
     public async Task<List<Book>> GetAllBooksAsync()
