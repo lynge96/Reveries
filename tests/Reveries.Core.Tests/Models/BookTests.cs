@@ -1,6 +1,7 @@
 using Reveries.Core.Enums;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Core.Tests.Models;
 
@@ -78,8 +79,8 @@ public class BookTests
     {
         var book = CreateValidBook();
 
-        Assert.Equal("9781402894626", book.Isbn13);
-        Assert.Equal("1402894627", book.Isbn10);
+        Assert.Equal("9781402894626", book.Isbn13?.Value);
+        Assert.Equal("1402894627", book.Isbn10?.Value);
     }
     
     [Fact]
@@ -126,8 +127,8 @@ public class BookTests
     {
         var book = Book.Reconstitute(
             id: 1,
-            isbn13: "9781402894626",
-            isbn10: "1402894627",
+            isbn13: Isbn.Create("9781402894626"),
+            isbn10: Isbn.Create("1402894627"),
             title: "Persisted Book",
             pages: 250,
             isRead: true,

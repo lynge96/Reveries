@@ -2,6 +2,7 @@ using Reveries.Contracts.DTOs;
 using Reveries.Core.Enums;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Api.Mappers;
 

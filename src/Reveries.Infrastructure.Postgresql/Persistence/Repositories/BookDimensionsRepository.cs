@@ -2,6 +2,7 @@ using Dapper;
 using Reveries.Application.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Persistence.Repositories;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 

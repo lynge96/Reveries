@@ -1,7 +1,7 @@
 ﻿using Reveries.Core.Enums;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Helpers;
-using Reveries.Core.Validation;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Core.Models;
 
@@ -12,8 +12,8 @@ public class Book : BaseEntity
     private readonly List<DeweyDecimal> _deweyDecimals = [];
     
     public int? Id { get; private init; }
-    public string? Isbn13 { get; private init; }
-    public string? Isbn10 { get; private init; }
+    public Isbn? Isbn13 { get; private init; }
+    public Isbn? Isbn10 { get; private init; }
     public required string Title { get; init; }
     public IReadOnlyList<Author> Authors => _authors;
     public int? Pages { get; private set; }
@@ -96,8 +96,8 @@ public class Book : BaseEntity
         
         var book = new Book
         {
-            Isbn10 = IsbnValidator.NormalizeIsbn(isbn10 ?? null),
-            Isbn13 = IsbnValidator.NormalizeIsbn(isbn13 ?? null),
+            Isbn13 = isbn13 != null ? Isbn.Create(isbn13) : null,
+            Isbn10 = isbn10 != null ? Isbn.Create(isbn10) : null,
             Title = title,
             Pages = pages,
             IsRead = false,
@@ -158,8 +158,8 @@ public class Book : BaseEntity
     /// </summary>
     public static Book Reconstitute(
         int? id,
-        string? isbn13,
-        string? isbn10,
+        Isbn? isbn13,
+        Isbn? isbn10,
         string title,
         int? pages,
         bool isRead,

@@ -6,6 +6,7 @@ using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Services;
 

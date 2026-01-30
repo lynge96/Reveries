@@ -1,5 +1,6 @@
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Mappers;

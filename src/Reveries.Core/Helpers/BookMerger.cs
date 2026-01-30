@@ -1,5 +1,6 @@
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Core.Helpers;
 
@@ -45,11 +46,15 @@ public static class BookMerger
         return values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
     }
     
-    private static string? MergeIsbn13(Book isbndb, Book google)
-        => Prefer(isbndb.Isbn13, google.Isbn13);
+    private static Isbn? MergeIsbn13(Book isbndb, Book google)
+    {
+        return isbndb.Isbn13 ?? google.Isbn13 ?? null;
+    }
 
-    private static string? MergeIsbn10(Book isbndb, Book google)
-        => Prefer(isbndb.Isbn10, google.Isbn10);
+    private static Isbn? MergeIsbn10(Book isbndb, Book google)
+    {
+        return isbndb.Isbn10 ?? google.Isbn10 ?? null;
+    }
     
     private static string? MergeTitle(Book isbndb, Book google)
         => Prefer(google.Title, isbndb.Title);
