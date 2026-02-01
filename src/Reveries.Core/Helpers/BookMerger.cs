@@ -72,10 +72,10 @@ public static class BookMerger
         => google.Synopsis ?? isbndb.Synopsis;
     
     private static string? MergeImageThumbnail(Book isbndb, Book google)
-        => google.ImageThumbnail ?? isbndb.ImageThumbnail;
+        => google.ImageThumbnailUrl ?? isbndb.ImageThumbnailUrl;
 
     private static string? MergeImageUrl(Book isbndb)
-        => isbndb.ImageThumbnail ?? isbndb.ImageUrl;
+        => isbndb.ImageThumbnailUrl ?? isbndb.CoverImageUrl;
 
     private static decimal? MergeMsrp(Book isbndb)
         => isbndb.Msrp;

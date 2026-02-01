@@ -61,7 +61,7 @@ public class BookDisplayService : IBookDisplayService
             var book = books[i];
             table.AddRow(
                 (i + 1).ToString().AsInfo(),
-                book.Isbn13 ?? book.Isbn10 ?? "",
+                book.Isbn13?.ToString() ?? book.Isbn10?.ToString() ?? "",
                 book.IsRead ? "✅" : "❌",
                 Markup.Escape(book.Title).Bold().AsSecondary(),
                 Markup.Escape(book.GetAuthorNames()),
@@ -92,8 +92,8 @@ public class BookDisplayService : IBookDisplayService
         {
             { "Author", string.Join(", ", book.Authors.Select(author => author.NormalizedName.ToTitleCase())) },
             { "Pages", book.Pages?.ToString() ?? "Unknown" },
-            { "ISBN-10", book.Isbn10 ?? "N/A"},
-            { "ISBN-13", book.Isbn13 ?? "N/A" },
+            { "ISBN-10", book.Isbn10?.ToString() ?? "N/A"},
+            { "ISBN-13", book.Isbn13?.ToString() ?? "N/A" },
             { "Publisher", book.Publisher?.Name ?? "Unknown" },
             { "Language", book.Language ?? "Unknown language" },
             { "Published", book.PublishDate ?? "Unknown date" },

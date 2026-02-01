@@ -1,6 +1,7 @@
 ﻿using Reveries.Core.Enums;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Helpers;
+using Reveries.Core.Identity;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Core.Models;
@@ -11,7 +12,7 @@ public class Book : BaseEntity
     private readonly List<Subject> _subjects = [];
     private readonly List<DeweyDecimal> _deweyDecimals = [];
     
-    public int? Id { get; private init; }
+    public BookId Id { get; private init; }
     public Isbn? Isbn13 { get; private init; }
     public Isbn? Isbn10 { get; private init; }
     public required string Title { get; init; }
@@ -22,8 +23,8 @@ public class Book : BaseEntity
     public string? Language { get; private init; }
     public string? PublishDate { get; private init; }
     public string? Synopsis { get; private init; }
-    public string? ImageThumbnail { get; private init; }
-    public string? ImageUrl { get; private init; }
+    public string? ImageThumbnailUrl { get; private init; }
+    public string? CoverImageUrl { get; private init; }
     public decimal? Msrp { get; private init; }
     public string? Binding { get; private init; }
     public string? Edition { get; private init; }
@@ -105,8 +106,8 @@ public class Book : BaseEntity
             Publisher = Publisher.Create(publisher),
             Language = languageIso639.GetLanguageName(),
             Synopsis = synopsis,
-            ImageThumbnail = imageThumbnail,
-            ImageUrl = imageUrl,
+            ImageThumbnailUrl = imageThumbnail,
+            CoverImageUrl = imageUrl,
             Msrp = msrp,
             Binding = binding?.GetStandardBinding(),
             Edition = edition,
@@ -194,8 +195,8 @@ public class Book : BaseEntity
             Publisher = publisher,
             Language = language,
             Synopsis = synopsis,
-            ImageThumbnail = imageThumbnail,
-            ImageUrl = imageUrl,
+            ImageThumbnailUrl = imageThumbnail,
+            CoverImageUrl = imageUrl,
             Msrp = msrp,
             Binding = binding,
             Edition = edition,
@@ -298,8 +299,8 @@ public class Book : BaseEntity
             publishDate: PublishDate,
             language: Language,
             synopsis: Synopsis,
-            imageThumbnail: ImageThumbnail,
-            imageUrl: ImageUrl,
+            imageThumbnail: ImageThumbnailUrl,
+            imageUrl: CoverImageUrl,
             msrp: Msrp,
             binding: Binding,
             edition: Edition,
