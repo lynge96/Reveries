@@ -39,7 +39,7 @@ public class BookSaveService : IBookSaveService
                                         ✅ Successfully saved to database:
                                            Title: {book.Title}
                                            ID: {bookId}
-                                           ISBN: {book.Isbn13 ?? book.Isbn10 ?? "N/A"}
+                                           ISBN: {book.Isbn13?.Value ?? book.Isbn10?.Value ?? "N/A"}
                                         """.AsPrimary());
             }
             catch (BookAlreadyExistsException ex)

@@ -118,9 +118,9 @@ public class GoogleBooksService : IGoogleBooksService
             ? book.Authors
             : volume.Authors;
     
-        var mergedSubjects = (volume.Subjects?.Count ?? 0) > 0
-            ? volume.Subjects
-            : book.Subjects;
+        var mergedSubjects = (volume.Genres?.Count ?? 0) > 0
+            ? volume.Genres
+            : book.Genres;
     
         var mergedDeweyDecimals = (volume.DeweyDecimals?.Count ?? 0) > 0
             ? volume.DeweyDecimals
@@ -137,7 +137,7 @@ public class GoogleBooksService : IGoogleBooksService
         var dimensions = volume.Dimensions ?? book.Dimensions;
 
         return Book.Reconstitute(
-            id: null,
+            id: book.Id,
             isbn13: book.Isbn13 ?? volume.Isbn13,
             isbn10: book.Isbn10 ?? volume.Isbn10,
             title: mergedTitle,

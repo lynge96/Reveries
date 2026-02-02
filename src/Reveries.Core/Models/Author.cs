@@ -1,4 +1,5 @@
 using Reveries.Core.Helpers;
+using Reveries.Core.Identity;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Core.Models;
@@ -7,7 +8,7 @@ public class Author : BaseEntity
 {
     private readonly List<AuthorNameVariant> _nameVariants = [];
     
-    public int? Id { get; private init; }
+    public AuthorId Id { get; private init; }
     public string? FirstName { get; init; }
     public string? LastName { get; init; }
     public string NormalizedName => $"{FirstName} {LastName}".Trim().ToLowerInvariant();
@@ -26,12 +27,13 @@ public class Author : BaseEntity
         
         return new Author
         {
+            Id = AuthorId.New(),
             FirstName = firstName,
             LastName = lastName,
         };
     }
 
-    public static Author Reconstitute(int id, string normalizedName, string? firstName, string? lastName, DateTimeOffset? dateCreated = null)
+    public static Author Reconstitute(AuthorId id, string? firstName, string? lastName, DateTimeOffset? dateCreated = null)
     {
         return new Author
         {
@@ -40,21 +42,6 @@ public class Author : BaseEntity
             LastName = lastName,
             DateCreated = dateCreated
         };
-    }
-    
-    public Author WithId(int id)
-    {
-        var author = new Author
-        {
-            Id = id,
-            FirstName = FirstName,
-            LastName = LastName,
-            DateCreated = DateCreated
-        };
-        
-        author._nameVariants.AddRange(_nameVariants);
-        
-        return author;
     }
     
     public void AddNameVariant(string variant, bool makePrimary)

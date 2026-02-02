@@ -3,7 +3,6 @@ using Reveries.Core.Models;
 
 namespace Reveries.Application.Extensions;
 
-
 public static class BookExtensions
 {
     public static List<Book> ArrangeBooks(this IEnumerable<Book> books)
@@ -20,10 +19,10 @@ public static class BookExtensions
     
     public static string? GetIsbnKey(Book book)
     {
-        if (!string.IsNullOrWhiteSpace(book.Isbn13))
-            return book.Isbn13;
-        if (!string.IsNullOrWhiteSpace(book.Isbn10))
-            return book.Isbn10;
+        if (!string.IsNullOrWhiteSpace(book.Isbn13?.Value))
+            return book.Isbn13?.Value;
+        if (!string.IsNullOrWhiteSpace(book.Isbn10?.Value))
+            return book.Isbn10?.Value;
         return null;
     }
 }

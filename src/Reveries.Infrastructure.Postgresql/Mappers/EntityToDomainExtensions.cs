@@ -50,9 +50,9 @@ public static class EntityToDomainExtensions
         return Author.Reconstitute(entity.AuthorId, entity.NormalizedName, entity.FirstName, entity.LastName, entity.DateCreatedAuthor);
     }
 
-    public static Subject ToDomain(this SubjectEntity entity)
+    public static Genre ToDomain(this SubjectEntity entity)
     {
-        return Subject.Reconstitute(entity.SubjectId, entity.Genre!, entity.DateCreatedSubject);
+        return Genre.Reconstitute(entity.SubjectId, entity.Genre!, entity.DateCreatedSubject);
     }
 
     public static DeweyDecimal ToDomain(this DeweyDecimalEntity entity)

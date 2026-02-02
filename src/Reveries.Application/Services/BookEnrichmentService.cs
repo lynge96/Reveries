@@ -101,8 +101,8 @@ public class BookEnrichmentService : IBookEnrichmentService
 
         var mergedBooks = mergedByIsbn.Values
             .Where(b =>
-                !string.IsNullOrWhiteSpace(b.Isbn13) ||
-                !string.IsNullOrWhiteSpace(b.Isbn10))
+                !string.IsNullOrWhiteSpace(b.Isbn13?.Value) ||
+                !string.IsNullOrWhiteSpace(b.Isbn10?.Value))
             .ToList();
 
         return mergedBooks;
@@ -141,8 +141,8 @@ public class BookEnrichmentService : IBookEnrichmentService
         return books
             .SelectMany(b => new[]
             {
-                (isbn: b.Isbn10, book: b),
-                (isbn: b.Isbn13, book: b)
+                (isbn: b.Isbn10?.Value, book: b),
+                (isbn: b.Isbn13?.Value, book: b)
             })
             .ToDictionary(x => x.isbn!, x => x.book);
     }

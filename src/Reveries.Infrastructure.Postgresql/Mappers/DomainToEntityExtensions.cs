@@ -74,7 +74,7 @@ public static class DomainToEntityExtensions
         };
     }
 
-    public static SubjectEntity ToEntity(this Subject entity)
+    public static SubjectEntity ToEntity(this Genre entity)
     {
         return new SubjectEntity
         {

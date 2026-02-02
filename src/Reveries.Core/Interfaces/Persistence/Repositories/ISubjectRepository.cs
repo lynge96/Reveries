@@ -1,9 +1,10 @@
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Core.Interfaces.Persistence.Repositories;
 
 public interface ISubjectRepository
 {
-    Task<Subject?> GetSubjectByNameAsync(string genre);
-    Task<Subject> CreateSubjectAsync(Subject subject);
+    Task<Genre?> GetSubjectByNameAsync(string genre);
+    Task<Genre> CreateSubjectAsync(Genre genre);
 }

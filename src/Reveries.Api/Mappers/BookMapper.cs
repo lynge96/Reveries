@@ -12,9 +12,9 @@ public static class BookMapper
     {
         return new BookDto
         {
-            Id = book.Id,
-            Isbn10 = book.Isbn10,
-            Isbn13 = book.Isbn13,
+            Id = book.Id.Value,
+            Isbn10 = book.Isbn10?.Value,
+            Isbn13 = book.Isbn13?.Value,
             Title = book.Title,
             Authors = book.Authors.Select(a => a.NormalizedName.ToTitleCase()).ToList(),
             Publisher = book.Publisher?.Name,
@@ -27,7 +27,7 @@ public static class BookMapper
             Msrp = book.Msrp,
             Binding = book.Binding,
             Edition = book.Edition,
-            Subjects = book.Subjects?.Select(s => s.Genre).ToList() ?? new List<string>(),
+            Subjects = book.Genres?.Select(g => g.Value).ToList() ?? [],
             Series = book.Series?.Name,
             NumberInSeries = book.SeriesNumber,
             IsRead = book.IsRead,
@@ -38,7 +38,7 @@ public static class BookMapper
                 WidthCm = book.Dimensions?.WidthCm,
                 ThicknessCm = book.Dimensions?.ThicknessCm,
             },
-            DeweyDecimal = book.DeweyDecimals?.Select(d => d.Code).ToList() ?? new List<string>(),
+            DeweyDecimal = book.DeweyDecimals?.Select(d => d.Code).ToList() ?? [],
             DataSource = book.DataSource.ToString()
         };
     }
@@ -47,33 +47,28 @@ public static class BookMapper
     {
         var dataSourceParsed = Enum.TryParse<DataSource>(bookDto.DataSource, true, out var ds);
 
-        return Book.Reconstitute(
-            id: null,
+        return Book.Create(
             isbn10: bookDto.Isbn10,
             isbn13: bookDto.Isbn13,
             title: bookDto.Title,
             pages: bookDto.Pages,
-            isRead: bookDto.IsRead,
             publishDate: bookDto.PublicationDate,
-            language: bookDto.Language,
+            languageIso639: bookDto.Language,
             synopsis: bookDto.Synopsis,
             imageThumbnail: bookDto.ImageThumbnail,
             imageUrl: bookDto.ImageUrl,
             msrp: bookDto.Msrp,
             binding: bookDto.Binding,
             edition: bookDto.Edition,
-            seriesNumber: bookDto.NumberInSeries,
             dataSource: dataSourceParsed ? ds : DataSource.Unknown,
-            publisher: bookDto.Publisher != null ? Publisher.Create(bookDto.Publisher) : null,
-            series: bookDto.Series != null ? Series.Create(bookDto.Series) : null,
-            dimensions: BookDimensions.Create(
-                bookDto.Dimensions?.HeightCm,
-                bookDto.Dimensions?.ThicknessCm,
-                bookDto.Dimensions?.WidthCm,
-                bookDto.Dimensions?.WeightG),
-            authors: bookDto.Authors?.Select(Author.Create).ToList(),
-            subjects: bookDto.Subjects?.Select(Subject.Create).ToList(),
-            deweyDecimals: bookDto.DeweyDecimal?.Select(DeweyDecimal.Create).ToList()
+            publisher: bookDto.Publisher,
+            weight: bookDto.Dimensions?.WeightG,
+            height: bookDto.Dimensions?.HeightCm,
+            width: bookDto.Dimensions?.WidthCm,
+            thickness: bookDto.Dimensions?.ThicknessCm,
+            authors: bookDto.Authors,
+            subjects: bookDto.Subjects,
+            deweyDecimals: bookDto.DeweyDecimal
         );
     }
 }

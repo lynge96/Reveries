@@ -1,5 +1,6 @@
 using Reveries.Core.Enums;
 using Reveries.Core.Exceptions;
+using Reveries.Core.Identity;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
@@ -125,8 +126,10 @@ public class BookTests
     [Fact]
     public void Reconstitute_PreservesIsRead()
     {
+        var bookId = BookId.New();
+        
         var book = Book.Reconstitute(
-            id: 1,
+            id: bookId,
             isbn13: Isbn.Create("9781402894626"),
             isbn10: Isbn.Create("1402894627"),
             title: "Persisted Book",
@@ -229,24 +232,24 @@ public class BookTests
     public void AddSubject_AddsSubject()
     {
         var book = CreateValidBook();
-        var subject = Subject.Create("Science Fiction");
+        var subject = Genre.Create("Science Fiction");
 
-        book.AddSubject(subject);
+        book.AddGenre(subject);
 
-        Assert.Single(book.Subjects);
+        Assert.Single(book.Genres);
     }
 
     [Fact]
     public void AddSubject_DoesNotAddDuplicate_ByGenre()
     {
         var book = CreateValidBook();
-        var subject1 = Subject.Create("Science Fiction");
-        var subject2 = Subject.Create("science fiction");
+        var subject1 = Genre.Create("Science Fiction");
+        var subject2 = Genre.Create("science fiction");
 
-        book.AddSubject(subject1);
-        book.AddSubject(subject2);
+        book.AddGenre(subject1);
+        book.AddGenre(subject2);
 
-        Assert.Single(book.Subjects);
+        Assert.Single(book.Genres);
     }
 
     [Fact]
@@ -254,9 +257,9 @@ public class BookTests
     {
         var book = CreateValidBook();
 
-        book.AddSubject(null);
+        book.AddGenre(null);
 
-        Assert.Empty(book.Subjects);
+        Assert.Empty(book.Genres);
     }
     
     [Fact]

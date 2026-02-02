@@ -9,7 +9,7 @@ namespace Reveries.Core.Models;
 public class Book : BaseEntity
 {
     private readonly List<Author> _authors = [];
-    private readonly List<Subject> _subjects = [];
+    private readonly List<Genre> _genres = [];
     private readonly List<DeweyDecimal> _deweyDecimals = [];
     
     public BookId Id { get; private init; }
@@ -29,7 +29,7 @@ public class Book : BaseEntity
     public string? Binding { get; private init; }
     public string? Edition { get; private init; }
     public IReadOnlyList<DeweyDecimal> DeweyDecimals => _deweyDecimals;
-    public IReadOnlyList<Subject> Subjects => _subjects;
+    public IReadOnlyList<Genre> Genres => _genres;
     public int? SeriesNumber { get; private set; }
     public Series? Series { get; private set; }
     public BookDimensions? Dimensions { get; private init; }
@@ -97,6 +97,7 @@ public class Book : BaseEntity
         
         var book = new Book
         {
+            Id = BookId.New(),
             Isbn13 = isbn13 != null ? Isbn.Create(isbn13) : null,
             Isbn10 = isbn10 != null ? Isbn.Create(isbn10) : null,
             Title = title,
@@ -129,8 +130,8 @@ public class Book : BaseEntity
         
         foreach (var subject in subjects ?? [])
         {
-            var genre = Subject.Create(subject);
-            book.AddSubject(genre);
+            var genre = Genre.Create(subject);
+            book.AddGenre(genre);
         }
         
         foreach (var code in deweyDecimals ?? [])
@@ -158,7 +159,7 @@ public class Book : BaseEntity
     /// as it trusts the persisted data.
     /// </summary>
     public static Book Reconstitute(
-        int? id,
+        BookId id,
         Isbn? isbn13,
         Isbn? isbn10,
         string title,
@@ -179,7 +180,7 @@ public class Book : BaseEntity
         Series? series = null,
         BookDimensions? dimensions = null,
         IEnumerable<Author>? authors = null,
-        IEnumerable<Subject>? subjects = null,
+        IEnumerable<Genre>? subjects = null,
         IEnumerable<DeweyDecimal>? deweyDecimals = null
     )
     {
@@ -214,7 +215,7 @@ public class Book : BaseEntity
 
         if (subjects != null)
         {
-            book._subjects.AddRange(subjects);
+            book._genres.AddRange(subjects);
         }
 
         if (deweyDecimals != null)
@@ -275,10 +276,10 @@ public class Book : BaseEntity
         _authors.Add(author);
     }
     
-    public void AddSubject(Subject? subject)
+    public void AddGenre(Genre? genre)
     {
-        if (_subjects.Any(s => s.Genre == subject?.Genre) || subject is null) return;
-        _subjects.Add(subject);
+        if (_genres.Any(s => s.Value == genre?.Value) || genre is null) return;
+        _genres.Add(genre);
     }
 
     public void AddDeweyDecimal(DeweyDecimal? deweyDecimal)
@@ -286,34 +287,6 @@ public class Book : BaseEntity
         if (_deweyDecimals.Any(dd => dd.Code == deweyDecimal?.Code) || deweyDecimal is null) return;
         _deweyDecimals.Add(deweyDecimal);
     }
-    
-    public Book WithId(int id)
-    {
-        return Reconstitute(
-            id: id,
-            isbn13: Isbn13,
-            isbn10: Isbn10,
-            title: Title,
-            pages: Pages,
-            isRead: IsRead,
-            publishDate: PublishDate,
-            language: Language,
-            synopsis: Synopsis,
-            imageThumbnail: ImageThumbnailUrl,
-            imageUrl: CoverImageUrl,
-            msrp: Msrp,
-            binding: Binding,
-            edition: Edition,
-            seriesNumber: SeriesNumber,
-            dataSource: DataSource,
-            dateCreated: DateCreated,
-            publisher: Publisher,
-            series: Series,
-            dimensions: Dimensions,
-            authors: Authors,
-            subjects: Subjects,
-            deweyDecimals: DeweyDecimals
-        );
-    }
+
 }
 

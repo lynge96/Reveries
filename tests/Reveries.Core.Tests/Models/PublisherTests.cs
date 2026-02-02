@@ -1,3 +1,4 @@
+using Reveries.Core.Identity;
 using Reveries.Core.Models;
 
 namespace Reveries.Core.Tests.Models;
@@ -32,24 +33,13 @@ public class PublisherTests
     public void Reconstitute_RestoresStateCorrectly()
     {
         var date = DateTimeOffset.UtcNow;
-        var publisher = Publisher.Reconstitute(42, "Penguin Books", date);
+        var publisherId = PublisherId.New();
         
-        Assert.Equal(42, publisher.Id);
+        var publisher = Publisher.Reconstitute(publisherId, "Penguin Books", date);
+        
+        Assert.Equal(publisherId, publisher.Id);
         Assert.Equal("Penguin Books", publisher.Name);
         Assert.Equal(date, publisher.DateCreated);
-    }
-    
-    [Fact]
-    public void WithId_ReturnsNewInstanceWithId()
-    {
-        var original = Publisher.Create("Random House");
-        var withId = original.WithId(123);
-        
-        Assert.Equal(123, withId.Id);
-        Assert.Equal(original.Name, withId.Name);
-        
-        Assert.Null(original.Id);
-        Assert.Equal("Random House", original.Name);
     }
 
     [Fact]

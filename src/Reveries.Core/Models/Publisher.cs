@@ -1,10 +1,11 @@
 using Reveries.Core.Helpers;
+using Reveries.Core.Identity;
 
 namespace Reveries.Core.Models;
 
 public class Publisher : BaseEntity
 {
-    public int? Id { get; private init; }
+    public PublisherId Id { get; private init; }
     public string? Name { get; private init; }
     
     private Publisher() { }
@@ -22,13 +23,17 @@ public class Publisher : BaseEntity
         
         var normalized = name.StandardizePublisherName();
         
-        return new Publisher { Name = normalized };
+        return new Publisher
+        {
+            Id = PublisherId.New(),
+            Name = normalized
+        };
     }
     
     /// <summary>
     /// Reconstitute a Publisher from a persisted state (e.g., database).
     /// </summary>
-    public static Publisher Reconstitute(int id, string? name, DateTimeOffset? dateCreated = null)
+    public static Publisher Reconstitute(PublisherId id, string? name, DateTimeOffset? dateCreated = null)
     {
         return new Publisher
         {
@@ -38,6 +43,4 @@ public class Publisher : BaseEntity
         };
     }
     
-    // Factory for creating a new instance with assigned ID
-    public Publisher WithId(int id) => new() { Id = id, Name = Name,  DateCreated = DateCreated };
 }

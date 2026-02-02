@@ -1,3 +1,4 @@
+using Reveries.Core.Identity;
 using Reveries.Core.Models;
 
 namespace Reveries.Core.Tests.Models;
@@ -57,16 +58,16 @@ public class AuthorTests
     public void Reconstitute_RestoresAuthorState()
     {
         var date = DateTimeOffset.UtcNow;
+        var authorId = AuthorId.New();
 
         var author = Author.Reconstitute(
-            id: 42,
-            normalizedName: "jane austen",
+            id: authorId,
             firstName: "Jane",
             lastName: "Austen",
             dateCreated: date
         );
 
-        Assert.Equal(42, author.Id);
+        Assert.Equal(authorId, author.Id);
         Assert.Equal("jane austen", author.NormalizedName);
         Assert.Equal("Jane", author.FirstName);
         Assert.Equal("Austen", author.LastName);

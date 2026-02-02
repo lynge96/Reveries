@@ -44,8 +44,8 @@ else
                         <button type="button"
                                 class="btn action-btn w-100 mt-1"
                                 @onclick="@SaveBook"
-                                disabled="@(_book.Id != null)">
-                            @if (_book.Id == null)
+                                disabled="@(_bookDbId != null)">
+                            @if (_bookDbId == null)
                             {
                                 <i class="bi bi-bookmark-fill me-2"></i>
                                 <span>Add book to shelf</span>
@@ -247,6 +247,7 @@ else
 @code {
     [Parameter] public string? Isbn { get; set; }
     private BookDto? _book;
+    private int? _bookDbId;
     private bool _showFullSynopsis;
     private const int MaxSynopsisLength = 300;
     private bool _isSaving;
@@ -282,14 +283,13 @@ else
             _isSaving = true;
             StateHasChanged();
 
-            var bookId = await BooksApi.CreateAsync(_book!);
+            _bookDbId = await BooksApi.CreateAsync(_book!);
 
-            if (bookId > 0)
+            if (_bookDbId > 0)
             {
-                _book!.Id = bookId;
                 _bookAdded = true;
                 
-                Console.WriteLine($"Book created with ID {bookId}");
+                Console.WriteLine($"Book created with ID {_bookDbId}");
             }
         }
         catch (ApiException ex)

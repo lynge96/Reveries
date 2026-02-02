@@ -1,7 +1,6 @@
-using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
-namespace Reveries.Core.Tests.Models;
+namespace Reveries.Core.Tests.ValueObjects;
 
 public class BookDimensionsTests
 {

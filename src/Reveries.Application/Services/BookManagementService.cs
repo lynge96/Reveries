@@ -47,8 +47,8 @@ public class BookManagementService : IBookManagementService
             if (book.Authors.Count != 0)
                 await SaveBookAuthorsAsync(savedBook.Id, book.Authors);
             
-            if (book.Subjects.Count != 0)
-                await SaveBookSubjectsAsync(savedBook.Id, book.Subjects);
+            if (book.Genres.Count != 0)
+                await SaveBookSubjectsAsync(savedBook.Id, book.Genres);
             
             if (book.Dimensions != null)
                 await SaveBookDimensionsAsync(savedBook.Id, book.Dimensions);
@@ -161,18 +161,18 @@ public class BookManagementService : IBookManagementService
     
     private async Task HandleSubjectsAsync(Book book)
     {
-        foreach (var subject in book.Subjects)
+        foreach (var subject in book.Genres)
         {
             var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Genre);
             
             if (existingSubject != null)
             {
-                book.AddSubject(existingSubject);
+                book.AddGenre(existingSubject);
             }
             else
             {
                 var createdSubject = await _unitOfWork.Subjects.CreateSubjectAsync(subject);
-                book.AddSubject(createdSubject);
+                book.AddGenre(createdSubject);
             }
         }
     }
@@ -200,7 +200,7 @@ public class BookManagementService : IBookManagementService
         await _unitOfWork.BookAuthors.SaveBookAuthorsAsync(bookId, authors);
     }
     
-    private async Task SaveBookSubjectsAsync(int? bookId, IEnumerable<Subject> subjects)
+    private async Task SaveBookSubjectsAsync(int? bookId, IEnumerable<Genre> subjects)
     {
         await _unitOfWork.BookSubjects.SaveBookSubjectsAsync(bookId, subjects);
     }

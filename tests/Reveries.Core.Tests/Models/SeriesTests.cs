@@ -1,3 +1,4 @@
+using Reveries.Core.Identity;
 using Reveries.Core.Models;
 
 namespace Reveries.Core.Tests.Models;
@@ -10,7 +11,6 @@ public class SeriesTests
         var series = Series.Create("the wheel of time");
         
         Assert.NotNull(series);
-        Assert.Null(series.Id);
         Assert.Equal("The Wheel Of Time", series.Name);
     }
     
@@ -24,31 +24,19 @@ public class SeriesTests
         
         Assert.NotNull(series);
         Assert.Null(series.Name);
-        Assert.Null(series.Id);
     }
     
     [Fact]
     public void Reconstitute_CreatesFullyHydratedEntity()
     {
         var dateCreated = DateTimeOffset.UtcNow;
+        var seriesId = SeriesId.New();
 
-        var series = Series.Reconstitute(42, "Stormlight Archive", dateCreated);
+        var series = Series.Reconstitute(seriesId, "Stormlight Archive", dateCreated);
         
-        Assert.Equal(42, series.Id);
+        Assert.Equal(seriesId, series.Id);
         Assert.Equal("Stormlight Archive", series.Name);
         Assert.Equal(dateCreated, series.DateCreated);
-    }
-    
-    [Fact]
-    public void WithId_AssignsIdAndPreservesState()
-    {
-        var original = Series.Create("Malazan Book of the Fallen");
-
-        var withId = original.WithId(10);
-
-        Assert.Equal(10, withId.Id);
-        Assert.Equal(original.Name, withId.Name);
-        Assert.Equal(original.DateCreated, withId.DateCreated);
     }
     
     

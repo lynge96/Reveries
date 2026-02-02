@@ -1,6 +1,6 @@
 namespace Reveries.Core.ValueObjects;
 
-public class AuthorNameVariant
+public sealed record AuthorNameVariant
 {
     public required string NameVariant { get; init; }
     public bool IsPrimary { get; private set; }

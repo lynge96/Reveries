@@ -1,6 +1,6 @@
 namespace Reveries.Core.ValueObjects;
 
-public class BookDimensions
+public sealed record BookDimensions
 {
     public decimal? HeightCm { get; private init; }
     public decimal? WidthCm { get; private init; }

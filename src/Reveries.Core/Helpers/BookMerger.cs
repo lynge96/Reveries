@@ -16,7 +16,7 @@ public static class BookMerger
             return isbndbBook;
         
         return Book.Reconstitute(
-            id: null,
+            id: isbndbBook.Id, //TODO: Skal dette ændres?
             isbn13: MergeIsbn13(isbndbBook, googleBook),
             isbn10: MergeIsbn10(isbndbBook, googleBook),
             title: MergeTitle(isbndbBook, googleBook) ?? string.Empty,
@@ -111,10 +111,10 @@ public static class BookMerger
     private static IReadOnlyList<DeweyDecimal> MergeDeweyDecimals(Book isbndb)
         => isbndb.DeweyDecimals;
 
-    private static IReadOnlyList<Subject> MergeSubjects(Book isbndb, Book google)
-        => google.Subjects.Count != 0
-            ? google.Subjects
-            : isbndb.Subjects;
+    private static IReadOnlyList<Genre> MergeSubjects(Book isbndb, Book google)
+        => google.Genres.Count != 0
+            ? google.Genres
+            : isbndb.Genres;
 
     private static Series? MergeSeries(Book isbndb)
         => isbndb.Series;

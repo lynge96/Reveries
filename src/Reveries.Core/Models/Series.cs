@@ -1,10 +1,11 @@
 using Reveries.Core.Helpers;
+using Reveries.Core.Identity;
 
 namespace Reveries.Core.Models;
 
 public class Series : BaseEntity
 {
-    public int? Id { get; private init; }
+    public SeriesId Id { get; private init; }
     public string? Name { get; private init; }
     
     private Series() { }
@@ -18,11 +19,12 @@ public class Series : BaseEntity
         
         return new Series
         {
+            Id = SeriesId.New(),
             Name = name.ToTitleCase()
         };
     }
 
-    public static Series Reconstitute(int id, string? name, DateTimeOffset? dateCreated = null)
+    public static Series Reconstitute(SeriesId id, string? name, DateTimeOffset? dateCreated = null)
     {
         return new Series
         {
@@ -31,6 +33,5 @@ public class Series : BaseEntity
             DateCreated = dateCreated
         };
     }
-    
-    public Series WithId(int id) => new() { Id = id, Name =  Name, DateCreated =  DateCreated };
+
 }

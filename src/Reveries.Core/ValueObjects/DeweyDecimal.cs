@@ -1,6 +1,6 @@
 namespace Reveries.Core.ValueObjects;
 
-public class DeweyDecimal
+public sealed record DeweyDecimal
 {
     public string Code { get; }
     

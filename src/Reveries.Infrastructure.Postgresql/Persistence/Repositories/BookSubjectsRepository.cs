@@ -2,6 +2,7 @@ using Dapper;
 using Reveries.Application.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Persistence.Repositories;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
@@ -14,7 +15,7 @@ public class BookSubjectsRepository : IBookSubjectsRepository
         _dbContext = dbContext;
     }
 
-    public async Task SaveBookSubjectsAsync(int? bookId, IEnumerable<Subject> subjects)
+    public async Task SaveBookSubjectsAsync(int? bookId, IEnumerable<Genre> subjects)
     {
         const string sql = """
                            INSERT INTO books_subjects (book_id, subject_id)
