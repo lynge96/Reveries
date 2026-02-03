@@ -4,6 +4,8 @@ using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Contracts.DTOs;
 using Reveries.Core.Exceptions;
+using Reveries.Core.Identity;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Api.Services;
 
@@ -20,7 +22,7 @@ public class BookService : IBookService
         _logger = logger;
     }
     
-    public async Task<BookDto?> GetBookByIsbnAsync(string isbn, CancellationToken ct)
+    public async Task<BookDto?> GetBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         var books = await _bookLookupService.FindBooksByIsbnAsync([isbn], ct);
 
@@ -35,7 +37,7 @@ public class BookService : IBookService
         return bookDto;
     }
 
-    public async Task<IEnumerable<BookDto>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct)
+    public async Task<IEnumerable<BookDto>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct)
     {
         var books = await _bookLookupService.FindBooksByIsbnAsync(isbns, ct);
 
@@ -78,13 +80,13 @@ public class BookService : IBookService
         return books.Select(book => book.ToDto());
     }
 
-    public async Task<int?> CreateBookAsync(CreateBookDto bookDto, CancellationToken ct)
+    public async Task<Guid> CreateBookAsync(CreateBookDto bookDto, CancellationToken ct)
     {
         var book = bookDto.ToDomain();
 
         var bookId = await _bookManagementService.CreateBookWithRelationsAsync(book, ct);
         
         _logger.LogInformation("Book created successfully {@Ctx}", new { Operation = "CreateBook", BookId = bookId });
-        return bookId;
+        return bookId.Value;
     }
 }

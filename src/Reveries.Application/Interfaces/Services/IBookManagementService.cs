@@ -1,3 +1,4 @@
+using Reveries.Core.Identity;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Interfaces.Services;
@@ -21,7 +22,7 @@ public interface IBookManagementService
     /// <returns>
     /// The database ID of the newly created book.
     /// </returns>
-    Task<int?> CreateBookWithRelationsAsync(Book book, CancellationToken ct = default);
+    Task<BookId> CreateBookWithRelationsAsync(Book book, CancellationToken ct = default);
     
     Task UpdateBooksAsync(List<Book> books, CancellationToken ct = default);
 }

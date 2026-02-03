@@ -22,7 +22,7 @@ public class GoogleBooksService : IGoogleBooksService
         _logger = logger;
     }
     
-    public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct)
+    public async Task<List<Book>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
@@ -118,11 +118,11 @@ public class GoogleBooksService : IGoogleBooksService
             ? book.Authors
             : volume.Authors;
     
-        var mergedSubjects = (volume.Genres?.Count ?? 0) > 0
+        var mergedSubjects = volume.Genres.Count != 0
             ? volume.Genres
             : book.Genres;
     
-        var mergedDeweyDecimals = (volume.DeweyDecimals?.Count ?? 0) > 0
+        var mergedDeweyDecimals = volume.DeweyDecimals.Count != 0
             ? volume.DeweyDecimals
             : book.DeweyDecimals;
     

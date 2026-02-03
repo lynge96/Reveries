@@ -15,7 +15,7 @@ public class BookSeriesService : IBookSeriesService
         _unitOfWork = unitOfWork;
     }
     
-    public async Task<int?> CreateSeriesAsync(Series series)
+    public async Task<Series> CreateSeriesAsync(Series series)
     {
         var existingSeries = await _unitOfWork.Series.GetSeriesByNameAsync(series.Name);
         if (existingSeries != null)
@@ -24,7 +24,7 @@ public class BookSeriesService : IBookSeriesService
         }
         
         await _unitOfWork.Series.CreateSeriesAsync(series);
-        return series.Id;
+        return series;
     }
 
     public async Task<List<Series>> GetSeriesAsync()

@@ -1,14 +1,15 @@
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Interfaces.Cache;
 
 public interface IBookCacheService
 {
     // isbn
-    Task<Book?> GetBookByIsbnAsync(string isbn, CancellationToken ct = default);
+    Task<Book?> GetBookByIsbnAsync(Isbn isbn, CancellationToken ct = default);
     Task SetBookByIsbnAsync(Book book, CancellationToken ct = default);
-    Task RemoveBookByIsbnAsync(string? isbn, CancellationToken ct = default);
-    Task<IReadOnlyList<Book>> GetBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken ct = default);
+    Task RemoveBookByIsbnAsync(Isbn? isbn, CancellationToken ct = default);
+    Task<IReadOnlyList<Book>> GetBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct = default);
     Task SetBooksByIsbnsAsync(IEnumerable<Book> books, CancellationToken ct = default);
     
     // title

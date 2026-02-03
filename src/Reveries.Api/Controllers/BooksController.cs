@@ -37,7 +37,7 @@ public class BooksController : ControllerBase
     {
         var validIsbn = Isbn.Create(isbn);
         
-        var book = await _bookService.GetBookByIsbnAsync(validIsbn.Value, ct);
+        var book = await _bookService.GetBookByIsbnAsync(validIsbn, ct);
         
         return Ok(book);
     }
@@ -45,7 +45,7 @@ public class BooksController : ControllerBase
     [HttpPost("isbns")]
     public async Task<ActionResult<List<BookDto>>> GetByIsbns([FromBody] BulkIsbnRequest request, CancellationToken ct)
     {
-        var isbns = request.Isbns;
+        var isbns = request.Isbns.Select(Isbn.Create).ToList();
         
         if (isbns.Count == 0)
             return BadRequest("At least one ISBN must be provided.");

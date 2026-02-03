@@ -1,21 +1,20 @@
 using Dapper;
 using Reveries.Application.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Persistence.Repositories;
-using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
-public class BookSubjectsRepository : IBookSubjectsRepository
+public class BookGenresRepository : IBookGenresRepository
 {
     private readonly IDbContext _dbContext;
     
-    public BookSubjectsRepository(IDbContext dbContext)
+    public BookGenresRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task SaveBookSubjectsAsync(int? bookId, IEnumerable<Genre> subjects)
+    public async Task SaveBookGenresAsync(int? bookId, IEnumerable<Genre> genres)
     {
         const string sql = """
                            INSERT INTO books_subjects (book_id, subject_id)
@@ -25,7 +24,7 @@ public class BookSubjectsRepository : IBookSubjectsRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var parameters = subjects
+        var parameters = genres
             .Select(s => new { BookId = bookId, SubjectId = s.Id })
             .ToList();
 

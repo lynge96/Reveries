@@ -1,5 +1,6 @@
 ﻿using Reveries.Core.Enums;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Interfaces.Isbndb;
 
@@ -15,7 +16,7 @@ public interface IIsbndbBookService
     /// <param name="isbns">A list of 10- or 13-digit ISBNs to search for.</param>
     /// <param name="ct">A token to cancel the operation if needed.</param>
     /// <returns>A list of <see cref="Book"/> entities that match the provided ISBNs. Returns an empty list if none are found.</returns>
-    Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct = default);
+    Task<List<Book>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct = default);
 
     /// <summary>
     /// Searches for books by title and optionally filters by language and book format.

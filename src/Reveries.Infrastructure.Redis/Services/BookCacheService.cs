@@ -5,6 +5,7 @@ using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Redis.Configuration;
 
 namespace Reveries.Infrastructure.Redis.Services;
@@ -22,7 +23,7 @@ public class BookCacheService : IBookCacheService
         _logger = logger;
     }
     
-    public async Task<Book?> GetBookByIsbnAsync(string isbn, CancellationToken ct)
+    public async Task<Book?> GetBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         var key = CacheKeys.BookByIsbn(isbn);
         
@@ -38,7 +39,7 @@ public class BookCacheService : IBookCacheService
         await _cache.SetAsync(key, book, CacheDefaults.DefaultExpiration, ct);
     }
 
-    public async Task RemoveBookByIsbnAsync(string? isbn, CancellationToken ct)
+    public async Task RemoveBookByIsbnAsync(Isbn? isbn, CancellationToken ct)
     {
         if (isbn != null)
         {
@@ -48,7 +49,7 @@ public class BookCacheService : IBookCacheService
         }
     }
     
-    public async Task<IReadOnlyList<Book>> GetBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken ct)
+    public async Task<IReadOnlyList<Book>> GetBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
     {
         var distinctIsbns = isbns.Distinct().ToList();
         
@@ -91,14 +92,14 @@ public class BookCacheService : IBookCacheService
         batch.Execute();
         await Task.WhenAll(titleTasks.Values);
         
-        var isbnResults = new Dictionary<string, List<string>>();
+        var isbnResults = new Dictionary<string, List<Isbn>>();
         foreach (var (title, task) in titleTasks)
         {
             var redisVal = await task;
             if (!redisVal.IsNullOrEmpty)
             {
                 var json = (string)redisVal!;
-                var isbns = JsonSerializer.Deserialize<List<string>>(json) ?? [];
+                var isbns = JsonSerializer.Deserialize<List<Isbn>>(json) ?? [];
                 isbnResults[title] = isbns;
             }
         }

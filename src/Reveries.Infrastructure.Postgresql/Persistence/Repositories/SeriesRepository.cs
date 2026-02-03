@@ -49,7 +49,7 @@ public class SeriesRepository : ISeriesRepository
         
         var seriesId = await connection.QuerySingleAsync<int>(sql, seriesDto);
 
-        return series.WithId(seriesId);
+        return series;
     }
 
     public async Task<List<Series>> GetSeriesAsync()

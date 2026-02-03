@@ -5,6 +5,7 @@ using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Services;
 
@@ -27,28 +28,20 @@ public class BookLookupService : IBookLookupService
         _logger = logger;
     }
     
-    public async Task<List<Book>> FindBooksByIsbnAsync(List<string> isbns, CancellationToken ct)
+    public async Task<List<Book>> FindBooksByIsbnAsync(List<Isbn> isbns, CancellationToken ct)
     {
-        ArgumentNullException.ThrowIfNull(isbns);
         if (isbns.Count == 0)
             return [];
         
-        ct.ThrowIfCancellationRequested();
-        
-        var normalizedIsbns = isbns
-            .Select(IsbnValidator.NormalizeAndValidateOrThrow)
-            .Distinct()
-            .ToList();
-        
-        var cacheBooks = await _bookCacheService.GetBooksByIsbnsAsync(normalizedIsbns, ct);
+        var cacheBooks = await _bookCacheService.GetBooksByIsbnsAsync(isbns, ct);
 
         var foundInCacheIsbns = cacheBooks
             .Select(BookExtensions.GetIsbnKey)
             .Where(key => !string.IsNullOrWhiteSpace(key))
             .ToHashSet();
 
-        var missingFromCache = normalizedIsbns
-            .Where(i => !foundInCacheIsbns.Contains(i))
+        var missingFromCache = isbns
+            .Where(i => !foundInCacheIsbns.Contains(i.Value))
             .ToList();
 
         List<Book> databaseBooks = [];
@@ -64,7 +57,7 @@ public class BookLookupService : IBookLookupService
                 .ToHashSet();
         }
 
-        var missingIsbns = missingFromCache.Where(i => !foundInDbIsbns.Contains(i)).ToList();
+        var missingIsbns = missingFromCache.Where(i => !foundInDbIsbns.Contains(i.Value)).ToList();
 
         List<Book> apiBooks = [];
         if (missingIsbns.Count != 0)

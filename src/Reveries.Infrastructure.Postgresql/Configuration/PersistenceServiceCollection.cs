@@ -11,9 +11,9 @@ public static class PersistenceServiceCollection
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<IPublisherRepository, PublisherRepository>();
         services.AddScoped<IAuthorRepository, AuthorRepository>();
-        services.AddScoped<ISubjectRepository, SubjectRepository>();
+        services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IBookAuthorsRepository, BookAuthorsRepository>();
-        services.AddScoped<IBookSubjectsRepository, BookSubjectsRepository>();
+        services.AddScoped<IBookGenresRepository, BookGenresRepository>();
         services.AddScoped<IBookDimensionsRepository, BookDimensionsRepository>();
         services.AddScoped<IDeweyDecimalRepository, DeweyDecimalRepository>();
         services.AddScoped<ISeriesRepository, SeriesRepository>();

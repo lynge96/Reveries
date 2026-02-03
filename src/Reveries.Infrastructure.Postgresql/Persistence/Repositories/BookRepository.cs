@@ -2,6 +2,7 @@ using Dapper;
 using Reveries.Application.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Persistence.Repositories;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
@@ -74,7 +75,7 @@ public class BookRepository : IBookRepository
         return await QueryBooksAsync(sql, new { Patterns = patterns });
     }
     
-    public async Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<string> isbns)
+    public async Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<Isbn> isbns)
     {
         const string sql = """
                            SELECT *
@@ -83,10 +84,12 @@ public class BookRepository : IBookRepository
                               OR isbn10 = ANY(@Isbns)
                            """;
 
-        return await QueryBooksAsync(sql, new { Isbns = isbns.ToList() });
+        var isbnList = isbns.Select(i => Isbn.Create(i.Value)).ToList();
+        
+        return await QueryBooksAsync(sql, new { Isbns = isbnList });
     }
 
-    public async Task<Book?> GetBookByIsbnAsync(string? isbn13, string? isbn10 = null)
+    public async Task<Book?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null)
     {
         const string sql = """
                            SELECT *
@@ -99,7 +102,7 @@ public class BookRepository : IBookRepository
     
         var connection = await _dbContext.GetConnectionAsync();
 
-        var bookDto = await connection.QuerySingleOrDefaultAsync<BookEntity>(sql, new { Isbn13 = isbn13, Isbn10 = isbn10 });
+        var bookDto = await connection.QuerySingleOrDefaultAsync<BookEntity>(sql, new { Isbn13 = isbn13?.Value, Isbn10 = isbn10?.Value });
     
         return bookDto?.ToDomain();
     }
@@ -135,7 +138,7 @@ public class BookRepository : IBookRepository
         
         var bookId = await connection.QuerySingleAsync<int>(sql, bookDto);
 
-        return book.WithId(bookId);
+        return book;
     }
 
     public async Task<List<Book>> GetAllBooksAsync()

@@ -36,8 +36,6 @@ public class AuthorRepository : IAuthorRepository
         // Insert the author first
         var authorId = await connection.QuerySingleAsync<int>(authorSql, authorDto);
 
-        author.WithId(authorId);
-
         // If there are name variants, insert them
         if (author.NameVariants.Count > 0)
         {

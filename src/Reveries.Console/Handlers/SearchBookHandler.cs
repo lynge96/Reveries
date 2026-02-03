@@ -5,6 +5,7 @@ using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Interfaces;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;
@@ -57,7 +58,9 @@ public class SearchBookHandler : BaseHandler
 
         if (isbnTokens.Count != 0)
         {
-            var books = await _bookLookupService.FindBooksByIsbnAsync(isbnTokens, cancellationToken);
+            var isbns = isbnTokens.Select(Isbn.Create).ToList();
+            
+            var books = await _bookLookupService.FindBooksByIsbnAsync(isbns, cancellationToken);
             results.AddRange(books);
         }
         if (titleTokens.Count != 0)

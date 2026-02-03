@@ -4,6 +4,7 @@ using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Exceptions;
+using Reveries.Core.Identity;
 using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
@@ -25,11 +26,11 @@ public class BookManagementService : IBookManagementService
         _logger = logger;
     }
     
-    public async Task<int?> CreateBookWithRelationsAsync(Book book, CancellationToken ct)
+    public async Task<BookId> CreateBookWithRelationsAsync(Book book, CancellationToken ct)
     {
         _logger.LogDebug("Started creation of book '{Title}' with Isbn {Isbn}.", 
             book.Title, 
-            book.Isbn13 ?? book.Isbn10);
+            book.Isbn13?.Value ?? book.Isbn10?.Value);
         
         await ValidateBookNotExistsAsync(book);
         
@@ -39,7 +40,7 @@ public class BookManagementService : IBookManagementService
             
             await HandlePublisherAsync(book);
             await HandleAuthorsAsync(book);
-            await HandleSubjectsAsync(book);
+            await HandleGenresAsync(book);
             await HandleSeriesAsync(book);
             
             var savedBook = await _unitOfWork.Books.CreateAsync(book);
@@ -49,9 +50,6 @@ public class BookManagementService : IBookManagementService
             
             if (book.Genres.Count != 0)
                 await SaveBookSubjectsAsync(savedBook.Id, book.Genres);
-            
-            if (book.Dimensions != null)
-                await SaveBookDimensionsAsync(savedBook.Id, book.Dimensions);
             
             if (book.DeweyDecimals.Count != 0)
                 await SaveDeweyDecimalsAsync(savedBook.Id, book.DeweyDecimals);
@@ -91,13 +89,14 @@ public class BookManagementService : IBookManagementService
         foreach (var book in books)
         {
             await _unitOfWork.Books.UpdateBookAsync(book);
-            await _bookCacheService.RemoveBookByIsbnAsync(book.Isbn13 ?? book.Isbn10, ct);
+            await _bookCacheService.RemoveBookByIsbnAsync(book.Isbn13?.Value ?? book.Isbn10?.Value, ct);
         }
     }
 
     private async Task ValidateBookNotExistsAsync(Book book)
     {
         var existingBook = await _unitOfWork.Books.GetBookByIsbnAsync(book.Isbn13, book.Isbn10);
+        
         if (existingBook != null)
         {
             var isbnUsed = existingBook.Isbn13 == book.Isbn13 ? book.Isbn13 : book.Isbn10;
@@ -159,19 +158,19 @@ public class BookManagementService : IBookManagementService
         }
     }
     
-    private async Task HandleSubjectsAsync(Book book)
+    private async Task HandleGenresAsync(Book book)
     {
-        foreach (var subject in book.Genres)
+        foreach (var genre in book.Genres)
         {
-            var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(subject.Genre);
+            var existingGenre = await _unitOfWork.Genres.GetGenreByNameAsync(genre.Value);
             
-            if (existingSubject != null)
+            if (existingGenre != null)
             {
-                book.AddGenre(existingSubject);
+                book.AddGenre(existingGenre);
             }
             else
             {
-                var createdSubject = await _unitOfWork.Subjects.CreateSubjectAsync(subject);
+                var createdSubject = await _unitOfWork.Genres.CreateGenreAsync(genre);
                 book.AddGenre(createdSubject);
             }
         }
@@ -202,15 +201,7 @@ public class BookManagementService : IBookManagementService
     
     private async Task SaveBookSubjectsAsync(int? bookId, IEnumerable<Genre> subjects)
     {
-        await _unitOfWork.BookSubjects.SaveBookSubjectsAsync(bookId, subjects);
-    }
-    
-    private async Task SaveBookDimensionsAsync(int? bookId, BookDimensions? dimensions)
-    {
-        if (dimensions != null)
-        {
-            await _unitOfWork.BookDimensions.SaveBookDimensionsAsync(bookId, dimensions);
-        }
+        await _unitOfWork.BookGenres.SaveBookGenresAsync(bookId, subjects);
     }
 
     private async Task SaveDeweyDecimalsAsync(int? bookId, IEnumerable<DeweyDecimal>? deweyDecimals)

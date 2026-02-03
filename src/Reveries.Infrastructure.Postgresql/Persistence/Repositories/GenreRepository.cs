@@ -1,23 +1,22 @@
 using Dapper;
 using Reveries.Application.Interfaces.Persistence;
 using Reveries.Core.Interfaces.Persistence.Repositories;
-using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
-public class SubjectRepository : ISubjectRepository
+public class GenreRepository : IGenreRepository
 {
     private readonly IDbContext _dbContext;
     
-    public SubjectRepository(IDbContext dbContext)
+    public GenreRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task<Genre?> GetSubjectByNameAsync(string genre)
+    public async Task<Genre?> GetGenreByNameAsync(string genre)
     {
         if (string.IsNullOrWhiteSpace(genre))
             return null;
@@ -36,7 +35,7 @@ public class SubjectRepository : ISubjectRepository
         return subjectDto?.ToDomain();
     }
 
-    public async Task<Genre> CreateSubjectAsync(Genre genre)
+    public async Task<Genre> CreateGenreAsync(Genre genre)
     {
         const string sql = """
                            INSERT INTO subjects (genre)
@@ -50,7 +49,7 @@ public class SubjectRepository : ISubjectRepository
 
         var subjectId = await connection.QuerySingleAsync<int>(sql, subjectDto);
 
-        return genre.WithId(subjectId);
+        return genre;
     }
 
 }

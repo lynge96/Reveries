@@ -28,7 +28,7 @@ public class PublisherRepository : IPublisherRepository
         var publisherDto = publisher.ToEntity();
         var publisherId = await connection.QuerySingleAsync<int>(sql, publisherDto);
 
-        return publisher.WithId(publisherId);
+        return publisher;
     }
     
     public async Task<List<Publisher>> GetPublishersByNameAsync(string name)

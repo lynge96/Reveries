@@ -1,4 +1,5 @@
-﻿using Reveries.Integration.Isbndb.DTOs.Books;
+﻿using Reveries.Core.ValueObjects;
+using Reveries.Integration.Isbndb.DTOs.Books;
 
 namespace Reveries.Integration.Isbndb.Interfaces;
 
@@ -21,7 +22,7 @@ public interface IIsbndbBookClient
     /// <returns>
     /// A <see cref="BookDetailsDto"/> containing the book's detailed information, or <c>null</c> if the book is not found.
     /// </returns>
-    Task<BookDetailsDto> FetchBookByIsbnAsync(string isbn, CancellationToken ct = default);
+    Task<BookDetailsDto> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default);
 
     /// <summary>
     /// Returns a list of books that match the given query.
@@ -59,5 +60,5 @@ public interface IIsbndbBookClient
     /// A <see cref="BooksListResponseDto"/> containing the books that match the provided ISBNs, 
     /// or <c>null</c> if no matching books are found or the request fails.
     /// </returns>
-    Task<BooksListResponseDto> FetchBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken ct = default);
+    Task<BooksListResponseDto> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct = default);
 }

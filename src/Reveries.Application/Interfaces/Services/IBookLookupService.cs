@@ -1,4 +1,5 @@
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Interfaces.Services;
 
@@ -16,7 +17,7 @@ public interface IBookLookupService
     /// <param name="isbns">A list of ISBN-10 or ISBN-13 identifiers to search for.</param>
     /// <param name="ct">Token to observe while waiting for the task to complete.</param>
     /// <returns>A list of <see cref="Book"/> objects that match the given ISBNs.</returns>
-    Task<List<Book>> FindBooksByIsbnAsync(List<string> isbns, CancellationToken ct = default);
+    Task<List<Book>> FindBooksByIsbnAsync(List<Isbn> isbns, CancellationToken ct = default);
 
     /// <summary>
     /// Searches for books by their titles.

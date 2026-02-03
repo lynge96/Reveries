@@ -1,4 +1,5 @@
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Interfaces.GoogleBooks;
 
@@ -21,7 +22,7 @@ public interface IGoogleBooksService
     /// A list of <see cref="Book"/> entities corresponding to the provided ISBNs.
     /// If none are found, an empty list is returned.
     /// </returns>
-    Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct = default);
+    Task<List<Book>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct = default);
 
     /// <summary>
     /// Searches Google Books for books that match any of the given titles.
