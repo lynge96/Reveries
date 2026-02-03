@@ -9,17 +9,15 @@ public sealed record DeweyDecimal
         Code = code;
     }
     
-    public static DeweyDecimal? Create(string? rawCode)
+    public static DeweyDecimal Create(string rawCode)
     {
         var normalized = Normalize(rawCode);
         
-        return normalized is null ? null : new DeweyDecimal(normalized);
+        return new DeweyDecimal(normalized);
     }
     
-    private static string? Normalize(string? code)
+    private static string Normalize(string code)
     {
-        if (string.IsNullOrWhiteSpace(code)) return null;
-
         var normalized = code.Trim();
         
         if (normalized.Contains("/."))
@@ -37,6 +35,6 @@ public sealed record DeweyDecimal
 
         normalized = normalized.TrimEnd('.');
         
-        return normalized.Length > 0 ? normalized : null;
+        return normalized;
     }
 }

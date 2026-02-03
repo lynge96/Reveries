@@ -89,7 +89,7 @@ public class BookManagementService : IBookManagementService
         foreach (var book in books)
         {
             await _unitOfWork.Books.UpdateBookAsync(book);
-            await _bookCacheService.RemoveBookByIsbnAsync(book.Isbn13?.Value ?? book.Isbn10?.Value, ct);
+            await _bookCacheService.RemoveBookByIsbnAsync(book.Isbn13 ?? book.Isbn10, ct);
         }
     }
 

@@ -4,5 +4,5 @@ public sealed class GenreEntity
 {
     public int GenreId { get; set; }
     public string Name { get; set; } = null!;
-    public DateTime DateCreatedGenre { get; set; }
+    public DateTimeOffset? DateCreatedGenre { get; set; }
 }

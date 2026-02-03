@@ -24,5 +24,5 @@ public sealed class BookEntity
     public decimal? WidthCm { get; set; }
     public decimal? ThicknessCm { get; set; }
     public decimal? WeightG { get; set; }
-    public DateTime DateCreatedBook { get; set; }
+    public DateTimeOffset? DateCreatedBook { get; set; }
 }

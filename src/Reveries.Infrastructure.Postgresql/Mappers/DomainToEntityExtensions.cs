@@ -6,89 +6,70 @@ namespace Reveries.Infrastructure.Postgresql.Mappers;
 
 public static class DomainToEntityExtensions
 {
-    public static BookEntity ToEntity(this Book entity)
+    public static BookEntity ToEntity(this Book model)
     {
         return new BookEntity
         {
-            Id = entity.Id ?? -1,
-            Title = entity.Title,
-            Isbn13 = entity.Isbn13,
-            Isbn10 = entity.Isbn10,
-            PublisherId = entity.Publisher?.Id,
-            PageCount = entity.Pages,
-            IsRead = entity.IsRead,
-            PublicationDate = entity.PublishDate,
-            Synopsis = entity.Synopsis,
-            Language = entity.Language,
-            Edition = entity.Edition,
-            Binding = entity.Binding,
-            CoverImageUrl = entity.CoverImageUrl,
-            ImageThumbnailUrl = entity.ImageThumbnailUrl,
-            Msrp = entity.Msrp,
-            SeriesNumber = entity.SeriesNumber,
-            SeriesId = entity.Series?.Id,
-            DateCreatedBook = entity.DateCreated
+            Title = model.Title,
+            Isbn13 = model.Isbn13?.Value,
+            Isbn10 = model.Isbn10?.Value,
+            PageCount = model.Pages,
+            IsRead = model.IsRead,
+            PublicationDate = model.PublishDate,
+            Synopsis = model.Synopsis,
+            Language = model.Language,
+            Edition = model.Edition,
+            Binding = model.Binding,
+            CoverImageUrl = model.CoverImageUrl,
+            ImageThumbnailUrl = model.ImageThumbnailUrl,
+            Msrp = model.Msrp,
+            SeriesNumber = model.SeriesNumber,
+            DateCreatedBook = model.DateCreated
         };
     }
     
-    public static PublisherEntity ToEntity(this Publisher entity)
+    public static PublisherEntity ToEntity(this Publisher model)
     {
         return new PublisherEntity
         {
-            PublisherId = entity.Id ?? -1,
-            PublisherName = entity.Name,
-            DateCreatedPublisher = entity.DateCreated
+            PublisherName = model.Name ?? string.Empty,
+            DateCreatedPublisher = model.DateCreated
         };
     }
 
-    public static SeriesEntity ToEntity(this Series entity)
+    public static SeriesEntity ToEntity(this Series model)
     {
         return new SeriesEntity
         {
-            SeriesId = entity.Id ?? -1,
-            SeriesName = entity.Name,
-            DateCreatedSeries = entity.DateCreated
+            SeriesName = model.Name ?? string.Empty,
+            DateCreatedSeries = model.DateCreated
         };
     }
 
-    public static DimensionsEntity ToEntity(this BookDimensions entity)
-    {
-        return new DimensionsEntity
-        {
-            HeightCm = entity.HeightCm,
-            WidthCm = entity.WidthCm,
-            ThicknessCm = entity.ThicknessCm,
-            WeightG = entity.WeightG
-        };
-    }
-
-    public static AuthorEntity ToEntity(this Author entity)
+    public static AuthorEntity ToEntity(this Author model)
     {
         return new AuthorEntity
         {
-            AuthorId = entity.Id ?? -1,
-            FirstName = entity.FirstName,
-            LastName = entity.LastName,
-            NormalizedName = entity.NormalizedName,
-            DateCreatedAuthor = entity.DateCreated
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            NormalizedName = model.NormalizedName,
+            DateCreatedAuthor = model.DateCreated
         };
     }
 
-    public static GenreEntity ToEntity(this Genre entity)
+    public static GenreEntity ToEntity(this Genre model)
     {
         return new GenreEntity
         {
-            GenreId = entity.Id ?? -1,
-            Name = entity.Genre,
-            DateCreatedGenre = entity.DateCreated
+            Name = model.Value,
         };
     }
 
-    public static DeweyDecimalEntity ToEntity(this DeweyDecimal entity)
+    public static DeweyDecimalEntity ToEntity(this DeweyDecimal model)
     {
         return new DeweyDecimalEntity
         {
-            Code = entity.Code
+            Code = model.Code
         };
     }
 }

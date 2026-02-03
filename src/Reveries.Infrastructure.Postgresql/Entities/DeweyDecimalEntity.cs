@@ -4,5 +4,5 @@ public sealed class DeweyDecimalEntity
 {
     public int BookId { get; set; }
     public string Code { get; set; } = null!;
-    public DateTime DateCreatedDeweyDecimal { get; set; }
+    public DateTimeOffset DateCreatedDeweyDecimal { get; set; }
 }

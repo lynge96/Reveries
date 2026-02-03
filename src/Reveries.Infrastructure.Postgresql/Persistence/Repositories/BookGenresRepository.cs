@@ -17,15 +17,15 @@ public class BookGenresRepository : IBookGenresRepository
     public async Task SaveBookGenresAsync(int? bookId, IEnumerable<Genre> genres)
     {
         const string sql = """
-                           INSERT INTO books_subjects (book_id, subject_id)
-                           VALUES (@BookId, @SubjectId)
+                           INSERT INTO books_genres (book_id, genre_id)
+                           VALUES (@BookId, @GenreId)
                            ON CONFLICT DO NOTHING;
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
 
         var parameters = genres
-            .Select(s => new { BookId = bookId, SubjectId = s.Id })
+            .Select(s => new { BookId = bookId, GenreId = s.Id })
             .ToList();
 
         if (parameters.Count > 0)

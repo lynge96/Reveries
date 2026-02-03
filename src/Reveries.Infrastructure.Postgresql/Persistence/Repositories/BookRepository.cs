@@ -48,7 +48,7 @@ public class BookRepository : IBookRepository
         const string sql = """
                            SELECT *
                            FROM book_details
-                           WHERE name ILIKE @Pattern
+                           WHERE publisherName ILIKE @Pattern
                            """;
 
         var pattern = $"%{publisherName.Trim()}%";
@@ -123,12 +123,14 @@ public class BookRepository : IBookRepository
     public async Task<Book> CreateAsync(Book book)
     {
         const string sql = """
-                           INSERT INTO books (isbn13, isbn10, title, page_count, is_read, publisher_id,
+                           INSERT INTO books (domain_id, isbn13, isbn10, title, page_count, is_read, publisher_id,
                            language, publication_date, synopsis,
-                           image_url, msrp, binding, edition, image_thumbnail, series_id, series_number)
-                           VALUES (@Isbn13, @Isbn10, @Title, @Pages, @IsRead, @PublisherId,
-                           @Language, @PublishDate, @Synopsis,
-                           @ImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnail, @SeriesId, @SeriesNumber)
+                           image_url, msrp, binding, edition, image_thumbnail, series_id, series_number,
+                           height_cm, width_cm, thickness_cm, weight_g)
+                           VALUES (@BookDomainId, @Isbn13, @Isbn10, @Title, @PageCount, @IsRead, @PublisherId,
+                           @Language, @PublicationDate, @Synopsis,
+                           @CoverImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnailUrl, @SeriesId, @SeriesNumber,
+                           @HeightCm, @WidthCm, @ThicknessCm, @WeightG)
                            RETURNING id;
                            """;
 
@@ -136,7 +138,7 @@ public class BookRepository : IBookRepository
 
         var bookDto = book.ToEntity();
         
-        var bookId = await connection.QuerySingleAsync<int>(sql, bookDto);
+        await connection.QuerySingleAsync<int>(sql, bookDto);
 
         return book;
     }
@@ -178,9 +180,9 @@ public class BookRepository : IBookRepository
         var connection = await _dbContext.GetConnectionAsync();
         var bookDictionary = new Dictionary<int, BookAggregateEntity>();
 
-        await connection.QueryAsync<BookEntity, PublisherEntity, AuthorEntity?, GenreEntity?, DimensionsEntity, DeweyDecimalEntity?, SeriesEntity, BookEntity>(
+        await connection.QueryAsync<BookEntity, PublisherEntity, AuthorEntity?, GenreEntity?, DeweyDecimalEntity?, SeriesEntity, BookEntity>(
             sql,
-            (bookEntity, publisherEntity, authorEntity, subjectEntity, dimensionsEntity, deweyDecimalEntity, seriesEntity) =>
+            (bookEntity, publisherEntity, authorEntity, subjectEntity, deweyDecimalEntity, seriesEntity) =>
             {
                 if (!bookDictionary.TryGetValue(bookEntity.Id, out var bookEntry))
                 {
@@ -188,7 +190,6 @@ public class BookRepository : IBookRepository
                     {
                         Book = bookEntity,
                         Publisher = publisherEntity,
-                        Dimensions = dimensionsEntity,
                         Series = seriesEntity
                     };
                     bookDictionary.Add(bookEntity.Id, bookEntry);
@@ -208,7 +209,7 @@ public class BookRepository : IBookRepository
                 return bookEntity;
             },
             param: parameters,
-            splitOn: "publisherid,authorid,subjectid,heightcm,code,seriesid"
+            splitOn: "publisherid,authorid,subjectid,code,seriesid"
         );
 
         return bookDictionary.Values.ToList();

@@ -12,8 +12,8 @@ public static class EntityToDomainExtensions
     {
         return Book.Reconstitute(
             id: new BookId(entity.BookDomainId),
-            isbn13: entity.Isbn13 != null ? new Isbn(entity.Isbn13) : null,
-            isbn10: entity.Isbn10,
+            isbn13: entity.Isbn13 != null ? Isbn.Create(entity.Isbn13) : null,
+            isbn10: entity.Isbn10 != null ? Isbn.Create(entity.Isbn10) : null,
             title: entity.Title,
             pages: entity.PageCount,
             isRead: entity.IsRead,
@@ -26,6 +26,7 @@ public static class EntityToDomainExtensions
             binding: entity.Binding,
             edition: entity.Edition,
             seriesNumber: entity.SeriesNumber,
+            dimensions: BookDimensions.Create(entity.HeightCm, entity.WidthCm, entity.ThicknessCm, entity.WeightG),
             dataSource: DataSource.Database,
             dateCreated: entity.DateCreatedBook
             );
@@ -33,26 +34,26 @@ public static class EntityToDomainExtensions
     
     public static Publisher ToDomain(this PublisherEntity entity)
     {
-        return Publisher.Reconstitute(entity.PublisherId, entity.PublisherName, entity.DateCreatedPublisher);
+        return Publisher.Reconstitute(new PublisherId(entity.PublisherDomainId), entity.PublisherName, entity.DateCreatedPublisher);
     }
 
     public static Series ToDomain(this SeriesEntity entity)
     {
-        return Series.Reconstitute(entity.SeriesId, entity.SeriesName, entity.DateCreatedSeries);
+        return Series.Reconstitute(new SeriesId(entity.SeriesDomainId), entity.SeriesName, entity.DateCreatedSeries);
     }
 
     public static Author ToDomain(this AuthorEntity entity)
     {
-        return Author.Reconstitute(entity.AuthorId, entity.NormalizedName, entity.FirstName, entity.LastName, entity.DateCreatedAuthor);
+        return Author.Reconstitute(new AuthorId(entity.AuthorDomainId), entity.FirstName, entity.LastName, entity.DateCreatedAuthor);
     }
 
     public static Genre ToDomain(this GenreEntity entity)
     {
-        return Genre.Reconstitute(entity.GenreId, entity.Name!, entity.DateCreatedGenre);
+        return Genre.Create(entity.Name);
     }
 
     public static DeweyDecimal ToDomain(this DeweyDecimalEntity entity)
     {
-        return DeweyDecimal.Create(entity.Code!);
+        return DeweyDecimal.Create(entity.Code);
     }
 }

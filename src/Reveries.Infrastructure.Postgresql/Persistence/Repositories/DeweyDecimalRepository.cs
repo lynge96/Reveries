@@ -16,7 +16,7 @@ public class DeweyDecimalRepository : IDeweyDecimalRepository
         _dbContext = dbContext;
     }
     
-    public async Task SaveDeweyDecimalsAsync(int? bookId, List<DeweyDecimal>? decimals)
+    public async Task SaveDeweyDecimalsAsync(int bookId, List<DeweyDecimal>? decimals)
     {
         if (decimals == null || decimals.Count == 0)
             return;
