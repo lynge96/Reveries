@@ -15,19 +15,19 @@ public static class DomainToEntityExtensions
             Isbn13 = entity.Isbn13,
             Isbn10 = entity.Isbn10,
             PublisherId = entity.Publisher?.Id,
-            Pages = entity.Pages,
+            PageCount = entity.Pages,
             IsRead = entity.IsRead,
-            PublishDate = entity.PublishDate,
+            PublicationDate = entity.PublishDate,
             Synopsis = entity.Synopsis,
             Language = entity.Language,
             Edition = entity.Edition,
             Binding = entity.Binding,
-            ImageUrl = entity.CoverImageUrl,
-            ImageThumbnail = entity.ImageThumbnailUrl,
+            CoverImageUrl = entity.CoverImageUrl,
+            ImageThumbnailUrl = entity.ImageThumbnailUrl,
             Msrp = entity.Msrp,
             SeriesNumber = entity.SeriesNumber,
             SeriesId = entity.Series?.Id,
-            DateCreated = entity.DateCreated
+            DateCreatedBook = entity.DateCreated
         };
     }
     
@@ -36,7 +36,7 @@ public static class DomainToEntityExtensions
         return new PublisherEntity
         {
             PublisherId = entity.Id ?? -1,
-            Name = entity.Name,
+            PublisherName = entity.Name,
             DateCreatedPublisher = entity.DateCreated
         };
     }
@@ -74,13 +74,13 @@ public static class DomainToEntityExtensions
         };
     }
 
-    public static SubjectEntity ToEntity(this Genre entity)
+    public static GenreEntity ToEntity(this Genre entity)
     {
-        return new SubjectEntity
+        return new GenreEntity
         {
-            SubjectId = entity.Id ?? -1,
-            Genre = entity.Genre,
-            DateCreatedSubject = entity.DateCreated
+            GenreId = entity.Id ?? -1,
+            Name = entity.Genre,
+            DateCreatedGenre = entity.DateCreated
         };
     }
 

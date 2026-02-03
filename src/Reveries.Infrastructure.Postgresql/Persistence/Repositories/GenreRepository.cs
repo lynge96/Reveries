@@ -30,7 +30,7 @@ public class GenreRepository : IGenreRepository
         
         var connection = await _dbContext.GetConnectionAsync();
     
-        var subjectDto = await connection.QuerySingleOrDefaultAsync<SubjectEntity>(sql, new { Genre = genre });
+        var subjectDto = await connection.QuerySingleOrDefaultAsync<GenreEntity>(sql, new { Genre = genre });
         
         return subjectDto?.ToDomain();
     }

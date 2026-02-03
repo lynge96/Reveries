@@ -1,4 +1,5 @@
 using Reveries.Core.Enums;
+using Reveries.Core.Identity;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
@@ -10,29 +11,29 @@ public static class EntityToDomainExtensions
     public static Book ToDomain(this BookEntity entity)
     {
         return Book.Reconstitute(
-            id: entity.Id,
-            isbn13: entity.Isbn13,
+            id: new BookId(entity.BookDomainId),
+            isbn13: entity.Isbn13 != null ? new Isbn(entity.Isbn13) : null,
             isbn10: entity.Isbn10,
             title: entity.Title,
-            pages: entity.Pages,
+            pages: entity.PageCount,
             isRead: entity.IsRead,
-            publishDate: entity.PublishDate,
+            publishDate: entity.PublicationDate,
             language: entity.Language,
             synopsis: entity.Synopsis,
-            imageThumbnail: entity.ImageThumbnail,
-            imageUrl: entity.ImageUrl,
+            imageThumbnail: entity.ImageThumbnailUrl,
+            imageUrl: entity.CoverImageUrl,
             msrp: entity.Msrp,
             binding: entity.Binding,
             edition: entity.Edition,
             seriesNumber: entity.SeriesNumber,
             dataSource: DataSource.Database,
-            dateCreated: entity.DateCreated
+            dateCreated: entity.DateCreatedBook
             );
     }
     
     public static Publisher ToDomain(this PublisherEntity entity)
     {
-        return Publisher.Reconstitute(entity.PublisherId, entity.Name, entity.DateCreatedPublisher);
+        return Publisher.Reconstitute(entity.PublisherId, entity.PublisherName, entity.DateCreatedPublisher);
     }
 
     public static Series ToDomain(this SeriesEntity entity)
@@ -40,19 +41,14 @@ public static class EntityToDomainExtensions
         return Series.Reconstitute(entity.SeriesId, entity.SeriesName, entity.DateCreatedSeries);
     }
 
-    public static BookDimensions? ToDomain(this DimensionsEntity entity)
-    {
-        return BookDimensions.Create(entity.HeightCm, entity.WidthCm, entity.ThicknessCm, entity.WeightG);
-    }
-
     public static Author ToDomain(this AuthorEntity entity)
     {
         return Author.Reconstitute(entity.AuthorId, entity.NormalizedName, entity.FirstName, entity.LastName, entity.DateCreatedAuthor);
     }
 
-    public static Genre ToDomain(this SubjectEntity entity)
+    public static Genre ToDomain(this GenreEntity entity)
     {
-        return Genre.Reconstitute(entity.SubjectId, entity.Genre!, entity.DateCreatedSubject);
+        return Genre.Reconstitute(entity.GenreId, entity.Name!, entity.DateCreatedGenre);
     }
 
     public static DeweyDecimal ToDomain(this DeweyDecimalEntity entity)

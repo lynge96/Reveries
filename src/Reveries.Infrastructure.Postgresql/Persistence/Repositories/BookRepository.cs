@@ -178,7 +178,7 @@ public class BookRepository : IBookRepository
         var connection = await _dbContext.GetConnectionAsync();
         var bookDictionary = new Dictionary<int, BookAggregateEntity>();
 
-        await connection.QueryAsync<BookEntity, PublisherEntity, AuthorEntity?, SubjectEntity?, DimensionsEntity, DeweyDecimalEntity?, SeriesEntity, BookEntity>(
+        await connection.QueryAsync<BookEntity, PublisherEntity, AuthorEntity?, GenreEntity?, DimensionsEntity, DeweyDecimalEntity?, SeriesEntity, BookEntity>(
             sql,
             (bookEntity, publisherEntity, authorEntity, subjectEntity, dimensionsEntity, deweyDecimalEntity, seriesEntity) =>
             {
@@ -197,7 +197,7 @@ public class BookRepository : IBookRepository
                 if (authorEntity is not null && bookEntry.Authors.All(a => a?.AuthorId != authorEntity.AuthorId))
                     bookEntry.Authors.Add(authorEntity);
 
-                if (subjectEntity is not null && bookEntry.Subjects.All(s => s?.SubjectId != subjectEntity.SubjectId))
+                if (subjectEntity is not null && bookEntry.Subjects.All(s => s?.GenreId != subjectEntity.GenreId))
                     bookEntry.Subjects.Add(subjectEntity);
 
                 if (deweyDecimalEntity is not null && bookEntry.DeweyDecimals.All(dd => dd?.Code != deweyDecimalEntity.Code))
