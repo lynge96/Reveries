@@ -1,29 +1,40 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Cache;
-using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Application.Interfaces.Services;
-using Reveries.Core.Exceptions;
 using Reveries.Core.Identity;
-using Reveries.Core.Interfaces.Persistence;
+using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
-namespace Reveries.Application.Services;
+namespace Reveries.Application.Commands;
 
-public class BookManagementService : IBookManagementService
+public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand, BookId>
 {
-    private readonly IIsbndbAuthorService _authorService;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IBookCacheService _bookCacheService;
-    private readonly ILogger<BookManagementService> _logger;
+    private readonly IBookPersistenceService _bookPersistenceService;
+    private readonly IBookCacheService _cache;
+    private readonly ILogger<CreateBookCommandHandler> _logger;
 
-    public BookManagementService(IIsbndbAuthorService authorService, IUnitOfWork unitOfWork, IBookCacheService bookCacheService, ILogger<BookManagementService> logger)
+    public CreateBookCommandHandler(IBookPersistenceService bookPersistenceService, IBookCacheService cache, ILogger<CreateBookCommandHandler> logger)
     {
-        _authorService = authorService;
-        _unitOfWork = unitOfWork;
-        _bookCacheService = bookCacheService;
+        _bookPersistenceService = bookPersistenceService;
+        _cache = cache;
         _logger = logger;
+    }
+    
+    public async Task<BookId> Handle(CreateBookCommand command)
+    {
+        var book = command.Book;
+
+        _logger.LogDebug(
+            "Creating book '{Title}' with ISBN {Isbn}",
+            book.Title,
+            book.Isbn13?.Value ?? book.Isbn10?.Value);
+
+        await _bookPersistenceService.SaveBookWithRelationsAsync(book);
+
+        await _cache.SetBookByIsbnAsync(book);
+        
+        return book.Id;
     }
     
     public async Task<BookId> CreateBookWithRelationsAsync(Book book, CancellationToken ct)
@@ -55,7 +66,7 @@ public class BookManagementService : IBookManagementService
                 await SaveDeweyDecimalsAsync(savedBook.Id, book.DeweyDecimals);
             
             await _unitOfWork.CommitAsync();
-            await _bookCacheService.SetBookByIsbnAsync(book, ct);
+            await _cache.SetBookByIsbnAsync(book, ct);
 
             _logger.LogInformation(
                 "Book created successfully. Id={BookId}, ISBN13={Isbn13}, Authors={Authors}, Publisher={Publisher}",
@@ -89,7 +100,7 @@ public class BookManagementService : IBookManagementService
         foreach (var book in books)
         {
             await _unitOfWork.Books.UpdateBookAsync(book);
-            await _bookCacheService.RemoveBookByIsbnAsync(book.Isbn13 ?? book.Isbn10, ct);
+            await _cache.RemoveBookByIsbnAsync(book.Isbn13 ?? book.Isbn10, ct);
         }
     }
 
@@ -138,61 +149,7 @@ public class BookManagementService : IBookManagementService
             }
         }
     }
-
-    private async Task HandlePublisherAsync(Book book)
-    {
-        if (book.Publisher?.Name != null)
-        {
-            var existingPublisher = (await _unitOfWork.Publishers.GetPublishersByNameAsync(book.Publisher.Name))
-                .FirstOrDefault();
-            
-            if (existingPublisher != null)
-            {
-                book.SetPublisher(existingPublisher);
-            }
-            else
-            {
-                var createdPublisher = await _unitOfWork.Publishers.CreatePublisherAsync(book.Publisher);
-                book.SetPublisher(createdPublisher);
-            }
-        }
-    }
     
-    private async Task HandleGenresAsync(Book book)
-    {
-        foreach (var genre in book.Genres)
-        {
-            var existingGenre = await _unitOfWork.Genres.GetGenreByNameAsync(genre.Value);
-            
-            if (existingGenre != null)
-            {
-                book.AddGenre(existingGenre);
-            }
-            else
-            {
-                var createdSubject = await _unitOfWork.Genres.CreateGenreAsync(genre);
-                book.AddGenre(createdSubject);
-            }
-        }
-    }
-    
-    private async Task HandleSeriesAsync(Book book)
-    {
-        if (book.Series != null)
-        {
-            var existingSeries = await _unitOfWork.Series.GetSeriesByNameAsync(book.Series.Name);
-            
-            if (existingSeries != null)
-            {
-                book.SetSeries(existingSeries);
-            }
-            else
-            {
-                var createdSeries = await _unitOfWork.Series.CreateSeriesAsync(book.Series);
-                book.SetSeries(createdSeries);
-            }
-        }
-    }
     
     private async Task SaveBookAuthorsAsync(int? bookId, IEnumerable<Author> authors)
     {

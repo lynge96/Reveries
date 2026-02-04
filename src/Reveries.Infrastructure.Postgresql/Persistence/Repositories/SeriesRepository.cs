@@ -1,9 +1,7 @@
 using Dapper;
 using Reveries.Application.Interfaces.Persistence;
-using Reveries.Core.Interfaces.Persistence.Repositories;
-using Reveries.Core.Models;
 using Reveries.Infrastructure.Postgresql.Entities;
-using Reveries.Infrastructure.Postgresql.Mappers;
+using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
@@ -16,14 +14,31 @@ public class SeriesRepository : ISeriesRepository
         _dbContext = dbContext;
     }
     
-    public async Task<Series?> GetSeriesByNameAsync(string? seriesName)
+    public async Task<int> AddAsync(SeriesEntity series)
     {
-        if (string.IsNullOrWhiteSpace(seriesName))
-            return null;
-    
         const string sql = """
-                           SELECT id as SeriesId, name as seriesName, date_created as DateCreatedSeries 
-                           FROM series 
+                           INSERT INTO library.series (domain_id, name) 
+                           VALUES (@SeriesDomainId, @SeriesName)
+                           ON CONFLICT DO NOTHING
+                           RETURNING id;
+                           """;
+        
+        var connection = await _dbContext.GetConnectionAsync();
+        
+        var seriesId = await connection.QuerySingleAsync<int>(sql, series);
+
+        return seriesId;
+    }
+    
+    public async Task<SeriesEntity?> GetByNameAsync(string seriesName)
+    {
+        const string sql = """
+                           SELECT 
+                               id AS SeriesId, 
+                               domain_id AS SeriesDomainId, 
+                               name AS SeriesName, 
+                               date_created AS DateCreatedSeries 
+                           FROM library.series 
                            WHERE name ILIKE @Name
                            LIMIT 1;
                            """;
@@ -32,38 +47,7 @@ public class SeriesRepository : ISeriesRepository
     
         var seriesDto = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(sql, new { Name = seriesName });
     
-        return seriesDto?.ToDomain();
-    }
-
-    public async Task<Series> CreateSeriesAsync(Series series)
-    {
-        const string sql = """
-                           INSERT INTO series (name) 
-                           VALUES (@SeriesName) 
-                           RETURNING id;
-                           """;
-        
-        var connection = await _dbContext.GetConnectionAsync();
-
-        var seriesDto = series.ToEntity();
-        
-        var seriesId = await connection.QuerySingleAsync<int>(sql, seriesDto);
-
-        return series;
-    }
-
-    public async Task<List<Series>> GetSeriesAsync()
-    {
-        const string sql = """
-                           SELECT id as SeriesId, name as seriesName, date_created as DateCreatedSeries
-                           FROM series
-                           """;
-        
-        var connection = await _dbContext.GetConnectionAsync();
-        
-        var seriesDtos = await connection.QueryAsync<SeriesEntity>(sql);
-        
-        return seriesDtos.Select(dto => dto.ToDomain()).ToList();
+        return seriesDto;
     }
 
 }

@@ -1,6 +1,4 @@
-using Reveries.Core.Interfaces.Persistence.Repositories;
-
-namespace Reveries.Core.Interfaces.Persistence;
+namespace Reveries.Infrastructure.Postgresql.Interfaces;
 
 public interface IUnitOfWork
 {

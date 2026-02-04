@@ -1,10 +1,12 @@
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
-namespace Reveries.Core.Interfaces.Persistence.Repositories;
+namespace Reveries.Infrastructure.Postgresql.Interfaces;
 
 public interface IBookRepository
 {
+    Task<int> AddAsync(Book book);
+    
     Task<List<Book>> GetBooksByAuthorAsync(string authorName);
     Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<string> authorNames);
     Task<List<Book>> GetBooksByPublisherAsync(string publisherName);
@@ -12,7 +14,6 @@ public interface IBookRepository
     Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<Isbn> isbns);
     Task<Book?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null);
     Task<Book?> GetBookByIdAsync(int id);
-    Task<Book> CreateAsync(Book book);
     Task<List<Book>> GetAllBooksAsync();
     Task UpdateBookAsync(Book book);
 }

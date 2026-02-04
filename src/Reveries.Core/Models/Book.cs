@@ -180,7 +180,7 @@ public class Book : BaseEntity
         Series? series = null,
         BookDimensions? dimensions = null,
         IEnumerable<Author>? authors = null,
-        IEnumerable<Genre>? subjects = null,
+        IEnumerable<Genre>? genres = null,
         IEnumerable<DeweyDecimal>? deweyDecimals = null
     )
     {
@@ -213,9 +213,9 @@ public class Book : BaseEntity
             book._authors.AddRange(authors);
         }
 
-        if (subjects != null)
+        if (genres != null)
         {
-            book._genres.AddRange(subjects);
+            book._genres.AddRange(genres);
         }
 
         if (deweyDecimals != null)

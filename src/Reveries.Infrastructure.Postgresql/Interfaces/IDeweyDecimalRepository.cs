@@ -1,7 +1,6 @@
-using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
-namespace Reveries.Core.Interfaces.Persistence.Repositories;
+namespace Reveries.Infrastructure.Postgresql.Interfaces;
 
 public interface IDeweyDecimalRepository
 {

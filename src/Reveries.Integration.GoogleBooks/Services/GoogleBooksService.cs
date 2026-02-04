@@ -162,7 +162,7 @@ public class GoogleBooksService : IGoogleBooksService
                 dimensions?.WeightG
             ),
             authors: mergedAuthors,
-            subjects: mergedSubjects,
+            genres: mergedSubjects,
             deweyDecimals: mergedDeweyDecimals!
         );
     }

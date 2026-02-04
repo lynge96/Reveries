@@ -1,6 +1,5 @@
 using Reveries.Application.Interfaces.Persistence;
-using Reveries.Core.Interfaces.Persistence;
-using Reveries.Core.Interfaces.Persistence.Repositories;
+using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence;
 
@@ -10,7 +9,6 @@ public class UnitOfWork : IUnitOfWork
     public IBookRepository Books { get; }
     public IAuthorRepository Authors { get; }
     public ISeriesRepository Series { get; }
-    public IBookDimensionsRepository BookDimensions { get; }
     public IBookGenresRepository BookGenres { get; }
     public IDeweyDecimalRepository DeweyDecimals { get; }
     public IPublisherRepository Publishers { get; }
@@ -21,7 +19,6 @@ public class UnitOfWork : IUnitOfWork
         IBookRepository bookRepository,
         IAuthorRepository authorRepository,
         ISeriesRepository seriesRepository,
-        IBookDimensionsRepository bookDimensionsRepository,
         IPublisherRepository publisherRepository,
         IBookAuthorsRepository bookAuthorsRepository,
         IBookGenresRepository bookGenresRepository,
@@ -32,7 +29,6 @@ public class UnitOfWork : IUnitOfWork
         Books = bookRepository;
         Authors = authorRepository;
         Series = seriesRepository;
-        BookDimensions = bookDimensionsRepository;
         Publishers = publisherRepository;
         BookAuthors = bookAuthorsRepository;
         BookGenres = bookGenresRepository;

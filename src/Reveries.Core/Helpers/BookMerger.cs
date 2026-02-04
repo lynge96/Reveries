@@ -36,7 +36,7 @@ public static class BookMerger
             series: MergeSeries(isbndbBook),
             dimensions: MergeDimensions(isbndbBook, googleBook),
             authors: MergeAuthors(isbndbBook, googleBook),
-            subjects: MergeSubjects(isbndbBook, googleBook),
+            genres: MergeSubjects(isbndbBook, googleBook),
             deweyDecimals: MergeDeweyDecimals(isbndbBook)
         );
     }

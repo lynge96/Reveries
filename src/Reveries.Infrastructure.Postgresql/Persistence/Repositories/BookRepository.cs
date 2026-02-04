@@ -1,9 +1,9 @@
 using Dapper;
 using Reveries.Application.Interfaces.Persistence;
-using Reveries.Core.Interfaces.Persistence.Repositories;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
+using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
@@ -15,6 +15,29 @@ public class BookRepository : IBookRepository
     public BookRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public async Task<int> AddAsync(Book book)
+    {
+        const string sql = """
+                           INSERT INTO library.books (domain_id, isbn13, isbn10, title, page_count, is_read, publisher_id,
+                           language, publication_date, synopsis,
+                           image_url, msrp, binding, edition, image_thumbnail, series_id, series_number,
+                           height_cm, width_cm, thickness_cm, weight_g)
+                           VALUES (@BookDomainId, @Isbn13, @Isbn10, @Title, @PageCount, @IsRead, @PublisherId,
+                           @Language, @PublicationDate, @Synopsis,
+                           @CoverImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnailUrl, @SeriesId, @SeriesNumber,
+                           @HeightCm, @WidthCm, @ThicknessCm, @WeightG)
+                           RETURNING id;
+                           """;
+        
+        var connection = await _dbContext.GetConnectionAsync();
+
+        var bookDto = book.ToDbModel();
+        
+        var id = await connection.ExecuteScalarAsync<int>(sql, bookDto);
+
+        return id;
     }
 
     public async Task<List<Book>> GetBooksByAuthorAsync(string authorName)
@@ -29,7 +52,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM book_details
+                           FROM library.book_details
                            WHERE normalizedName ILIKE ANY(@Patterns)
                               OR firstName ILIKE ANY(@Patterns)
                               OR lastName ILIKE ANY(@Patterns)
@@ -47,7 +70,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM book_details
+                           FROM library.book_details
                            WHERE publisherName ILIKE @Pattern
                            """;
 
@@ -63,7 +86,7 @@ public class BookRepository : IBookRepository
 
         const string sql = """
                            SELECT *
-                           FROM book_details
+                           FROM library.book_details
                            WHERE title ILIKE ANY(@Patterns)
                            """;
 
@@ -79,7 +102,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM book_details
+                           FROM library.book_details
                            WHERE isbn13 = ANY(@Isbns)
                               OR isbn10 = ANY(@Isbns)
                            """;
@@ -93,7 +116,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM books 
+                           FROM library.books 
                            WHERE isbn13 = @Isbn13
                               OR isbn10 = @Isbn13
                               OR (@Isbn10 IS NOT NULL AND (isbn13 = @Isbn10 OR isbn10 = @Isbn10))
@@ -111,7 +134,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM book_details
+                           FROM library.book_details
                            WHERE id = @Id
                            """;
 
@@ -120,34 +143,11 @@ public class BookRepository : IBookRepository
         return bookList.FirstOrDefault();
     }
 
-    public async Task<Book> CreateAsync(Book book)
-    {
-        const string sql = """
-                           INSERT INTO books (domain_id, isbn13, isbn10, title, page_count, is_read, publisher_id,
-                           language, publication_date, synopsis,
-                           image_url, msrp, binding, edition, image_thumbnail, series_id, series_number,
-                           height_cm, width_cm, thickness_cm, weight_g)
-                           VALUES (@BookDomainId, @Isbn13, @Isbn10, @Title, @PageCount, @IsRead, @PublisherId,
-                           @Language, @PublicationDate, @Synopsis,
-                           @CoverImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnailUrl, @SeriesId, @SeriesNumber,
-                           @HeightCm, @WidthCm, @ThicknessCm, @WeightG)
-                           RETURNING id;
-                           """;
-
-        var connection = await _dbContext.GetConnectionAsync();
-
-        var bookDto = book.ToEntity();
-        
-        await connection.QuerySingleAsync<int>(sql, bookDto);
-
-        return book;
-    }
-
     public async Task<List<Book>> GetAllBooksAsync()
     {
         const string sql = """
                            SELECT *
-                           FROM book_details
+                           FROM library.book_details
                            """;
         
         return await QueryBooksAsync(sql);
@@ -156,7 +156,7 @@ public class BookRepository : IBookRepository
     public async Task UpdateBookAsync(Book book)
     {
         const string sql = """
-                           UPDATE books
+                           UPDATE library.books
                            SET series_id = @SeriesId,
                                series_number = @SeriesNumber,
                                is_read = @IsRead
@@ -164,7 +164,7 @@ public class BookRepository : IBookRepository
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
-        var bookDto = book.ToEntity();
+        var bookDto = book.ToDbModel();
 
         await connection.ExecuteAsync(sql, bookDto);
     }
@@ -172,7 +172,7 @@ public class BookRepository : IBookRepository
     private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)
     {
         var bookAggregateList = await GetBookAggregatesAsync(sql, parameters);
-        return bookAggregateList.Select(BookAggregateEntityMapperExtensions.MapAggregateToDomain).ToList();
+        return bookAggregateList.Select(BookAggregateMapperExtensions.ToDomainAggregate).ToList();
     }
     
     private async Task<List<BookAggregateEntity>> GetBookAggregatesAsync(string sql, object? parameters = null)
@@ -198,8 +198,8 @@ public class BookRepository : IBookRepository
                 if (authorEntity is not null && bookEntry.Authors.All(a => a?.AuthorId != authorEntity.AuthorId))
                     bookEntry.Authors.Add(authorEntity);
 
-                if (subjectEntity is not null && bookEntry.Subjects.All(s => s?.GenreId != subjectEntity.GenreId))
-                    bookEntry.Subjects.Add(subjectEntity);
+                if (subjectEntity is not null && bookEntry.Genres.All(s => s?.GenreId != subjectEntity.GenreId))
+                    bookEntry.Genres.Add(subjectEntity);
 
                 if (deweyDecimalEntity is not null && bookEntry.DeweyDecimals.All(dd => dd?.Code != deweyDecimalEntity.Code))
                 {

@@ -6,10 +6,11 @@ namespace Reveries.Infrastructure.Postgresql.Mappers;
 
 public static class DomainToEntityExtensions
 {
-    public static BookEntity ToEntity(this Book model)
+    public static BookEntity ToDbModel(this Book model)
     {
         return new BookEntity
         {
+            BookDomainId = model.Id.Value,
             Title = model.Title,
             Isbn13 = model.Isbn13?.Value,
             Isbn10 = model.Isbn10?.Value,
@@ -24,11 +25,15 @@ public static class DomainToEntityExtensions
             ImageThumbnailUrl = model.ImageThumbnailUrl,
             Msrp = model.Msrp,
             SeriesNumber = model.SeriesNumber,
+            HeightCm = model.Dimensions?.HeightCm,
+            WidthCm = model.Dimensions?.WidthCm,
+            ThicknessCm = model.Dimensions?.ThicknessCm,
+            WeightG = model.Dimensions?.WeightG,
             DateCreatedBook = model.DateCreated
         };
     }
     
-    public static PublisherEntity ToEntity(this Publisher model)
+    public static PublisherEntity ToDbModel(this Publisher model)
     {
         return new PublisherEntity
         {
@@ -37,7 +42,7 @@ public static class DomainToEntityExtensions
         };
     }
 
-    public static SeriesEntity ToEntity(this Series model)
+    public static SeriesEntity ToDbModel(this Series model)
     {
         return new SeriesEntity
         {
@@ -46,26 +51,38 @@ public static class DomainToEntityExtensions
         };
     }
 
-    public static AuthorEntity ToEntity(this Author model)
+    public static AuthorEntity ToDbModel(this Author model)
     {
         return new AuthorEntity
         {
             FirstName = model.FirstName,
             LastName = model.LastName,
             NormalizedName = model.NormalizedName,
-            DateCreatedAuthor = model.DateCreated
+            DateCreatedAuthor = model.DateCreated,
+            AuthorNameVariants = model.NameVariants
+                .Select(nv => nv.ToDbModel())
+                .ToList()
         };
     }
 
-    public static GenreEntity ToEntity(this Genre model)
+    public static AuthorNameVariantEntity ToDbModel(this AuthorNameVariant variant)
+    {
+        return new AuthorNameVariantEntity
+        {
+            IsPrimary = variant.IsPrimary,
+            NameVariant = variant.NameVariant
+        };
+    }
+    
+    public static GenreEntity ToDbModel(this Genre model)
     {
         return new GenreEntity
         {
-            Name = model.Value,
+            Name = model.Value
         };
     }
 
-    public static DeweyDecimalEntity ToEntity(this DeweyDecimal model)
+    public static DeweyDecimalEntity ToDbModel(this DeweyDecimal model)
     {
         return new DeweyDecimalEntity
         {

@@ -6,9 +6,9 @@ using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Mappers;
 
-public static class BookAggregateEntityMapperExtensions
+public static class BookAggregateMapperExtensions
 {
-    public static Book MapAggregateToDomain(this BookAggregateEntity entity)
+    public static Book ToDomainAggregate(this BookAggregateEntity entity)
     {
         return Book.Reconstitute(
             id: new BookId(entity.Book.BookDomainId),
@@ -31,14 +31,24 @@ public static class BookAggregateEntityMapperExtensions
             series: entity.Series?.ToDomain(),
             dimensions: BookDimensions.Create(entity.Book.HeightCm, entity.Book.WidthCm, entity.Book.ThicknessCm, entity.Book.WeightG),
             authors: entity.Authors?
-                .Where(a => a is not null)
-                .Select(a => a!.ToDomain()),
-            subjects: entity.Subjects?
-                .Where(s => s is not null)
-                .Select(s => s!.ToDomain()),
+                .Select(a => a.ToDomain()),
+            genres: entity.Genres?
+                .Select(s => s.ToDomain()),
             deweyDecimals: entity.DeweyDecimals?
-                .Where(dd => dd is not null)
-                .Select(dd => dd!.ToDomain())
+                .Select(dd => dd.ToDomain())
         );
+    }
+
+    public static BookAggregateEntity ToEntityAggregate(this Book book)
+    {
+        return new BookAggregateEntity
+        {
+            Book = book.ToDbModel(),
+            Publisher = book.Publisher?.ToDbModel(),
+            Authors = book.Authors.Select(a => a.ToDbModel()).ToList(),
+            Genres = book.Genres.Select(g => g.ToDbModel()).ToList(),
+            DeweyDecimals = book.DeweyDecimals.Select(dd => dd.ToDbModel()).ToList(),
+            Series = book.Series?.ToDbModel()
+        };
     }
 }

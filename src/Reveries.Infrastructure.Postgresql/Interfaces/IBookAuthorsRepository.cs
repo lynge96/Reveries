@@ -1,6 +1,6 @@
 using Reveries.Core.Models;
 
-namespace Reveries.Core.Interfaces.Persistence.Repositories;
+namespace Reveries.Infrastructure.Postgresql.Interfaces;
 
 public interface IBookAuthorsRepository
 {

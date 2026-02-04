@@ -1,7 +1,6 @@
 using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Exceptions;
-using Reveries.Core.Interfaces.Persistence;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;

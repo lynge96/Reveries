@@ -8,4 +8,5 @@ public sealed class AuthorEntity
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public DateTimeOffset? DateCreatedAuthor { get; set; }
+    public List<AuthorNameVariantEntity>? AuthorNameVariants { get; set; }
 }
