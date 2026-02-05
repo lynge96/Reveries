@@ -1,9 +1,9 @@
 using FluentValidation;
-using Reveries.Contracts.DTOs;
+using Reveries.Contracts.Books;
 
 namespace Reveries.Api.Validation;
 
-public class CreateBookDtoValidator : AbstractValidator<CreateBookDto>
+public class CreateBookDtoValidator : AbstractValidator<CreateBookRequest>
 {
     public CreateBookDtoValidator()
     {

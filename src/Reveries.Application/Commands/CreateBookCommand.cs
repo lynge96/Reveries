@@ -25,4 +25,5 @@ public sealed record CreateBookCommand
     public decimal? WeightG { get; init; }
     public List<string>? DeweyDecimals { get; init; }
     public List<string>? Genres { get; init; }
+    public string? DataSource { get; set; }
 }

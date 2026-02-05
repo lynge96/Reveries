@@ -1,7 +1,7 @@
 using Reveries.Api.Interfaces;
-using Reveries.Api.Mappers;
 using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Services;
+using Reveries.Application.Mappers;
 using Reveries.Contracts.DTOs;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Identity;
@@ -80,13 +80,4 @@ public class BookService : IBookService
         return books.Select(book => book.ToDto());
     }
 
-    public async Task<Guid> CreateBookAsync(CreateBookDto bookDto, CancellationToken ct)
-    {
-        var book = bookDto.ToDomain();
-
-        var bookId = await _bookManagementService.CreateBookWithRelationsAsync(book, ct);
-        
-        _logger.LogInformation("Book created successfully {@Ctx}", new { Operation = "CreateBook", BookId = bookId });
-        return bookId.Value;
-    }
 }

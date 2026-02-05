@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Reveries.Blazor.BookScanner.Exceptions;
+using Reveries.Contracts.Books;
 using Reveries.Contracts.DTOs;
 
 namespace Reveries.Blazor.BookScanner.Clients;
@@ -42,7 +43,7 @@ public class BookApiClient
     {
         try
         {
-            var createDto = new CreateBookDto
+            var createDto = new CreateBookRequest
             {
                 Isbn13 = bookDto.Isbn13,
                 Isbn10 = bookDto.Isbn10,
@@ -58,10 +59,10 @@ public class BookApiClient
                 Msrp = bookDto.Msrp,
                 Binding = bookDto.Binding,
                 Edition = bookDto.Edition,
-                Subjects = bookDto.Subjects,
+                Genres = bookDto.Subjects,
                 Series = bookDto.Series,
                 NumberInSeries = bookDto.NumberInSeries,
-                DeweyDecimal = bookDto.DeweyDecimal,
+                DeweyDecimals = bookDto.DeweyDecimal,
                 Dimensions = bookDto.Dimensions,
                 DataSource = bookDto.DataSource
             };

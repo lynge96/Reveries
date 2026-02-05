@@ -1,6 +1,6 @@
-namespace Reveries.Contracts.DTOs;
+namespace Reveries.Contracts.Books;
 
-public record CreateBookDto
+public record CreateBookRequest
 {
     public string? Isbn10 { get; set; }
     public string? Isbn13 { get; set; }
@@ -19,8 +19,11 @@ public record CreateBookDto
     public string? ImageUrl { get; set; }
     public decimal? Msrp { get; set; }
     public bool IsRead { get; set; }
-    public DimensionsDto? Dimensions { get; set; }
-    public List<string>? DeweyDecimal { get; set; }
-    public List<string>? Subjects { get; set; }
+    public decimal? HeightCm { get; init; }
+    public decimal? WidthCm { get; init; }
+    public decimal? ThicknessCm { get; init; }
+    public decimal? WeightG { get; init; }
+    public List<string>? DeweyDecimals { get; set; }
+    public List<string>? Genres { get; set; }
     public string? DataSource { get; set; }
 }

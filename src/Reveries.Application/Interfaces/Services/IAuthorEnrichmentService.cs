@@ -4,5 +4,5 @@ namespace Reveries.Application.Interfaces.Services;
 
 public interface IAuthorEnrichmentService
 {
-    Task EnrichAsync(List<Author> authors, CancellationToken ct);
+    Task EnrichAsync(IReadOnlyList<Author> authors, CancellationToken ct);
 }

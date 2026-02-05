@@ -13,7 +13,7 @@ public class AuthorEnrichmentService : IAuthorEnrichmentService
         _isbndbAuthorService = isbndbAuthorService;
     }
     
-    public async Task EnrichAsync(List<Author> authors, CancellationToken ct)
+    public async Task EnrichAsync(IReadOnlyList<Author> authors, CancellationToken ct)
     {
         var variantsCache = new Dictionary<string, IReadOnlyList<Author>>();
 

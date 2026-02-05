@@ -1,15 +1,13 @@
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Core.Identity;
+using Reveries.Application.Mappers;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
-using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Commands;
 
-public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand, int>
+public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand>
 {
     private readonly IBookPersistenceService _bookPersistenceService;
     private readonly IAuthorEnrichmentService _authorEnrichmentService;
@@ -24,16 +22,16 @@ public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand
         _logger = logger;
     }
     
-    public async Task<int> Handle(CreateBookCommand command)
+    public async Task<int> Handle(CreateBookCommand command, CancellationToken ct)
     {
-        var book = command.Book;
+        var book = command.MapToDomain();
 
         _logger.LogDebug(
             "Creating book '{Title}' with ISBN {Isbn}",
             book.Title,
             book.Isbn13?.Value ?? book.Isbn10?.Value);
 
-        await _authorEnrichmentService.EnrichAsync(book.Authors);
+        await _authorEnrichmentService.EnrichAsync(book.Authors, ct);
         
         var bookDbId = await _bookPersistenceService.SaveBookWithRelationsAsync(book);
 

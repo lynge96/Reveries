@@ -1,7 +1,8 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Reveries.Api.Interfaces;
+using Reveries.Api.Mappers;
 using Reveries.Application.Commands;
+using Reveries.Contracts.Books;
 using Reveries.Contracts.DTOs;
 using Reveries.Contracts.Requests;
 using Reveries.Core.ValueObjects;
@@ -14,9 +15,9 @@ namespace Reveries.Api.Controllers;
 public class BooksController : ControllerBase
 {
     private readonly ICommandHandler<CreateBookCommand> _createBookHandler;
-    private readonly IValidator<CreateBookDto> _createBookValidator;
+    private readonly IValidator<CreateBookRequest> _createBookValidator;
 
-    public BooksController(ICommandHandler<CreateBookCommand> createBookHandler, IValidator<CreateBookDto> createBookValidator)
+    public BooksController(ICommandHandler<CreateBookCommand> createBookHandler, IValidator<CreateBookRequest> createBookValidator)
     {
         _createBookHandler = createBookHandler;
         _createBookValidator = createBookValidator;
@@ -65,18 +66,17 @@ public class BooksController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateBookCommand command, CancellationToken ct)
+    public async Task<IActionResult> Create([FromBody] CreateBookRequest request, CancellationToken ct)
     {
-        var validationResult = await _createBookValidator.ValidateAsync(bookData, ct);
+        var validationResult = await _createBookValidator.ValidateAsync(request, ct);
         
         if (!validationResult.IsValid)
             throw new ValidationException(validationResult.Errors);
         
-        var bookId = await _bookService.CreateBookAsync(bookData, ct);
+        var command = request.ToCommand();
+        
+        var bookId = await _createBookHandler.Handle(command, ct);
 
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = bookId },
-            bookId);
+        return CreatedAtAction(nameof(GetById), new { id = bookId }, bookId);
     }
 }
