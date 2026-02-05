@@ -12,6 +12,8 @@ public static class ServiceCollectionExtensions
     {
         // Services
         services.AddScoped<ICommandHandler<CreateBookCommand, BookId>, CreateBookCommandHandler>();
+        services.AddScoped<IAuthorEnrichmentService, AuthorEnrichmentService>();
+        
         services.AddScoped<IBookEnrichmentService, BookEnrichmentService>();
         services.AddScoped<IBookLookupService, BookLookupService>();
         services.AddScoped<IAuthorLookupService, AuthorLookupService>();

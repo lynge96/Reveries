@@ -1,5 +1,4 @@
 using Dapper;
-using Reveries.Application.Interfaces.Persistence;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 

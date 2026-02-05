@@ -1,4 +1,3 @@
-using Reveries.Application.Interfaces.Persistence;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence;

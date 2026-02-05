@@ -1,3 +1,4 @@
+using Reveries.Application.Exceptions;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Infrastructure.Postgresql.Entities;
@@ -18,51 +19,37 @@ public class BookPersistenceService : IBookPersistenceService
     public async Task<int> SaveBookWithRelationsAsync(Book book)
     {
         await _unitOfWork.BeginTransactionAsync();
-
+        
         var entityAggregate = book.ToEntityAggregate();
+        
+        await ValidateBookNotExistsAsync(entityAggregate.Book);
         
         try
         {
-            // 1. Publisher
             await HandlePublisherAsync(entityAggregate);
             await HandleSeriesAsync(entityAggregate);
             await HandleGenresAsync(entityAggregate);
             await HandleAuthorsAsync(entityAggregate);
+            
+            var bookDbId = await _unitOfWork.Books.AddAsync(entityAggregate.Book);
 
-            // 2. Series
-            if (book.Series != null)
-            {
-                var existingSeries = await _unitOfWork.Series.GetByNameAsync(book.Series.Name);
-                if (existingSeries != null)
-                    book.SetSeries(existingSeries);
-                else
-                    book.SetSeries(await _unitOfWork.Series.AddAsync(book.Series));
-            }
-            
-            // 3. Book
-            var bookDbId = await _unitOfWork.Books.AddAsync(book);
-            
-            // 4. Authors
-            foreach (var author in book.Authors)
-            {
-                var authorDbId = await _unitOfWork.Authors.GetOrCreateAuthorAsync(author);
-                await _unitOfWork.BookAuthors.AddAsync(bookDbId, authorDbId);
-            }
-            
-            // 5. Genres
-            foreach (var genre in book.Genres)
-            {
-                var genreDbId = await _unitOfWork.Genres.GetOrCreateGenreAsync(genre);
-                await _unitOfWork.BookGenres.AddAsync(bookDbId, genreDbId);
-            }
-            
-            // 6. DeweyDecimals
-            if (book.DeweyDecimals.Count > 0)
-                await _unitOfWork.DeweyDecimals.SaveDeweyDecimalsAsync(bookDbId, book.DeweyDecimals);
+            if (entityAggregate.DeweyDecimals != null)
+                await SaveDeweyDecimalsAsync(bookDbId, entityAggregate.DeweyDecimals);
 
+            if (entityAggregate.Authors != null)
+                await SaveBookAuthorsAsync(bookDbId, entityAggregate.Authors);
+            
+            if (entityAggregate.Genres != null)
+                await SaveBookSubjectsAsync(bookDbId, entityAggregate.Genres);
+            
             await _unitOfWork.CommitAsync();
 
             return bookDbId;
+        }
+        catch (BookAlreadyExistsException)
+        {
+            await _unitOfWork.RollbackAsync();
+            throw;
         }
         catch
         {
@@ -71,6 +58,17 @@ public class BookPersistenceService : IBookPersistenceService
         }
     }
 
+    private async Task ValidateBookNotExistsAsync(BookEntity book)
+    {
+        var existingBook = await _unitOfWork.Books.GetBookByIsbnAsync(book.Isbn13, book.Isbn10);
+        
+        if (existingBook != null)
+        {
+            var isbnUsed = existingBook.Isbn13 == book.Isbn13 ? book.Isbn13 : book.Isbn10;
+            throw new BookAlreadyExistsException(isbnUsed!);
+        }
+    }
+    
     private async Task HandlePublisherAsync(BookAggregateEntity aggregate)
     {
         var publisher = aggregate.Publisher;
@@ -139,7 +137,7 @@ public class BookPersistenceService : IBookPersistenceService
         
         foreach (var author in authors)
         {
-            var existingAuthor = await _unitOfWork.Authors.GetByNameAsync(author.NormalizedName);
+            AuthorEntity? existingAuthor = await _unitOfWork.Authors.GetByNameAsync(author.NormalizedName);
         
             if (existingAuthor != null)
             {
@@ -153,4 +151,22 @@ public class BookPersistenceService : IBookPersistenceService
         }
     }
     
+    private async Task SaveDeweyDecimalsAsync(int bookId, IEnumerable<DeweyDecimalEntity>? deweyDecimals)
+    {
+        var decimalsList = deweyDecimals?.ToList();
+        if (decimalsList == null || decimalsList.Count == 0)
+            return;
+
+        await _unitOfWork.DeweyDecimals.SaveDeweyDecimalsAsync(bookId, decimalsList);
+    }
+    
+    private async Task SaveBookAuthorsAsync(int bookId, IEnumerable<AuthorEntity> authors)
+    {
+        await _unitOfWork.BookAuthors.SaveBookAuthorsAsync(bookId, authors);
+    }
+    
+    private async Task SaveBookSubjectsAsync(int bookId, IEnumerable<GenreEntity> subjects)
+    {
+        await _unitOfWork.BookGenres.SaveBookGenresAsync(bookId, subjects);
+    }
 }

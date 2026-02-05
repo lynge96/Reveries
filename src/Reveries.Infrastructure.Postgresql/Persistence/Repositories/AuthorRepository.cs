@@ -1,5 +1,4 @@
 using Dapper;
-using Reveries.Application.Interfaces.Persistence;
 using Reveries.Core.Models;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
@@ -39,12 +38,12 @@ public class AuthorRepository : IAuthorRepository
         // If there are name variants, insert them
         if (author.AuthorNameVariants != null)
         {
-            var variantDtos = author.AuthorNameVariants.Select(variant => new
+            var variantDtos = author.AuthorNameVariants.Select(variant => new AuthorNameVariantEntity
             {
                 AuthorId = authorDbId,
-                variant.NameVariant,
-                variant.IsPrimary
-            }).ToList();
+                NameVariant = variant.NameVariant,
+                IsPrimary = variant.IsPrimary
+            });
 
             await connection.ExecuteAsync(variantSql, variantDtos);
         }

@@ -1,5 +1,4 @@
 using Dapper;
-using Reveries.Application.Interfaces.Persistence;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
@@ -16,22 +15,19 @@ public class DeweyDecimalRepository : IDeweyDecimalRepository
         _dbContext = dbContext;
     }
     
-    public async Task SaveDeweyDecimalsAsync(int bookId, List<DeweyDecimal>? decimals)
+    public async Task SaveDeweyDecimalsAsync(int bookId, List<DeweyDecimalEntity> decimals)
     {
-        if (decimals == null || decimals.Count == 0)
-            return;
-
         const string sql = """
-                           INSERT INTO dewey_decimals (book_id, code)
+                           INSERT INTO library.dewey_decimals (book_id, code)
                            VALUES (@BookId, @Code)
                            ON CONFLICT DO NOTHING;
                            """;
 
         var parameters = decimals
-            .Select(d => new DeweyDecimalEntity { BookId = bookId, Code = d.Code })
-            .ToList();
+            .Select(d => new DeweyDecimalEntity { BookId = bookId, Code = d.Code });
 
         var connection = await _dbContext.GetConnectionAsync();
+        
         await connection.ExecuteAsync(sql, parameters);
     }
 }

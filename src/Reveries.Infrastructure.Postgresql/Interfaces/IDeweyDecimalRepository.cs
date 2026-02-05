@@ -1,8 +1,8 @@
-using Reveries.Core.ValueObjects;
+using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Interfaces;
 
 public interface IDeweyDecimalRepository
 {
-    Task SaveDeweyDecimalsAsync(int bookId, List<DeweyDecimal> decimals);
+    Task SaveDeweyDecimalsAsync(int bookId, List<DeweyDecimalEntity> decimals);
 }

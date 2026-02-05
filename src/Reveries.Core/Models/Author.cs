@@ -18,11 +18,8 @@ public class Author : BaseEntity
 
     public override string ToString() => NormalizedName.ToTitleCase();
 
-    public static Author? Create(string? name)
+    public static Author Create(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return null;
-        
         var (firstName, lastName) = AuthorNameNormalizer.Parse(name);
         
         return new Author

@@ -19,7 +19,7 @@ public class IsbndbAuthorService : IIsbndbAuthorService
         _logger = logger;
     }
 
-    public async Task<List<Author>> GetAuthorsByNameAsync(string authorName, CancellationToken ct)
+    public async Task<IReadOnlyList<Author>> GetAuthorsByNameAsync(string authorName, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(authorName))
             return [];
@@ -29,7 +29,8 @@ public class IsbndbAuthorService : IIsbndbAuthorService
             var authorResponseDto = await _authorClient.SearchAuthorsByNameAsync(authorName, ct);
 
             var authors = authorResponseDto.Authors.Any()
-                ? authorResponseDto.Authors.Select(Author.Create)
+                ? authorResponseDto.Authors
+                    .Select(Author.Create)
                 : [];
 
             var distinctAuthors = authors

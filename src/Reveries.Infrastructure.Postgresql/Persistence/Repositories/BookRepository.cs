@@ -1,5 +1,4 @@
 using Dapper;
-using Reveries.Application.Interfaces.Persistence;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
@@ -17,7 +16,7 @@ public class BookRepository : IBookRepository
         _dbContext = dbContext;
     }
 
-    public async Task<int> AddAsync(Book book)
+    public async Task<int> AddAsync(BookEntity book)
     {
         const string sql = """
                            INSERT INTO library.books (domain_id, isbn13, isbn10, title, page_count, is_read, publisher_id,
@@ -32,12 +31,28 @@ public class BookRepository : IBookRepository
                            """;
         
         var connection = await _dbContext.GetConnectionAsync();
-
-        var bookDto = book.ToDbModel();
         
-        var id = await connection.ExecuteScalarAsync<int>(sql, bookDto);
+        var id = await connection.ExecuteScalarAsync<int>(sql, book);
 
         return id;
+    }
+    
+    public async Task<BookEntity?> GetBookByIsbnAsync(string? isbn13, string? isbn10 = null)
+    {
+        const string sql = """
+                           SELECT *
+                           FROM library.books 
+                           WHERE isbn13 = @Isbn13
+                              OR isbn10 = @Isbn13
+                              OR (@Isbn10 IS NOT NULL AND (isbn13 = @Isbn10 OR isbn10 = @Isbn10))
+                           LIMIT 1
+                           """;
+    
+        var connection = await _dbContext.GetConnectionAsync();
+
+        var bookDto = await connection.QueryFirstOrDefaultAsync<BookEntity>(sql, new { Isbn13 = isbn13, Isbn10 = isbn10 });
+    
+        return bookDto;
     }
 
     public async Task<List<Book>> GetBooksByAuthorAsync(string authorName)
@@ -112,23 +127,7 @@ public class BookRepository : IBookRepository
         return await QueryBooksAsync(sql, new { Isbns = isbnList });
     }
 
-    public async Task<Book?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null)
-    {
-        const string sql = """
-                           SELECT *
-                           FROM library.books 
-                           WHERE isbn13 = @Isbn13
-                              OR isbn10 = @Isbn13
-                              OR (@Isbn10 IS NOT NULL AND (isbn13 = @Isbn10 OR isbn10 = @Isbn10))
-                           LIMIT 1
-                           """;
-    
-        var connection = await _dbContext.GetConnectionAsync();
 
-        var bookDto = await connection.QuerySingleOrDefaultAsync<BookEntity>(sql, new { Isbn13 = isbn13?.Value, Isbn10 = isbn10?.Value });
-    
-        return bookDto?.ToDomain();
-    }
 
     public async Task<Book?> GetBookByIdAsync(int id)
     {
