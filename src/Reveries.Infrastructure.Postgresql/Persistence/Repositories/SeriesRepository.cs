@@ -1,6 +1,10 @@
 using Dapper;
+using Reveries.Core.Interfaces.IRepository;
+using Reveries.Core.Models;
+using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
+using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
@@ -13,7 +17,7 @@ public class SeriesRepository : ISeriesRepository
         _dbContext = dbContext;
     }
     
-    public async Task<int> AddAsync(SeriesEntity series)
+    public async Task<int> AddAsync(Series series)
     {
         const string sql = """
                            INSERT INTO library.series (domain_id, name) 
@@ -23,13 +27,15 @@ public class SeriesRepository : ISeriesRepository
                            """;
         
         var connection = await _dbContext.GetConnectionAsync();
+
+        var seriesEntity = series.ToDbModel();
         
-        var seriesId = await connection.QuerySingleAsync<int>(sql, series);
+        var seriesId = await connection.QuerySingleAsync<int>(sql, seriesEntity);
 
         return seriesId;
     }
     
-    public async Task<SeriesEntity?> GetByNameAsync(string seriesName)
+    public async Task<SeriesWithId?> GetByNameAsync(string seriesName)
     {
         const string sql = """
                            SELECT 
@@ -46,7 +52,10 @@ public class SeriesRepository : ISeriesRepository
     
         var seriesDto = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(sql, new { Name = seriesName });
     
-        return seriesDto;
+        if (seriesDto == null)
+            return null;
+        
+        return new SeriesWithId(seriesDto.ToDomain(), seriesDto.SeriesId);
     }
 
 }

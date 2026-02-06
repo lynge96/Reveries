@@ -1,4 +1,5 @@
 using Dapper;
+using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
@@ -15,7 +16,7 @@ public class AuthorRepository : IAuthorRepository
         _dbContext = dbContext;
     }
     
-    public async Task<int> AddAsync(AuthorEntity author)
+    public async Task<int> AddAsync(Author author)
     {
         const string authorSql = """
                                  INSERT INTO library.authors (domain_id, normalized_name, first_name, last_name)
@@ -32,13 +33,15 @@ public class AuthorRepository : IAuthorRepository
 
         var connection = await _dbContext.GetConnectionAsync();
         
+        var authorEntity = author.ToDbModel();
+        
         // Insert the author first
-        var authorDbId = await connection.QuerySingleAsync<int>(authorSql, author);
+        var authorDbId = await connection.QuerySingleAsync<int>(authorSql, authorEntity);
 
         // If there are name variants, insert them
-        if (author.AuthorNameVariants != null)
+        if (authorEntity.AuthorNameVariants != null)
         {
-            var variantDtos = author.AuthorNameVariants.Select(variant => new AuthorNameVariantEntity
+            var variantDtos = authorEntity.AuthorNameVariants.Select(variant => new AuthorNameVariantEntity
             {
                 AuthorId = authorDbId,
                 NameVariant = variant.NameVariant,
@@ -51,7 +54,7 @@ public class AuthorRepository : IAuthorRepository
         return authorDbId;
     }
     
-    public async Task<AuthorEntity?> GetByNameAsync(string name)
+    public async Task<Author?> GetByNameAsync(string name)
     {
         const string sql = """
                            SELECT a.id,
@@ -75,10 +78,10 @@ public class AuthorRepository : IAuthorRepository
         
         var authorDto = await connection.QueryFirstOrDefaultAsync<AuthorEntity>(sql, new { Name = name });
 
-        return authorDto;
+        return authorDto?.ToDomain();
     }
 
-    public async Task<List<AuthorEntity>> GetAuthorsByNameAsync(string name)
+    public async Task<List<Author>> GetAuthorsByNameAsync(string name)
     {
         const string sql = """
                            SELECT a.id as AuthorId,
@@ -94,11 +97,10 @@ public class AuthorRepository : IAuthorRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var authorDtos = await connection.QueryAsync<AuthorEntity>(
-            sql,
+        var authorDtos = await connection.QueryAsync<AuthorEntity>(sql, 
             new { Pattern = $"%{name}%" });
 
-        return authorDtos.ToList();
+        return authorDtos.Select(a => a.ToDomain()).ToList();
     }
 
 }

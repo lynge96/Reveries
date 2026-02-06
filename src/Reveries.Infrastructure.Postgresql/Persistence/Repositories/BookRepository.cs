@@ -1,4 +1,5 @@
 using Dapper;
+using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
@@ -16,7 +17,7 @@ public class BookRepository : IBookRepository
         _dbContext = dbContext;
     }
 
-    public async Task<int> AddAsync(BookEntity book)
+    public async Task<int> AddAsync(Book book)
     {
         const string sql = """
                            INSERT INTO library.books (domain_id, isbn13, isbn10, title, page_count, is_read, publisher_id,
@@ -32,12 +33,14 @@ public class BookRepository : IBookRepository
         
         var connection = await _dbContext.GetConnectionAsync();
         
-        var id = await connection.ExecuteScalarAsync<int>(sql, book);
+        var bookEntity = book.ToDbModel();
+        
+        var id = await connection.ExecuteScalarAsync<int>(sql, bookEntity);
 
         return id;
     }
     
-    public async Task<BookEntity?> GetBookByIsbnAsync(string? isbn13, string? isbn10 = null)
+    public async Task<Book?> GetBookByIsbnAsync(string? isbn13, string? isbn10 = null)
     {
         const string sql = """
                            SELECT *
@@ -52,7 +55,7 @@ public class BookRepository : IBookRepository
 
         var bookDto = await connection.QueryFirstOrDefaultAsync<BookEntity>(sql, new { Isbn13 = isbn13, Isbn10 = isbn10 });
     
-        return bookDto;
+        return bookDto?.ToDomain();
     }
 
     public async Task<List<Book>> GetBooksByAuthorAsync(string authorName)

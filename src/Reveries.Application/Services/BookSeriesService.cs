@@ -1,9 +1,8 @@
 using Reveries.Application.Interfaces.Services;
+using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
-using Reveries.Infrastructure.Postgresql.Interfaces;
-using Reveries.Infrastructure.Postgresql.Mappers;
 
-namespace Reveries.Infrastructure.Postgresql.Services;
+namespace Reveries.Application.Services;
 
 public class BookSeriesService : IBookSeriesService
 {

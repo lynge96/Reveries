@@ -1,7 +1,8 @@
 using Dapper;
+using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.ValueObjects;
-using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
+using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
@@ -14,7 +15,7 @@ public class BookGenresRepository : IBookGenresRepository
         _dbContext = dbContext;
     }
 
-    public async Task SaveBookGenresAsync(int bookId, IEnumerable<GenreEntity> genres)
+    public async Task SaveBookGenresAsync(int bookId, IEnumerable<Genre> genres)
     {
         const string sql = """
                            INSERT INTO library.books_genres (book_id, genre_id)
@@ -25,7 +26,8 @@ public class BookGenresRepository : IBookGenresRepository
         var connection = await _dbContext.GetConnectionAsync();
 
         var parameters = genres
-            .Select(s => new { BookId = bookId, s.GenreId });
+            .Select(g => g.ToDbModel())
+            .Select(g => new { BookId = bookId, g.GenreId });
         
         await connection.ExecuteAsync(sql, parameters);
     }

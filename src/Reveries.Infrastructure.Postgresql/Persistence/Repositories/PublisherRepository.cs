@@ -1,6 +1,10 @@
 using Dapper;
+using Reveries.Core.Interfaces.IRepository;
+using Reveries.Core.Models;
+using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
+using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
@@ -13,7 +17,7 @@ public class PublisherRepository : IPublisherRepository
         _dbContext = dbContext;
     }
     
-    public async Task<int> AddAsync(PublisherEntity publisher)
+    public async Task<int> AddAsync(Publisher publisher)
     {
         const string sql = """
                            INSERT INTO library.publishers (domain_id, name)
@@ -23,13 +27,15 @@ public class PublisherRepository : IPublisherRepository
                            """;
         
         var connection = await _dbContext.GetConnectionAsync();
+
+        var publisherEntity = publisher.ToDbModel();
         
-        var publisherDbId = await connection.QuerySingleAsync<int>(sql, publisher);
+        var publisherDbId = await connection.QuerySingleAsync<int>(sql, publisherEntity);
 
         return publisherDbId;
     }
     
-    public async Task<PublisherEntity?> GetByNameAsync(string publisherName)
+    public async Task<PublisherWithId?> GetByNameAsync(string publisherName)
     {
         const string sql = """
                            SELECT 
@@ -43,8 +49,11 @@ public class PublisherRepository : IPublisherRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var publisherDtos = await connection.QueryFirstOrDefaultAsync<PublisherEntity>(sql, new { Name = publisherName });
+        var publisherDto = await connection.QueryFirstOrDefaultAsync<PublisherEntity>(sql, new { Name = publisherName });
 
-        return publisherDtos;
+        if (publisherDto == null)
+            return null;
+
+        return new PublisherWithId(publisherDto.ToDomain(), publisherDto.PublisherId);
     }
 }

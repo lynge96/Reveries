@@ -1,3 +1,5 @@
+using Reveries.Core.Interfaces;
+using Reveries.Core.Interfaces.IRepository;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence;

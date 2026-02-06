@@ -1,6 +1,9 @@
 using Dapper;
+using Reveries.Core.Interfaces.IRepository;
+using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
+using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
@@ -13,7 +16,7 @@ public class GenreRepository : IGenreRepository
         _dbContext = dbContext;
     }
 
-    public async Task<int> AddAsync(GenreEntity genre)
+    public async Task<int> AddAsync(Genre genre)
     {
         const string sql = """
                            INSERT INTO library.genres (name)
@@ -24,12 +27,14 @@ public class GenreRepository : IGenreRepository
         
         var connection = await _dbContext.GetConnectionAsync();
 
-        var genreDbId = await connection.QuerySingleAsync<int>(sql, genre);
+        var genreEntity = genre.ToDbModel();
+        
+        var genreDbId = await connection.QuerySingleAsync<int>(sql, genreEntity);
 
         return genreDbId;
     }
     
-    public async Task<GenreEntity?> GetByNameAsync(string genreName)
+    public async Task<Genre?> GetByNameAsync(string genreName)
     {
         const string sql = """
                            SELECT 
@@ -45,7 +50,7 @@ public class GenreRepository : IGenreRepository
     
         var genreDto = await connection.QueryFirstOrDefaultAsync<GenreEntity>(sql, new { Genre = genreName });
         
-        return genreDto;
+        return genreDto?.ToDomain();
     }
     
 }
