@@ -13,14 +13,14 @@ public class DatabaseTableHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.BooksInDatabase;
     private readonly IBookLookupService _bookLookupService;
-    private readonly IBookSeriesService _bookSeriesService;
+    private readonly ISeriesService _seriesService;
     private readonly IBookManagementService _bookManagementService;
     private readonly IBookDisplayService _bookDisplayService;
 
-    public DatabaseTableHandler(IBookLookupService bookLookupService, IBookSeriesService bookSeriesService, IBookManagementService bookManagementService, IBookDisplayService bookDisplayService)
+    public DatabaseTableHandler(IBookLookupService bookLookupService, ISeriesService seriesService, IBookManagementService bookManagementService, IBookDisplayService bookDisplayService)
     {
         _bookLookupService = bookLookupService;
-        _bookSeriesService = bookSeriesService;
+        _seriesService = seriesService;
         _bookManagementService = bookManagementService;
         _bookDisplayService = bookDisplayService;
     }
@@ -48,7 +48,7 @@ public class DatabaseTableHandler : BaseHandler
 
     private async Task UpdateSelectedBooksWithSeriesAsync(List<Book> books, CancellationToken cancellationToken)
     {
-        var seriesInDb = await _bookSeriesService.GetSeriesAsync();
+        var seriesInDb = await _seriesService.GetSeriesAsync();
         if (seriesInDb.Count == 0)
         {
             AnsiConsole.MarkupLine("No series found in database.".AsWarning());

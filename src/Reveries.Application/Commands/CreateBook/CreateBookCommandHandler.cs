@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Interfaces.Cache;
+using Reveries.Application.Interfaces.Messaging;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Application.Mappers;
-using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
-namespace Reveries.Application.Commands;
+namespace Reveries.Application.Commands.CreateBook;
 
 public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand>
 {
@@ -14,7 +14,11 @@ public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand
     private readonly IBookCacheService _cache;
     private readonly ILogger<CreateBookCommandHandler> _logger;
 
-    public CreateBookCommandHandler(IBookPersistenceService bookPersistenceService, IAuthorEnrichmentService authorEnrichmentService, IBookCacheService cache, ILogger<CreateBookCommandHandler> logger)
+    public CreateBookCommandHandler(
+        IBookPersistenceService bookPersistenceService, 
+        IAuthorEnrichmentService authorEnrichmentService, 
+        IBookCacheService cache, 
+        ILogger<CreateBookCommandHandler> logger)
     {
         _bookPersistenceService = bookPersistenceService;
         _authorEnrichmentService = authorEnrichmentService;
@@ -35,7 +39,7 @@ public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand
         
         var bookDbId = await _bookPersistenceService.SaveBookWithRelationsAsync(book);
 
-        await _cache.SetBookByIsbnAsync(book);
+        await _cache.SetBookByIsbnAsync(book, ct);
         
         return bookDbId;
     }

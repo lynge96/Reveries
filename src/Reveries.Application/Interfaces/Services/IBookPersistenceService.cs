@@ -1,6 +1,6 @@
 using Reveries.Core.Models;
 
-namespace Reveries.Core.Interfaces;
+namespace Reveries.Application.Interfaces.Services;
 
 public interface IBookPersistenceService
 {

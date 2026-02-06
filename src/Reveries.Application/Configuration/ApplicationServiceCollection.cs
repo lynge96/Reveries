@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Reveries.Application.Commands;
+using Reveries.Application.Commands.CreateBook;
+using Reveries.Application.Interfaces.Messaging;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Application.Services;
 
@@ -17,7 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBookLookupService, BookLookupService>();
         services.AddScoped<IAuthorLookupService, AuthorLookupService>();
         services.AddScoped<IPublisherLookupService, PublisherLookupService>();
-        services.AddScoped<IBookSeriesService, BookSeriesService>();
+        services.AddScoped<ISeriesService, SeriesService>();
         
         return services;
     }

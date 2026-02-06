@@ -5,11 +5,11 @@ using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
 
-public class BookSeriesService : IBookSeriesService
+public class SeriesService : ISeriesService
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public BookSeriesService(IUnitOfWork unitOfWork)
+    public SeriesService(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

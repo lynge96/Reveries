@@ -16,5 +16,5 @@ public interface IBookRepository
     Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<Isbn> isbns);
     Task<Book?> GetBookByIdAsync(int id);
     Task<List<Book>> GetAllBooksAsync();
-    Task UpdateBookAsync(Book book);
+    Task UpdateBookSeriesAsync(Book book);
 }

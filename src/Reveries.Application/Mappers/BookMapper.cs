@@ -1,4 +1,5 @@
 using Reveries.Application.Commands;
+using Reveries.Application.Commands.CreateBook;
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
 

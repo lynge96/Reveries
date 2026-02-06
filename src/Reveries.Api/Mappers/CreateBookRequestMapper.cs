@@ -1,4 +1,5 @@
 using Reveries.Application.Commands;
+using Reveries.Application.Commands.CreateBook;
 using Reveries.Contracts.Books;
 
 namespace Reveries.Api.Mappers;

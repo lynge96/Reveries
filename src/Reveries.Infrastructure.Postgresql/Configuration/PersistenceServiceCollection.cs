@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Reveries.Core.Interfaces;
+using Reveries.Application.Interfaces.Services;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 using Reveries.Infrastructure.Postgresql.Services;
@@ -11,6 +11,7 @@ public static class PersistenceServiceCollection
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IBookPersistenceService, BookPersistenceService>();
+        services.AddScoped<IBookSeriesService, BookSeriesService>();
         
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<IPublisherRepository, PublisherRepository>();

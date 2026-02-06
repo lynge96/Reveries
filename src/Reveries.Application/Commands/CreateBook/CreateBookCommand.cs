@@ -1,4 +1,4 @@
-namespace Reveries.Application.Commands;
+namespace Reveries.Application.Commands.CreateBook;
 
 public sealed record CreateBookCommand
 {

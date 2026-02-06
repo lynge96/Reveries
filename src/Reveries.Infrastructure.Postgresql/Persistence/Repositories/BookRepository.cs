@@ -152,13 +152,12 @@ public class BookRepository : IBookRepository
         return await QueryBooksAsync(sql);
     }
 
-    public async Task UpdateBookAsync(Book book)
+    public async Task UpdateBookSeriesAsync(Book book)
     {
         const string sql = """
                            UPDATE library.books
                            SET series_id = @SeriesId,
-                               series_number = @SeriesNumber,
-                               is_read = @IsRead
+                               series_number = @SeriesNumber
                            WHERE id = @Id;
                            """;
 

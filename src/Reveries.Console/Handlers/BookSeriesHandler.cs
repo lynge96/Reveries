@@ -23,7 +23,7 @@ public partial class BookSeriesHandler : BaseHandler
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         var seriesInput = ConsolePromptUtility.GetUserInput("Enter the name of the new series:");
-        var seriesName = MyRegex().Replace(seriesInput.Trim().ToTitleCase()!, " ");
+        var seriesName = MyRegex().Replace(seriesInput.Trim().ToTitleCase(), " ");
         
         var confirm = ConsolePromptUtility.ShowYesNoPrompt("Are you sure you want to create a new series with the name: " + seriesName.AsSecondary().Bold());
         if (!confirm)

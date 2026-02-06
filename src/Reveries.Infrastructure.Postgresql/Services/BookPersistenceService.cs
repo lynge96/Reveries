@@ -1,5 +1,5 @@
 using Reveries.Application.Exceptions;
-using Reveries.Core.Interfaces;
+using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Models;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
@@ -40,7 +40,7 @@ public class BookPersistenceService : IBookPersistenceService
                 await SaveBookAuthorsAsync(bookDbId, entityAggregate.Authors);
             
             if (entityAggregate.Genres != null)
-                await SaveBookSubjectsAsync(bookDbId, entityAggregate.Genres);
+                await SaveBookGenresAsync(bookDbId, entityAggregate.Genres);
             
             await _unitOfWork.CommitAsync();
 
@@ -165,7 +165,7 @@ public class BookPersistenceService : IBookPersistenceService
         await _unitOfWork.BookAuthors.SaveBookAuthorsAsync(bookId, authors);
     }
     
-    private async Task SaveBookSubjectsAsync(int bookId, IEnumerable<GenreEntity> subjects)
+    private async Task SaveBookGenresAsync(int bookId, IEnumerable<GenreEntity> subjects)
     {
         await _unitOfWork.BookGenres.SaveBookGenresAsync(bookId, subjects);
     }

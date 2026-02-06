@@ -2,6 +2,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Mappers;
 using Reveries.Application.Commands;
+using Reveries.Application.Commands.CreateBook;
+using Reveries.Application.Interfaces.Messaging;
 using Reveries.Contracts.Books;
 using Reveries.Contracts.DTOs;
 using Reveries.Contracts.Requests;

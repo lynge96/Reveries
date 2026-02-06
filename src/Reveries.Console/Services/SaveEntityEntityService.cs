@@ -11,12 +11,12 @@ namespace Reveries.Console.Services;
 public class SaveEntityEntityService : ISaveEntityService
 {
     private readonly IBookManagementService _bookManagementService;
-    private readonly IBookSeriesService _bookSeriesService;
+    private readonly ISeriesService _seriesService;
 
-    public SaveEntityEntityService(IBookManagementService bookManagementService, IBookSeriesService bookSeriesService)
+    public SaveEntityEntityService(IBookManagementService bookManagementService, ISeriesService seriesService)
     {
         _bookManagementService = bookManagementService;
-        _bookSeriesService = bookSeriesService;
+        _seriesService = seriesService;
     }
 
     public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default)
@@ -70,7 +70,7 @@ public class SaveEntityEntityService : ISaveEntityService
 
         try
         {
-            var seriesId = await _bookSeriesService.CreateSeriesAsync(series);
+            var seriesId = await _seriesService.CreateSeriesAsync(series);
             
             AnsiConsole.MarkupLine($"""
                                     ✅ Successfully saved to database:

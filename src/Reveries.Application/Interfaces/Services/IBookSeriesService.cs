@@ -4,6 +4,5 @@ namespace Reveries.Application.Interfaces.Services;
 
 public interface IBookSeriesService
 {
-    Task<Series> CreateSeriesAsync(Series series);
-    Task<List<Series>> GetSeriesAsync();
+    Task<int> SetSeriesAsync(Book book);
 }
