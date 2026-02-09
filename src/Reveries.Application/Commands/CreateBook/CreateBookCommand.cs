@@ -1,9 +1,11 @@
+using Reveries.Core.ValueObjects;
+
 namespace Reveries.Application.Commands.CreateBook;
 
 public sealed record CreateBookCommand
 {
-    public string? Isbn10 { get; init; }
-    public string? Isbn13 { get; init; }
+    public Isbn? Isbn10 { get; init; }
+    public Isbn? Isbn13 { get; init; }
     public required string Title { get; init; }
     public string? Series { get; init; }
     public int? NumberInSeries { get; init; }

@@ -7,4 +7,5 @@ public interface IPublisherRepository
 {
     Task<int> AddAsync(Publisher publisher);
     Task<PublisherWithId?> GetByNameAsync(string publisherName);
+    Task<List<Publisher>> GetPublishersByNameAsync(string name);
 }

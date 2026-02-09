@@ -43,7 +43,7 @@ public class BookApiClient
     {
         try
         {
-            var createDto = new CreateBookRequest
+            var createBookRequest = new CreateBookRequest
             {
                 Isbn13 = bookDto.Isbn13,
                 Isbn10 = bookDto.Isbn10,
@@ -63,11 +63,14 @@ public class BookApiClient
                 Series = bookDto.Series,
                 NumberInSeries = bookDto.NumberInSeries,
                 DeweyDecimals = bookDto.DeweyDecimal,
-                Dimensions = bookDto.Dimensions,
+                HeightCm = bookDto.Dimensions?.HeightCm,
+                WidthCm = bookDto.Dimensions?.WidthCm,
+                ThicknessCm = bookDto.Dimensions?.ThicknessCm,
+                WeightG = bookDto.Dimensions?.WeightG,
                 DataSource = bookDto.DataSource
             };
             
-            var response = await _httpClient.PostAsJsonAsync("books", createDto);
+            var response = await _httpClient.PostAsJsonAsync("books", createBookRequest);
 
             if (response.IsSuccessStatusCode)
             {

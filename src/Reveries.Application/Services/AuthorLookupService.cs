@@ -1,5 +1,6 @@
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
+using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;

@@ -5,7 +5,7 @@ public record BookDto
     public required Guid Id { get; set; }
     public string? Isbn10 { get; set; }
     public string? Isbn13 { get; set; }
-    public string? Title { get; set; }
+    public required string Title { get; set; }
     public string? Series { get; set; }
     public int? NumberInSeries { get; set; }
     public List<string>? Authors { get; set; }

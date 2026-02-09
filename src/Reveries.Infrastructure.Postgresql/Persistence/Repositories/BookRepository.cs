@@ -2,6 +2,7 @@ using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
+using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
@@ -40,7 +41,7 @@ public class BookRepository : IBookRepository
         return id;
     }
     
-    public async Task<Book?> GetBookByIsbnAsync(string? isbn13, string? isbn10 = null)
+    public async Task<BookWithId?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null)
     {
         const string sql = """
                            SELECT *
@@ -53,9 +54,35 @@ public class BookRepository : IBookRepository
     
         var connection = await _dbContext.GetConnectionAsync();
 
-        var bookDto = await connection.QueryFirstOrDefaultAsync<BookEntity>(sql, new { Isbn13 = isbn13, Isbn10 = isbn10 });
+        var row = await connection.QueryFirstOrDefaultAsync<BookEntity>(sql, new
+        {
+            Isbn13 = isbn13?.Value, 
+            Isbn10 = isbn10?.Value
+        });
     
-        return bookDto?.ToDomain();
+        if (row == null)
+            return null;
+        
+        return new BookWithId(row.ToDomain(), row.Id);
+    }
+    
+    public async Task UpdateBookSeriesAsync(BookWithId book, int seriesId)
+    {
+        const string sql = """
+                           UPDATE library.books
+                           SET series_id = @SeriesId,
+                               series_number = @SeriesNumber
+                           WHERE id = @Id
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+
+        await connection.ExecuteAsync(sql, new
+        {
+            Id = book.DbId,
+            SeriesId = seriesId,
+            NumberInSeries = book.Book.SeriesNumber
+        });
     }
 
     public async Task<List<Book>> GetBooksByAuthorAsync(string authorName)
@@ -154,21 +181,7 @@ public class BookRepository : IBookRepository
         
         return await QueryBooksAsync(sql);
     }
-
-    public async Task UpdateBookSeriesAsync(Book book)
-    {
-        const string sql = """
-                           UPDATE library.books
-                           SET series_id = @SeriesId,
-                               series_number = @SeriesNumber
-                           WHERE id = @Id;
-                           """;
-
-        var connection = await _dbContext.GetConnectionAsync();
-        var bookDto = book.ToDbModel();
-
-        await connection.ExecuteAsync(sql, bookDto);
-    }
+    
 
     private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)
     {

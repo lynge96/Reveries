@@ -1,6 +1,6 @@
 using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Core.Exceptions;
+using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
@@ -16,13 +16,13 @@ public class SeriesService : ISeriesService
     
     public async Task<Series> CreateSeriesAsync(Series series)
     {
-        var existingSeries = await _unitOfWork.Series.GetSeriesByNameAsync(series.Name);
+        var existingSeries = await _unitOfWork.Series.GetByNameAsync(series.Name);
         if (existingSeries != null)
         {
             throw new SeriesAlreadyExistsException(series.Name);
         }
         
-        await _unitOfWork.Series.CreateSeriesAsync(series);
+        await _unitOfWork.Series.AddAsync(series);
         return series;
     }
 

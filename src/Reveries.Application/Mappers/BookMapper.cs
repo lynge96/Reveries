@@ -1,4 +1,3 @@
-using Reveries.Application.Commands;
 using Reveries.Application.Commands.CreateBook;
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
@@ -12,8 +11,8 @@ public static class BookMapper
         var dataSourceParsed = Enum.TryParse<DataSource>(cmd.DataSource, true, out var ds);
 
         return Book.Create(
-            isbn10: cmd.Isbn10,
-            isbn13: cmd.Isbn13,
+            isbn10: cmd.Isbn10?.Value,
+            isbn13: cmd.Isbn13?.Value,
             title: cmd.Title,
             pages: cmd.Pages,
             publishDate: cmd.PublicationDate,

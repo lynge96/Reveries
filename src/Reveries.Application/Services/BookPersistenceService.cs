@@ -50,11 +50,11 @@ public class BookPersistenceService : IBookPersistenceService
 
     private async Task ValidateBookNotExistsAsync(Book book)
     {
-        var existingBook = await _unitOfWork.Books.GetBookByIsbnAsync(book.Isbn13?.Value, book.Isbn10?.Value);
+        var existingBook = await _unitOfWork.Books.GetBookByIsbnAsync(book.Isbn13, book.Isbn10);
         
         if (existingBook != null)
         {
-            var isbnUsed = existingBook.Isbn13 == book.Isbn13 ? book.Isbn13 : book.Isbn10;
+            var isbnUsed = existingBook.Book.Isbn13 == book.Isbn13 ? book.Isbn13 : book.Isbn10;
             throw new BookAlreadyExistsException(isbnUsed!);
         }
     }

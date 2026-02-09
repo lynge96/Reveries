@@ -50,12 +50,29 @@ public class SeriesRepository : ISeriesRepository
     
         var connection = await _dbContext.GetConnectionAsync();
     
-        var seriesDto = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(sql, new { Name = seriesName });
+        var row = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(sql, new { Name = seriesName });
     
-        if (seriesDto == null)
+        if (row == null)
             return null;
         
-        return new SeriesWithId(seriesDto.ToDomain(), seriesDto.SeriesId);
+        return new SeriesWithId(row.ToDomain(), row.SeriesId);
     }
 
+    public async Task<List<Series>> GetSeriesAsync()
+    {
+        const string sql = """
+                           SELECT 
+                               id AS SeriesId, 
+                               domain_id AS SeriesDomainId, 
+                               name AS SeriesName, 
+                               date_created AS DateCreatedSeries 
+                           FROM library.series;
+                           """;
+        
+        var connection = await _dbContext.GetConnectionAsync();
+
+        var rows = await connection.QueryAsync<SeriesEntity>(sql);
+        
+        return rows.Select(r => r.ToDomain()).ToList();
+    }
 }

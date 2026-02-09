@@ -1,6 +1,6 @@
-using Reveries.Application.Commands;
 using Reveries.Application.Commands.CreateBook;
 using Reveries.Contracts.Books;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Api.Mappers;
 
@@ -12,8 +12,8 @@ public static class CreateBookRequestMapper
 
         return new CreateBookCommand
         {
-            Isbn10 = request.Isbn10,
-            Isbn13 = request.Isbn13,
+            Isbn10 = request.Isbn10 != null ? Isbn.Create(request.Isbn10) : null,
+            Isbn13 = request.Isbn13 != null ? Isbn.Create(request.Isbn13) : null,
             Title = request.Title,
 
             Series = request.Series,

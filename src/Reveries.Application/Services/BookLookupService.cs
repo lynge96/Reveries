@@ -3,6 +3,7 @@ using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
+using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 

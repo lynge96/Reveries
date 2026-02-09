@@ -12,4 +12,6 @@ public class ValidationException : ApplicationException
     {
         Failures = failures;
     }
+    
+    public ValidationException(string message) : base(message, HttpStatusCode.BadRequest) { }
 }

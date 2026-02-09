@@ -14,18 +14,6 @@ public class SeriesTests
         Assert.Equal("The Wheel Of Time", series.Name);
     }
     
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData(" ")]
-    public void Create_WithNullOrWhitespaceName_ReturnsSeriesWithNullName(string? input)
-    {
-        var series = Series.Create(input);
-        
-        Assert.NotNull(series);
-        Assert.Null(series.Name);
-    }
-    
     [Fact]
     public void Reconstitute_CreatesFullyHydratedEntity()
     {

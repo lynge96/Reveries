@@ -1,10 +1,10 @@
-using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Commands.SetBookSeries;
 
 public sealed record SetBookSeriesCommand()
 {
-    public required Book Book { get; init; }
-    public required string Name { get; init; }
+    public Isbn? Isbn { get; init; }
+    public required string SeriesName { get; init; }
     public int? NumberInSeries { get; init; }
 }

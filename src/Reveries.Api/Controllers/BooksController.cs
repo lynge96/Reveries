@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Mappers;
 using Reveries.Application.Commands;
 using Reveries.Application.Commands.CreateBook;
+using Reveries.Application.Commands.SetBookSeries;
 using Reveries.Application.Interfaces.Messaging;
 using Reveries.Contracts.Books;
 using Reveries.Contracts.DTOs;
@@ -17,11 +18,16 @@ namespace Reveries.Api.Controllers;
 public class BooksController : ControllerBase
 {
     private readonly ICommandHandler<CreateBookCommand> _createBookHandler;
+    private readonly ICommandHandler<SetBookSeriesCommand> _setSeriesHandler;
     private readonly IValidator<CreateBookRequest> _createBookValidator;
 
-    public BooksController(ICommandHandler<CreateBookCommand> createBookHandler, IValidator<CreateBookRequest> createBookValidator)
+    public BooksController(
+        ICommandHandler<CreateBookCommand> createBookHandler,
+        ICommandHandler<SetBookSeriesCommand> setSeriesHandler,
+        IValidator<CreateBookRequest> createBookValidator)
     {
         _createBookHandler = createBookHandler;
+        _setSeriesHandler = setSeriesHandler;
         _createBookValidator = createBookValidator;
     }
 
@@ -80,5 +86,19 @@ public class BooksController : ControllerBase
         var bookId = await _createBookHandler.Handle(command, ct);
 
         return CreatedAtAction(nameof(GetById), new { id = bookId }, bookId);
+    }
+    
+    [HttpPatch("books/{isbn}/series")]
+    public async Task<IActionResult> SetSeries([FromRoute] string isbn, [FromBody] SetBookSeriesRequest body, CancellationToken ct)
+    {
+        var command = new SetBookSeriesCommand
+        {
+            Isbn = Isbn.Create(isbn),
+            SeriesName = body.SeriesName,
+            NumberInSeries = body.NumberInSeries
+        };
+
+        await _setSeriesHandler.Handle(command, ct);
+        return NoContent();
     }
 }

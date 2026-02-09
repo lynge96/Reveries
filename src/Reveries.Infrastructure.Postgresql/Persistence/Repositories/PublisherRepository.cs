@@ -49,11 +49,30 @@ public class PublisherRepository : IPublisherRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var publisherDto = await connection.QueryFirstOrDefaultAsync<PublisherEntity>(sql, new { Name = publisherName });
+        var row = await connection.QueryFirstOrDefaultAsync<PublisherEntity>(sql, new { Name = publisherName });
 
-        if (publisherDto == null)
+        if (row == null)
             return null;
 
-        return new PublisherWithId(publisherDto.ToDomain(), publisherDto.PublisherId);
+        return new PublisherWithId(row.ToDomain(), row.PublisherId);
+    }
+
+    public async Task<List<Publisher>> GetPublishersByNameAsync(string name)
+    {
+        const string sql = """
+                           SELECT 
+                               id AS publisherId, 
+                               domain_id AS publisherDomainId,
+                               name AS publisherName, 
+                               date_created AS dateCreatedPublisher
+                           FROM library.publishers
+                           WHERE name ILIKE @Name
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+        
+        var rows = await connection.QueryAsync<PublisherEntity>(sql, new { Name = name });
+        
+        return rows.Select(r => r.ToDomain()).ToList();
     }
 }

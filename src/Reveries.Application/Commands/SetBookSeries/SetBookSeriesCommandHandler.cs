@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Messaging;
 using Reveries.Application.Interfaces.Services;
@@ -24,14 +25,17 @@ public sealed class SetBookSeriesCommandHandler : ICommandHandler<SetBookSeriesC
     
     public async Task<int> Handle(SetBookSeriesCommand command, CancellationToken ct)
     {
-        var book = command.Book;
-        var series = Series.Create(command.Name);
+        var series = Series.Create(command.SeriesName);
+
+        var bookDbId = await _bookSeriesService.SetSeriesAsync(command.Isbn, series, command.NumberInSeries);
         
-        book.SetSeries(series, command.NumberInSeries);
+        await _cache.RemoveBookByIsbnAsync(command.Isbn, ct);
         
-        var bookDbId = await _bookSeriesService.SetSeriesAsync(book);
-        
-        await _cache.RemoveBookByIsbnAsync(book.Isbn13 ?? book.Isbn10, ct);
+        _logger.LogDebug(
+            "Setting series '{SeriesName}' #{NumberInSeries}, for book with ISBN '{Isbn}'",
+            series.Name,
+            command.NumberInSeries,
+            command.Isbn?.Value);
         
         return bookDbId;
     }
