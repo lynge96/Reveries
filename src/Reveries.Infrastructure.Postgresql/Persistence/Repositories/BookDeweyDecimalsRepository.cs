@@ -5,26 +5,26 @@ using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
-public class BookAuthorsRepository : IBookAuthorsRepository
+public class BookDeweyDecimalsRepository : IBookDeweyDecimalsRepository
 {
     private readonly IDbContext _dbContext;
     
-    public BookAuthorsRepository(IDbContext dbContext)
+    public BookDeweyDecimalsRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(int bookId, IEnumerable<AuthorWithId> authors)
+    public async Task AddAsync(int bookId, IEnumerable<DeweyDecimalWithId> deweyDecimals)
     {
         const string sql = """
-                           INSERT INTO library.books_authors (book_id, author_id)
-                           VALUES (@BookId, @AuthorId)
+                           INSERT INTO library.books_dewey_decimals (book_id, dewey_decimal_id)
+                           VALUES (@BookId, @DeweyDecimalId)
                            ON CONFLICT DO NOTHING;
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var parameters = authors
+        var parameters = deweyDecimals
             .Select(a => new { BookId = bookId, a.DbId });
         
         await connection.ExecuteAsync(sql, parameters);

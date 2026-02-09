@@ -6,7 +6,7 @@ namespace Reveries.Infrastructure.Postgresql.Mappers;
 
 public static class DomainToEntityExtensions
 {
-    public static BookEntity ToDbModel(this Book model)
+    public static BookEntity ToDbModel(this Book model, int? publisherId = null, int? seriesId = null)
     {
         return new BookEntity
         {
@@ -29,7 +29,10 @@ public static class DomainToEntityExtensions
             WidthCm = model.Dimensions?.WidthCm,
             ThicknessCm = model.Dimensions?.ThicknessCm,
             WeightG = model.Dimensions?.WeightG,
-            DateCreatedBook = model.DateCreated
+            DateCreatedBook = model.DateCreated,
+            
+            PublisherId = publisherId,
+            SeriesId = seriesId
         };
     }
     

@@ -11,6 +11,7 @@ public class UnitOfWork : IUnitOfWork
     public IAuthorRepository Authors { get; }
     public ISeriesRepository Series { get; }
     public IBookGenresRepository BookGenres { get; }
+    public IBookDeweyDecimalsRepository BookDeweyDecimals { get; }
     public IDeweyDecimalRepository DeweyDecimals { get; }
     public IPublisherRepository Publishers { get; }
     public IBookAuthorsRepository BookAuthors { get; }
@@ -24,7 +25,8 @@ public class UnitOfWork : IUnitOfWork
         IBookAuthorsRepository bookAuthorsRepository,
         IBookGenresRepository bookGenresRepository,
         IDeweyDecimalRepository deweyDecimalRepository,
-        IGenreRepository genreRepository)
+        IGenreRepository genreRepository,
+        IBookDeweyDecimalsRepository bookDeweyDecimalsRepository)
     {
         _dbContext = dbContext;
         Books = bookRepository;
@@ -35,6 +37,7 @@ public class UnitOfWork : IUnitOfWork
         BookGenres = bookGenresRepository;
         DeweyDecimals = deweyDecimalRepository;
         Genres = genreRepository;
+        BookDeweyDecimals = bookDeweyDecimalsRepository;
     }
     
     public Task BeginTransactionAsync() => _dbContext.BeginTransactionAsync();

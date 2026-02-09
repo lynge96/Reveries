@@ -30,9 +30,9 @@ public class SeriesRepository : ISeriesRepository
 
         var seriesEntity = series.ToDbModel();
         
-        var seriesId = await connection.QuerySingleAsync<int>(sql, seriesEntity);
+        var seriesDbId = await connection.QuerySingleAsync<int>(sql, seriesEntity);
 
-        return seriesId;
+        return seriesDbId;
     }
     
     public async Task<SeriesWithId?> GetByNameAsync(string seriesName)

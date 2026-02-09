@@ -1,8 +1,8 @@
-using Reveries.Core.ValueObjects;
+using Reveries.Core.ValueObjects.DTOs;
 
 namespace Reveries.Core.Interfaces.IRepository;
 
 public interface IBookGenresRepository
 {
-    Task SaveBookGenresAsync(int bookId, IEnumerable<Genre> genres);
+    Task AddAsync(int bookId, IEnumerable<GenreWithId> genres);
 }

@@ -1,6 +1,7 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.ValueObjects;
+using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
@@ -34,7 +35,7 @@ public class GenreRepository : IGenreRepository
         return genreDbId;
     }
     
-    public async Task<Genre?> GetByNameAsync(string genreName)
+    public async Task<GenreWithId?> GetByNameAsync(string genreName)
     {
         const string sql = """
                            SELECT 
@@ -48,9 +49,29 @@ public class GenreRepository : IGenreRepository
         
         var connection = await _dbContext.GetConnectionAsync();
     
-        var genreDto = await connection.QueryFirstOrDefaultAsync<GenreEntity>(sql, new { Genre = genreName });
+        var row = await connection.QueryFirstOrDefaultAsync<GenreEntity>(sql, new { Genre = genreName });
         
-        return genreDto?.ToDomain();
+        if (row == null)
+            return null;
+            
+        return new GenreWithId(row.ToDomain(), row.GenreId);
     }
     
+    public async Task<IReadOnlyList<GenreWithId>> GetByNamesAsync(IEnumerable<string> names)
+    {
+        const string sql = """
+                           SELECT 
+                               id AS genreId,
+                               name,
+                               date_created AS dateCreatedGenre
+                           FROM library.genres
+                           WHERE name = ANY(@Names);
+                           """;
+        
+        var connection = await _dbContext.GetConnectionAsync();
+        
+        var rows = await connection.QueryAsync<GenreEntity>(sql, new { Names = names.ToArray() });
+        
+        return rows.Select(r => new GenreWithId(r.ToDomain(), r.GenreId)).ToList();
+    }
 }

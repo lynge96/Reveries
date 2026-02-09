@@ -5,7 +5,7 @@ namespace Reveries.Core.Interfaces.IRepository;
 
 public interface IBookRepository
 {
-    Task<int> AddAsync(Book book);
+    Task<int> AddAsync(Book book, int? publisherId, int? seriesId);
     Task<Book?> GetBookByIsbnAsync(string? isbn13, string? isbn10 = null);
     
     Task<List<Book>> GetBooksByAuthorAsync(string authorName);

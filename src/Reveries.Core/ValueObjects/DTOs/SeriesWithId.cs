@@ -2,7 +2,7 @@ using Reveries.Core.Models;
 
 namespace Reveries.Core.ValueObjects.DTOs;
 
-public class SeriesWithId
+public record SeriesWithId
 {
     public Series Series { get; init; }
     public int DbId { get; init; }

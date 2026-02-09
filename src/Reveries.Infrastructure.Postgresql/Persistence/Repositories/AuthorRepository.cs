@@ -1,6 +1,7 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
@@ -54,14 +55,15 @@ public class AuthorRepository : IAuthorRepository
         return authorDbId;
     }
     
-    public async Task<Author?> GetByNameAsync(string name)
+    public async Task<AuthorWithId?> GetByNameAsync(string name)
     {
         const string sql = """
-                           SELECT a.id,
+                           SELECT a.id AS authorId,
+                                  a.domain_id AS authorDomainId,
                                   a.normalized_name,
                                   a.first_name,
                                   a.last_name,
-                                  a.date_created
+                                  a.date_created AS dateCreatedAuthor
                            FROM library.authors a
                            WHERE a.normalized_name = @Name
                               OR EXISTS (
@@ -78,17 +80,45 @@ public class AuthorRepository : IAuthorRepository
         
         var authorDto = await connection.QueryFirstOrDefaultAsync<AuthorEntity>(sql, new { Name = name });
 
-        return authorDto?.ToDomain();
+        if (authorDto == null) return null;
+        
+        return new AuthorWithId(authorDto.ToDomain(), authorDto.AuthorId);
+    }
+
+    public async Task<IReadOnlyList<AuthorWithId>> GetByNamesAsync(IEnumerable<string> authorNames)
+    {
+        const string sql = """
+                           SELECT DISTINCT
+                               a.id AS authorId,
+                               a.domain_id AS authorDomainId,
+                               a.normalized_name,
+                               a.first_name,
+                               a.last_name,
+                               a.date_created AS dateCreatedAuthor
+                           FROM library.authors a
+                           LEFT JOIN library.author_name_variants anv
+                               ON anv.author_id = a.id
+                           WHERE
+                               a.normalized_name = ANY(@Names)
+                               OR anv.name_variant = ANY(@Names);
+                           """;
+        
+        var connection = await _dbContext.GetConnectionAsync();
+        
+        var rows = await connection.QueryAsync<AuthorEntity>(sql, new { Names = authorNames.ToArray() });
+        
+        return rows.Select(r => new AuthorWithId(r.ToDomain(), r.AuthorId)).ToList();
     }
 
     public async Task<List<Author>> GetAuthorsByNameAsync(string name)
     {
         const string sql = """
-                           SELECT a.id as AuthorId,
+                           SELECT a.id AS authorId,
+                                  a.domain_id AS authorDomainId,
                                   a.normalized_name,
                                   a.first_name,
                                   a.last_name,
-                                  a.date_created as DateCreatedAuthor
+                                  a.date_created AS dateCreatedAuthor
                            FROM library.authors a
                            WHERE a.first_name ILIKE @Pattern
                               OR a.last_name  ILIKE @Pattern

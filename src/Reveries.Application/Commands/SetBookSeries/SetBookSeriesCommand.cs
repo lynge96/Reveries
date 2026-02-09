@@ -1,4 +1,3 @@
-using Reveries.Core.Identity;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Commands.SetBookSeries;

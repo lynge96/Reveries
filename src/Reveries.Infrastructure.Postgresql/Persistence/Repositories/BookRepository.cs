@@ -17,7 +17,7 @@ public class BookRepository : IBookRepository
         _dbContext = dbContext;
     }
 
-    public async Task<int> AddAsync(Book book)
+    public async Task<int> AddAsync(Book book, int? publisherId, int? seriesId)
     {
         const string sql = """
                            INSERT INTO library.books (domain_id, isbn13, isbn10, title, page_count, is_read, publisher_id,
@@ -33,7 +33,7 @@ public class BookRepository : IBookRepository
         
         var connection = await _dbContext.GetConnectionAsync();
         
-        var bookEntity = book.ToDbModel();
+        var bookEntity = book.ToDbModel(publisherId, seriesId);
         
         var id = await connection.ExecuteScalarAsync<int>(sql, bookEntity);
 

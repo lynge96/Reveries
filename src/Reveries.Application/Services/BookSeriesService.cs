@@ -17,18 +17,17 @@ public class BookSeriesService : IBookSeriesService
     public async Task<int> SetSeriesAsync(Book book)
     {
         await _unitOfWork.BeginTransactionAsync();
-
-        var entityAggregate = book.ToEntityAggregate();
         
         try
         {
-            var existingSeries = _unitOfWork.Series.GetByNameAsync(entityAggregate.Series.SeriesName);
+            if (book.Series?.Name == null) return -1;
+            
+            var existingSeries = await _unitOfWork.Series.GetByNameAsync(book.Series.Name);
             int seriesId;
             
-            if (entityAggregate.Series != null)
+            if (book.Series != null)
             {
 
-                seriesId = existingSeries.Id;
             }
             
             

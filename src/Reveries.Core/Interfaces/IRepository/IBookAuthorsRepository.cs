@@ -1,8 +1,8 @@
-using Reveries.Core.Models;
+using Reveries.Core.ValueObjects.DTOs;
 
 namespace Reveries.Core.Interfaces.IRepository;
 
 public interface IBookAuthorsRepository
 {
-    Task SaveBookAuthorsAsync(int bookId, IEnumerable<Author> authors);
+    Task AddAsync(int bookId, IEnumerable<AuthorWithId> authors);
 }

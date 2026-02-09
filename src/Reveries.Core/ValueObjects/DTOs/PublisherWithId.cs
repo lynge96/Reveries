@@ -2,7 +2,7 @@ using Reveries.Core.Models;
 
 namespace Reveries.Core.ValueObjects.DTOs;
 
-public class PublisherWithId
+public record PublisherWithId
 {
     public Publisher Publisher { get; init; }
     public int DbId { get; init; }
