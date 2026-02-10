@@ -6,14 +6,14 @@ using Reveries.Application.Mappers;
 
 namespace Reveries.Application.Queries.GetBookByIsbn;
 
-public sealed class GetBookByIsbnHandler : IQueryHandler<GetBookByIsbnQuery, BookDetailsReadModel>
+public sealed class GetBookByIsbnQueryHandler : IQueryHandler<GetBookByIsbnQuery, BookDetailsReadModel>
 {
     private readonly IBookLookupService _bookLookupService;
-    private readonly ILogger<GetBookByIsbnHandler> _logger;
+    private readonly ILogger<GetBookByIsbnQueryHandler> _logger;
     
-    public GetBookByIsbnHandler(
+    public GetBookByIsbnQueryHandler(
         IBookLookupService bookLookupService,
-        ILogger<GetBookByIsbnHandler> logger)
+        ILogger<GetBookByIsbnQueryHandler> logger)
     {
         _bookLookupService = bookLookupService;
         _logger = logger;

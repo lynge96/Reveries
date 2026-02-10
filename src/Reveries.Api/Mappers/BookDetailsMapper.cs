@@ -1,27 +1,27 @@
+using Reveries.Application.Queries;
 using Reveries.Contracts.Books;
-using Reveries.Core.Models;
 
 namespace Reveries.Api.Mappers;
 
 public static class BookDetailsMapper
 {
-    public static BookDetailsDto ToDto(this Book book)
+    public static BookDetailsDto ToDto(this BookDetailsReadModel book)
     {
         ArgumentNullException.ThrowIfNull(book);
 
         return new BookDetailsDto
         {
-            Id = book.Id.Value,
-            Isbn10 = book.Isbn10?.Value,
-            Isbn13 = book.Isbn13?.Value,
+            Id = book.Id,
+            Isbn10 = book.Isbn10,
+            Isbn13 = book.Isbn13,
             Title = book.Title,
-            Series = book.Series?.Name,
-            NumberInSeries = book.SeriesNumber,
-            Authors = book.Authors.Select(a => a.NormalizedName).ToList(),
-            Publisher = book.Publisher?.Name,
+            Series = book.Series,
+            NumberInSeries = book.NumberInSeries,
+            Authors = book.Authors,
+            Publisher = book.Publisher,
             Language = book.Language,
             Pages = book.Pages,
-            PublicationDate = book.PublishDate,
+            PublicationDate = book.PublicationDate,
             Synopsis = book.Synopsis,
             Binding = book.Binding,
             Edition = book.Edition,
@@ -29,13 +29,13 @@ public static class BookDetailsMapper
             ImageThumbnailUrl = book.ImageThumbnailUrl,
             Msrp = book.Msrp,
             IsRead = book.IsRead,
-            HeightCm = book.Dimensions?.HeightCm,
-            WidthCm = book.Dimensions?.WidthCm,
-            ThicknessCm = book.Dimensions?.ThicknessCm,
-            WeightG = book.Dimensions?.WeightG,
-            DeweyDecimals = book.DeweyDecimals.Select(dd => dd.Code).ToList(),
-            Genres = book.Genres.Select(g => g.Value).ToList(),
-            DataSource = book.DataSource.ToString()
+            HeightCm = book.HeightCm,
+            WidthCm = book.WidthCm,
+            ThicknessCm = book.ThicknessCm,
+            WeightG = book.WeightG,
+            DeweyDecimals = book.DeweyDecimals,
+            Genres = book.Genres,
+            DataSource = book.DataSource
         };
     }
 }

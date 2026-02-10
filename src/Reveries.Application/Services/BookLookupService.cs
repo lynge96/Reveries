@@ -28,11 +28,6 @@ public class BookLookupService : IBookLookupService
         _logger = logger;
     }
     
-    private sealed record LookupResult(
-        IReadOnlyList<Book> Found,
-        List<Isbn> Missing
-    );
-    
     public async Task<Book> FindBookByIsbnAsync(Isbn isbns, CancellationToken ct)
     {
         var books = await FindBooksByIsbnAsync([isbns], ct);
@@ -258,5 +253,6 @@ public class BookLookupService : IBookLookupService
 
         return new LookupResult(books, []);
     }
-
+    
+    private sealed record LookupResult(IReadOnlyList<Book> Found, List<Isbn> Missing);
 }

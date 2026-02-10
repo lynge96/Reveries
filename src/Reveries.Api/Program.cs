@@ -1,14 +1,12 @@
 using DotNetEnv;
 using FluentValidation;
 using Reveries.Api.Configuration;
-using Reveries.Api.Interfaces;
 using Reveries.Api.Middleware;
-using Reveries.Api.Services;
 using Reveries.Application.Configuration;
 using Reveries.Infrastructure.Postgresql.Configuration;
 using Reveries.Infrastructure.Redis.Configuration;
-using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.GoogleBooks.Configuration;
+using Reveries.Integration.Isbndb.Configuration;
 
 Env.Load();
 
@@ -22,7 +20,6 @@ builder.Services
     .AddRedisCache(builder.Configuration)
     .AddIsbndbServices(builder.Configuration)
     .AddGoogleBooksServices(builder.Configuration)
-    .AddScoped<IBookService, BookService>()
     .AddCorsPolicies()
     .AddSwaggerDocumentation()
     .AddControllers();

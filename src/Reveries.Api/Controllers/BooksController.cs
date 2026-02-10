@@ -5,10 +5,11 @@ using Reveries.Application.Commands.CreateBook;
 using Reveries.Application.Commands.SetBookSeries;
 using Reveries.Application.Interfaces.Messaging;
 using Reveries.Application.Queries;
+using Reveries.Application.Queries.GetAllBooks;
+using Reveries.Application.Queries.GetBookByDbId;
 using Reveries.Application.Queries.GetBookByIsbn;
+using Reveries.Application.Queries.GetBookByIsbns;
 using Reveries.Contracts.Books;
-using Reveries.Contracts.Requests;
-using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using ValidationException = Reveries.Application.Exceptions.ValidationException;
 
@@ -20,30 +21,42 @@ public class BooksController : ControllerBase
 {
     private readonly ICommandHandler<CreateBookCommand, int> _createBookHandler;
     private readonly ICommandHandler<SetBookSeriesCommand, int> _setSeriesHandler;
-    private readonly IQueryHandler<GetBookByIsbnQuery, Book> _bookByIsbnHandler;
+    private readonly IQueryHandler<GetBookByIsbnQuery, BookDetailsReadModel> _bookByIsbnHandler;
+    private readonly IQueryHandler<GetBooksByIsbnsQuery, List<BookDetailsReadModel>> _booksByIsbnsHandler;
+    private readonly IQueryHandler<GetBookByDbIdQuery, BookDetailsReadModel> _bookByIdHandler;
+    private readonly IQueryHandler<GetAllBooksQuery, List<BookDetailsReadModel>> _getAllBooksHandler;
     private readonly IValidator<CreateBookRequest> _createBookValidator;
 
     public BooksController(
         ICommandHandler<CreateBookCommand, int> createBookHandler,
         ICommandHandler<SetBookSeriesCommand, int> setSeriesHandler,
-        IQueryHandler<GetBookByIsbnQuery, Book> bookByIsbnHandler,
+        IQueryHandler<GetBookByIsbnQuery, BookDetailsReadModel> bookByIsbnHandler,
+        IQueryHandler<GetBooksByIsbnsQuery, List<BookDetailsReadModel>> booksByIsbnsHandler,
+        IQueryHandler<GetBookByDbIdQuery, BookDetailsReadModel> bookByIdHandler,
+        IQueryHandler<GetAllBooksQuery, List<BookDetailsReadModel>> getAllBooksHandler,
         IValidator<CreateBookRequest> createBookValidator)
     {
         _createBookHandler = createBookHandler;
         _setSeriesHandler = setSeriesHandler;
         _bookByIsbnHandler = bookByIsbnHandler;
+        _booksByIsbnsHandler = booksByIsbnsHandler;
+        _bookByIdHandler = bookByIdHandler;
+        _getAllBooksHandler = getAllBooksHandler;
         _createBookValidator = createBookValidator;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<BookDetailsReadModel>>> GetBooks([FromQuery] bool? isRead)
+    public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetAllBooks([FromQuery] bool? isRead, CancellationToken ct)
     {
-        var books = await _bookService.GetAllBooksAsync();
+        var query = new GetAllBooksQuery
+        {
+            IsRead = isRead
+        };
         
-        if (isRead.HasValue)
-            books = books.Where(b => b.IsRead == isRead.Value);
+        var books = await _getAllBooksHandler.Handle(query, ct);
+        var booksDto = books.Select(b => b.ToDto()).ToList();
 
-        return Ok(books);
+        return Ok(booksDto);
     }
     
     [HttpGet("{isbn}")]
@@ -56,29 +69,33 @@ public class BooksController : ControllerBase
 
         var book = await _bookByIsbnHandler.Handle(query, ct);
         var bookDto = book.ToDto();
-        
+
         return Ok(bookDto);
     }
 
     [HttpPost("isbns")]
-    public async Task<ActionResult<List<BookDetailsReadModel>>> GetByIsbns([FromBody] BulkIsbnRequest request, CancellationToken ct)
+    public async Task<ActionResult<List<BookDetailsDto>>> GetBooksByIsbns([FromBody] BulkIsbnRequest request, CancellationToken ct)
     {
-        var isbns = request.Isbns.Select(Isbn.Create).ToList();
-        
-        if (isbns.Count == 0)
-            return BadRequest("At least one ISBN must be provided.");
-        
-        var books = await _bookService.GetBooksByIsbnsAsync(isbns, ct);
-            
-        return Ok(books);
+        var query = new GetBooksByIsbnsQuery
+        {
+            Isbns = request.Isbns.Select(Isbn.Create).ToList()
+        };
+
+        var books = await _booksByIsbnsHandler.Handle(query, ct);
+        var booksDto = books.Select(b => b.ToDto()).ToList();
+
+        return Ok(booksDto);
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<BookDetailsReadModel>> GetById(int id, CancellationToken ct)
     {
-        var book = await _bookService.GetBookByIdAsync(id, ct);
+        var query = new GetBookByDbIdQuery { DbId = id };
         
-        return Ok(book);
+        var book = await _bookByIdHandler.Handle(query, ct);
+        var bookDto = book.ToDto();
+        
+        return Ok(bookDto);
     }
     
     [HttpPost]

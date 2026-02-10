@@ -1,4 +1,4 @@
-namespace Reveries.Contracts.Requests;
+namespace Reveries.Contracts.Books;
 
 public class BulkIsbnRequest
 {
