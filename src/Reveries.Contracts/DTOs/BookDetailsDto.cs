@@ -1,6 +1,6 @@
 namespace Reveries.Contracts.DTOs;
 
-public record BookDto
+public record BookDetailsDto
 {
     public required Guid Id { get; set; }
     public string? Isbn10 { get; set; }

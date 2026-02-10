@@ -7,7 +7,7 @@ using Reveries.Core.Models;
 
 namespace Reveries.Application.Commands.SetBookSeries;
 
-public sealed class SetBookSeriesCommandHandler : ICommandHandler<SetBookSeriesCommand>
+public sealed class SetBookSeriesCommandHandler : ICommandHandler<SetBookSeriesCommand, int>
 {
     private readonly IBookSeriesService _bookSeriesService;
     private readonly IBookCacheService _cache;

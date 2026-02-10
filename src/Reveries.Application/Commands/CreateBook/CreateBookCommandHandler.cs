@@ -7,7 +7,7 @@ using Reveries.Core.Models;
 
 namespace Reveries.Application.Commands.CreateBook;
 
-public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand>
+public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand, int>
 {
     private readonly IBookPersistenceService _bookPersistenceService;
     private readonly IAuthorEnrichmentService _authorEnrichmentService;

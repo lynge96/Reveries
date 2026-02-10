@@ -7,9 +7,9 @@ namespace Reveries.Api.Interfaces;
 
 public interface IBookService
 {
-    Task<BookDto?> GetBookByIsbnAsync(Isbn isbn, CancellationToken ct = default);
-    Task<IEnumerable<BookDto>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct = default);
-    Task<BookDto?> GetBookByIdAsync(int id, CancellationToken ct = default);
-    Task<IEnumerable<BookDto>> GetAllBooksAsync(CancellationToken ct = default);
+    Task<BookDetailsDto?> GetBookByIsbnAsync(Isbn isbn, CancellationToken ct = default);
+    Task<IEnumerable<BookDetailsDto>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct = default);
+    Task<BookDetailsDto?> GetBookByIdAsync(int id, CancellationToken ct = default);
+    Task<IEnumerable<BookDetailsDto>> GetAllBooksAsync(CancellationToken ct = default);
     Task<Guid> CreateBookAsync(CreateBookRequest bookRequest, CancellationToken ct = default);
 }

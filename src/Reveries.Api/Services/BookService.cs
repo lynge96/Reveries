@@ -22,7 +22,7 @@ public class BookService : IBookService
         _logger = logger;
     }
     
-    public async Task<BookDto?> GetBookByIsbnAsync(Isbn isbn, CancellationToken ct)
+    public async Task<BookDetailsDto?> GetBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         var books = await _bookLookupService.FindBooksByIsbnAsync([isbn], ct);
 
@@ -37,7 +37,7 @@ public class BookService : IBookService
         return bookDto;
     }
 
-    public async Task<IEnumerable<BookDto>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct)
+    public async Task<IEnumerable<BookDetailsDto>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct)
     {
         var books = await _bookLookupService.FindBooksByIsbnAsync(isbns, ct);
 
@@ -52,7 +52,7 @@ public class BookService : IBookService
         return booksDto;
     }
 
-    public async Task<BookDto?> GetBookByIdAsync(int id, CancellationToken ct)
+    public async Task<BookDetailsDto?> GetBookByIdAsync(int id, CancellationToken ct)
     {
         var book = await _bookLookupService.FindBookById(id, ct);
 
@@ -67,7 +67,7 @@ public class BookService : IBookService
         return bookDto;
     }
 
-    public async Task<IEnumerable<BookDto>> GetAllBooksAsync(CancellationToken ct)
+    public async Task<IEnumerable<BookDetailsDto>> GetAllBooksAsync(CancellationToken ct)
     {
         var books = await _bookLookupService.GetAllBooksAsync(ct);
 

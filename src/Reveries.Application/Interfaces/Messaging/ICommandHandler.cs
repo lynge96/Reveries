@@ -1,7 +1,6 @@
 namespace Reveries.Application.Interfaces.Messaging;
 
-public interface ICommandHandler<TCommand>
+public interface ICommandHandler<in TCommand, TResult>
 {
-    Task<int> Handle(TCommand command, CancellationToken cancellationToken = default);
-    
+    Task<TResult> Handle(TCommand command, CancellationToken cancellationToken = default);
 }
