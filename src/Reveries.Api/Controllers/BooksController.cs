@@ -4,9 +4,9 @@ using Reveries.Api.Mappers;
 using Reveries.Application.Commands.CreateBook;
 using Reveries.Application.Commands.SetBookSeries;
 using Reveries.Application.Interfaces.Messaging;
+using Reveries.Application.Queries;
 using Reveries.Application.Queries.GetBookByIsbn;
 using Reveries.Contracts.Books;
-using Reveries.Contracts.DTOs;
 using Reveries.Contracts.Requests;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
@@ -36,7 +36,7 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetBooks([FromQuery] bool? isRead)
+    public async Task<ActionResult<IEnumerable<BookDetailsReadModel>>> GetBooks([FromQuery] bool? isRead)
     {
         var books = await _bookService.GetAllBooksAsync();
         
@@ -55,13 +55,13 @@ public class BooksController : ControllerBase
         };
 
         var book = await _bookByIsbnHandler.Handle(query, ct);
+        var bookDto = book.ToDto();
         
-        // TODO: map til bookdetailsDto
-        return Ok(book);
+        return Ok(bookDto);
     }
 
     [HttpPost("isbns")]
-    public async Task<ActionResult<List<BookDetailsDto>>> GetByIsbns([FromBody] BulkIsbnRequest request, CancellationToken ct)
+    public async Task<ActionResult<List<BookDetailsReadModel>>> GetByIsbns([FromBody] BulkIsbnRequest request, CancellationToken ct)
     {
         var isbns = request.Isbns.Select(Isbn.Create).ToList();
         
@@ -74,7 +74,7 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<BookDetailsDto>> GetById(int id, CancellationToken ct)
+    public async Task<ActionResult<BookDetailsReadModel>> GetById(int id, CancellationToken ct)
     {
         var book = await _bookService.GetBookByIdAsync(id, ct);
         

@@ -28,7 +28,7 @@ public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand
     
     public async Task<int> Handle(CreateBookCommand command, CancellationToken ct)
     {
-        var book = command.MapToDomain();
+        var book = command.ToDomain();
 
         _logger.LogDebug(
             "Creating book '{Title}' with ISBN {Isbn}",

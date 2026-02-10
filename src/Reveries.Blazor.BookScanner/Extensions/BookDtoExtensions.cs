@@ -1,6 +1,6 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Components;
-using Reveries.Contracts.DTOs;
+using Reveries.Contracts.Books;
 
 namespace Reveries.Blazor.BookScanner.Extensions;
 

@@ -1,4 +1,5 @@
 using Reveries.Application.Commands.CreateBook;
+using Reveries.Application.Queries;
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
 
@@ -6,7 +7,7 @@ namespace Reveries.Application.Mappers;
 
 public static class BookMapper
 {
-    public static Book MapToDomain(this CreateBookCommand cmd)
+    public static Book ToDomain(this CreateBookCommand cmd)
     {
         var dataSourceParsed = Enum.TryParse<DataSource>(cmd.DataSource, true, out var ds);
 
@@ -33,5 +34,37 @@ public static class BookMapper
             subjects: cmd.Genres,
             deweyDecimals: cmd.DeweyDecimals
         );
+    }
+
+    public static BookDetailsReadModel ToReadModel(this Book book)
+    {
+        return new BookDetailsReadModel
+        {
+            Id = book.Id.Value,
+            Isbn10 = book.Isbn10?.Value,
+            Isbn13 = book.Isbn13?.Value,
+            Title = book.Title,
+            Series = book.Series?.Name,
+            NumberInSeries = book.SeriesNumber,
+            Authors = book.Authors.Select(a => a.NormalizedName).ToList(),
+            Publisher = book.Publisher?.Name,
+            Language = book.Language,
+            Pages = book.Pages,
+            PublicationDate = book.PublishDate,
+            Synopsis = book.Synopsis,
+            Binding = book.Binding,
+            Edition = book.Edition,
+            ImageThumbnailUrl = book.ImageThumbnailUrl,
+            CoverImageUrl = book.CoverImageUrl,
+            Msrp = book.Msrp,
+            IsRead = book.IsRead,
+            WeightG = book.Dimensions?.WeightG,
+            HeightCm = book.Dimensions?.HeightCm,
+            WidthCm = book.Dimensions?.WidthCm,
+            ThicknessCm = book.Dimensions?.ThicknessCm,
+            DeweyDecimals = book.DeweyDecimals.Select(dd => dd.Code).ToList(),
+            Genres = book.Genres.Select(g => g.Value).ToList(),
+            DataSource = book.DataSource.ToString()
+        };
     }
 }

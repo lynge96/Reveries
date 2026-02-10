@@ -9,6 +9,8 @@ namespace Reveries.Application.Interfaces.Services;
 /// </summary>
 public interface IBookLookupService
 {
+    Task<Book> FindBookByIsbnAsync(Isbn isbns, CancellationToken ct = default);
+    
     /// <summary>
     /// Finds books by their ISBNs.
     /// First attempts to resolve matches from the local database
