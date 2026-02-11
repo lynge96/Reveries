@@ -1,28 +1,25 @@
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Commands.Abstractions;
 using Reveries.Application.Interfaces.Cache;
-using Reveries.Application.Interfaces.Messaging;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Application.Mappers;
 
 namespace Reveries.Application.Commands.CreateBook;
 
-public sealed class CreateBookCommandHandler : ICommandHandler<CreateBookCommand, int>
+public sealed class CreateBookHandler : ICommandHandler<CreateBookCommand, int>
 {
     private readonly IBookPersistenceService _bookPersistenceService;
-    private readonly IBookCacheService _cache;
-    private readonly ILogger<CreateBookCommandHandler> _logger;
+    private readonly ILogger<CreateBookHandler> _logger;
 
-    public CreateBookCommandHandler(
+    public CreateBookHandler(
         IBookPersistenceService bookPersistenceService, 
-        IBookCacheService cache, 
-        ILogger<CreateBookCommandHandler> logger)
+        ILogger<CreateBookHandler> logger)
     {
         _bookPersistenceService = bookPersistenceService;
-        _cache = cache;
         _logger = logger;
     }
     
-    public async Task<int> Handle(CreateBookCommand command, CancellationToken ct)
+    public async Task<int> HandleAsync(CreateBookCommand command, CancellationToken ct)
     {
         var book = command.ToDomain();
 

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Mappers;
 using Reveries.Application.Commands.CreateBook;
 using Reveries.Application.Commands.SetBookSeries;
-using Reveries.Application.Interfaces.Messaging;
 using Reveries.Application.Queries;
 using Reveries.Application.Queries.GetAllBooks;
 using Reveries.Application.Queries.GetBookByDbId;
@@ -17,23 +16,23 @@ namespace Reveries.Api.Controllers;
 [Route("api/v1/books")]
 public class BooksController : ControllerBase
 {
-    private readonly ICommandHandler<CreateBookCommand, int> _createBookHandler;
-    private readonly ICommandHandler<SetBookSeriesCommand, int> _setSeriesHandler;
-    private readonly IQueryHandler<GetBookByIsbnQuery, BookDetailsReadModel> _bookByIsbnHandler;
-    private readonly IQueryHandler<GetBooksByIsbnsQuery, List<BookDetailsReadModel>> _booksByIsbnsHandler;
-    private readonly IQueryHandler<GetBookByDbIdQuery, BookDetailsReadModel> _bookByIdHandler;
-    private readonly IQueryHandler<GetAllBooksQuery, List<BookDetailsReadModel>> _getAllBooksHandler;
+    private readonly CreateBookHandler _createBookHandler;
+    private readonly SetBookSeriesHandler _setBookSeriesHandler;
+    private readonly GetBookByIsbnHandler _bookByIsbnHandler;
+    private readonly GetBooksByIsbnsHandler _booksByIsbnsHandler;
+    private readonly GetBookByDbIdHandler _bookByIdHandler;
+    private readonly GetAllBooksHandler _getAllBooksHandler;
 
     public BooksController(
-        ICommandHandler<CreateBookCommand, int> createBookHandler,
-        ICommandHandler<SetBookSeriesCommand, int> setSeriesHandler,
-        IQueryHandler<GetBookByIsbnQuery, BookDetailsReadModel> bookByIsbnHandler,
-        IQueryHandler<GetBooksByIsbnsQuery, List<BookDetailsReadModel>> booksByIsbnsHandler,
-        IQueryHandler<GetBookByDbIdQuery, BookDetailsReadModel> bookByIdHandler,
-        IQueryHandler<GetAllBooksQuery, List<BookDetailsReadModel>> getAllBooksHandler)
+        CreateBookHandler createBookHandler,
+        SetBookSeriesHandler setBookSeriesHandler,
+        GetBookByIsbnHandler bookByIsbnHandler,
+        GetBooksByIsbnsHandler booksByIsbnsHandler,
+        GetBookByDbIdHandler bookByIdHandler,
+        GetAllBooksHandler getAllBooksHandler)
     {
         _createBookHandler = createBookHandler;
-        _setSeriesHandler = setSeriesHandler;
+        _setBookSeriesHandler = setBookSeriesHandler;
         _bookByIsbnHandler = bookByIsbnHandler;
         _booksByIsbnsHandler = booksByIsbnsHandler;
         _bookByIdHandler = bookByIdHandler;
@@ -48,7 +47,7 @@ public class BooksController : ControllerBase
             IsRead = isRead
         };
         
-        var books = await _getAllBooksHandler.Handle(query, ct);
+        var books = await _getAllBooksHandler.HandleAsync(query, ct);
         var booksDto = books.Select(b => b.ToDto()).ToList();
 
         return Ok(booksDto);
@@ -62,7 +61,7 @@ public class BooksController : ControllerBase
             Isbn = Isbn.Create(isbn)
         };
 
-        var book = await _bookByIsbnHandler.Handle(query, ct);
+        var book = await _bookByIsbnHandler.HandleAsync(query, ct);
         var bookDto = book.ToDto();
 
         return Ok(bookDto);
@@ -76,7 +75,7 @@ public class BooksController : ControllerBase
             Isbns = request.Isbns.Select(Isbn.Create).ToList()
         };
 
-        var books = await _booksByIsbnsHandler.Handle(query, ct);
+        var books = await _booksByIsbnsHandler.HandleAsync(query, ct);
         var booksDto = books.Select(b => b.ToDto()).ToList();
 
         return Ok(booksDto);
@@ -87,7 +86,7 @@ public class BooksController : ControllerBase
     {
         var query = new GetBookByDbIdQuery { DbId = id };
         
-        var book = await _bookByIdHandler.Handle(query, ct);
+        var book = await _bookByIdHandler.HandleAsync(query, ct);
         var bookDto = book.ToDto();
         
         return Ok(bookDto);
@@ -98,7 +97,7 @@ public class BooksController : ControllerBase
     {
         var command = request.ToCommand();
         
-        var bookId = await _createBookHandler.Handle(command, ct);
+        var bookId = await _createBookHandler.HandleAsync(command, ct);
 
         return CreatedAtAction(nameof(GetById), new { id = bookId }, bookId);
     }
@@ -113,7 +112,7 @@ public class BooksController : ControllerBase
             NumberInSeries = body.NumberInSeries
         };
 
-        await _setSeriesHandler.Handle(command, ct);
+        await _setBookSeriesHandler.HandleAsync(command, ct);
         return NoContent();
     }
 }

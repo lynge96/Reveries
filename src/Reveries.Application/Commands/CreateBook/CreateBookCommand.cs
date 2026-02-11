@@ -1,8 +1,9 @@
+using Reveries.Application.Commands.Abstractions;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Commands.CreateBook;
 
-public sealed record CreateBookCommand
+public sealed record CreateBookCommand : ICommand
 {
     public Isbn? Isbn10 { get; init; }
     public Isbn? Isbn13 { get; init; }

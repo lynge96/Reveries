@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Reveries.Application.Commands;
 using Reveries.Application.Commands.CreateBook;
 using Reveries.Application.Commands.SetBookSeries;
-using Reveries.Application.Interfaces.Messaging;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Application.Queries;
 using Reveries.Application.Queries.GetAllBooks;
@@ -17,14 +17,14 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         // Commands
-        services.AddScoped<ICommandHandler<CreateBookCommand, int>, CreateBookCommandHandler>();
-        services.AddScoped<ICommandHandler<SetBookSeriesCommand, int>, SetBookSeriesCommandHandler>();
+        services.AddScoped<CreateBookHandler>();
+        services.AddScoped<SetBookSeriesHandler>();
 
         // Queries
-        services.AddScoped<IQueryHandler<GetBookByIsbnQuery, BookDetailsReadModel>, GetBookByIsbnQueryHandler>();
-        services.AddScoped<IQueryHandler<GetBooksByIsbnsQuery, List<BookDetailsReadModel>>, GetBooksByIsbnsQueryHandler>();
-        services.AddScoped<IQueryHandler<GetBookByDbIdQuery, BookDetailsReadModel>, GetBookByDbIdQueryHandler>();
-        services.AddScoped<IQueryHandler<GetAllBooksQuery, List<BookDetailsReadModel>>, GetAllBooksQueryHandler>();
+        services.AddScoped<GetBookByIsbnHandler>();
+        services.AddScoped<GetBooksByIsbnsHandler>();
+        services.AddScoped<GetBookByDbIdHandler>();
+        services.AddScoped<GetAllBooksHandler>();
         
         // Services
         services.AddScoped<IAuthorEnrichmentService, AuthorEnrichmentService>();

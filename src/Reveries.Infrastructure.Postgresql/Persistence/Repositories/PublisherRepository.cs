@@ -21,7 +21,7 @@ public class PublisherRepository : IPublisherRepository
     {
         const string sql = """
                            INSERT INTO library.publishers (domain_id, name)
-                           VALUES (@PublisherDomainId, @Name)
+                           VALUES (@PublisherDomainId, @PublisherName)
                            ON CONFLICT DO NOTHING
                            RETURNING id
                            """;

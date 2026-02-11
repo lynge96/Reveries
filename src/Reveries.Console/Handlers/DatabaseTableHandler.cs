@@ -1,6 +1,7 @@
+using Reveries.Application.Commands;
+using Reveries.Application.Commands.Abstractions;
 using Reveries.Application.Commands.SetBookSeries;
 using Reveries.Application.Extensions;
-using Reveries.Application.Interfaces.Messaging;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -92,7 +93,7 @@ public class DatabaseTableHandler : BaseHandler
                 NumberInSeries = num
             };
             
-            await _setBookSeriesCommandHandler.Handle(bookSeriesCommand, cancellationToken);
+            await _setBookSeriesCommandHandler.HandleAsync(bookSeriesCommand, cancellationToken);
         }
 
         AnsiConsole.MarkupLine("\nThe following books have been updated:".AsSuccess());

@@ -6,7 +6,7 @@ using Reveries.Blazor.BookScanner.State;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 
-builder.Services.AddScoped(sp => new HttpClient
+builder.Services.AddScoped(_ => new HttpClient
 {
     BaseAddress = new Uri("https://localhost:7238/api/v1/")
 });

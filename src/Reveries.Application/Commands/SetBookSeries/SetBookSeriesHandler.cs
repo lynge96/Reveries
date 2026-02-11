@@ -1,28 +1,28 @@
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Commands.Abstractions;
 using Reveries.Application.Interfaces.Cache;
-using Reveries.Application.Interfaces.Messaging;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Commands.SetBookSeries;
 
-public sealed class SetBookSeriesCommandHandler : ICommandHandler<SetBookSeriesCommand, int>
+public sealed class SetBookSeriesHandler : ICommandHandler<SetBookSeriesCommand, int>
 {
     private readonly IBookSeriesService _bookSeriesService;
     private readonly IBookCacheService _cache;
-    private readonly ILogger<SetBookSeriesCommandHandler> _logger;
+    private readonly ILogger<SetBookSeriesHandler> _logger;
     
-    public SetBookSeriesCommandHandler(
+    public SetBookSeriesHandler(
         IBookSeriesService bookSeriesService, 
         IBookCacheService cache,
-        ILogger<SetBookSeriesCommandHandler> logger)
+        ILogger<SetBookSeriesHandler> logger)
     {
         _bookSeriesService = bookSeriesService;
         _cache = cache;
         _logger = logger;
     }
     
-    public async Task<int> Handle(SetBookSeriesCommand command, CancellationToken ct)
+    public async Task<int> HandleAsync(SetBookSeriesCommand command, CancellationToken ct)
     {
         var series = Series.Create(command.SeriesName);
 
