@@ -1,5 +1,4 @@
 using DotNetEnv;
-using FluentValidation;
 using Reveries.Api.Configuration;
 using Reveries.Api.Middleware;
 using Reveries.Application.Configuration;
@@ -23,8 +22,6 @@ builder.Services
     .AddCorsPolicies()
     .AddSwaggerDocumentation()
     .AddControllers();
-
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 var app = builder.Build();
 
