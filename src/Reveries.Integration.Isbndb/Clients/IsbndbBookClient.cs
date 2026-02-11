@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Exceptions;
 using Reveries.Application.Extensions;
-using Reveries.Core.Exceptions;
 using Reveries.Core.ValueObjects;
 using Reveries.Integration.Isbndb.DTOs.Books;
 using Reveries.Integration.Isbndb.Interfaces;

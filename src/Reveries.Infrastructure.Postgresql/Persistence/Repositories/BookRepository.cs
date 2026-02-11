@@ -219,13 +219,13 @@ public class BookRepository : IBookRepository
                     bookDictionary.Add(bookEntity.Id, bookAggregateEntity);
                 }
                 
-                if (authorEntity != null && bookAggregateEntity.Authors != null && bookAggregateEntity.Authors.All(a => a?.AuthorId != authorEntity.AuthorId))
+                if (authorEntity != null && bookAggregateEntity.Authors != null && bookAggregateEntity.Authors.All(a => a.AuthorId != authorEntity.AuthorId))
                     bookAggregateEntity.Authors.Add(authorEntity);
 
-                if (subjectEntity != null && bookAggregateEntity.Genres != null && bookAggregateEntity.Genres.All(s => s?.GenreId != subjectEntity.GenreId))
+                if (subjectEntity != null && bookAggregateEntity.Genres != null && bookAggregateEntity.Genres.All(s => s.GenreId != subjectEntity.GenreId))
                     bookAggregateEntity.Genres.Add(subjectEntity);
 
-                if (deweyDecimalEntity != null && bookAggregateEntity.DeweyDecimals != null && bookAggregateEntity.DeweyDecimals.All(dd => dd?.Code != deweyDecimalEntity.Code))
+                if (deweyDecimalEntity != null && bookAggregateEntity.DeweyDecimals != null && bookAggregateEntity.DeweyDecimals.All(dd => dd.Code != deweyDecimalEntity.Code))
                 {
                     bookAggregateEntity.DeweyDecimals.Add(deweyDecimalEntity);
                 }
@@ -233,7 +233,7 @@ public class BookRepository : IBookRepository
                 return bookEntity;
             },
             param: parameters,
-            splitOn: "publisherid,authorid,subjectid,code,seriesid"
+            splitOn: "publisherid,authorid,genreid,code,seriesid"
         );
 
         return bookDictionary.Values.ToList();

@@ -250,7 +250,7 @@ public class Book : BaseEntity
         if (pages is null)
             return;
 
-        if (pages <= 0)
+        if (pages < 0)
             throw new InvalidPageCountException(pages);
 
         Pages = pages;

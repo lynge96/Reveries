@@ -43,7 +43,6 @@ public class BookTests
     }
 
     [Theory]
-    [InlineData(0)]
     [InlineData(-1)]
     [InlineData(-250)]
     public void Create_WithNegativePages_Throws(int? pageCount)

@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Reveries.Application.Exceptions;
 using Reveries.Core.Exceptions;
 using ApplicationException = Reveries.Application.Exceptions.ApplicationException;
@@ -38,28 +37,6 @@ public class ExceptionHandlingMiddleware
 
         switch (exception)
         {
-            case ValidationException valEx:
-            {
-                var errors = valEx.Failures
-                    .GroupBy(f => f.PropertyName)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(f => f.ErrorMessage).ToArray());
-
-                errorCtx = new ErrorContext(
-                    Type: valEx.ErrorType,
-                    StatusCode: (int)valEx.StatusCode,
-                    Path: path,
-                    TraceId: traceId,
-                    ErrorMessage: valEx.Message,
-                    ValidationErrors: errors
-                );
-
-                _logger.LogWarning(valEx, "Validation error {@Error}", errorCtx);
-
-                context.Response.StatusCode = (int)valEx.StatusCode;
-                break;
-            }
             case ExternalDependencyException depEx:
             {
                 errorCtx = new ErrorContext(
