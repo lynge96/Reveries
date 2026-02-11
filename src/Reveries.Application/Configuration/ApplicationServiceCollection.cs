@@ -29,11 +29,12 @@ public static class ServiceCollectionExtensions
         // Services
         services.AddScoped<IAuthorEnrichmentService, AuthorEnrichmentService>();
         services.AddScoped<IBookEnrichmentService, BookEnrichmentService>();
-        
         services.AddScoped<IBookLookupService, BookLookupService>();
         services.AddScoped<IAuthorLookupService, AuthorLookupService>();
         services.AddScoped<IPublisherLookupService, PublisherLookupService>();
         services.AddScoped<ISeriesService, SeriesService>();
+        services.AddScoped<IBookSeriesService, BookSeriesService>();
+        services.AddScoped<IBookReadStatusService, BookReadStatusService>();
         
         return services;
     }

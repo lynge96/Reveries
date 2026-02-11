@@ -1,4 +1,6 @@
+using Reveries.Application.Commands.SetBookSeries;
 using Reveries.Application.Extensions;
+using Reveries.Application.Interfaces.Messaging;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -12,17 +14,25 @@ namespace Reveries.Console.Handlers;
 public class DatabaseTableHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.BooksInDatabase;
+    
     private readonly IBookLookupService _bookLookupService;
     private readonly ISeriesService _seriesService;
-    private readonly IBookManagementService _bookManagementService;
+    private readonly ICommandHandler<SetBookSeriesCommand, int> _setBookSeriesCommandHandler;
     private readonly IBookDisplayService _bookDisplayService;
+    private readonly IBookReadStatusService _bookReadStatusService;
 
-    public DatabaseTableHandler(IBookLookupService bookLookupService, ISeriesService seriesService, IBookManagementService bookManagementService, IBookDisplayService bookDisplayService)
+    public DatabaseTableHandler(
+        IBookLookupService bookLookupService, 
+        ISeriesService seriesService, 
+        ICommandHandler<SetBookSeriesCommand, int> setBookSeriesCommandHandler,
+        IBookDisplayService bookDisplayService,
+        IBookReadStatusService bookReadStatusService)
     {
         _bookLookupService = bookLookupService;
         _seriesService = seriesService;
-        _bookManagementService = bookManagementService;
+        _setBookSeriesCommandHandler = setBookSeriesCommandHandler;
         _bookDisplayService = bookDisplayService;
+        _bookReadStatusService = bookReadStatusService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -74,16 +84,23 @@ public class DatabaseTableHandler : BaseHandler
             
             if (int.TryParse(numberInSeries, out var num))
                 book.SetSeries(series, num);
-        }
+
+            var bookSeriesCommand = new SetBookSeriesCommand
+            {
+                Isbn = book.Isbn13,
+                SeriesName = series.Name,
+                NumberInSeries = num
+            };
             
-        await _bookManagementService.UpdateBooksAsync(selectedBooks, cancellationToken);
+            await _setBookSeriesCommandHandler.Handle(bookSeriesCommand, cancellationToken);
+        }
 
         AnsiConsole.MarkupLine("\nThe following books have been updated:".AsSuccess());
         
         _bookDisplayService.DisplayBooksTable(selectedBooks);
     }
 
-    private async Task UpdateSelectedBooksReadStatusAsync(List<Book> books, CancellationToken cancellationToken)
+    private async Task UpdateSelectedBooksReadStatusAsync(List<Book> books, CancellationToken ct)
     {
         var selectedBooks = ConsolePromptUtility.ShowMultiSelectionPrompt("Select the books you want update:", books);
         if (selectedBooks.Count == 0)
@@ -100,10 +117,10 @@ public class DatabaseTableHandler : BaseHandler
             }
             
             book.MarkAsRead();
+
+            await _bookReadStatusService.UpdateReadStatusAsync(book, ct);
         }
-        
-        await _bookManagementService.UpdateBooksAsync(selectedBooks, cancellationToken);
-        
+
         AnsiConsole.MarkupLine("\nThe following books have been updated:".AsSuccess());
         
         _bookDisplayService.DisplayBooksTable(selectedBooks);

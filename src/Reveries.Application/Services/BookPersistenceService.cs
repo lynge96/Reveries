@@ -1,4 +1,5 @@
 using Reveries.Application.Exceptions;
+using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
@@ -10,13 +11,20 @@ namespace Reveries.Application.Services;
 public class BookPersistenceService : IBookPersistenceService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuthorEnrichmentService _authorEnrichmentService;
+    private readonly IBookCacheService _cache;
     
-    public BookPersistenceService(IUnitOfWork unitOfWork)
+    public BookPersistenceService(
+        IUnitOfWork unitOfWork, 
+        IAuthorEnrichmentService authorEnrichmentService,
+        IBookCacheService cache)
     {
         _unitOfWork = unitOfWork;
+        _authorEnrichmentService = authorEnrichmentService;
+        _cache = cache;
     }
 
-    public async Task<int> SaveBookWithRelationsAsync(Book book)
+    public async Task<int> SaveBookWithRelationsAsync(Book book, CancellationToken ct)
     {
         await _unitOfWork.BeginTransactionAsync();
         
@@ -24,6 +32,8 @@ public class BookPersistenceService : IBookPersistenceService
         
         try
         {
+            await _authorEnrichmentService.EnrichAsync(book.Authors, ct);
+            
             var publisherId = await HandlePublisherAsync(book.Publisher);
             var seriesId = await HandleSeriesAsync(book.Series);
             
@@ -39,6 +49,8 @@ public class BookPersistenceService : IBookPersistenceService
             
             await _unitOfWork.CommitAsync();
 
+            await _cache.SetBookByIsbnAsync(book, ct);
+            
             return bookDbId;
         }
         catch
@@ -143,7 +155,7 @@ public class BookPersistenceService : IBookPersistenceService
     {
         var deweyDecimalCodes = deweyDecimals.Select(d => d.Code).Distinct();
         
-        var existingDeweyDecimals = await _unitOfWork.DeweyDecimals.GetByCodesAsync(deweyDecimalCodes);
+        var existingDeweyDecimals = await _unitOfWork.DeweyDecimalses.GetByCodesAsync(deweyDecimalCodes);
 
         var existingByCode = existingDeweyDecimals.ToDictionary(dd => dd.DeweyDecimal.Code);
         
@@ -157,7 +169,7 @@ public class BookPersistenceService : IBookPersistenceService
             }
             else
             {
-                var id = await _unitOfWork.DeweyDecimals.AddAsync(deweyDecimal);
+                var id = await _unitOfWork.DeweyDecimalses.AddAsync(deweyDecimal);
                 result.Add(new DeweyDecimalWithId(deweyDecimal, id));
             }
         }

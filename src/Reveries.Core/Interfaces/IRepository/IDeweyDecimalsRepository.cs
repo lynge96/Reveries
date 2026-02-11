@@ -3,7 +3,7 @@ using Reveries.Core.ValueObjects.DTOs;
 
 namespace Reveries.Core.Interfaces.IRepository;
 
-public interface IDeweyDecimalRepository
+public interface IDeweyDecimalsRepository
 {
     Task<int> AddAsync(DeweyDecimal decimals);
     Task<DeweyDecimalWithId?> GetByCodeAsync(string code);

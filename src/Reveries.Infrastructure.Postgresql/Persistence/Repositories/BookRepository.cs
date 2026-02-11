@@ -85,6 +85,19 @@ public class BookRepository : IBookRepository
         });
     }
 
+    public async Task UpdateBookReadStatusAsync(Book book)
+    {
+        const string sql = """
+                           UPDATE library.books
+                           SET is_read = @IsRead
+                           WHERE domain_id = @Id
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+
+        await connection.ExecuteAsync(sql, new { book.IsRead, book.Id });
+    }
+
     public async Task<List<Book>> GetBooksByAuthorAsync(string authorName)
     {
         if (string.IsNullOrWhiteSpace(authorName))
@@ -152,12 +165,10 @@ public class BookRepository : IBookRepository
                               OR isbn10 = ANY(@Isbns)
                            """;
 
-        var isbnList = isbns.Select(i => Isbn.Create(i.Value)).ToList();
+        var isbnList = isbns.Select(i => i.Value).ToList();
         
         return await QueryBooksAsync(sql, new { Isbns = isbnList });
     }
-
-
 
     public async Task<Book?> GetBookByIdAsync(int id)
     {
@@ -182,7 +193,6 @@ public class BookRepository : IBookRepository
         return await QueryBooksAsync(sql);
     }
     
-
     private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)
     {
         var bookAggregateList = await GetBookAggregatesAsync(sql, parameters);

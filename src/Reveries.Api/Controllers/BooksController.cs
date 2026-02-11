@@ -1,4 +1,3 @@
-using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Mappers;
 using Reveries.Application.Commands.CreateBook;
@@ -11,7 +10,6 @@ using Reveries.Application.Queries.GetBookByIsbn;
 using Reveries.Application.Queries.GetBookByIsbns;
 using Reveries.Contracts.Books;
 using Reveries.Core.ValueObjects;
-using ValidationException = Reveries.Application.Exceptions.ValidationException;
 
 namespace Reveries.Api.Controllers;
 
@@ -25,7 +23,6 @@ public class BooksController : ControllerBase
     private readonly IQueryHandler<GetBooksByIsbnsQuery, List<BookDetailsReadModel>> _booksByIsbnsHandler;
     private readonly IQueryHandler<GetBookByDbIdQuery, BookDetailsReadModel> _bookByIdHandler;
     private readonly IQueryHandler<GetAllBooksQuery, List<BookDetailsReadModel>> _getAllBooksHandler;
-    private readonly IValidator<CreateBookRequest> _createBookValidator;
 
     public BooksController(
         ICommandHandler<CreateBookCommand, int> createBookHandler,
@@ -33,8 +30,7 @@ public class BooksController : ControllerBase
         IQueryHandler<GetBookByIsbnQuery, BookDetailsReadModel> bookByIsbnHandler,
         IQueryHandler<GetBooksByIsbnsQuery, List<BookDetailsReadModel>> booksByIsbnsHandler,
         IQueryHandler<GetBookByDbIdQuery, BookDetailsReadModel> bookByIdHandler,
-        IQueryHandler<GetAllBooksQuery, List<BookDetailsReadModel>> getAllBooksHandler,
-        IValidator<CreateBookRequest> createBookValidator)
+        IQueryHandler<GetAllBooksQuery, List<BookDetailsReadModel>> getAllBooksHandler)
     {
         _createBookHandler = createBookHandler;
         _setSeriesHandler = setSeriesHandler;
@@ -42,7 +38,6 @@ public class BooksController : ControllerBase
         _booksByIsbnsHandler = booksByIsbnsHandler;
         _bookByIdHandler = bookByIdHandler;
         _getAllBooksHandler = getAllBooksHandler;
-        _createBookValidator = createBookValidator;
     }
 
     [HttpGet]
@@ -101,11 +96,6 @@ public class BooksController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateBookRequest request, CancellationToken ct)
     {
-        var validationResult = await _createBookValidator.ValidateAsync(request, ct);
-        
-        if (!validationResult.IsValid)
-            throw new ValidationException(validationResult.Errors);
-        
         var command = request.ToCommand();
         
         var bookId = await _createBookHandler.Handle(command, ct);

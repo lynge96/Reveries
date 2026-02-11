@@ -9,6 +9,7 @@ public interface IBookRepository
     Task<int> AddAsync(Book book, int? publisherId, int? seriesId);
     Task<BookWithId?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null);
     Task UpdateBookSeriesAsync(BookWithId book, int seriesId);
+    Task UpdateBookReadStatusAsync(Book book);
     
     Task<List<Book>> GetBooksByAuthorAsync(string authorName);
     Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<string> authorNames);

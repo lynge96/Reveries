@@ -8,11 +8,11 @@ using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
-public class DeweyDecimalRepository : IDeweyDecimalRepository
+public class DeweyDecimalsRepository : IDeweyDecimalsRepository
 {
     private readonly IDbContext _dbContext;
     
-    public DeweyDecimalRepository(IDbContext dbContext)
+    public DeweyDecimalsRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }

@@ -9,7 +9,7 @@ public class BookMergerTests
     private static Book IsbndbBook(Action<Book>? configure = null)
     {
         var book = Book.Create(
-            isbn13: "9781234567890",
+            isbn13: "9780593099322",
             isbn10: null,
             title: "ISBNDB Title",
             authors: null,
@@ -39,7 +39,7 @@ public class BookMergerTests
     private static Book GoogleBook(Action<Book>? configure = null)
     {
         var book = Book.Create(
-            isbn13: "9780987654321",
+            isbn13: "9780593099322",
             isbn10: null,
             title: "Google Title",
             authors: ["Joe Abercrombie"],

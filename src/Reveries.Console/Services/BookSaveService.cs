@@ -2,7 +2,6 @@ using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Interfaces;
-using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Spectre.Console;
 
@@ -10,14 +9,14 @@ namespace Reveries.Console.Services;
 
 public class BookSaveService : IBookSaveService
 {
-    private readonly IBookManagementService _bookManagementService;
+    private readonly IBookPersistenceService _bookManagementService;
 
-    public BookSaveService(IBookManagementService bookManagementService)
+    public BookSaveService(IBookPersistenceService bookManagementService)
     {
         _bookManagementService = bookManagementService;
     }
 
-    public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default)
+    public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken ct)
     {
         var booksList = books.ToList();
     
@@ -33,12 +32,12 @@ public class BookSaveService : IBookSaveService
         {
             try
             {
-                var bookId = await _bookManagementService.CreateBookWithRelationsAsync(book, cancellationToken);
+                var bookDbId = await _bookManagementService.SaveBookWithRelationsAsync(book, ct);
 
                 AnsiConsole.MarkupLine($"""
                                         ✅ Successfully saved to database:
                                            Title: {book.Title}
-                                           ID: {bookId}
+                                           ID: {bookDbId}
                                            ISBN: {book.Isbn13?.Value ?? book.Isbn10?.Value ?? "N/A"}
                                         """.AsPrimary());
             }

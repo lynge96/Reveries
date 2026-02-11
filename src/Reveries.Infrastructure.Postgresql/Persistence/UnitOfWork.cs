@@ -12,7 +12,7 @@ public class UnitOfWork : IUnitOfWork
     public ISeriesRepository Series { get; }
     public IBookGenresRepository BookGenres { get; }
     public IBookDeweyDecimalsRepository BookDeweyDecimals { get; }
-    public IDeweyDecimalRepository DeweyDecimals { get; }
+    public IDeweyDecimalsRepository DeweyDecimalses { get; }
     public IPublisherRepository Publishers { get; }
     public IBookAuthorsRepository BookAuthors { get; }
     public IGenreRepository Genres { get; }
@@ -24,7 +24,7 @@ public class UnitOfWork : IUnitOfWork
         IPublisherRepository publisherRepository,
         IBookAuthorsRepository bookAuthorsRepository,
         IBookGenresRepository bookGenresRepository,
-        IDeweyDecimalRepository deweyDecimalRepository,
+        IDeweyDecimalsRepository deweyDecimalsRepository,
         IGenreRepository genreRepository,
         IBookDeweyDecimalsRepository bookDeweyDecimalsRepository)
     {
@@ -35,7 +35,7 @@ public class UnitOfWork : IUnitOfWork
         Publishers = publisherRepository;
         BookAuthors = bookAuthorsRepository;
         BookGenres = bookGenresRepository;
-        DeweyDecimals = deweyDecimalRepository;
+        DeweyDecimalses = deweyDecimalsRepository;
         Genres = genreRepository;
         BookDeweyDecimals = bookDeweyDecimalsRepository;
     }

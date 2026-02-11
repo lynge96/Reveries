@@ -7,7 +7,7 @@ public interface IUnitOfWork
     IBookRepository Books { get; }
     IAuthorRepository Authors { get; }
     ISeriesRepository Series { get; }
-    IDeweyDecimalRepository DeweyDecimals { get; }
+    IDeweyDecimalsRepository DeweyDecimalses { get; }
     IPublisherRepository Publishers { get; }
     IGenreRepository Genres { get; }
     
