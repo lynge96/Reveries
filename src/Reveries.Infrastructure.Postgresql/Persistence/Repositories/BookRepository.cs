@@ -208,26 +208,26 @@ public class BookRepository : IBookRepository
             sql,
             (bookEntity, publisherEntity, authorEntity, subjectEntity, deweyDecimalEntity, seriesEntity) =>
             {
-                if (!bookDictionary.TryGetValue(bookEntity.Id, out var bookEntry))
+                if (!bookDictionary.TryGetValue(bookEntity.Id, out var bookAggregateEntity))
                 {
-                    bookEntry = new BookAggregateEntity
+                    bookAggregateEntity = new BookAggregateEntity
                     {
                         Book = bookEntity,
                         Publisher = publisherEntity,
                         Series = seriesEntity
                     };
-                    bookDictionary.Add(bookEntity.Id, bookEntry);
+                    bookDictionary.Add(bookEntity.Id, bookAggregateEntity);
                 }
                 
-                if (authorEntity is not null && bookEntry.Authors.All(a => a?.AuthorId != authorEntity.AuthorId))
-                    bookEntry.Authors.Add(authorEntity);
+                if (authorEntity != null && bookAggregateEntity.Authors != null && bookAggregateEntity.Authors.All(a => a?.AuthorId != authorEntity.AuthorId))
+                    bookAggregateEntity.Authors.Add(authorEntity);
 
-                if (subjectEntity is not null && bookEntry.Genres.All(s => s?.GenreId != subjectEntity.GenreId))
-                    bookEntry.Genres.Add(subjectEntity);
+                if (subjectEntity != null && bookAggregateEntity.Genres != null && bookAggregateEntity.Genres.All(s => s?.GenreId != subjectEntity.GenreId))
+                    bookAggregateEntity.Genres.Add(subjectEntity);
 
-                if (deweyDecimalEntity is not null && bookEntry.DeweyDecimals.All(dd => dd?.Code != deweyDecimalEntity.Code))
+                if (deweyDecimalEntity != null && bookAggregateEntity.DeweyDecimals != null && bookAggregateEntity.DeweyDecimals.All(dd => dd?.Code != deweyDecimalEntity.Code))
                 {
-                    bookEntry.DeweyDecimals.Add(deweyDecimalEntity);
+                    bookAggregateEntity.DeweyDecimals.Add(deweyDecimalEntity);
                 }
                 
                 return bookEntity;
