@@ -40,6 +40,7 @@ public static class DomainToEntityExtensions
     {
         return new PublisherEntity
         {
+            PublisherDomainId = model.Id.Value,
             PublisherName = model.Name,
             DateCreatedPublisher = model.DateCreated
         };
@@ -49,6 +50,7 @@ public static class DomainToEntityExtensions
     {
         return new SeriesEntity
         {
+            SeriesDomainId = model.Id.Value,
             SeriesName = model.Name,
             DateCreatedSeries = model.DateCreated
         };
@@ -58,6 +60,7 @@ public static class DomainToEntityExtensions
     {
         return new AuthorEntity
         {
+            AuthorDomainId = model.Id.Value,
             FirstName = model.FirstName,
             LastName = model.LastName,
             NormalizedName = model.NormalizedName,

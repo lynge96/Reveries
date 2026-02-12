@@ -7,18 +7,18 @@ namespace Reveries.Core.Models;
 public class Author : BaseEntity
 {
     private readonly List<AuthorNameVariant> _nameVariants = [];
-    
+
     public AuthorId Id { get; private init; }
-    public string? FirstName { get; init; }
-    public string? LastName { get; init; }
+    public string? FirstName { get; }
+    public string? LastName { get; }
     public string NormalizedName => $"{FirstName} {LastName}".Trim().ToLowerInvariant();
     public IReadOnlyList<AuthorNameVariant> NameVariants => _nameVariants;
 
     internal Author(AuthorId id, string? firstName, string? lastName)
     {
         Id = id;
-        FirstName = firstName;
-        LastName = lastName;
+        FirstName = firstName?.ToTitleCase();
+        LastName = lastName?.ToTitleCase();
     }
 
     public override string ToString() => NormalizedName.ToTitleCase();
@@ -44,13 +44,11 @@ public class Author : BaseEntity
         if (string.IsNullOrWhiteSpace(variant))
             return;
 
-        var normalized = NormalizeVariant(variant);
+        var nameVariant = AuthorNameVariant.Create(variant);
 
-        if (_nameVariants.Any(v => NormalizeVariant(v.NameVariant) == normalized))
+        if (_nameVariants.Any(v => v.NameVariant.Equals(nameVariant.NameVariant)))
             return;
-
-        var nameVariant = AuthorNameVariant.Create(variant.Trim());
-
+        
         _nameVariants.Add(nameVariant);
 
         if (makePrimary)
@@ -67,14 +65,5 @@ public class Author : BaseEntity
 
         variant.MarkAsPrimary();
     }
-    
-    private static string NormalizeVariant(string variant)
-    {
-        return new string(
-            variant
-                .Trim()
-                .Where(char.IsLetterOrDigit)
-                .ToArray()
-        ).ToLowerInvariant();
-    }
+
 }
