@@ -8,7 +8,7 @@ public class Series : BaseEntity
     public SeriesId Id { get; private init; }
     public string Name { get; }
 
-    internal Series(SeriesId id, string name)
+    private Series(SeriesId id, string name)
     {
         Id = id;
         Name = name;

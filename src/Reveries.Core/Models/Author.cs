@@ -14,11 +14,11 @@ public class Author : BaseEntity
     public string NormalizedName => $"{FirstName} {LastName}".Trim().ToLowerInvariant();
     public IReadOnlyList<AuthorNameVariant> NameVariants => _nameVariants;
 
-    internal Author(AuthorId id, string? firstName, string? lastName)
+    private Author(AuthorId id, string? firstName, string? lastName)
     {
         Id = id;
-        FirstName = firstName?.ToTitleCase();
-        LastName = lastName?.ToTitleCase();
+        FirstName = firstName;
+        LastName = lastName;
     }
 
     public override string ToString() => NormalizedName.ToTitleCase();

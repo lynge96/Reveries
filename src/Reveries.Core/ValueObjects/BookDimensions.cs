@@ -10,7 +10,7 @@ public sealed record BookDimensions
     private const int CmDecimals = 1;
     private const int GramDecimals = 0;
 
-    internal BookDimensions(decimal? heightCm, decimal? widthCm, decimal? thicknessCm, decimal? weightG)
+    private BookDimensions(decimal? heightCm, decimal? widthCm, decimal? thicknessCm, decimal? weightG)
     {
         HeightCm = heightCm;
         WidthCm = widthCm;

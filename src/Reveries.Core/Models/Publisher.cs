@@ -8,7 +8,7 @@ public class Publisher : BaseEntity
     public PublisherId Id { get; private init; }
     public string Name { get; }
 
-    internal Publisher(PublisherId id, string name)
+    private Publisher(PublisherId id, string name)
     {
         Id = id;
         Name = name;

@@ -1,6 +1,7 @@
 using Reveries.Application.Commands.CreateBook;
 using Reveries.Application.Queries;
 using Reveries.Core.Enums;
+using Reveries.Core.Helpers;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Mappers;
@@ -46,7 +47,7 @@ public static class BookMapper
             Title = book.Title,
             Series = book.Series?.Name,
             NumberInSeries = book.SeriesNumber,
-            Authors = book.Authors.Select(a => a.NormalizedName).ToList(),
+            Authors = book.Authors.Select(a => a.NormalizedName.ToTitleCase()).ToList(),
             Publisher = book.Publisher?.Name,
             Language = book.Language,
             Pages = book.Pages,
