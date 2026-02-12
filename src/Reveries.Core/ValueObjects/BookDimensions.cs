@@ -9,8 +9,14 @@ public sealed record BookDimensions
     
     private const int CmDecimals = 1;
     private const int GramDecimals = 0;
-    
-    private BookDimensions() { }
+
+    internal BookDimensions(decimal? heightCm, decimal? widthCm, decimal? thicknessCm, decimal? weightG)
+    {
+        HeightCm = heightCm;
+        WidthCm = widthCm;
+        ThicknessCm = thicknessCm;
+        WeightG = weightG;
+    }
 
     public static BookDimensions? Create(decimal? heightCm, decimal? widthCm, decimal? thicknessCm, decimal? weightG)
     {
@@ -22,13 +28,7 @@ public sealed record BookDimensions
         if (heightCm is null && widthCm is null && thicknessCm is null && weightG is null)
             return null;
 
-        return new BookDimensions
-        {
-            HeightCm = heightCm,
-            WidthCm = widthCm,
-            ThicknessCm = thicknessCm,
-            WeightG = weightG
-        };
+        return new BookDimensions(heightCm, widthCm, thicknessCm, weightG);
     }
 
     private static decimal? SanitizeAndRound(decimal? value, int decimals)

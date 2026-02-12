@@ -10,26 +10,29 @@ public static class EntityToDomainExtensions
 {
     public static Book ToDomain(this BookEntity entity)
     {
-        return Book.Reconstitute(
-            id: new BookId(entity.BookDomainId),
-            isbn13: entity.Isbn13 != null ? Isbn.Create(entity.Isbn13) : null,
-            isbn10: entity.Isbn10 != null ? Isbn.Create(entity.Isbn10) : null,
-            title: entity.Title,
-            pages: entity.PageCount,
-            isRead: entity.IsRead,
-            publishDate: entity.PublicationDate,
-            language: entity.Language,
-            synopsis: entity.Synopsis,
-            imageThumbnail: entity.ImageThumbnailUrl,
-            imageUrl: entity.CoverImageUrl,
-            msrp: entity.Msrp,
-            binding: entity.Binding,
-            edition: entity.Edition,
-            seriesNumber: entity.SeriesNumber,
-            dimensions: BookDimensions.Create(entity.HeightCm, entity.WidthCm, entity.ThicknessCm, entity.WeightG),
-            dataSource: DataSource.Database,
-            dateCreated: entity.DateCreatedBook
-            );
+        var bookData = new BookReconstitutionData
+        (
+            Id: entity.BookDomainId,
+            Title: entity.Title,
+            Isbn13: entity.Isbn13,
+            Isbn10: entity.Isbn10,
+            Pages: entity.PageCount,
+            IsRead: entity.IsRead,
+            PublicationDate: entity.PublicationDate,
+            Language: entity.Language,
+            Synopsis: entity.Synopsis,
+            ImageThumbnailUrl: entity.ImageThumbnailUrl,
+            CoverImageUrl: entity.CoverImageUrl,
+            Msrp: entity.Msrp,
+            Binding: entity.Binding,
+            Edition: entity.Edition,
+            SeriesNumber: entity.SeriesNumber,
+            Dimensions: BookDimensions.Create(entity.HeightCm, entity.WidthCm, entity.ThicknessCm, entity.WeightG),
+            DataSource: DataSource.Database,
+            DateCreated: entity.DateCreatedBook
+        );
+        
+        return Book.Reconstitute(bookData);
     }
     
     public static Publisher ToDomain(this PublisherEntity entity)

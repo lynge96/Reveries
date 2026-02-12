@@ -105,10 +105,9 @@ public class ExceptionHandlingMiddleware
 
         var response = new ErrorResponse
         {
-            StatusCode = context.Response.StatusCode,
+            StatusCode = errorCtx.StatusCode,
             Error = errorCtx.Type,
-            Message = errorCtx.ErrorMessage ?? "An error occurred while processing your request.",
-            Details = errorCtx.ValidationErrors
+            Message = errorCtx.ErrorMessage ?? "An error occurred while processing your request."
         };
 
         context.Response.ContentType = "application/json";

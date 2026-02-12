@@ -10,7 +10,7 @@ public sealed partial record Isbn
     
     public string Value { get; }
 
-    private Isbn(string value)
+    internal Isbn(string value)
     {
         Value = value;
     }

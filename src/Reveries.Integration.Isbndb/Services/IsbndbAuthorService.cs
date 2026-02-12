@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
@@ -29,8 +28,7 @@ public class IsbndbAuthorService : IIsbndbAuthorService
             var authorResponseDto = await _authorClient.SearchAuthorsByNameAsync(authorName, ct);
 
             var authors = authorResponseDto.Authors.Any()
-                ? authorResponseDto.Authors
-                    .Select(Author.Create)
+                ? authorResponseDto.Authors.Select(Author.Create)
                 : [];
 
             var distinctAuthors = authors

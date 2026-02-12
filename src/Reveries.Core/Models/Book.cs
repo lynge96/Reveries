@@ -21,7 +21,7 @@ public class Book : BaseEntity
     public bool IsRead { get; private set; }
     public Publisher? Publisher { get; private set; }
     public string? Language { get; private init; }
-    public string? PublishDate { get; private init; }
+    public string? PublicationDate { get; private init; }
     public string? Synopsis { get; private init; }
     public string? ImageThumbnailUrl { get; private init; }
     public string? CoverImageUrl { get; private init; }
@@ -101,10 +101,9 @@ public class Book : BaseEntity
             Isbn13 = isbn13 != null ? Isbn.Create(isbn13) : null,
             Isbn10 = isbn10 != null ? Isbn.Create(isbn10) : null,
             Title = title,
-            Pages = pages,
             IsRead = false,
-            PublishDate = publishDate,
-            Publisher = Publisher.Create(publisher),
+            PublicationDate = publishDate,
+            Publisher = publisher != null ? Publisher.Create(publisher) : null,
             Language = languageIso639.GetLanguageName(),
             Synopsis = synopsis,
             ImageThumbnailUrl = imageThumbnail,
@@ -158,69 +157,45 @@ public class Book : BaseEntity
     /// This method should not throw due to domain validation failures,
     /// as it trusts the persisted data.
     /// </summary>
-    public static Book Reconstitute(
-        BookId id,
-        Isbn? isbn13,
-        Isbn? isbn10,
-        string title,
-        int? pages,
-        bool isRead,
-        string? publishDate,
-        string? language,
-        string? synopsis,
-        string? imageThumbnail,
-        string? imageUrl,
-        decimal? msrp,
-        string? binding,
-        string? edition,
-        int? seriesNumber,
-        DataSource dataSource,
-        DateTimeOffset? dateCreated = null,
-        Publisher? publisher = null,
-        Series? series = null,
-        BookDimensions? dimensions = null,
-        IEnumerable<Author>? authors = null,
-        IEnumerable<Genre>? genres = null,
-        IEnumerable<DeweyDecimal>? deweyDecimals = null
-    )
+    public static Book Reconstitute(BookReconstitutionData data)
     {
         var book = new Book
         {
-            Id = id,
-            Isbn13 = isbn13,
-            Isbn10 = isbn10,
-            Title = title,
-            Pages = pages,
-            IsRead = isRead,
-            PublishDate = publishDate,
-            Publisher = publisher,
-            Language = language,
-            Synopsis = synopsis,
-            ImageThumbnailUrl = imageThumbnail,
-            CoverImageUrl = imageUrl,
-            Msrp = msrp,
-            Binding = binding,
-            Edition = edition,
-            SeriesNumber = seriesNumber,
-            Series = series,
-            Dimensions = dimensions,
-            DataSource = dataSource,
-            DateCreated = dateCreated
+            Id = new BookId(data.Id),
+            Isbn13 = data.Isbn13 != null ? new Isbn(data.Isbn13) : null,
+            Isbn10 = data.Isbn10 != null ? new Isbn(data.Isbn10) : null,
+            Title = data.Title,
+            Pages = data.Pages,
+            IsRead = data.IsRead,
+            PublicationDate = data.PublicationDate,
+            Publisher = data.Publisher,
+            Language = data.Language,
+            Synopsis = data.Synopsis,
+            ImageThumbnailUrl = data.ImageThumbnailUrl,
+            CoverImageUrl = data.CoverImageUrl,
+            Msrp = data.Msrp,
+            Binding = data.Binding,
+            Edition = data.Edition,
+            SeriesNumber = data.SeriesNumber,
+            Series = data.Series,
+            Dimensions = data.Dimensions,
+            DataSource = data.DataSource,
+            DateCreated = data.DateCreated
         };
 
-        if (authors != null)
+        if (data.Authors != null)
         {
-            book._authors.AddRange(authors);
+            book._authors.AddRange(data.Authors);
         }
 
-        if (genres != null)
+        if (data.Genres != null)
         {
-            book._genres.AddRange(genres);
+            book._genres.AddRange(data.Genres);
         }
 
-        if (deweyDecimals != null)
+        if (data.DeweyDecimals != null)
         {
-            book._deweyDecimals.AddRange(deweyDecimals);
+            book._deweyDecimals.AddRange(data.DeweyDecimals);
         }
 
         return book;
@@ -247,13 +222,16 @@ public class Book : BaseEntity
 
     private void SetPages(int? pages)
     {
-        if (pages is null)
-            return;
-
-        if (pages < 0)
-            throw new InvalidPageCountException(pages);
-
-        Pages = pages;
+        switch (pages)
+        {
+            case null:
+                return;
+            case < 0:
+                throw new InvalidPageCountException(pages);
+            default:
+                Pages = pages;
+                break;
+        }
     }
     
     public void SetPublisher(Publisher publisher)

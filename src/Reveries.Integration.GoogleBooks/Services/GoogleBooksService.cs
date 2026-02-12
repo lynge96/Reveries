@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Core.Enums;
-using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using Reveries.Integration.GoogleBooks.DTOs;
@@ -136,34 +135,37 @@ public class GoogleBooksService : IGoogleBooksService
     
         var dimensions = volume.Dimensions ?? book.Dimensions;
 
-        return Book.Reconstitute(
-            id: book.Id,
-            isbn13: book.Isbn13 ?? volume.Isbn13,
-            isbn10: book.Isbn10 ?? volume.Isbn10,
-            title: mergedTitle,
-            pages: mergedPages,
-            isRead: false,
-            publishDate: book.PublishDate ?? volume.PublishDate,
-            language: book.Language ?? volume.Language,
-            synopsis: mergedSynopsis,
-            imageThumbnail: book.ImageThumbnailUrl ?? volume.ImageThumbnailUrl,
-            imageUrl: book.CoverImageUrl ?? volume.CoverImageUrl,
-            msrp: book.Msrp ?? volume.Msrp,
-            binding: book.Binding,
-            edition: book.Edition,
-            seriesNumber: book.SeriesNumber,
-            dataSource: DataSource.GoogleBooksApi,
-            publisher: book.Publisher ?? volume.Publisher,
-            series: book.Series,
-            dimensions: BookDimensions.Create(
+        var bookData = new BookReconstitutionData
+        (
+            Id: book.Id.Value,
+            Isbn13: book.Isbn13?.Value ?? volume.Isbn13?.Value,
+            Isbn10: book.Isbn10?.Value ?? volume.Isbn10?.Value,
+            Title: mergedTitle,
+            Pages: mergedPages,
+            IsRead: false,
+            PublicationDate: book.PublicationDate ?? volume.PublicationDate,
+            Language: book.Language ?? volume.Language,
+            Synopsis: mergedSynopsis,
+            ImageThumbnailUrl: book.ImageThumbnailUrl ?? volume.ImageThumbnailUrl,
+            CoverImageUrl: book.CoverImageUrl ?? volume.CoverImageUrl,
+            Msrp: book.Msrp ?? volume.Msrp,
+            Binding: book.Binding,
+            Edition: book.Edition,
+            SeriesNumber: book.SeriesNumber,
+            DataSource: DataSource.GoogleBooksApi,
+            Publisher: book.Publisher ?? volume.Publisher,
+            Series: book.Series,
+            Dimensions: BookDimensions.Create(
                 dimensions?.HeightCm,
                 dimensions?.WidthCm,
                 dimensions?.ThicknessCm,
                 dimensions?.WeightG
             ),
-            authors: mergedAuthors,
-            genres: mergedSubjects,
-            deweyDecimals: mergedDeweyDecimals!
+            Authors: mergedAuthors,
+            Genres: mergedSubjects,
+            DeweyDecimals: mergedDeweyDecimals
         );
+        
+        return Book.Reconstitute(bookData);
     }
 }

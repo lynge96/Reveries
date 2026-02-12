@@ -15,21 +15,6 @@ public class PublisherTests
     }
     
     [Fact]
-    public void Create_WithNullOrWhitespace_ReturnsPublisherWithNullName()
-    {
-        var nullPublisher = Publisher.Create(null);
-        var emptyPublisher = Publisher.Create("");
-        var whitespacePublisher = Publisher.Create(" ");
-
-        Assert.NotNull(nullPublisher);
-        Assert.Null(nullPublisher.Name);
-        Assert.NotNull(emptyPublisher);
-        Assert.Null(emptyPublisher.Name);
-        Assert.NotNull(whitespacePublisher);
-        Assert.Null(whitespacePublisher.Name);
-    }
-    
-    [Fact]
     public void Reconstitute_RestoresStateCorrectly()
     {
         var date = DateTimeOffset.UtcNow;

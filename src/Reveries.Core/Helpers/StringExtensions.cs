@@ -9,7 +9,7 @@ public static class StringExtensions
         if (string.IsNullOrWhiteSpace(languageIso639))
             return "Unknown";
 
-        return TryGetCultureName(languageIso639) ?? "Unknown";
+        return TryGetCultureName(languageIso639) ?? languageIso639;
     }
 
     private static string? TryGetCultureName(string cultureCode)

@@ -50,7 +50,7 @@ public static class BookMapper
             Publisher = book.Publisher?.Name,
             Language = book.Language,
             Pages = book.Pages,
-            PublicationDate = book.PublishDate,
+            PublicationDate = book.PublicationDate,
             Synopsis = book.Synopsis,
             Binding = book.Binding,
             Edition = book.Edition,

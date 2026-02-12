@@ -16,7 +16,7 @@ public static class DomainToEntityExtensions
             Isbn10 = model.Isbn10?.Value,
             PageCount = model.Pages,
             IsRead = model.IsRead,
-            PublicationDate = model.PublishDate,
+            PublicationDate = model.PublicationDate,
             Synopsis = model.Synopsis,
             Language = model.Language,
             Edition = model.Edition,
@@ -40,7 +40,7 @@ public static class DomainToEntityExtensions
     {
         return new PublisherEntity
         {
-            PublisherName = model.Name ?? string.Empty,
+            PublisherName = model.Name,
             DateCreatedPublisher = model.DateCreated
         };
     }
@@ -49,7 +49,7 @@ public static class DomainToEntityExtensions
     {
         return new SeriesEntity
         {
-            SeriesName = model.Name ?? string.Empty,
+            SeriesName = model.Name,
             DateCreatedSeries = model.DateCreated
         };
     }

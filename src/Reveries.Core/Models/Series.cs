@@ -6,27 +6,28 @@ namespace Reveries.Core.Models;
 public class Series : BaseEntity
 {
     public SeriesId Id { get; private init; }
-    public required string Name { get; init; }
-    
-    private Series() { }
+    public string Name { get; }
 
-    public override string? ToString() => Name;
+    internal Series(SeriesId id, string name)
+    {
+        Id = id;
+        Name = name;
+    }
+
+    public override string ToString() => Name;
     
     public static Series Create(string name)
     {
-        return new Series
-        {
-            Id = SeriesId.New(),
-            Name = name.ToTitleCase()
-        };
+        var seriesId = SeriesId.New();
+        name = name.ToTitleCase();
+        
+        return new Series(seriesId, name);
     }
 
     public static Series Reconstitute(SeriesId id, string name, DateTimeOffset? dateCreated = null)
     {
-        return new Series
+        return new Series(id, name)
         {
-            Id = id,
-            Name = name,
             DateCreated = dateCreated
         };
     }

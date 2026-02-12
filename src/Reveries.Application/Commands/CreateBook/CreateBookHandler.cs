@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Commands.Abstractions;
-using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Application.Mappers;
 

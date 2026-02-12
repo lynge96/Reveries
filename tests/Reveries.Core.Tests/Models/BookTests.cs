@@ -126,25 +126,28 @@ public class BookTests
     public void Reconstitute_PreservesIsRead()
     {
         var bookId = BookId.New();
-        
-        var book = Book.Reconstitute(
-            id: bookId,
-            isbn13: Isbn.Create("9781402894626"),
-            isbn10: Isbn.Create("1402894627"),
-            title: "Persisted Book",
-            pages: 250,
-            isRead: true,
-            publishDate: "2019",
-            language: "English",
-            synopsis: null,
-            imageThumbnail: null,
-            imageUrl: null,
-            msrp: null,
-            binding: null,
-            edition: null,
-            seriesNumber: null,
-            dataSource: DataSource.GoogleBooksApi
+        var bookData = new BookReconstitutionData
+        (
+            Id: bookId.Value,
+            Isbn13: "9781402894626",
+            Isbn10: "1402894627",
+            Title: "Persisted Book",
+            Pages: 250,
+            IsRead: true,
+            PublicationDate: "2019",
+            Language: "English",
+            Synopsis: null,
+            ImageThumbnailUrl: null,
+            CoverImageUrl: null,
+            Msrp: null,
+            Binding: null,
+            Edition: null,
+            SeriesNumber: null,
+            Dimensions: null,
+            DataSource: DataSource.GoogleBooksApi
         );
+        
+        var book = Book.Reconstitute(bookData);
 
         Assert.True(book.IsRead);
     }

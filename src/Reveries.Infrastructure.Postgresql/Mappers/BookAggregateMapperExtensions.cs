@@ -1,5 +1,4 @@
 using Reveries.Core.Enums;
-using Reveries.Core.Identity;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
@@ -9,34 +8,37 @@ namespace Reveries.Infrastructure.Postgresql.Mappers;
 public static class BookAggregateMapperExtensions
 {
     public static Book ToDomainAggregate(this BookAggregateEntity entity)
-    {
-        return Book.Reconstitute(
-            id: new BookId(entity.Book.BookDomainId),
-            isbn13: entity.Book.Isbn13 != null ? Isbn.Create(entity.Book.Isbn13) : null,
-            isbn10: entity.Book.Isbn10 != null ? Isbn.Create(entity.Book.Isbn10) : null,
-            title: entity.Book.Title,
-            pages: entity.Book.PageCount,
-            isRead: entity.Book.IsRead,
-            publishDate: entity.Book.PublicationDate,
-            language: entity.Book.Language,
-            synopsis: entity.Book.Synopsis,
-            imageThumbnail: entity.Book.ImageThumbnailUrl,
-            imageUrl: entity.Book.CoverImageUrl,
-            msrp: entity.Book.Msrp,
-            binding: entity.Book.Binding,
-            edition: entity.Book.Edition,
-            seriesNumber: entity.Book.SeriesNumber,
-            dataSource: DataSource.Database,
-            publisher: entity.Publisher?.ToDomain(),
-            series: entity.Series?.ToDomain(),
-            dimensions: BookDimensions.Create(entity.Book.HeightCm, entity.Book.WidthCm, entity.Book.ThicknessCm, entity.Book.WeightG),
-            authors: entity.Authors?
+    { 
+        var data = new BookReconstitutionData
+        (
+            Id: entity.Book.BookDomainId,
+            Isbn13: entity.Book.Isbn13,
+            Isbn10: entity.Book.Isbn10,
+            Title: entity.Book.Title,
+            Pages: entity.Book.PageCount,
+            IsRead: entity.Book.IsRead,
+            PublicationDate: entity.Book.PublicationDate,
+            Language: entity.Book.Language,
+            Synopsis: entity.Book.Synopsis,
+            ImageThumbnailUrl: entity.Book.ImageThumbnailUrl,
+            CoverImageUrl: entity.Book.CoverImageUrl,
+            Msrp: entity.Book.Msrp,
+            Binding: entity.Book.Binding,
+            Edition: entity.Book.Edition,
+            SeriesNumber: entity.Book.SeriesNumber,
+            DataSource: DataSource.Database,
+            Publisher: entity.Publisher?.ToDomain(),
+            Series: entity.Series?.ToDomain(),
+            Dimensions: BookDimensions.Create(entity.Book.HeightCm, entity.Book.WidthCm, entity.Book.ThicknessCm, entity.Book.WeightG),
+            Authors: entity.Authors?
                 .Select(a => a.ToDomain()),
-            genres: entity.Genres?
+            Genres: entity.Genres?
                 .Select(s => s.ToDomain()),
-            deweyDecimals: entity.DeweyDecimals?
+            DeweyDecimals: entity.DeweyDecimals?
                 .Select(dd => dd.ToDomain())
         );
+        
+        return Book.Reconstitute(data);
     }
 
     public static BookAggregateEntity ToEntityAggregate(this Book book)

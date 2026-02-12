@@ -14,31 +14,34 @@ public static class BookMerger
             return googleBook!;
         if (googleBook == null)
             return isbndbBook;
-        
-        return Book.Reconstitute(
-            id: isbndbBook.Id, //TODO: Skal dette ændres?
-            isbn13: MergeIsbn13(isbndbBook, googleBook),
-            isbn10: MergeIsbn10(isbndbBook, googleBook),
-            title: MergeTitle(isbndbBook, googleBook) ?? string.Empty,
-            pages: MergePages(isbndbBook, googleBook),
-            isRead: false,
-            publishDate: MergePublishDate(isbndbBook, googleBook),
-            language: MergeLanguage(isbndbBook, googleBook),
-            synopsis: MergeSynopsis(isbndbBook, googleBook),
-            imageThumbnail: MergeImageThumbnail(isbndbBook, googleBook),
-            imageUrl: MergeImageUrl(isbndbBook),
-            msrp: MergeMsrp(isbndbBook),
-            binding: MergeBinding(isbndbBook, googleBook),
-            edition: MergeEdition(isbndbBook, googleBook),
-            seriesNumber: MergeSeriesNumber(isbndbBook),
-            dataSource: DataSource.CombinedBookApi,
-            publisher: MergePublisher(isbndbBook, googleBook),
-            series: MergeSeries(isbndbBook),
-            dimensions: MergeDimensions(isbndbBook, googleBook),
-            authors: MergeAuthors(isbndbBook, googleBook),
-            genres: MergeSubjects(isbndbBook, googleBook),
-            deweyDecimals: MergeDeweyDecimals(isbndbBook)
+
+        var reconstitutionData = new BookReconstitutionData
+        (
+            Id: isbndbBook.Id.Value,
+            Title: MergeTitle(isbndbBook, googleBook) ?? string.Empty,
+            Isbn13: MergeIsbn13(isbndbBook, googleBook),
+            Isbn10: MergeIsbn10(isbndbBook, googleBook),
+            Pages: MergePages(isbndbBook, googleBook),
+            IsRead: false,
+            PublicationDate: MergePublishDate(isbndbBook, googleBook),
+            Language: MergeLanguage(isbndbBook, googleBook),
+            Synopsis: MergeSynopsis(isbndbBook, googleBook),
+            ImageThumbnailUrl: MergeImageThumbnail(isbndbBook, googleBook),
+            CoverImageUrl: MergeImageUrl(isbndbBook),
+            Msrp: MergeMsrp(isbndbBook),
+            Binding: MergeBinding(isbndbBook, googleBook),
+            Edition: MergeEdition(isbndbBook, googleBook),
+            SeriesNumber: MergeSeriesNumber(isbndbBook),
+            Publisher: MergePublisher(isbndbBook, googleBook),
+            Series: MergeSeries(isbndbBook),
+            Dimensions: MergeDimensions(isbndbBook, googleBook),
+            Authors: MergeAuthors(isbndbBook, googleBook),
+            Genres: MergeSubjects(isbndbBook, googleBook),
+            DeweyDecimals: MergeDeweyDecimals(isbndbBook),
+            DataSource: DataSource.CombinedBookApi
         );
+
+        return Book.Reconstitute(reconstitutionData);
     }
     
     private static string? Prefer(params string?[] values)
@@ -46,14 +49,14 @@ public static class BookMerger
         return values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
     }
     
-    private static Isbn? MergeIsbn13(Book isbndb, Book google)
+    private static string? MergeIsbn13(Book isbndb, Book google)
     {
-        return isbndb.Isbn13 ?? google.Isbn13 ?? null;
+        return isbndb.Isbn13?.Value ?? google.Isbn13?.Value ?? null;
     }
 
-    private static Isbn? MergeIsbn10(Book isbndb, Book google)
+    private static string? MergeIsbn10(Book isbndb, Book google)
     {
-        return isbndb.Isbn10 ?? google.Isbn10 ?? null;
+        return isbndb.Isbn10?.Value ?? google.Isbn10?.Value ?? null;
     }
     
     private static string? MergeTitle(Book isbndb, Book google)
@@ -66,7 +69,7 @@ public static class BookMerger
         => Prefer(isbndb.Language, google.Language);
 
     private static string? MergePublishDate(Book isbndb, Book google)
-        => isbndb.PublishDate ?? google.PublishDate;
+        => isbndb.PublicationDate ?? google.PublicationDate;
 
     private static string? MergeSynopsis(Book isbndb, Book google)
         => google.Synopsis ?? isbndb.Synopsis;

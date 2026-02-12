@@ -14,29 +14,27 @@ public class Author : BaseEntity
     public string NormalizedName => $"{FirstName} {LastName}".Trim().ToLowerInvariant();
     public IReadOnlyList<AuthorNameVariant> NameVariants => _nameVariants;
 
-    private Author() { }
+    internal Author(AuthorId id, string? firstName, string? lastName)
+    {
+        Id = id;
+        FirstName = firstName;
+        LastName = lastName;
+    }
 
     public override string ToString() => NormalizedName.ToTitleCase();
 
     public static Author Create(string name)
     {
         var (firstName, lastName) = AuthorNameNormalizer.Parse(name);
+        var authorId = AuthorId.New();
         
-        return new Author
-        {
-            Id = AuthorId.New(),
-            FirstName = firstName,
-            LastName = lastName,
-        };
+        return new Author(authorId, firstName, lastName);
     }
 
     public static Author Reconstitute(AuthorId id, string? firstName, string? lastName, DateTimeOffset? dateCreated = null)
     {
-        return new Author
+        return new Author(id, firstName, lastName)
         {
-            Id = id,
-            FirstName = firstName,
-            LastName = lastName,
             DateCreated = dateCreated
         };
     }
