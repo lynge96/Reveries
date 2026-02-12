@@ -14,7 +14,7 @@ public interface IIsbndbAuthorService
     /// <param name="authorName">The name of the author to search for.</param>
     /// <param name="ct">A token to cancel the request if needed.</param>
     /// <returns>A list of <see cref="Author"/> entities. Returns an empty list if no matches are found.</returns>
-    Task<List<Author>> GetAuthorsByNameAsync(string authorName, CancellationToken ct = default);
+    Task<IReadOnlyList<Author>> GetAuthorsByNameAsync(string authorName, CancellationToken ct = default);
     
     /// <summary>
     /// Retrieves a list of books written by the specified author.

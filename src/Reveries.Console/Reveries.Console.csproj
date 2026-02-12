@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Reveries.Api\Reveries.Api.csproj" />
     <ProjectReference Include="..\Reveries.Application\Reveries.Application.csproj" />
     <ProjectReference Include="..\Reveries.Infrastructure.Postgresql\Reveries.Infrastructure.Postgresql.csproj" />
     <ProjectReference Include="..\Reveries.Infrastructure.Redis\Reveries.Infrastructure.Redis.csproj" />

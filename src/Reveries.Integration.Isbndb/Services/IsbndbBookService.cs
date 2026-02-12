@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
@@ -22,14 +24,14 @@ public class IsbndbBookService : IIsbndbBookService
         _logger = logger;
     }
     
-    public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct)
+    public async Task<List<Book>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
 
         if (isbns.Count > _settings.MaxBulkIsbns)
         {
-            throw new IsbnValidationException($"Too many ISBN numbers. Maximum is {_settings.MaxBulkIsbns}.");
+            throw new InvalidIsbnException($"Too many ISBN numbers. Maximum is {_settings.MaxBulkIsbns}.");
         }
         
         if (isbns.Count == 1)
@@ -87,7 +89,7 @@ public class IsbndbBookService : IIsbndbBookService
         return allBooks;
     }
 
-    private async Task<Book> GetSingleBookAsync(string isbn, CancellationToken ct)
+    private async Task<Book> GetSingleBookAsync(Isbn isbn, CancellationToken ct)
     {
         var dto = await _bookClient.FetchBookByIsbnAsync(isbn, ct);
 
@@ -96,7 +98,7 @@ public class IsbndbBookService : IIsbndbBookService
         return book;
     }
     
-    private async Task<List<Book>> GetMultipleBooksAsync(List<string> isbns, CancellationToken ct)
+    private async Task<List<Book>> GetMultipleBooksAsync(List<Isbn> isbns, CancellationToken ct)
     {
         var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, ct);
         
@@ -106,4 +108,5 @@ public class IsbndbBookService : IIsbndbBookService
 
         return books;
     }
+
 }

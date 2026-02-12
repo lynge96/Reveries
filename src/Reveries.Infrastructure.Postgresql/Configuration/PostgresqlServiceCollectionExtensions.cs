@@ -5,8 +5,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using Reveries.Application.Interfaces.Persistence;
-using Reveries.Core.Interfaces.Persistence;
+using Reveries.Core.Interfaces;
+using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Persistence;
 
 namespace Reveries.Infrastructure.Postgresql.Configuration;

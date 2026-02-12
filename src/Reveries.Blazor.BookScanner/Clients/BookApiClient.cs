@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using Reveries.Blazor.BookScanner.Exceptions;
-using Reveries.Contracts.DTOs;
+using Reveries.Contracts.Books;
 
 namespace Reveries.Blazor.BookScanner.Clients;
 
@@ -13,7 +13,7 @@ public class BookApiClient
         _httpClient = httpClient;
     }
     
-    public async Task<BookDto?> GetAsync(string isbn)
+    public async Task<BookDetailsDto?> GetAsync(string isbn)
     {
         try
         {
@@ -23,7 +23,7 @@ public class BookApiClient
             var response = await _httpClient.GetAsync($"books/{isbn}");
 
             if (response.IsSuccessStatusCode)
-                return await response.Content.ReadFromJsonAsync<BookDto>();
+                return await response.Content.ReadFromJsonAsync<BookDetailsDto>();
 
             var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
             throw new ApiException(error?.Message ?? "Unknown error", response.StatusCode);
@@ -38,35 +38,38 @@ public class BookApiClient
         }
     }
 
-    public async Task<int> CreateAsync(BookDto bookDto)
+    public async Task<int> CreateAsync(BookDetailsDto bookDetailsReadModel)
     {
         try
         {
-            var createDto = new CreateBookDto
+            var createBookRequest = new CreateBookRequest
             {
-                Isbn13 = bookDto.Isbn13,
-                Isbn10 = bookDto.Isbn10,
-                Title = bookDto.Title,
-                Authors = bookDto.Authors,
-                Publisher = bookDto.Publisher,
-                Pages = bookDto.Pages,
-                Language = bookDto.Language,
-                PublicationDate = bookDto.PublicationDate,
-                Synopsis = bookDto.Synopsis,
-                ImageUrl = bookDto.ImageUrl,
-                ImageThumbnail = bookDto.ImageThumbnail,
-                Msrp = bookDto.Msrp,
-                Binding = bookDto.Binding,
-                Edition = bookDto.Edition,
-                Subjects = bookDto.Subjects,
-                Series = bookDto.Series,
-                NumberInSeries = bookDto.NumberInSeries,
-                DeweyDecimal = bookDto.DeweyDecimal,
-                Dimensions = bookDto.Dimensions,
-                DataSource = bookDto.DataSource
+                Isbn13 = bookDetailsReadModel.Isbn13,
+                Isbn10 = bookDetailsReadModel.Isbn10,
+                Title = bookDetailsReadModel.Title,
+                Authors = bookDetailsReadModel.Authors,
+                Publisher = bookDetailsReadModel.Publisher,
+                Pages = bookDetailsReadModel.Pages,
+                Language = bookDetailsReadModel.Language,
+                PublicationDate = bookDetailsReadModel.PublicationDate,
+                Synopsis = bookDetailsReadModel.Synopsis,
+                ImageUrl = bookDetailsReadModel.CoverImageUrl,
+                ImageThumbnail = bookDetailsReadModel.ImageThumbnailUrl,
+                Msrp = bookDetailsReadModel.Msrp,
+                Binding = bookDetailsReadModel.Binding,
+                Edition = bookDetailsReadModel.Edition,
+                Genres = bookDetailsReadModel.Genres,
+                Series = bookDetailsReadModel.Series,
+                NumberInSeries = bookDetailsReadModel.NumberInSeries,
+                DeweyDecimals = bookDetailsReadModel.DeweyDecimals,
+                HeightCm = bookDetailsReadModel.HeightCm,
+                WidthCm = bookDetailsReadModel.WidthCm,
+                ThicknessCm = bookDetailsReadModel.ThicknessCm,
+                WeightG = bookDetailsReadModel.WeightG,
+                DataSource = bookDetailsReadModel.DataSource
             };
             
-            var response = await _httpClient.PostAsJsonAsync("books", createDto);
+            var response = await _httpClient.PostAsJsonAsync("books", createBookRequest);
 
             if (response.IsSuccessStatusCode)
             {

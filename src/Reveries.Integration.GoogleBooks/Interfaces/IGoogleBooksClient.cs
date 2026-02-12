@@ -1,3 +1,4 @@
+using Reveries.Core.ValueObjects;
 using Reveries.Integration.GoogleBooks.DTOs;
 
 namespace Reveries.Integration.GoogleBooks.Interfaces;
@@ -21,7 +22,7 @@ public interface IGoogleBooksClient
     /// A <see cref="GoogleBookResponseDto"/> containing book details if found,
     /// or <c>null</c> if no match is returned.
     /// </returns>
-    Task<GoogleBookResponseDto> FetchBookByIsbnAsync(string isbn, CancellationToken ct = default);
+    Task<GoogleBookResponseDto> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default);
 
     /// <summary>
     /// Retrieves detailed book information from the Google Books API

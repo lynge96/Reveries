@@ -5,8 +5,7 @@
 @inject NavigationManager Nav
 @inject BookApiClient BooksApi
 @inject BookState BookState
-
-@using Reveries.Contracts.DTOs
+@using Reveries.Contracts.Books
 @implements IDisposable
 
 <div class="scanner-page mt-4 d-flex justify-content-center">
@@ -99,7 +98,7 @@
 
 @code {
     private string? _inputIsbn;
-    private BookDto? _bookDto;
+    private BookDetailsDto? _bookDto;
     private string? _errorMessage;
     private bool _isProcessing;
     private DotNetObjectReference<Scanner>? _objRef;
@@ -161,7 +160,7 @@
 
             if (_bookDto != null)
             {
-                await Js.InvokeVoidAsync("preloadImage", _bookDto.ImageUrl);    // Preloading image
+                await Js.InvokeVoidAsync("preloadImage", _bookDto.CoverImageUrl);    // Preloading image
                 
                 BookState.SetBook(_bookDto);
                 StateHasChanged();

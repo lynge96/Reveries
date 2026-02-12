@@ -1,34 +1,42 @@
 ﻿using Reveries.Core.Enums;
+using Reveries.Core.Exceptions;
 using Reveries.Core.Helpers;
-using Reveries.Core.Validation;
+using Reveries.Core.Identity;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Core.Models;
 
 public class Book : BaseEntity
 {
-    public int? Id { get; set; }
-    public string? Isbn13 { get; init; }
-    public string? Isbn10 { get; init; }
+    private readonly List<Author> _authors = [];
+    private readonly List<Genre> _genres = [];
+    private readonly List<DeweyDecimal> _deweyDecimals = [];
+    
+    public BookId Id { get; private init; }
+    public Isbn? Isbn13 { get; private init; }
+    public Isbn? Isbn10 { get; private init; }
     public required string Title { get; init; }
-    public ICollection<Author> Authors { get; set; } = new List<Author>();
-    public int? Pages { get; init; }
-    public bool IsRead { get; set; }
-    public Publisher? Publisher { get; set; }
-    public string? Language { get; init; }
-    public string? PublishDate { get; init; }
-    public string? Synopsis { get; init; }
-    public string? ImageThumbnail { get; init; }
-    public string? ImageUrl { get; init; }
-    public decimal? Msrp { get; init; }
-    public string? Binding { get; init; }
-    public string? Edition { get; init; }
-    public ICollection<DeweyDecimal>? DeweyDecimals { get; set; }
-    public ICollection<Subject>? Subjects { get; set; }
-    public int? SeriesNumber { get; set; }
-    public Series? Series { get; set; }
-    public BookDimensions? Dimensions { get; set; }
-    public required DataSource DataSource { get; set; }
+    public IReadOnlyList<Author> Authors => _authors;
+    public int? Pages { get; private set; }
+    public bool IsRead { get; private set; }
+    public Publisher? Publisher { get; private set; }
+    public string? Language { get; private init; }
+    public string? PublicationDate { get; private init; }
+    public string? Synopsis { get; private init; }
+    public string? ImageThumbnailUrl { get; private init; }
+    public string? CoverImageUrl { get; private init; }
+    public decimal? Msrp { get; private init; }
+    public string? Binding { get; private init; }
+    public string? Edition { get; private init; }
+    public IReadOnlyList<DeweyDecimal> DeweyDecimals => _deweyDecimals;
+    public IReadOnlyList<Genre> Genres => _genres;
+    public int? SeriesNumber { get; private set; }
+    public Series? Series { get; private set; }
+    public BookDimensions? Dimensions { get; private init; }
+    public DataSource DataSource { get; private set; }
 
+    private Book() { }
+    
     public override string ToString()
     {
         var title = string.IsNullOrEmpty(Title) ? "Unknown Title" : Title;
@@ -44,7 +52,22 @@ public class Book : BaseEntity
     {
         return string.Join(", ", Authors.Select(a => a.ToString()));
     }
-
+    
+    /// <summary>
+    /// Factory method for creating a new <see cref="Book"/> from external or user-provided data.
+    ///
+    /// This method represents the "entry point" into the domain. It performs validation,
+    /// normalization, and transformation of raw input into a consistent domain model.
+    /// Examples include normalizing ISBNs, resolving language codes, standardizing bindings,
+    /// and creating related value objects such as authors, subjects, and dimensions.
+    ///
+    /// Use this method when:
+    /// - Importing books from external APIs
+    /// - Creating new books from user input
+    /// - You want domain invariants to be enforced
+    ///
+    /// This method will throw if required invariants are violated (e.g. missing title).
+    /// </summary>
     public static Book Create(
         string? isbn13,
         string? isbn10,
@@ -70,50 +93,174 @@ public class Book : BaseEntity
     )
     {
         if (string.IsNullOrWhiteSpace(title))
-            throw new ArgumentException("Book title cannot be empty");
-
-        var (cleanedTitle, seriesName, numberInSeries) = BookExtensions.ParseSeriesInfo(title);
+            throw new MissingTitleException(title);
         
         var book = new Book
         {
-            Isbn10 = IsbnValidator.Normalize(isbn10 ?? string.Empty),
-            Isbn13 = IsbnValidator.Normalize(isbn13 ?? string.Empty),
-            Title = cleanedTitle,
-            Authors = (authors ?? [])
-                .Select(Author.Create)
-                .ToList(),
-            Pages = pages,
+            Id = BookId.New(),
+            Isbn13 = isbn13 != null ? Isbn.Create(isbn13) : null,
+            Isbn10 = isbn10 != null ? Isbn.Create(isbn10) : null,
+            Title = title,
             IsRead = false,
-            PublishDate = publishDate,
-            Publisher = Publisher.Create(publisher),
+            PublicationDate = publishDate,
+            Publisher = publisher != null ? Publisher.Create(publisher) : null,
             Language = languageIso639.GetLanguageName(),
-            Synopsis = synopsis.CleanHtml(),
-            ImageThumbnail = imageThumbnail,
-            ImageUrl = imageUrl,
+            Synopsis = synopsis,
+            ImageThumbnailUrl = imageThumbnail,
+            CoverImageUrl = imageUrl,
             Msrp = msrp,
-            Binding = binding?.NormalizeBinding(),
+            Binding = binding?.GetStandardBinding(),
             Edition = edition,
-            Dimensions = BookDimensions.Create(
-                height, 
-                width, 
-                thickness, 
-                weight),
-            Subjects = (subjects ?? [])
-                .Select(Subject.Create)
-                .ToList(),
-            DeweyDecimals = deweyDecimals.FormatDeweyDecimals(),
-            Series = seriesName != null ? Series.Create(seriesName) : null,
-            SeriesNumber = numberInSeries,
+            Dimensions = BookDimensions.Create(height, width, thickness, weight),
             DataSource = dataSource,
         };
+
+        book.SetPages(pages);
+        
+        foreach (var authorName in authors ?? [])
+        {
+            var author = Author.Create(authorName);
+            book.AddAuthor(author);
+        }
+        
+        foreach (var subject in subjects ?? [])
+        {
+            var genre = Genre.Create(subject);
+            book.AddGenre(genre);
+        }
+        
+        foreach (var code in deweyDecimals ?? [])
+        {
+            var dewey = DeweyDecimal.Create(code);
+            book.AddDeweyDecimal(dewey);
+        }
+        
+        return book;
+    }
+    
+    /// <summary>
+    /// Recreates a <see cref="Book"/> from already persisted data.
+    ///
+    /// This method is used when loading a book from storage (database, merges, cache, etc.).
+    /// It assumes that all domain invariants were previously validated and therefore
+    /// does NOT perform normalization, validation, or transformation of values.
+    ///
+    /// Use this method when:
+    /// - Hydrating entities from a database
+    /// - Rebuilding an aggregate from persistence
+    /// - You need full control over the internal state
+    ///
+    /// This method should not throw due to domain validation failures,
+    /// as it trusts the persisted data.
+    /// </summary>
+    public static Book Reconstitute(BookReconstitutionData data)
+    {
+        var book = new Book
+        {
+            Id = new BookId(data.Id),
+            Isbn13 = data.Isbn13 != null ? new Isbn(data.Isbn13) : null,
+            Isbn10 = data.Isbn10 != null ? new Isbn(data.Isbn10) : null,
+            Title = data.Title,
+            Pages = data.Pages,
+            IsRead = data.IsRead,
+            PublicationDate = data.PublicationDate,
+            Publisher = data.Publisher,
+            Language = data.Language,
+            Synopsis = data.Synopsis,
+            ImageThumbnailUrl = data.ImageThumbnailUrl,
+            CoverImageUrl = data.CoverImageUrl,
+            Msrp = data.Msrp,
+            Binding = data.Binding,
+            Edition = data.Edition,
+            SeriesNumber = data.SeriesNumber,
+            Series = data.Series,
+            Dimensions = data.Dimensions,
+            DataSource = data.DataSource,
+            DateCreated = data.DateCreated
+        };
+
+        if (data.Authors != null)
+        {
+            book._authors.AddRange(data.Authors);
+        }
+
+        if (data.Genres != null)
+        {
+            book._genres.AddRange(data.Genres);
+        }
+
+        if (data.DeweyDecimals != null)
+        {
+            book._deweyDecimals.AddRange(data.DeweyDecimals);
+        }
 
         return book;
     }
     
-    public Book UpdateDataSource(DataSource newDataSource)
+    public void UpdateDataSource(DataSource newDataSource)
     {
+        if (DataSource == newDataSource) return;
+        
         DataSource = newDataSource;
-        return this;
     }
+    
+    public void MarkAsRead()
+    {
+        if (IsRead) return;
+        IsRead = true;
+    }
+
+    public void MarkAsUnread()
+    {
+        if (!IsRead) return;
+        IsRead = false;
+    }
+
+    private void SetPages(int? pages)
+    {
+        switch (pages)
+        {
+            case null:
+                return;
+            case < 0:
+                throw new InvalidPageCountException(pages);
+            default:
+                Pages = pages;
+                break;
+        }
+    }
+    
+    public void SetPublisher(Publisher publisher)
+    {
+        Publisher = publisher;
+    }
+    
+    public void SetSeries(Series series, int? numberInSeries = null)
+    {
+        if (numberInSeries <= 0)
+            throw new InvalidSeriesNumberException(numberInSeries);
+            
+        Series = series;
+        SeriesNumber = numberInSeries;
+    }
+
+    public void AddAuthor(Author? author)
+    {
+        if (_authors.Any(a => a.NormalizedName == author?.NormalizedName) || author is null) return;
+        _authors.Add(author);
+    }
+    
+    public void AddGenre(Genre? genre)
+    {
+        if (_genres.Any(s => s.Value == genre?.Value) || genre is null) return;
+        _genres.Add(genre);
+    }
+
+    public void AddDeweyDecimal(DeweyDecimal? deweyDecimal)
+    {
+        if (_deweyDecimals.Any(dd => dd.Code == deweyDecimal?.Code) || deweyDecimal is null) return;
+        _deweyDecimals.Add(deweyDecimal);
+    }
+
 }
 

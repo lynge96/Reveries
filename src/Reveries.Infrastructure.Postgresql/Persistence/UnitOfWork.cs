@@ -1,6 +1,6 @@
-using Reveries.Application.Interfaces.Persistence;
-using Reveries.Core.Interfaces.Persistence;
-using Reveries.Core.Interfaces.Persistence.Repositories;
+using Reveries.Core.Interfaces;
+using Reveries.Core.Interfaces.IRepository;
+using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence;
 
@@ -10,34 +10,34 @@ public class UnitOfWork : IUnitOfWork
     public IBookRepository Books { get; }
     public IAuthorRepository Authors { get; }
     public ISeriesRepository Series { get; }
-    public IBookDimensionsRepository BookDimensions { get; }
-    public IBookSubjectsRepository BookSubjects { get; }
-    public IDeweyDecimalRepository DeweyDecimals { get; }
+    public IBookGenresRepository BookGenres { get; }
+    public IBookDeweyDecimalsRepository BookDeweyDecimals { get; }
+    public IDeweyDecimalsRepository DeweyDecimalses { get; }
     public IPublisherRepository Publishers { get; }
     public IBookAuthorsRepository BookAuthors { get; }
-    public ISubjectRepository Subjects { get; }
+    public IGenreRepository Genres { get; }
     
     public UnitOfWork(IDbContext dbContext,
         IBookRepository bookRepository,
         IAuthorRepository authorRepository,
         ISeriesRepository seriesRepository,
-        IBookDimensionsRepository bookDimensionsRepository,
         IPublisherRepository publisherRepository,
         IBookAuthorsRepository bookAuthorsRepository,
-        IBookSubjectsRepository bookSubjectsRepository,
-        IDeweyDecimalRepository deweyDecimalRepository,
-        ISubjectRepository subjectRepository)
+        IBookGenresRepository bookGenresRepository,
+        IDeweyDecimalsRepository deweyDecimalsRepository,
+        IGenreRepository genreRepository,
+        IBookDeweyDecimalsRepository bookDeweyDecimalsRepository)
     {
         _dbContext = dbContext;
         Books = bookRepository;
         Authors = authorRepository;
         Series = seriesRepository;
-        BookDimensions = bookDimensionsRepository;
         Publishers = publisherRepository;
         BookAuthors = bookAuthorsRepository;
-        BookSubjects = bookSubjectsRepository;
-        DeweyDecimals = deweyDecimalRepository;
-        Subjects = subjectRepository;
+        BookGenres = bookGenresRepository;
+        DeweyDecimalses = deweyDecimalsRepository;
+        Genres = genreRepository;
+        BookDeweyDecimals = bookDeweyDecimalsRepository;
     }
     
     public Task BeginTransactionAsync() => _dbContext.BeginTransactionAsync();

@@ -2,8 +2,9 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Extensions;
-using Reveries.Core.Exceptions;
+using Reveries.Core.ValueObjects;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
@@ -30,9 +31,9 @@ public class GoogleBooksClient : IGoogleBooksClient
         _logger = logger;
     }
     
-    public async Task<GoogleBookResponseDto> FetchBookByIsbnAsync(string isbn, CancellationToken ct)
+    public async Task<GoogleBookResponseDto> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
-        var url = $"volumes?q=isbn:{Uri.EscapeDataString(isbn)}&key={_settings.ApiKey}";
+        var url = $"volumes?q=isbn:{Uri.EscapeDataString(isbn.Value)}&key={_settings.ApiKey}";
         
         using var response = await _httpClient.GetAsync(url, ct);
         

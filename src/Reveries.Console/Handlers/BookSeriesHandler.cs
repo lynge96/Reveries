@@ -11,7 +11,7 @@ namespace Reveries.Console.Handlers;
 public partial class BookSeriesHandler : BaseHandler
 {
     [GeneratedRegex(@"\s+")]
-    private static partial Regex MyRegex();
+    private static partial Regex RemoveWhitespace();
     public override MenuChoice MenuChoice => MenuChoice.BookSeries;
     private readonly ISaveEntityService _saveEntityService;
     
@@ -23,7 +23,7 @@ public partial class BookSeriesHandler : BaseHandler
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         var seriesInput = ConsolePromptUtility.GetUserInput("Enter the name of the new series:");
-        var seriesName = MyRegex().Replace(seriesInput.Trim().ToTitleCase()!, " ");
+        var seriesName = RemoveWhitespace().Replace(seriesInput.Trim().ToTitleCase(), " ");
         
         var confirm = ConsolePromptUtility.ShowYesNoPrompt("Are you sure you want to create a new series with the name: " + seriesName.AsSecondary().Bold());
         if (!confirm)

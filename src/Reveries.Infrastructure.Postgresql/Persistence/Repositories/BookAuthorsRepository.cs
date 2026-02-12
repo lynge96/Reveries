@@ -1,7 +1,7 @@
 using Dapper;
-using Reveries.Application.Interfaces.Persistence;
-using Reveries.Core.Interfaces.Persistence.Repositories;
-using Reveries.Core.Models;
+using Reveries.Core.Interfaces.IRepository;
+using Reveries.Core.ValueObjects.DTOs;
+using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
 
@@ -14,10 +14,10 @@ public class BookAuthorsRepository : IBookAuthorsRepository
         _dbContext = dbContext;
     }
 
-    public async Task SaveBookAuthorsAsync(int bookId, IEnumerable<Author> authors)
+    public async Task AddAsync(int bookId, IEnumerable<AuthorWithId> authors)
     {
         const string sql = """
-                           INSERT INTO books_authors (book_id, author_id)
+                           INSERT INTO library.books_authors (book_id, author_id)
                            VALUES (@BookId, @AuthorId)
                            ON CONFLICT DO NOTHING;
                            """;
@@ -25,12 +25,8 @@ public class BookAuthorsRepository : IBookAuthorsRepository
         var connection = await _dbContext.GetConnectionAsync();
 
         var parameters = authors
-            .Select(a => new { BookId = bookId, AuthorId = a.Id })
-            .ToList();
-
-        if (parameters.Count > 0)
-        {
-            await connection.ExecuteAsync(sql, parameters);
-        }
+            .Select(a => new { BookId = bookId, AuthorId = a.DbId });
+        
+        await connection.ExecuteAsync(sql, parameters);
     }
 }

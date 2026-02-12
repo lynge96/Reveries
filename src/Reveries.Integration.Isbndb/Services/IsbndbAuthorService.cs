@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
@@ -18,7 +18,7 @@ public class IsbndbAuthorService : IIsbndbAuthorService
         _logger = logger;
     }
 
-    public async Task<List<Author>> GetAuthorsByNameAsync(string authorName, CancellationToken ct)
+    public async Task<IReadOnlyList<Author>> GetAuthorsByNameAsync(string authorName, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(authorName))
             return [];

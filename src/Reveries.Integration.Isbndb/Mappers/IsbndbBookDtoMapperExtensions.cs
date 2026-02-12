@@ -13,7 +13,7 @@ public static class IsbndbBookDtoMapperExtensions
         var height = isbndbBookDto.DimensionsStructured?.Height.ConvertDimension();
         var width = isbndbBookDto.DimensionsStructured?.Width.ConvertDimension();
         
-        var (normalizedHeight, normalizedWidth, normalizedThickness) = DimensionNormalizer.NormalizeDimensions(height, width, thickness);
+        var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
         
         return Book.Create(
             isbn13: isbndbBookDto.Isbn13,

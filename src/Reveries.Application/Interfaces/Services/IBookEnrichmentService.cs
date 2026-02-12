@@ -1,4 +1,5 @@
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Interfaces.Services;
 
@@ -21,7 +22,7 @@ public interface IBookEnrichmentService
     /// A list of <see cref="Book"/> entities containing merged information from all sources.
     /// Returns an empty list if no matches are found.
     /// </returns>
-    Task<List<Book>> AggregateBooksByIsbnsAsync(List<string> isbns, CancellationToken ct = default);
+    Task<List<Book>> AggregateBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct = default);
 
     /// <summary>
     /// Searches for books matching the specified titles across all available data sources.

@@ -1,5 +1,7 @@
 using System.Text.Json;
+using Reveries.Application.Exceptions;
 using Reveries.Core.Exceptions;
+using ApplicationException = Reveries.Application.Exceptions.ApplicationException;
 
 namespace Reveries.Api.Middleware;
 
@@ -35,28 +37,6 @@ public class ExceptionHandlingMiddleware
 
         switch (exception)
         {
-            case ValidationException valEx:
-            {
-                var errors = valEx.Failures
-                    .GroupBy(f => f.PropertyName)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(f => f.ErrorMessage).ToArray());
-
-                errorCtx = new ErrorContext(
-                    Type: valEx.ErrorType,
-                    StatusCode: (int)valEx.StatusCode,
-                    Path: path,
-                    TraceId: traceId,
-                    ErrorMessage: valEx.Message,
-                    ValidationErrors: errors
-                );
-
-                _logger.LogWarning(valEx, "Validation error {@Error}", errorCtx);
-
-                context.Response.StatusCode = (int)valEx.StatusCode;
-                break;
-            }
             case ExternalDependencyException depEx:
             {
                 errorCtx = new ErrorContext(
@@ -76,7 +56,7 @@ public class ExceptionHandlingMiddleware
                 context.Response.StatusCode = (int)depEx.StatusCode;
                 break;
             }
-            case BaseAppException appEx:
+            case ApplicationException appEx:
             {
                 errorCtx = new ErrorContext(
                     Type: appEx.ErrorType,
@@ -89,6 +69,21 @@ public class ExceptionHandlingMiddleware
                 _logger.LogWarning(appEx, "Application error {@Error}", errorCtx);
 
                 context.Response.StatusCode = (int)appEx.StatusCode;
+                break;
+            }
+            case DomainException domEx:
+            {
+                errorCtx = new ErrorContext(
+                    Type: domEx.ErrorType,
+                    StatusCode: 400,
+                    Path: path,
+                    TraceId: traceId,
+                    ErrorMessage: exception.Message
+                    );
+                
+                _logger.LogError(domEx, "Domain error {@Error}", errorCtx);
+                
+                context.Response.StatusCode = 400;
                 break;
             }
             default:
@@ -110,10 +105,9 @@ public class ExceptionHandlingMiddleware
 
         var response = new ErrorResponse
         {
-            StatusCode = context.Response.StatusCode,
+            StatusCode = errorCtx.StatusCode,
             Error = errorCtx.Type,
-            Message = errorCtx.ErrorMessage ?? "An error occurred while processing your request.",
-            Details = errorCtx.ValidationErrors
+            Message = errorCtx.ErrorMessage ?? "An error occurred while processing your request."
         };
 
         context.Response.ContentType = "application/json";

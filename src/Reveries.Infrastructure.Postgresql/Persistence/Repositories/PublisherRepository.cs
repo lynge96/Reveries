@@ -1,8 +1,9 @@
 using Dapper;
-using Reveries.Application.Interfaces.Persistence;
-using Reveries.Core.Interfaces.Persistence.Repositories;
+using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
+using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
 namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
@@ -16,39 +17,62 @@ public class PublisherRepository : IPublisherRepository
         _dbContext = dbContext;
     }
     
-    public async Task<int> CreatePublisherAsync(Publisher publisher)
+    public async Task<int> AddAsync(Publisher publisher)
     {
         const string sql = """
-                           INSERT INTO publishers (name)
-                           VALUES (@Name)
+                           INSERT INTO library.publishers (domain_id, name)
+                           VALUES (@PublisherDomainId, @PublisherName)
+                           ON CONFLICT DO NOTHING
                            RETURNING id
                            """;
         
         var connection = await _dbContext.GetConnectionAsync();
-        
-        var publisherDto = publisher.ToEntity();
-        
-        var publisherId = await connection.QuerySingleAsync<int>(sql, publisherDto);
 
-        publisher.Id = publisherId;
-        return publisherId;
+        var publisherEntity = publisher.ToDbModel();
+        
+        var publisherDbId = await connection.QuerySingleAsync<int>(sql, publisherEntity);
+
+        return publisherDbId;
     }
     
-    public async Task<List<Publisher>> GetPublishersByNameAsync(string name)
+    public async Task<PublisherWithId?> GetByNameAsync(string publisherName)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return new List<Publisher>();
-
         const string sql = """
-                           SELECT id AS publisherId, name, date_created AS dateCreatedPublisher
-                           FROM publishers
+                           SELECT 
+                               id AS publisherId, 
+                               domain_id AS publisherDomainId,
+                               name AS publisherName, 
+                               date_created AS dateCreatedPublisher
+                           FROM library.publishers
                            WHERE name ILIKE @Name
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var publisherDtos = await connection.QueryAsync<PublisherEntity>(sql, new { Name = name });
+        var row = await connection.QueryFirstOrDefaultAsync<PublisherEntity>(sql, new { Name = publisherName });
 
-        return publisherDtos.Select(dto => dto.ToDomain()).ToList();
+        if (row == null)
+            return null;
+
+        return new PublisherWithId(row.ToDomain(), row.PublisherId);
+    }
+
+    public async Task<List<Publisher>> GetPublishersByNameAsync(string name)
+    {
+        const string sql = """
+                           SELECT 
+                               id AS publisherId, 
+                               domain_id AS publisherDomainId,
+                               name AS publisherName, 
+                               date_created AS dateCreatedPublisher
+                           FROM library.publishers
+                           WHERE name ILIKE @Name
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+        
+        var rows = await connection.QueryAsync<PublisherEntity>(sql, new { Name = name });
+        
+        return rows.Select(r => r.ToDomain()).ToList();
     }
 }

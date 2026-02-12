@@ -47,17 +47,6 @@ The plan for the project is outlined below. The choice of technologies is primar
   - [ ] **Docker and GitHub Actions**  
     Pipelines automatically package new builds into Docker images and deploy them to the Raspberry Pi, ensuring the application always runs the latest version.  
 
-### Technologies 🚀
-- [C# / .NET](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/)  
-- [Dapper](https://www.learndapper.com/)
-- [ISBNDB API](https://isbndb.com/)
-- [Google Books API](https://developers.google.com/books)
-- TypeScript / React  
-- [PostgreSQL](https://www.postgresql.org/docs/)  
-- [Redis and RedisInsight](https://redis.io/docs/latest/)
-- [Docker](https://docs.docker.com/)  
-- GitHub Actions  
-
 ### Database Schema 📋
 Below is an ER diagram of the current entities in the project.  
 The diagram provides an overview of the tables, their relationships, and their fields. It serves as the foundation for the database schema implementation and helps keep the structure organized as the project grows.  
@@ -67,6 +56,7 @@ The diagram provides an overview of the tables, their relationships, and their f
 erDiagram
     authors {
         int id PK
+        uuid domain_id UK
         varchar normalized_name UK
         varchar first_name
         varchar last_name
@@ -78,45 +68,27 @@ erDiagram
         int author_id FK
         varchar name_variant
         boolean is_primary
-        timestamp date_added
     }
     
     books {
         int id PK
+        uuid domain_id UK
         varchar title
         varchar isbn13 UK
         varchar isbn10 UK
         int publisher_id FK
         int series_id FK
         int series_number
-        date publication_date
+        varchar publication_date
         int page_count
         text synopsis
         varchar language
-        varchar language_iso639
         varchar edition
         varchar binding
         text image_url
         text image_thumbnail
         decimal msrp
         boolean is_read
-        timestamp date_created
-    }
-    
-    publishers {
-        int id PK
-        varchar name UK
-        timestamp date_created
-    }
-    
-    subjects {
-        int id PK
-        varchar name UK
-        timestamp date_created
-    }
-    
-    book_dimensions {
-        int book_id PK, FK
         decimal height_cm
         decimal width_cm
         decimal thickness_cm
@@ -124,26 +96,43 @@ erDiagram
         timestamp date_created
     }
     
+    publishers {
+        int id PK
+        uuid domain_id UK
+        varchar name UK
+        timestamp date_created
+    }
+    
+    genres {
+        int id PK
+        varchar name UK
+        timestamp date_created
+    }
+    
     books_authors {
         int book_id PK, FK
         int author_id PK, FK
-        timestamp date_created
     }
     
-    books_subjects {
+    books_genres {
         int book_id PK, FK
         int subject_id PK, FK
-        timestamp date_created
     }
     
-    dewey_decimals {
+    books_dewey_decimals {
         int book_id PK, FK
-        varchar code PK
+        int dewey_decimal_id PK, FK
+    }
+
+    dewey_decimals {
+        int id PK
+        varchar code UK
         timestamp date_created
     }
 
     series {
-        int series_id PK
+        int id PK
+        uuid domain_id UK
         varchar name UK
         timestamp date_created
     }
@@ -151,10 +140,13 @@ erDiagram
     authors ||--o{ author_name_variants : "has"
     authors ||--o{ books_authors : "writes"
     books ||--o{ books_authors : "written by"
-    books ||--o{ books_subjects : "categorized as"
-    subjects ||--o{ books_subjects : "categorizes"
+
+    books ||--o{ books_genres : "categorized as"
+    genres ||--o{ books_genres : "categorizes"
+
+    books ||--o{ books_dewey_decimals : "classified as"
+    dewey_decimals ||--o{ books_dewey_decimals : "classifies"
+
     publishers ||--o{ books : "publishes"
-    books ||--|| book_dimensions : "has"
-    books ||--o{ dewey_decimals : "has"
     series ||--o{ books : "contains"
 ```

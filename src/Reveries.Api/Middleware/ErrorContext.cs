@@ -5,5 +5,4 @@ public record ErrorContext(
     int StatusCode,
     string Path,
     string TraceId,
-    string? ErrorMessage = null,
-    IDictionary<string, string[]>? ValidationErrors = null);
+    string? ErrorMessage = null);

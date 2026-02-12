@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Core.Enums;
-using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
 using Reveries.Integration.GoogleBooks.Mappers;
@@ -20,7 +21,7 @@ public class GoogleBooksService : IGoogleBooksService
         _logger = logger;
     }
     
-    public async Task<List<Book>> GetBooksByIsbnsAsync(List<string> isbns, CancellationToken ct)
+    public async Task<List<Book>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
@@ -108,33 +109,63 @@ public class GoogleBooksService : IGoogleBooksService
 
     private static Book MergeGoogleBooks(Book book, Book volume)
     {
-        return new Book
-        {
-            DataSource = DataSource.GoogleBooksApi,
-            Title = !string.IsNullOrWhiteSpace(book.Title)
-                ? book.Title
-                : volume.Title,
-            Isbn13 = book.Isbn13 ?? volume.Isbn13,
-            Isbn10 = book.Isbn10 ?? volume.Isbn10,
-            Pages = book.Pages > 0
-                ? book.Pages
-                : (volume.Pages > 0 ? volume.Pages : 0),
-            Synopsis = (volume.Synopsis?.Length ?? 0) > (book.Synopsis?.Length ?? 0)
-                ? volume.Synopsis
-                : book.Synopsis,
-            Authors = book.Authors.Count > 0
-                ? book.Authors
-                : volume.Authors,
-            Edition = book.Edition,
-            Publisher = book.Publisher ?? volume.Publisher,
-            PublishDate = book.PublishDate ?? volume.PublishDate,
-            Subjects = (volume.Subjects != null && volume.Subjects.Count > 0)
-                ? volume.Subjects
-                : book.Subjects,
-            Language = book.Language ?? volume.Language,
-            Binding = book.Binding,
-            ImageThumbnail = book.ImageThumbnail ?? volume.ImageThumbnail,
-            Dimensions = volume.Dimensions
-        };
+        var mergedTitle = !string.IsNullOrWhiteSpace(book.Title)
+            ? book.Title
+            : volume.Title;
+    
+        var mergedAuthors = book.Authors.Count > 0
+            ? book.Authors
+            : volume.Authors;
+    
+        var mergedSubjects = volume.Genres.Count != 0
+            ? volume.Genres
+            : book.Genres;
+    
+        var mergedDeweyDecimals = volume.DeweyDecimals.Count != 0
+            ? volume.DeweyDecimals
+            : book.DeweyDecimals;
+    
+        var mergedSynopsis = (volume.Synopsis?.Length ?? 0) > (book.Synopsis?.Length ?? 0)
+            ? volume.Synopsis
+            : book.Synopsis;
+    
+        var mergedPages = book.Pages > 0
+            ? book.Pages
+            : volume.Pages > 0 ? volume.Pages : null;
+    
+        var dimensions = volume.Dimensions ?? book.Dimensions;
+
+        var bookData = new BookReconstitutionData
+        (
+            Id: book.Id.Value,
+            Isbn13: book.Isbn13?.Value ?? volume.Isbn13?.Value,
+            Isbn10: book.Isbn10?.Value ?? volume.Isbn10?.Value,
+            Title: mergedTitle,
+            Pages: mergedPages,
+            IsRead: false,
+            PublicationDate: book.PublicationDate ?? volume.PublicationDate,
+            Language: book.Language ?? volume.Language,
+            Synopsis: mergedSynopsis,
+            ImageThumbnailUrl: book.ImageThumbnailUrl ?? volume.ImageThumbnailUrl,
+            CoverImageUrl: book.CoverImageUrl ?? volume.CoverImageUrl,
+            Msrp: book.Msrp ?? volume.Msrp,
+            Binding: book.Binding,
+            Edition: book.Edition,
+            SeriesNumber: book.SeriesNumber,
+            DataSource: DataSource.GoogleBooksApi,
+            Publisher: book.Publisher ?? volume.Publisher,
+            Series: book.Series,
+            Dimensions: BookDimensions.Create(
+                dimensions?.HeightCm,
+                dimensions?.WidthCm,
+                dimensions?.ThicknessCm,
+                dimensions?.WeightG
+            ),
+            Authors: mergedAuthors,
+            Genres: mergedSubjects,
+            DeweyDecimals: mergedDeweyDecimals
+        );
+        
+        return Book.Reconstitute(bookData);
     }
 }

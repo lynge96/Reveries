@@ -1,37 +1,69 @@
 using Reveries.Core.Helpers;
+using Reveries.Core.Identity;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Core.Models;
 
 public class Author : BaseEntity
 {
-    public int Id { get; set; }
-    
-    public required string NormalizedName { get; init; }
-    
-    public string? FirstName { get; init; }
-    
-    public string? LastName { get; init; }
+    private readonly List<AuthorNameVariant> _nameVariants = [];
 
-    public ICollection<AuthorNameVariant> NameVariants { get; set; } = new List<AuthorNameVariant>();
+    public AuthorId Id { get; private init; }
+    public string? FirstName { get; }
+    public string? LastName { get; }
+    public string NormalizedName => $"{FirstName} {LastName}".Trim().ToLowerInvariant();
+    public IReadOnlyList<AuthorNameVariant> NameVariants => _nameVariants;
 
-    public override string ToString()
+    private Author(AuthorId id, string? firstName, string? lastName)
     {
-        return NormalizedName.ToTitleCase();
+        Id = id;
+        FirstName = firstName;
+        LastName = lastName;
     }
 
-    public static Author Create(string? name)
+    public override string ToString() => NormalizedName.ToTitleCase();
+
+    public static Author Create(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return new Author{ NormalizedName = "Unknown Author"};
+        var (firstName, lastName) = AuthorNameNormalizer.Parse(name);
+        var authorId = AuthorId.New();
         
-        var (firstName, lastName, normalizedName) = AuthorNameNormalizer.NormalizeAuthorName(name);
-        
-        return new Author
+        return new Author(authorId, firstName, lastName);
+    }
+
+    public static Author Reconstitute(AuthorId id, string? firstName, string? lastName, DateTimeOffset? dateCreated = null)
+    {
+        return new Author(id, firstName, lastName)
         {
-            FirstName = firstName,
-            LastName = lastName,
-            NormalizedName = normalizedName
+            DateCreated = dateCreated
         };
     }
     
+    public void AddNameVariant(string variant, bool makePrimary)
+    {
+        if (string.IsNullOrWhiteSpace(variant))
+            return;
+
+        var nameVariant = AuthorNameVariant.Create(variant);
+
+        if (_nameVariants.Any(v => v.NameVariant.Equals(nameVariant.NameVariant)))
+            return;
+        
+        _nameVariants.Add(nameVariant);
+
+        if (makePrimary)
+            SetPrimaryVariant(nameVariant);
+    }
+
+    private void SetPrimaryVariant(AuthorNameVariant variant)
+    {
+        if (!_nameVariants.Contains(variant))
+            throw new InvalidOperationException("Variant does not belong to this author.");
+        
+        foreach (var v in _nameVariants)
+            v.UnmarkPrimary();
+
+        variant.MarkAsPrimary();
+    }
+
 }

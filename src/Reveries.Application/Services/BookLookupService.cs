@@ -3,9 +3,9 @@ using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Core.Interfaces.Persistence;
+using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
-using Reveries.Core.Validation;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Services;
 
@@ -28,70 +28,43 @@ public class BookLookupService : IBookLookupService
         _logger = logger;
     }
     
-    public async Task<List<Book>> FindBooksByIsbnAsync(List<string> isbns, CancellationToken ct)
+    public async Task<Book> FindBookByIsbnAsync(Isbn isbns, CancellationToken ct)
     {
-        ArgumentNullException.ThrowIfNull(isbns);
+        var books = await FindBooksByIsbnAsync([isbns], ct);
+        var book = books.First();
+        
+        return book;
+    }
+
+    public async Task<List<Book>> FindBooksByIsbnAsync(List<Isbn> isbns, CancellationToken ct)
+    {
         if (isbns.Count == 0)
             return [];
         
-        ct.ThrowIfCancellationRequested();
-        
-        var normalizedIsbns = isbns
-            .Select(IsbnValidator.NormalizeAndValidateOrThrow)
-            .Distinct()
-            .ToList();
-        
-        var cacheBooks = await _bookCacheService.GetBooksByIsbnsAsync(normalizedIsbns, ct);
+        var cacheResult = await GetFromCacheAsync(isbns, ct);
+        var dbResult = await GetFromDatabaseAsync(cacheResult.Missing, ct);
+        var apiResult = await GetFromApiAsync(dbResult.Missing, ct);
 
-        var foundInCacheIsbns = cacheBooks
-            .Select(BookExtensions.GetIsbnKey)
-            .Where(key => !string.IsNullOrWhiteSpace(key))
-            .ToHashSet();
-
-        var missingFromCache = normalizedIsbns
-            .Where(i => !foundInCacheIsbns.Contains(i))
+        var allBooks = cacheResult.Found
+            .Concat(dbResult.Found)
+            .Concat(apiResult.Found)
             .ToList();
 
-        List<Book> databaseBooks = [];
-        HashSet<string?> foundInDbIsbns = [];
-        if (missingFromCache.Count != 0)
-        {
-            databaseBooks = await _unitOfWork.Books
-                .GetDetailedBooksByIsbnsAsync(missingFromCache);
-
-            foundInDbIsbns = databaseBooks
-                .Select(BookExtensions.GetIsbnKey)
-                .Where(k => !string.IsNullOrWhiteSpace(k))
-                .ToHashSet();
-        }
-
-        var missingIsbns = missingFromCache.Where(i => !foundInDbIsbns.Contains(i)).ToList();
-
-        List<Book> apiBooks = [];
-        if (missingIsbns.Count != 0)
-        {
-            apiBooks = await _bookEnrichmentService.AggregateBooksByIsbnsAsync(missingIsbns, ct);
-        }
-
-        var booksToCache = databaseBooks.Concat(apiBooks).ToList();
+        var booksToCache = dbResult.Found.Concat(apiResult.Found).ToList();
         if (booksToCache.Count != 0)
         {
             await _bookCacheService.SetBooksByIsbnsAsync(booksToCache, ct);
         }
         
         _logger.LogInformation(
-            "Book lookup by ISBN completed. Requested {RequestedCount}. Cache: {CacheCount}, DB: {DbCount}, API: {ApiCount}. Final: {Total}.",
+            "Book lookup completed. Requested {Requested}. Cache {Cache}, DB {Db}, API {Api}.",
             isbns.Count,
-            cacheBooks.Count,
-            databaseBooks.Count,
-            apiBooks.Count,
-            cacheBooks.Count + databaseBooks.Count + apiBooks.Count
+            cacheResult.Found.Count,
+            dbResult.Found.Count,
+            apiResult.Found.Count
         );
 
-        return cacheBooks
-            .Concat(databaseBooks)
-            .Concat(apiBooks)
-            .ToList();
+        return allBooks;
     }
 
     public async Task<List<Book>> FindBooksByTitleAsync(List<string> titles, CancellationToken ct)
@@ -234,4 +207,52 @@ public class BookLookupService : IBookLookupService
         return databaseBook ?? null;
     }
     
+    private async Task<LookupResult> GetFromCacheAsync(List<Isbn> isbns, CancellationToken ct)
+    {
+        var books = await _bookCacheService.GetBooksByIsbnsAsync(isbns, ct);
+
+        var foundKeys = books
+            .Select(BookExtensions.GetIsbnKey)
+            .Where(k => !string.IsNullOrWhiteSpace(k))
+            .ToHashSet();
+
+        var missing = isbns
+            .Where(i => !foundKeys.Contains(i.Value))
+            .ToList();
+
+        return new LookupResult(books, missing);
+    }
+    
+    private async Task<LookupResult> GetFromDatabaseAsync(List<Isbn> isbns, CancellationToken ct)
+    {
+        if (isbns.Count == 0)
+            return new LookupResult([], []);
+
+        var books = await _unitOfWork.Books
+            .GetDetailedBooksByIsbnsAsync(isbns);
+
+        var foundKeys = books
+            .Select(BookExtensions.GetIsbnKey)
+            .Where(k => !string.IsNullOrWhiteSpace(k))
+            .ToHashSet();
+
+        var missing = isbns
+            .Where(i => !foundKeys.Contains(i.Value))
+            .ToList();
+
+        return new LookupResult(books, missing);
+    }
+
+    private async Task<LookupResult> GetFromApiAsync(List<Isbn> isbns, CancellationToken ct)
+    {
+        if (isbns.Count == 0)
+            return new LookupResult([], []);
+
+        var books = await _bookEnrichmentService
+            .AggregateBooksByIsbnsAsync(isbns, ct);
+
+        return new LookupResult(books, []);
+    }
+    
+    private sealed record LookupResult(IReadOnlyList<Book> Found, List<Isbn> Missing);
 }

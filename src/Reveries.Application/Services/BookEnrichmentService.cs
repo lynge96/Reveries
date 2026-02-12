@@ -1,11 +1,13 @@
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Extensions;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Exceptions;
+using Reveries.Core.Helpers;
 using Reveries.Core.Models;
-using Reveries.Core.Services;
+using Reveries.Core.ValueObjects;
+using BookExtensions = Reveries.Application.Extensions.BookExtensions;
 
 namespace Reveries.Application.Services;
 
@@ -22,7 +24,7 @@ public class BookEnrichmentService : IBookEnrichmentService
         _logger = logger;
     }
     
-    public async Task<List<Book>> AggregateBooksByIsbnsAsync(List<string> isbns, CancellationToken ct)
+    public async Task<List<Book>> AggregateBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
@@ -44,8 +46,8 @@ public class BookEnrichmentService : IBookEnrichmentService
         
         foreach (var isbn in isbns)
         {
-            isbndbDict.TryGetValue(isbn, out var isbndbBook);
-            googleDict.TryGetValue(isbn, out var googleBook);
+            isbndbDict.TryGetValue(isbn.Value, out var isbndbBook);
+            googleDict.TryGetValue(isbn.Value, out var googleBook);
 
             mergedBooks.Add(BookMerger.MergeBooks(isbndbBook, googleBook));
         }
@@ -100,14 +102,14 @@ public class BookEnrichmentService : IBookEnrichmentService
 
         var mergedBooks = mergedByIsbn.Values
             .Where(b =>
-                !string.IsNullOrWhiteSpace(b.Isbn13) ||
-                !string.IsNullOrWhiteSpace(b.Isbn10))
+                !string.IsNullOrWhiteSpace(b.Isbn13?.Value) ||
+                !string.IsNullOrWhiteSpace(b.Isbn10?.Value))
             .ToList();
 
         return mergedBooks;
     }
     
-    private async Task<List<Book>> FetchGoogleBooksSafeAsync(List<string> isbns, CancellationToken ct)
+    private async Task<List<Book>> FetchGoogleBooksSafeAsync(List<Isbn> isbns, CancellationToken ct)
     {
         try
         {
@@ -121,7 +123,7 @@ public class BookEnrichmentService : IBookEnrichmentService
         }
     }
     
-    private async Task<List<Book>> FetchIsbndbBooksSafeAsync(List<string> isbns, CancellationToken ct)
+    private async Task<List<Book>> FetchIsbndbBooksSafeAsync(List<Isbn> isbns, CancellationToken ct)
     {
         try
         {
@@ -140,8 +142,8 @@ public class BookEnrichmentService : IBookEnrichmentService
         return books
             .SelectMany(b => new[]
             {
-                (isbn: b.Isbn10, book: b),
-                (isbn: b.Isbn13, book: b)
+                (isbn: b.Isbn10?.Value, book: b),
+                (isbn: b.Isbn13?.Value, book: b)
             })
             .ToDictionary(x => x.isbn!, x => x.book);
     }

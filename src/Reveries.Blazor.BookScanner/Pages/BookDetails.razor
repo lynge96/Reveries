@@ -1,5 +1,5 @@
 @page "/book/{Isbn}"
-@using Reveries.Contracts.DTOs
+@using Reveries.Contracts.Books
 <PageTitle>Reveries | @(_book?.Title ?? "Book Details")</PageTitle>
 @inject BookApiClient BooksApi
 @inject BookState BookState
@@ -36,7 +36,7 @@ else
 
                     <!-- Image -->
                     <div class="col-12 col-md-4 text-center order-2 order-md-1">
-                        <img src="@_book.ImageUrl"
+                        <img src="@_book.CoverImageUrl"
                              class="book-cover img-fluid rounded shadow mb-3"
                              alt="@_book.Title"/>
 
@@ -44,8 +44,8 @@ else
                         <button type="button"
                                 class="btn action-btn w-100 mt-1"
                                 @onclick="@SaveBook"
-                                disabled="@(_book.Id != null)">
-                            @if (_book.Id == null)
+                                disabled="@(_bookDbId != null)">
+                            @if (_bookDbId == null)
                             {
                                 <i class="bi bi-bookmark-fill me-2"></i>
                                 <span>Add book to shelf</span>
@@ -79,10 +79,10 @@ else
                         </div>
 
                         <!-- Subjects -->
-                        @if (_book.Subjects?.Any() == true)
+                        @if (_book.Genres?.Any() == true)
                         {
                             <div class="subject-badges">
-                                @foreach (var subject in _book.Subjects)
+                                @foreach (var subject in _book.Genres)
                                 {
                                     <span class="subject-badge">@subject</span>
                                 }
@@ -174,7 +174,7 @@ else
                                 <i class="bi bi-rulers icon"></i>
                                 <div>
                                     <div class="label">Dimensions</div>
-                                    <div class="value">@_book.Dimensions?.HeightCm × @_book.Dimensions?.WidthCm × @_book.Dimensions?.ThicknessCm cm</div>
+                                    <div class="value">@_book.HeightCm × @_book.WidthCm × @_book.ThicknessCm cm</div>
                                 </div>
                             </div>
 
@@ -183,23 +183,23 @@ else
                                 <i class="bi bi-box icon"></i>
                                 <div>
                                     <div class="label">Weight</div>
-                                    @if (_book.Dimensions?.WeightG != null)
+                                    @if (_book.WeightG != null)
                                     {
-                                        <div class="value">@_book.Dimensions?.WeightG g</div>
+                                        <div class="value">@_book.WeightG g</div>
                                     }
                                 </div>
                             </div>
 
-                            @if (_book.DeweyDecimal?.Any() == true)
+                            @if (_book.DeweyDecimals?.Any() == true)
                             {
                                 <!-- Dewey Decimal -->
                                 <div class="book-info">
                                     <i class="bi bi-123 icon"></i>
                                     <div>
                                         <div class="label">Dewey Decimal</div>
-                                        @if (_book.DeweyDecimal != null)
+                                        @if (_book.DeweyDecimals != null)
                                         {
-                                            <div class="value">@string.Join(", ", _book.DeweyDecimal)</div>
+                                            <div class="value">@string.Join(", ", _book.DeweyDecimals)</div>
                                         }
                                     </div>
                                 </div>
@@ -246,7 +246,8 @@ else
 }
 @code {
     [Parameter] public string? Isbn { get; set; }
-    private BookDto? _book;
+    private BookDetailsDto? _book;
+    private int? _bookDbId;
     private bool _showFullSynopsis;
     private const int MaxSynopsisLength = 300;
     private bool _isSaving;
@@ -282,14 +283,13 @@ else
             _isSaving = true;
             StateHasChanged();
 
-            var bookId = await BooksApi.CreateAsync(_book!);
+            _bookDbId = await BooksApi.CreateAsync(_book!);
 
-            if (bookId > 0)
+            if (_bookDbId > 0)
             {
-                _book!.Id = bookId;
                 _bookAdded = true;
                 
-                Console.WriteLine($"Book created with ID {bookId}");
+                Console.WriteLine($"Book created with ID {_bookDbId}");
             }
         }
         catch (ApiException ex)

@@ -1,9 +1,9 @@
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Interfaces.Services;
 
 public interface IBookSeriesService
 {
-    Task<int> CreateSeriesAsync(Series series);
-    Task<List<Series>> GetSeriesAsync();
+    Task<int> SetSeriesAsync(Isbn? isbn, Series series, int? numberInSeries);
 }

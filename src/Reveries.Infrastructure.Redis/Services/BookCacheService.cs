@@ -3,65 +3,115 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Cache;
-using Reveries.Core.Enums;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Redis.Configuration;
+using Reveries.Infrastructure.Redis.Interfaces;
+using Reveries.Infrastructure.Redis.Mappers;
+using Reveries.Infrastructure.Redis.Models;
+using StackExchange.Redis;
 
 namespace Reveries.Infrastructure.Redis.Services;
 
 public class BookCacheService : IBookCacheService
 {
-    private readonly ICacheService _cache;
+    private readonly IRedisCacheService _cache;
     private readonly ILogger<BookCacheService> _logger;
     
     private readonly StringComparer _titleComparer = StringComparer.OrdinalIgnoreCase;
     
-    public BookCacheService(ICacheService cacheService, ILogger<BookCacheService> logger)
+    public BookCacheService(IRedisCacheService cacheService, ILogger<BookCacheService> logger)
     {
         _cache = cacheService;
         _logger = logger;
     }
     
-    public async Task<Book?> GetBookByIsbnAsync(string isbn, CancellationToken ct)
+    public async Task<Book?> GetBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
-        var key = CacheKeys.BookByIsbn(isbn);
-        
-        return await _cache.GetAsync<Book>(key, ct);
+        var key = CacheKeys.BookByIsbn(isbn.Value);
+
+        var dto = await _cache.GetAsync<BookCacheDto>(key, ct);
+
+        return dto?.ToDomain();
     }
 
     public async Task SetBookByIsbnAsync(Book book, CancellationToken ct)
     {
         if (book.Isbn13 == null && book.Isbn10 == null) return;
         
-        var key = CacheKeys.BookByIsbn(book.Isbn13 ?? book.Isbn10!);
+        var key = CacheKeys.BookByIsbn(book.Isbn13?.Value ?? book.Isbn10?.Value!);
+        var dto = book.ToCacheDto();
         
-        await _cache.SetAsync(key, book, CacheDefaults.DefaultExpiration, ct);
+        await _cache.SetAsync(key, dto, CacheDefaults.DefaultExpiration, ct);
     }
 
-    public async Task RemoveBookByIsbnAsync(string? isbn, CancellationToken ct)
+    public async Task RemoveBookByIsbnAsync(Isbn? isbn, CancellationToken ct)
     {
         if (isbn != null)
         {
-            var key = CacheKeys.BookByIsbn(isbn);
+            var key = CacheKeys.BookByIsbn(isbn.Value);
         
             await _cache.RemoveAsync(key, ct);
         }
     }
     
-    public async Task<IReadOnlyList<Book>> GetBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken ct)
+    public async Task<IReadOnlyList<Book>> GetBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
     {
         var distinctIsbns = isbns.Distinct().ToList();
         
-        var tasks = distinctIsbns.Select(isbn => GetBookByIsbnAsync(isbn, ct));
-        var books = await Task.WhenAll(tasks);
-        
-        var updatedBooks = books
-            .Where(b => b is not null)
-            .Select(b => b!.UpdateDataSource(DataSource.Cache))
-            .ToImmutableList();
+        if (distinctIsbns.Count == 0)
+            return ImmutableList<Book>.Empty;
 
-        _logger.LogDebug("Cache ISBN lookup completed. Requested {IsbnCount} Isbns, found {BooksCount} books in cache.", distinctIsbns.Count, updatedBooks.Count);
-        return updatedBooks;
+        var batch = _cache.CreateBatch();
+
+        var tasksByIsbn = distinctIsbns.ToDictionary(
+            isbn => isbn,
+            isbn => batch.StringGetAsync(CacheKeys.BookByIsbn(isbn.Value))
+        );
+
+        batch.Execute();
+        await Task.WhenAll(tasksByIsbn.Values);
+
+        var foundBooks = new List<Book>();
+
+        foreach (var (isbn, task) in tasksByIsbn)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            RedisValue redisVal;
+            try
+            {
+                redisVal = await task;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Cache batch read failed for ISBN {IsbnKey}.", isbn.Value);
+                continue;
+            }
+
+            if (redisVal.IsNullOrEmpty)
+                continue;
+
+            BookCacheDto? dto;
+            try
+            {
+                dto = JsonSerializer.Deserialize<BookCacheDto>((string)redisVal!);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to deserialize cached BookCacheDto for ISBN {IsbnKey}.", isbn.Value);
+                continue;
+            }
+
+            var book = dto?.ToDomain();
+            if (book is not null)
+                foundBooks.Add(book);
+        }
+
+        _logger.LogDebug("Cache ISBN lookup completed. Requested {IsbnCount} Isbns, found {BooksCount} books in cache.", 
+            distinctIsbns.Count, foundBooks.Count);
+    
+        return foundBooks.ToImmutableList();
     }
 
     public async Task SetBooksByIsbnsAsync(IEnumerable<Book> books, CancellationToken ct)
@@ -85,14 +135,20 @@ public class BookCacheService : IBookCacheService
         batch.Execute();
         await Task.WhenAll(titleTasks.Values);
         
-        var isbnResults = new Dictionary<string, List<string>>();
+        var isbnResults = new Dictionary<string, List<Isbn>>();
         foreach (var (title, task) in titleTasks)
         {
             var redisVal = await task;
             if (!redisVal.IsNullOrEmpty)
             {
                 var json = (string)redisVal!;
-                var isbns = JsonSerializer.Deserialize<List<string>>(json) ?? [];
+                var isbnStrings = JsonSerializer.Deserialize<List<string>>(json) ?? [];
+
+                var isbns = isbnStrings
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(Isbn.Create)
+                    .ToList();
+
                 isbnResults[title] = isbns;
             }
         }
@@ -104,7 +160,10 @@ public class BookCacheService : IBookCacheService
         
         var books = await GetBooksByIsbnsAsync(allIsbns, ct);
         
-        _logger.LogDebug("Cache title lookup completed. Requested {IsbnCount} titles, found {BooksCount} books in cache.", distinctTitles.Count, books.Count);
+        _logger.LogDebug("Cache title lookup completed. Requested {TitleCount} titles, found {BooksCount} books in cache.", 
+            distinctTitles.Count, 
+            books.Count);
+        
         return books.ToList();
     }
 

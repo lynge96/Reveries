@@ -1,93 +1,98 @@
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Mappers;
 
 public static class DomainToEntityExtensions
 {
-    public static BookEntity ToEntity(this Book entity)
+    public static BookEntity ToDbModel(this Book model, int? publisherId = null, int? seriesId = null)
     {
         return new BookEntity
         {
-            Id = entity.Id ?? -1,
-            Title = entity.Title,
-            Isbn13 = entity.Isbn13,
-            Isbn10 = entity.Isbn10,
-            PublisherId = entity.Publisher?.Id,
-            Pages = entity.Pages,
-            IsRead = entity.IsRead,
-            PublishDate = entity.PublishDate,
-            Synopsis = entity.Synopsis,
-            Language = entity.Language,
-            Edition = entity.Edition,
-            Binding = entity.Binding,
-            ImageUrl = entity.ImageUrl,
-            ImageThumbnail = entity.ImageThumbnail,
-            Msrp = entity.Msrp,
-            SeriesNumber = entity.SeriesNumber,
-            SeriesId = entity.Series?.Id,
-            DateCreated = entity.DateCreated
+            BookDomainId = model.Id.Value,
+            Title = model.Title,
+            Isbn13 = model.Isbn13?.Value,
+            Isbn10 = model.Isbn10?.Value,
+            PageCount = model.Pages,
+            IsRead = model.IsRead,
+            PublicationDate = model.PublicationDate,
+            Synopsis = model.Synopsis,
+            Language = model.Language,
+            Edition = model.Edition,
+            Binding = model.Binding,
+            CoverImageUrl = model.CoverImageUrl,
+            ImageThumbnailUrl = model.ImageThumbnailUrl,
+            Msrp = model.Msrp,
+            SeriesNumber = model.SeriesNumber,
+            HeightCm = model.Dimensions?.HeightCm,
+            WidthCm = model.Dimensions?.WidthCm,
+            ThicknessCm = model.Dimensions?.ThicknessCm,
+            WeightG = model.Dimensions?.WeightG,
+            DateCreatedBook = model.DateCreated,
+            
+            PublisherId = publisherId,
+            SeriesId = seriesId
         };
     }
     
-    public static PublisherEntity ToEntity(this Publisher entity)
+    public static PublisherEntity ToDbModel(this Publisher model)
     {
         return new PublisherEntity
         {
-            PublisherId = entity.Id,
-            Name = entity.Name,
-            DateCreatedPublisher = entity.DateCreated
+            PublisherDomainId = model.Id.Value,
+            PublisherName = model.Name,
+            DateCreatedPublisher = model.DateCreated
         };
     }
 
-    public static SeriesEntity ToEntity(this Series entity)
+    public static SeriesEntity ToDbModel(this Series model)
     {
         return new SeriesEntity
         {
-            SeriesId = entity.Id,
-            SeriesName = entity.Name,
-            DateCreatedSeries = entity.DateCreated
+            SeriesDomainId = model.Id.Value,
+            SeriesName = model.Name,
+            DateCreatedSeries = model.DateCreated
         };
     }
 
-    public static DimensionsEntity ToEntity(this BookDimensions entity)
-    {
-        return new DimensionsEntity
-        {
-            HeightCm = entity.HeightCm,
-            WidthCm = entity.WidthCm,
-            ThicknessCm = entity.ThicknessCm,
-            WeightG = entity.WeightG
-        };
-    }
-
-    public static AuthorEntity ToEntity(this Author entity)
+    public static AuthorEntity ToDbModel(this Author model)
     {
         return new AuthorEntity
         {
-            AuthorId = entity.Id,
-            FirstName = entity.FirstName,
-            LastName = entity.LastName,
-            NormalizedName = entity.NormalizedName,
-            DateCreatedAuthor = entity.DateCreated
+            AuthorDomainId = model.Id.Value,
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            NormalizedName = model.NormalizedName,
+            DateCreatedAuthor = model.DateCreated,
+            AuthorNameVariants = model.NameVariants
+                .Select(nv => nv.ToDbModel())
+                .ToList()
         };
     }
 
-    public static SubjectEntity ToEntity(this Subject entity)
+    public static AuthorNameVariantEntity ToDbModel(this AuthorNameVariant variant)
     {
-        return new SubjectEntity
+        return new AuthorNameVariantEntity
         {
-            SubjectId = entity.Id,
-            Genre = entity.Genre,
-            DateCreatedSubject = entity.DateCreated
+            IsPrimary = variant.IsPrimary,
+            NameVariant = variant.NameVariant
+        };
+    }
+    
+    public static GenreEntity ToDbModel(this Genre model)
+    {
+        return new GenreEntity
+        {
+            Name = model.Value
         };
     }
 
-    public static DeweyDecimalEntity ToEntity(this DeweyDecimal entity)
+    public static DeweyDecimalEntity ToDbModel(this DeweyDecimal model)
     {
         return new DeweyDecimalEntity
         {
-            Code = entity.Code
+            Code = model.Code
         };
     }
 }

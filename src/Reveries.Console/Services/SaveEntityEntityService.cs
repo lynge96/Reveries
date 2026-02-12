@@ -1,7 +1,7 @@
+using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Interfaces;
-using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Spectre.Console;
 
@@ -9,13 +9,15 @@ namespace Reveries.Console.Services;
 
 public class SaveEntityEntityService : ISaveEntityService
 {
-    private readonly IBookManagementService _bookManagementService;
-    private readonly IBookSeriesService _bookSeriesService;
+    private readonly IBookPersistenceService _bookPersistenceService;
+    private readonly ISeriesService _seriesService;
 
-    public SaveEntityEntityService(IBookManagementService bookManagementService, IBookSeriesService bookSeriesService)
+    public SaveEntityEntityService(
+        IBookPersistenceService bookPersistenceService, 
+        ISeriesService seriesService)
     {
-        _bookManagementService = bookManagementService;
-        _bookSeriesService = bookSeriesService;
+        _bookPersistenceService = bookPersistenceService;
+        _seriesService = seriesService;
     }
 
     public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default)
@@ -34,13 +36,13 @@ public class SaveEntityEntityService : ISaveEntityService
         {
             try
             {
-                var bookId = await _bookManagementService.CreateBookWithRelationsAsync(book, cancellationToken);
+                var bookId = await _bookPersistenceService.SaveBookWithRelationsAsync(book, cancellationToken);
 
                 AnsiConsole.MarkupLine($"""
                                         ✅ Successfully saved to database:
                                            Title: {book.Title}
                                            ID: {bookId}
-                                           ISBN: {book.Isbn13 ?? book.Isbn10 ?? "N/A"}
+                                           ISBN: {book.Isbn13?.Value ?? book.Isbn10?.Value ?? "N/A"}
                                         """.AsPrimary());
             }
             catch (BookAlreadyExistsException ex)
@@ -69,7 +71,7 @@ public class SaveEntityEntityService : ISaveEntityService
 
         try
         {
-            var seriesId = await _bookSeriesService.CreateSeriesAsync(series);
+            var seriesId = await _seriesService.CreateSeriesAsync(series);
             
             AnsiConsole.MarkupLine($"""
                                     ✅ Successfully saved to database:

@@ -1,3 +1,6 @@
+using Reveries.Application.Commands;
+using Reveries.Application.Commands.Abstractions;
+using Reveries.Application.Commands.SetBookSeries;
 using Reveries.Application.Extensions;
 using Reveries.Application.Interfaces.Services;
 using Reveries.Console.Common.Extensions;
@@ -12,17 +15,25 @@ namespace Reveries.Console.Handlers;
 public class DatabaseTableHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.BooksInDatabase;
+    
     private readonly IBookLookupService _bookLookupService;
-    private readonly IBookSeriesService _bookSeriesService;
-    private readonly IBookManagementService _bookManagementService;
+    private readonly ISeriesService _seriesService;
+    private readonly ICommandHandler<SetBookSeriesCommand, int> _setBookSeriesCommandHandler;
     private readonly IBookDisplayService _bookDisplayService;
+    private readonly IBookReadStatusService _bookReadStatusService;
 
-    public DatabaseTableHandler(IBookLookupService bookLookupService, IBookSeriesService bookSeriesService, IBookManagementService bookManagementService, IBookDisplayService bookDisplayService)
+    public DatabaseTableHandler(
+        IBookLookupService bookLookupService, 
+        ISeriesService seriesService, 
+        ICommandHandler<SetBookSeriesCommand, int> setBookSeriesCommandHandler,
+        IBookDisplayService bookDisplayService,
+        IBookReadStatusService bookReadStatusService)
     {
         _bookLookupService = bookLookupService;
-        _bookSeriesService = bookSeriesService;
-        _bookManagementService = bookManagementService;
+        _seriesService = seriesService;
+        _setBookSeriesCommandHandler = setBookSeriesCommandHandler;
         _bookDisplayService = bookDisplayService;
+        _bookReadStatusService = bookReadStatusService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -48,7 +59,7 @@ public class DatabaseTableHandler : BaseHandler
 
     private async Task UpdateSelectedBooksWithSeriesAsync(List<Book> books, CancellationToken cancellationToken)
     {
-        var seriesInDb = await _bookSeriesService.GetSeriesAsync();
+        var seriesInDb = await _seriesService.GetSeriesAsync();
         if (seriesInDb.Count == 0)
         {
             AnsiConsole.MarkupLine("No series found in database.".AsWarning());
@@ -67,22 +78,30 @@ public class DatabaseTableHandler : BaseHandler
         
         foreach (var book in selectedBooks)
         {
-            book.Series = series;
+            book.SetSeries(series);
 
             var numberInSeries = ConsolePromptUtility.GetUserInput(
                 $"What number is {book.Title.AsSecondary()} in the series?");
-            if (int.TryParse(numberInSeries, out var num))
-                book.SeriesNumber = num;
-        }
             
-        await _bookManagementService.UpdateBooksAsync(selectedBooks, cancellationToken);
+            if (int.TryParse(numberInSeries, out var num))
+                book.SetSeries(series, num);
+
+            var bookSeriesCommand = new SetBookSeriesCommand
+            {
+                Isbn = book.Isbn13,
+                SeriesName = series.Name,
+                NumberInSeries = num
+            };
+            
+            await _setBookSeriesCommandHandler.HandleAsync(bookSeriesCommand, cancellationToken);
+        }
 
         AnsiConsole.MarkupLine("\nThe following books have been updated:".AsSuccess());
         
         _bookDisplayService.DisplayBooksTable(selectedBooks);
     }
 
-    private async Task UpdateSelectedBooksReadStatusAsync(List<Book> books, CancellationToken cancellationToken)
+    private async Task UpdateSelectedBooksReadStatusAsync(List<Book> books, CancellationToken ct)
     {
         var selectedBooks = ConsolePromptUtility.ShowMultiSelectionPrompt("Select the books you want update:", books);
         if (selectedBooks.Count == 0)
@@ -93,11 +112,16 @@ public class DatabaseTableHandler : BaseHandler
         
         foreach (var book in selectedBooks)
         {
-            book.IsRead = !book.IsRead;
+            if (book.IsRead)
+            {
+                book.MarkAsUnread();
+            }
+            
+            book.MarkAsRead();
+
+            await _bookReadStatusService.UpdateReadStatusAsync(book, ct);
         }
-        
-        await _bookManagementService.UpdateBooksAsync(selectedBooks, cancellationToken);
-        
+
         AnsiConsole.MarkupLine("\nThe following books have been updated:".AsSuccess());
         
         _bookDisplayService.DisplayBooksTable(selectedBooks);

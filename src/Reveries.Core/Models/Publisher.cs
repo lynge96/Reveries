@@ -1,26 +1,42 @@
 using Reveries.Core.Helpers;
+using Reveries.Core.Identity;
 
 namespace Reveries.Core.Models;
 
 public class Publisher : BaseEntity
 {
-    public int Id { get; set; }
-    
-    public string? Name { get; init; }
+    public PublisherId Id { get; private init; }
+    public string Name { get; }
 
-    public override string? ToString()
+    private Publisher(PublisherId id, string name)
     {
-        return Name?.ToTitleCase();
+        Id = id;
+        Name = name;
     }
 
-    public static Publisher Create(string? name)
+    public override string? ToString() => Name?.ToTitleCase();
+
+    /// <summary>
+    /// Factory method to create a Publisher with a normalized name.
+    /// Returns null if the input name is null/empty.
+    /// </summary>
+    public static Publisher Create(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return new Publisher{ Name = "Unknown Publisher"};
-        
-        return new Publisher
+        var normalizedName = name.StandardizePublisherName();
+        var publisherId = PublisherId.New();
+
+        return new Publisher(publisherId, normalizedName);
+    }
+    
+    /// <summary>
+    /// Reconstitute a Publisher from a persisted state (e.g., database).
+    /// </summary>
+    public static Publisher Reconstitute(PublisherId id, string name, DateTimeOffset? dateCreated = null)
+    {
+        return new Publisher(id, name)
         {
-            Name = PublisherNormalizer.NormalizePublisher(name) 
+            DateCreated = dateCreated
         };
     }
+    
 }

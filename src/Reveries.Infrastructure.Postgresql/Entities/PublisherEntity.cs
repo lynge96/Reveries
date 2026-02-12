@@ -1,8 +1,9 @@
 namespace Reveries.Infrastructure.Postgresql.Entities;
 
-public class PublisherEntity
+public sealed class PublisherEntity
 {
     public int PublisherId { get; set; }
-    public string? Name { get; set; }
+    public Guid PublisherDomainId { get; set; }
+    public string PublisherName { get; set; } = null!;
     public DateTimeOffset? DateCreatedPublisher { get; set; }
 }

@@ -1,23 +1,35 @@
 using Reveries.Core.Helpers;
+using Reveries.Core.Identity;
 
 namespace Reveries.Core.Models;
 
 public class Series : BaseEntity
 {
-    public int Id { get; set; }
+    public SeriesId Id { get; private init; }
+    public string Name { get; }
 
-    public string Name { get; init; } = null!;
-
-    public override string ToString()
+    private Series(SeriesId id, string name)
     {
-        return Name;
+        Id = id;
+        Name = name;
     }
+
+    public override string ToString() => Name;
     
     public static Series Create(string name)
     {
-        return new Series
+        var seriesId = SeriesId.New();
+        name = name.ToTitleCase();
+        
+        return new Series(seriesId, name);
+    }
+
+    public static Series Reconstitute(SeriesId id, string name, DateTimeOffset? dateCreated = null)
+    {
+        return new Series(id, name)
         {
-            Name = name.ToTitleCase()
+            DateCreated = dateCreated
         };
     }
+
 }

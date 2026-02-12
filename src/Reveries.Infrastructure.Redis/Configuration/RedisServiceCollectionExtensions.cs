@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Interfaces.Cache;
+using Reveries.Infrastructure.Redis.Interfaces;
 using Reveries.Infrastructure.Redis.Services;
 using StackExchange.Redis;
 
@@ -23,7 +24,7 @@ public static class RedisServiceCollectionExtensions
             return ConnectionMultiplexer.Connect(connectionString);
         });
         
-        services.AddScoped<ICacheService, RedisCacheService>();
+        services.AddScoped<IRedisCacheService, RedisCacheService>();
         services.AddScoped<IBookCacheService, BookCacheService>();
         
         return services;

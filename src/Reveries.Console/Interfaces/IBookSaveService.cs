@@ -4,5 +4,5 @@ namespace Reveries.Console.Interfaces;
 
 public interface IBookSaveService
 {
-    Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default);
+    Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken ct = default);
 }

@@ -3,8 +3,9 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Exceptions;
 using Reveries.Application.Extensions;
-using Reveries.Core.Exceptions;
+using Reveries.Core.ValueObjects;
 using Reveries.Integration.Isbndb.DTOs.Books;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers.Converters;
@@ -30,7 +31,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         _logger = logger;
     }
 
-    public async Task<BookDetailsDto> FetchBookByIsbnAsync(string isbn, CancellationToken ct)
+    public async Task<BookDetailsDto> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         using var response = await _httpClient.GetAsync($"book/{isbn}", ct);
         
@@ -118,7 +119,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         }
     }
 
-    public async Task<BooksListResponseDto> FetchBooksByIsbnsAsync(IEnumerable<string> isbns, CancellationToken ct)
+    public async Task<BooksListResponseDto> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
     {
         var requestObject = new { isbns = isbns.ToList() };
 

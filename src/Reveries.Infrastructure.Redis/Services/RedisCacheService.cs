@@ -1,10 +1,10 @@
 using System.Text.Json;
-using Reveries.Application.Interfaces.Cache;
+using Reveries.Infrastructure.Redis.Interfaces;
 using StackExchange.Redis;
 
 namespace Reveries.Infrastructure.Redis.Services;
 
-public class RedisCacheService : ICacheService
+public class RedisCacheService : IRedisCacheService
 {
     private readonly IDatabase _database;
 
