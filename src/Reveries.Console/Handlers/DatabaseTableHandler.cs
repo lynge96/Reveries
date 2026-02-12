@@ -1,4 +1,3 @@
-using Reveries.Application.Commands;
 using Reveries.Application.Commands.Abstractions;
 using Reveries.Application.Commands.SetBookSeries;
 using Reveries.Application.Extensions;

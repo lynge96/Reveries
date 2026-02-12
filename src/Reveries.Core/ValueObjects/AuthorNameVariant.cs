@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace Reveries.Core.ValueObjects;
 
-public sealed partial class AuthorNameVariant
+public sealed class AuthorNameVariant
 {
     public required string NameVariant { get; init; }
     public bool IsPrimary { get; private set; }
@@ -14,12 +14,10 @@ public sealed partial class AuthorNameVariant
     {
         if (string.IsNullOrWhiteSpace(variant))
             throw new ArgumentException("Variant cannot be empty.", nameof(variant));
-        
-        var trimmed = variant.Trim();
-        
+
         return new AuthorNameVariant
         {
-            NameVariant = Normalize(trimmed)
+            NameVariant = Normalize(variant)
         };
     }
     
@@ -28,14 +26,22 @@ public sealed partial class AuthorNameVariant
         if (string.IsNullOrWhiteSpace(variant))
             return string.Empty;
 
-        var noParens = Parenthesis().Replace(variant, string.Empty);
+        // 1) Fjern alt i parenteser inkl. indhold
+        var s = Regex.Replace(variant, @"\([^)]*\)", string.Empty);
 
-        return new string(noParens
-                .Where(char.IsLetter)
-                .ToArray())
-            .ToLowerInvariant();
+        // 2) Fjern alt undtagen bogstaver, punktum og whitespace
+        s = Regex.Replace(s, @"[^\p{L}\.\s]+", string.Empty);
+
+        // 3) Kollaps whitespace
+        s = Regex.Replace(s, @"\s+", " ").Trim();
+
+        // 4) Sørg for mellemrum efter punktum før bogstav: "J.Austen" -> "J. Austen"
+        s = Regex.Replace(s, @"\.(?=\p{L})", ". ");
+
+        // 5) Kollaps igen (i tilfælde af vi indsatte ekstra spaces)
+        s = Regex.Replace(s, @"\s+", " ").Trim();
+
+        return s;
     }
 
-    [GeneratedRegex(@"\([^)]*\)")]
-    private static partial Regex Parenthesis();
 }

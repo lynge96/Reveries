@@ -46,7 +46,7 @@ public class Author : BaseEntity
 
         var nameVariant = AuthorNameVariant.Create(variant);
 
-        if (_nameVariants.Any(v => v.NameVariant.Equals(nameVariant.NameVariant)))
+        if (_nameVariants.Any(v => v.NameVariant.Equals(nameVariant.NameVariant, StringComparison.InvariantCultureIgnoreCase)))
             return;
         
         _nameVariants.Add(nameVariant);
