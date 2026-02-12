@@ -25,7 +25,7 @@ public class BookDeweyDecimalsRepository : IBookDeweyDecimalsRepository
         var connection = await _dbContext.GetConnectionAsync();
 
         var parameters = deweyDecimals
-            .Select(a => new { BookId = bookId, a.DbId });
+            .Select(a => new { BookId = bookId, DeweyDecimalId = a.DbId });
         
         await connection.ExecuteAsync(sql, parameters);
     }

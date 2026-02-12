@@ -108,7 +108,7 @@ public static class CacheDtoMappers
     {
         var series = dto.Series?.ToDomain();
         var publisher = dto.Publisher?.ToDomain();
-        var dimensions = BookDimensions.Create(dto.WeightG, dto.HeightCm, dto.WidthCm, dto.ThicknessCm);
+        var dimensions = BookDimensions.Create(dto.HeightCm, dto.WidthCm, dto.ThicknessCm, dto.WeightG);
 
         var authors = dto.Authors.Select(a => a.ToDomain()).ToList();
 

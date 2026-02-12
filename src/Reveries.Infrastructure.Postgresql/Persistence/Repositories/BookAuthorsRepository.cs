@@ -25,7 +25,7 @@ public class BookAuthorsRepository : IBookAuthorsRepository
         var connection = await _dbContext.GetConnectionAsync();
 
         var parameters = authors
-            .Select(a => new { BookId = bookId, a.DbId });
+            .Select(a => new { BookId = bookId, AuthorId = a.DbId });
         
         await connection.ExecuteAsync(sql, parameters);
     }

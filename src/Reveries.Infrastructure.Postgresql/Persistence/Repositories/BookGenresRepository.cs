@@ -25,7 +25,7 @@ public class BookGenresRepository : IBookGenresRepository
         var connection = await _dbContext.GetConnectionAsync();
 
         var parameters = genres
-            .Select(g => new { BookId = bookId, g.DbId });
+            .Select(g => new { BookId = bookId, GenreId = g.DbId });
         
         await connection.ExecuteAsync(sql, parameters);
     }

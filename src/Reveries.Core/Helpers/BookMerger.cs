@@ -97,12 +97,13 @@ public static class BookMerger
         if (isbndb.Dimensions == null && google.Dimensions == null)
             return null;
 
-        return BookDimensions.Create(
+        return BookDimensions.Create
+        (
             isbndb.Dimensions?.HeightCm ?? google.Dimensions?.HeightCm,
             isbndb.Dimensions?.WidthCm ?? google.Dimensions?.WidthCm,
             isbndb.Dimensions?.ThicknessCm ?? google.Dimensions?.ThicknessCm,
             isbndb.Dimensions?.WeightG
-            );
+        );
     }
 
     private static IReadOnlyList<Author> MergeAuthors(Book isbndb, Book google)

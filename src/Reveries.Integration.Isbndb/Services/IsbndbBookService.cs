@@ -14,14 +14,12 @@ namespace Reveries.Integration.Isbndb.Services;
 public class IsbndbBookService : IIsbndbBookService
 {
     private readonly IIsbndbBookClient _bookClient;
-    private readonly IIsbndbAuthorService _authorService;
     private readonly IsbndbSettings _settings;
     private readonly ILogger<IsbndbBookService> _logger;
 
-    public IsbndbBookService(IIsbndbBookClient bookClient, IIsbndbAuthorService authorService, IOptions<IsbndbSettings> options, ILogger<IsbndbBookService> logger)
+    public IsbndbBookService(IIsbndbBookClient bookClient, IOptions<IsbndbSettings> options, ILogger<IsbndbBookService> logger)
     {
         _bookClient = bookClient;
-        _authorService = authorService;
         _settings = options.Value;
         _logger = logger;
     }

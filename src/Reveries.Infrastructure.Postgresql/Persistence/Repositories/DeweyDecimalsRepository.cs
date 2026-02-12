@@ -22,7 +22,8 @@ public class DeweyDecimalsRepository : IDeweyDecimalsRepository
         const string sql = """
                            INSERT INTO library.dewey_decimals (code)
                            VALUES (@Code)
-                           ON CONFLICT DO NOTHING;
+                           ON CONFLICT DO NOTHING
+                           RETURNING id;
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();

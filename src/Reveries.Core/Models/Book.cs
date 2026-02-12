@@ -111,11 +111,7 @@ public class Book : BaseEntity
             Msrp = msrp,
             Binding = binding?.GetStandardBinding(),
             Edition = edition,
-            Dimensions = BookDimensions.Create(
-                height, 
-                width, 
-                thickness, 
-                weight),
+            Dimensions = BookDimensions.Create(height, width, thickness, weight),
             DataSource = dataSource,
         };
 
