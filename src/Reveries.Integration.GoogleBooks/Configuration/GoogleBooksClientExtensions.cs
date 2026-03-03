@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Integration.GoogleBooks.Clients;
@@ -19,6 +20,7 @@ public static class GoogleBooksClientExtensions
         var settings = serviceProvider.GetRequiredService<IOptions<GoogleBooksSettings>>().Value;
 
         client.BaseAddress = new Uri(settings.ApiUrl);
-        client.DefaultRequestHeaders.Add("Accept", "application/json");
+        client.Timeout = TimeSpan.FromSeconds(15);
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 }

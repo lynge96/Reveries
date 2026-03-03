@@ -3,7 +3,6 @@ using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.GoogleBooks;
 using Reveries.Application.Interfaces.Isbndb;
 using Reveries.Application.Interfaces.Services;
-using Reveries.Core.Exceptions;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;

@@ -20,9 +20,9 @@ public interface IIsbndbBookClient
     ///     A cancellation token to cancel the request if needed.
     /// </param>
     /// <returns>
-    /// A <see cref="BookDetailsDto"/> containing the book's detailed information, or <c>null</c> if the book is not found.
+    /// A <see cref="IsbndbBookDetailsDto"/> containing the book's detailed information, or <c>null</c> if the book is not found.
     /// </returns>
-    Task<BookDetailsDto> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default);
+    Task<IsbndbBookDetailsDto> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default);
 
     /// <summary>
     /// Returns a list of books that match the given query.

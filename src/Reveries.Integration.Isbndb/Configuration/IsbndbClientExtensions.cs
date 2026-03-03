@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Integration.Isbndb.Clients;
@@ -20,7 +21,8 @@ public static class IsbndbClientExtensions
     {
         var settings = serviceProvider.GetRequiredService<IOptions<IsbndbSettings>>().Value;
         client.BaseAddress = new Uri(settings.ApiUrl);
+        client.Timeout = TimeSpan.FromSeconds(15);
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         client.DefaultRequestHeaders.Add("Authorization", settings.ApiKey);
-        client.DefaultRequestHeaders.Add("Accept", "application/json");
     }
 }

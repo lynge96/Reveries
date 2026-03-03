@@ -31,7 +31,7 @@ public class IsbndbBookClient : IIsbndbBookClient
         _logger = logger;
     }
 
-    public async Task<BookDetailsDto> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
+    public async Task<IsbndbBookDetailsDto> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         using var response = await _httpClient.GetAsync($"book/{isbn}", ct);
         
@@ -54,11 +54,9 @@ public class IsbndbBookClient : IIsbndbBookClient
 
         try
         {
-            var result = JsonSerializer.Deserialize<BookDetailsDto>(json, JsonOptions);
+            var result = JsonSerializer.Deserialize<IsbndbBookDetailsDto>(json, JsonOptions);
             if (result is null)
-            {
                 throw new InvalidOperationException($"Isbndb returned an empty or invalid payload for ISBN '{isbn}'.");
-            }
 
             return result;
         }

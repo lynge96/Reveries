@@ -1,6 +1,6 @@
 ﻿namespace Reveries.Integration.Isbndb.DTOs.Books;
 
-public class BookDetailsDto
+public class IsbndbBookDetailsDto
 {
     public IsbndbBookDto Book { get; init; } = null!;
 }
