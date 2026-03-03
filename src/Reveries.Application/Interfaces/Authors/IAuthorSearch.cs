@@ -1,12 +1,8 @@
 using Reveries.Core.Models;
 
-namespace Reveries.Application.Interfaces.Isbndb;
+namespace Reveries.Application.Interfaces.Authors;
 
-/// <summary>
-/// Provides high-level methods to retrieve author and book information from ISBNdb,
-/// returning domain <see cref="Author"/> and <see cref="Book"/> entities instead of raw DTOs.
-/// </summary>
-public interface IIsbndbAuthorService
+public interface IAuthorSearch
 {
     /// <summary>
     /// Retrieves a list of authors that match the specified name.

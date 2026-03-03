@@ -1,17 +1,17 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Commands.Abstractions;
-using Reveries.Application.Interfaces.Services;
 using Reveries.Application.Mappers;
+using Reveries.Application.Services;
 
 namespace Reveries.Application.Commands.CreateBook;
 
 public sealed class CreateBookHandler : ICommandHandler<CreateBookCommand, int>
 {
-    private readonly IBookPersistenceService _bookPersistenceService;
+    private readonly BookPersistenceService _bookPersistenceService;
     private readonly ILogger<CreateBookHandler> _logger;
 
     public CreateBookHandler(
-        IBookPersistenceService bookPersistenceService, 
+        BookPersistenceService bookPersistenceService, 
         ILogger<CreateBookHandler> logger)
     {
         _bookPersistenceService = bookPersistenceService;

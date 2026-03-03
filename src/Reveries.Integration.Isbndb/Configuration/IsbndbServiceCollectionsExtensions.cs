@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Reveries.Application.Interfaces.Isbndb;
+using Reveries.Application.Interfaces.Authors;
+using Reveries.Application.Interfaces.Books;
+using Reveries.Application.Interfaces.Publishers;
 using Reveries.Integration.Isbndb.Services;
 
 namespace Reveries.Integration.Isbndb.Configuration;
@@ -18,9 +20,9 @@ public static class ServiceCollectionExtensions
         
         services.AddIsbndbClients();
 
-        services.AddScoped<IIsbndbBookService, IsbndbBookService>();
-        services.AddScoped<IIsbndbAuthorService, IsbndbAuthorService>();
-        services.AddScoped<IIsbndbPublisherService, IsbndbPublisherService>();
+        services.AddScoped<IIsbndbBookSearch, IsbndbBookService>();
+        services.AddScoped<IAuthorSearch, IsbndbAuthorService>();
+        services.AddScoped<IPublisherSearch, IsbndbPublisherService>();
         
         return services;
     }

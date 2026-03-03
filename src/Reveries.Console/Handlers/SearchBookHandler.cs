@@ -1,9 +1,9 @@
 using Reveries.Application.Extensions;
-using Reveries.Application.Interfaces.Services;
+using Reveries.Application.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
-using Reveries.Console.Interfaces;
+using Reveries.Console.Services;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using Spectre.Console;
@@ -13,12 +13,16 @@ namespace Reveries.Console.Handlers;
 public class SearchBookHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.SearchBook;
-    private readonly ISaveEntityService _saveEntityService;
-    private readonly IBookSelectionService _bookSelectionService;
-    private readonly IBookDisplayService _bookDisplayService;
-    private readonly IBookLookupService _bookLookupService;
+    private readonly SaveEntityService _saveEntityService;
+    private readonly BookSelectionService _bookSelectionService;
+    private readonly BookDisplayService _bookDisplayService;
+    private readonly BookLookupService _bookLookupService;
 
-    public SearchBookHandler(ISaveEntityService saveEntityService, IBookSelectionService bookSelectionService, IBookDisplayService bookDisplayService, IBookLookupService bookLookupService)
+    public SearchBookHandler(
+        SaveEntityService saveEntityService, 
+        BookSelectionService bookSelectionService, 
+        BookDisplayService bookDisplayService, 
+        BookLookupService bookLookupService)
     {
         _saveEntityService = saveEntityService;
         _bookSelectionService = bookSelectionService;

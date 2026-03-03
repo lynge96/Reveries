@@ -1,20 +1,19 @@
 using Reveries.Application.Exceptions;
-using Reveries.Application.Interfaces.Services;
+using Reveries.Application.Services;
 using Reveries.Console.Common.Extensions;
-using Reveries.Console.Interfaces;
 using Reveries.Core.Models;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;
 
-public class SaveEntityEntityService : ISaveEntityService
+public class SaveEntityService
 {
-    private readonly IBookPersistenceService _bookPersistenceService;
-    private readonly ISeriesService _seriesService;
+    private readonly BookPersistenceService _bookPersistenceService;
+    private readonly SeriesService _seriesService;
 
-    public SaveEntityEntityService(
-        IBookPersistenceService bookPersistenceService, 
-        ISeriesService seriesService)
+    public SaveEntityService(
+        BookPersistenceService bookPersistenceService, 
+        SeriesService seriesService)
     {
         _bookPersistenceService = bookPersistenceService;
         _seriesService = seriesService;

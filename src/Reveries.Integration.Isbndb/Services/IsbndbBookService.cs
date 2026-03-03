@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Exceptions;
-using Reveries.Application.Interfaces.Isbndb;
+using Reveries.Application.Interfaces.Books;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
@@ -11,7 +11,7 @@ using Reveries.Integration.Isbndb.Mappers;
 
 namespace Reveries.Integration.Isbndb.Services;
 
-public class IsbndbBookService : IIsbndbBookService
+public class IsbndbBookService : IIsbndbBookSearch
 {
     private readonly IIsbndbBookClient _bookClient;
     private readonly IsbndbSettings _settings;

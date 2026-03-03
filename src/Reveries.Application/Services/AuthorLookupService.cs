@@ -1,25 +1,26 @@
-using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Application.Interfaces.Services;
+using Reveries.Application.Interfaces.Authors;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
 
-public class AuthorLookupService : IAuthorLookupService
+public class AuthorLookupService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IIsbndbAuthorService _isbndbAuthorService;
+    private readonly IAuthorSearch _authorSearch;
 
-    public AuthorLookupService(IUnitOfWork unitOfWork, IIsbndbAuthorService isbndbAuthorService)
+    public AuthorLookupService(
+        IUnitOfWork unitOfWork, 
+        IAuthorSearch authorSearch)
     {
         _unitOfWork = unitOfWork;
-        _isbndbAuthorService = isbndbAuthorService;
+        _authorSearch = authorSearch;
     }
 
     public async Task<List<Author>> FindAuthorsByNameAsync(string authorName, CancellationToken cancellationToken = default)
     {
         var dbTask = _unitOfWork.Authors.GetAuthorsByNameAsync(authorName);
-        var apiTask = _isbndbAuthorService.GetAuthorsByNameAsync(authorName, cancellationToken);
+        var apiTask = _authorSearch.GetAuthorsByNameAsync(authorName, cancellationToken);
 
         await Task.WhenAll(dbTask, apiTask);
 

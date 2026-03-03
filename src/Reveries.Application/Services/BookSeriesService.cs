@@ -1,12 +1,11 @@
 using Reveries.Application.Exceptions;
-using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Services;
 
-public class BookSeriesService : IBookSeriesService
+public class BookSeriesService
 {
     private readonly IUnitOfWork _unitOfWork;
     

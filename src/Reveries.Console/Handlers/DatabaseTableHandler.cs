@@ -1,11 +1,10 @@
-using Reveries.Application.Commands.Abstractions;
 using Reveries.Application.Commands.SetBookSeries;
 using Reveries.Application.Extensions;
-using Reveries.Application.Interfaces.Services;
+using Reveries.Application.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
-using Reveries.Console.Interfaces;
+using Reveries.Console.Services;
 using Reveries.Core.Models;
 using Spectre.Console;
 
@@ -15,18 +14,18 @@ public class DatabaseTableHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.BooksInDatabase;
     
-    private readonly IBookLookupService _bookLookupService;
-    private readonly ISeriesService _seriesService;
-    private readonly ICommandHandler<SetBookSeriesCommand, int> _setBookSeriesCommandHandler;
-    private readonly IBookDisplayService _bookDisplayService;
-    private readonly IBookReadStatusService _bookReadStatusService;
+    private readonly BookLookupService _bookLookupService;
+    private readonly SeriesService _seriesService;
+    private readonly SetBookSeriesHandler _setBookSeriesCommandHandler;
+    private readonly BookDisplayService _bookDisplayService;
+    private readonly BookReadStatusService _bookReadStatusService;
 
     public DatabaseTableHandler(
-        IBookLookupService bookLookupService, 
-        ISeriesService seriesService, 
-        ICommandHandler<SetBookSeriesCommand, int> setBookSeriesCommandHandler,
-        IBookDisplayService bookDisplayService,
-        IBookReadStatusService bookReadStatusService)
+        BookLookupService bookLookupService, 
+        SeriesService seriesService, 
+        SetBookSeriesHandler setBookSeriesCommandHandler,
+        BookDisplayService bookDisplayService,
+        BookReadStatusService bookReadStatusService)
     {
         _bookLookupService = bookLookupService;
         _seriesService = seriesService;

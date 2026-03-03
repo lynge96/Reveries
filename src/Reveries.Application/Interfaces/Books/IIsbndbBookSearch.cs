@@ -1,13 +1,13 @@
 ﻿using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
-namespace Reveries.Application.Interfaces.Isbndb;
+namespace Reveries.Application.Interfaces.Books;
 
 /// <summary>
 /// Provides methods to retrieve and transform book data from the ISBNdb API into domain <see cref="Book"/> entities.
 /// This service returns fully mapped books ready for use within the application.
 /// </summary>
-public interface IIsbndbBookService
+public interface IIsbndbBookSearch
 {
     /// <summary>
     /// Retrieves books that match the given list of ISBNs.

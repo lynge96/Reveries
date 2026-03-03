@@ -1,29 +1,35 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Extensions;
+using Reveries.Application.Interfaces.Authors;
 using Reveries.Application.Interfaces.Cache;
-using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Application.Interfaces.Services;
+using Reveries.Application.Interfaces.Publishers;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Services;
 
-public class BookLookupService : IBookLookupService
+public class BookLookupService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IBookEnrichmentService _bookEnrichmentService;
-    private readonly IIsbndbAuthorService _isbndbAuthorService;
-    private readonly IIsbndbPublisherService _isbndbPublisherService;
+    private readonly BookEnrichmentService _bookEnrichmentService;
+    private readonly IAuthorSearch _authorSearch;
+    private readonly IPublisherSearch _publisherSearch;
     private readonly IBookCacheService _bookCacheService;
     private readonly ILogger<BookLookupService> _logger;
 
-    public BookLookupService(IUnitOfWork unitOfWork, IBookEnrichmentService bookEnrichmentService, IIsbndbAuthorService isbndbAuthorService, IIsbndbPublisherService isbndbPublisherService, IBookCacheService bookCacheService, ILogger<BookLookupService> logger)
+    public BookLookupService(
+        IUnitOfWork unitOfWork, 
+        BookEnrichmentService bookEnrichmentService, 
+        IAuthorSearch authorSearch, 
+        IPublisherSearch publisherSearch, 
+        IBookCacheService bookCacheService, 
+        ILogger<BookLookupService> logger)
     {
         _unitOfWork = unitOfWork;
         _bookEnrichmentService = bookEnrichmentService;
-        _isbndbAuthorService = isbndbAuthorService;
-        _isbndbPublisherService = isbndbPublisherService;
+        _authorSearch = authorSearch;
+        _publisherSearch = publisherSearch;
         _bookCacheService = bookCacheService;
         _logger = logger;
     }
@@ -147,7 +153,7 @@ public class BookLookupService : IBookLookupService
         if (databaseBooks.Count > 0)
             return databaseBooks;
         
-        var apiBooks = await _isbndbAuthorService.GetBooksByAuthorAsync(author, ct);
+        var apiBooks = await _authorSearch.GetBooksByAuthorAsync(author, ct);
         
         _logger.LogInformation(
             "Book lookup by Author completed. Requested '{Author}'. DB: {DbCount}, API: {ApiCount}. Final: {Total}.",
@@ -172,7 +178,7 @@ public class BookLookupService : IBookLookupService
         if (databaseBooks.Count > 0)
             return databaseBooks.ArrangeBooks().ToList();
         
-        var apiBooks = await _isbndbPublisherService.GetBooksByPublisherAsync(publisher, ct);
+        var apiBooks = await _publisherSearch.GetBooksByPublisherAsync(publisher, ct);
         
         _logger.LogInformation(
             "Book lookup by publisher completed. Requested '{PublisherName}'. DB: {DbCount}, API: {ApiCount}. Final: {Total}.",

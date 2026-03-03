@@ -1,16 +1,15 @@
-using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Application.Interfaces.Services;
+using Reveries.Application.Interfaces.Authors;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
 
-public class AuthorEnrichmentService : IAuthorEnrichmentService
+public class AuthorEnrichmentService
 {
-    private readonly IIsbndbAuthorService _isbndbAuthorService;
+    private readonly IAuthorSearch _authorSearch;
     
-    public AuthorEnrichmentService(IIsbndbAuthorService isbndbAuthorService)
+    public AuthorEnrichmentService(IAuthorSearch authorSearch)
     {
-        _isbndbAuthorService = isbndbAuthorService;
+        _authorSearch = authorSearch;
     }
     
     public async Task EnrichAsync(IReadOnlyList<Author> authors, CancellationToken ct)
@@ -23,7 +22,7 @@ public class AuthorEnrichmentService : IAuthorEnrichmentService
             
             if (!variantsCache.TryGetValue(normalizedName, out var variants))
             {
-                variants = await _isbndbAuthorService.GetAuthorsByNameAsync(normalizedName, ct);
+                variants = await _authorSearch.GetAuthorsByNameAsync(normalizedName, ct);
 
                 variantsCache[normalizedName] = variants;
             }

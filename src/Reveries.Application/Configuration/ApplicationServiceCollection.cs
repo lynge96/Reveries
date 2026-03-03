@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Reveries.Application.Commands;
 using Reveries.Application.Commands.CreateBook;
 using Reveries.Application.Commands.SetBookSeries;
-using Reveries.Application.Interfaces.Services;
-using Reveries.Application.Queries;
 using Reveries.Application.Queries.GetAllBooks;
 using Reveries.Application.Queries.GetBookByDbId;
 using Reveries.Application.Queries.GetBookByIsbn;
@@ -27,14 +24,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GetAllBooksHandler>();
         
         // Services
-        services.AddScoped<IAuthorEnrichmentService, AuthorEnrichmentService>();
-        services.AddScoped<IBookEnrichmentService, BookEnrichmentService>();
-        services.AddScoped<IBookLookupService, BookLookupService>();
-        services.AddScoped<IAuthorLookupService, AuthorLookupService>();
-        services.AddScoped<IPublisherLookupService, PublisherLookupService>();
-        services.AddScoped<ISeriesService, SeriesService>();
-        services.AddScoped<IBookSeriesService, BookSeriesService>();
-        services.AddScoped<IBookReadStatusService, BookReadStatusService>();
+        services.AddScoped<BookPersistenceService>();
+        services.AddScoped<AuthorEnrichmentService>();
+        services.AddScoped<BookEnrichmentService>();
+        services.AddScoped<BookLookupService>();
+        services.AddScoped<AuthorLookupService>();
+        services.AddScoped<PublisherLookupService>();
+        services.AddScoped<SeriesService>();
+        services.AddScoped<BookSeriesService>();
+        services.AddScoped<BookReadStatusService>();
         
         return services;
     }

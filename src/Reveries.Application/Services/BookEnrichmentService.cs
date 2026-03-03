@@ -1,8 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Exceptions;
-using Reveries.Application.Interfaces.GoogleBooks;
-using Reveries.Application.Interfaces.Isbndb;
-using Reveries.Application.Interfaces.Services;
+using Reveries.Application.Interfaces.Books;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
@@ -10,16 +8,19 @@ using BookExtensions = Reveries.Application.Extensions.BookExtensions;
 
 namespace Reveries.Application.Services;
 
-public class BookEnrichmentService : IBookEnrichmentService
+public class BookEnrichmentService
 {
-    private readonly IIsbndbBookService _isbndbService;
-    private readonly IGoogleBooksService _googleService;
+    private readonly IIsbndbBookSearch _isbndbSearch;
+    private readonly IGoogleBookSearch _googleSearch;
     private readonly ILogger<BookEnrichmentService> _logger;
 
-    public BookEnrichmentService(IIsbndbBookService isbndbBookService, IGoogleBooksService googleBooksService, ILogger<BookEnrichmentService> logger)
+    public BookEnrichmentService(
+        IIsbndbBookSearch isbndbBookSearch,
+        IGoogleBookSearch googleBookSearch, 
+        ILogger<BookEnrichmentService> logger)
     {
-        _isbndbService = isbndbBookService;
-        _googleService = googleBooksService;
+        _isbndbSearch = isbndbBookSearch;
+        _googleSearch = googleBookSearch;
         _logger = logger;
     }
     
@@ -61,8 +62,8 @@ public class BookEnrichmentService : IBookEnrichmentService
         
         ct.ThrowIfCancellationRequested();
         
-        var googleTask = _googleService.GetBooksByTitleAsync(titles, ct);
-        var isbndbTask = _isbndbService.GetBooksByTitlesAsync(titles, null, ct);
+        var googleTask = _googleSearch.GetBooksByTitleAsync(titles, ct);
+        var isbndbTask = _isbndbSearch.GetBooksByTitlesAsync(titles, null, ct);
 
         await Task.WhenAll(googleTask, isbndbTask);
         
@@ -112,9 +113,9 @@ public class BookEnrichmentService : IBookEnrichmentService
     {
         try
         {
-            return await _googleService.GetBooksByIsbnsAsync(isbns, ct);
+            return await _googleSearch.GetBooksByIsbnsAsync(isbns, ct);
         }
-        catch (NotFoundException ex)
+        catch (Exception ex)
         {
             _logger.LogInformation(ex, "No books found in Google Books for the provided ISBNs: {Isbns}", string.Join(", ", isbns));
 
@@ -126,9 +127,9 @@ public class BookEnrichmentService : IBookEnrichmentService
     {
         try
         {
-            return await _isbndbService.GetBooksByIsbnsAsync(isbns, ct);
+            return await _isbndbSearch.GetBooksByIsbnsAsync(isbns, ct);
         }
-        catch (NotFoundException ex)
+        catch (Exception ex)
         {
             _logger.LogInformation(ex, "No books found in ISBNdb for the provided ISBNs: {Isbns}", string.Join(", ", isbns));
 

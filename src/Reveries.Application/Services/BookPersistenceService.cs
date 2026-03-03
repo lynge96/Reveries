@@ -1,6 +1,5 @@
 using Reveries.Application.Exceptions;
 using Reveries.Application.Interfaces.Cache;
-using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
@@ -8,15 +7,15 @@ using Reveries.Core.ValueObjects.DTOs;
 
 namespace Reveries.Application.Services;
 
-public class BookPersistenceService : IBookPersistenceService
+public class BookPersistenceService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IAuthorEnrichmentService _authorEnrichmentService;
+    private readonly AuthorEnrichmentService _authorEnrichmentService;
     private readonly IBookCacheService _cache;
     
     public BookPersistenceService(
         IUnitOfWork unitOfWork, 
-        IAuthorEnrichmentService authorEnrichmentService,
+        AuthorEnrichmentService authorEnrichmentService,
         IBookCacheService cache)
     {
         _unitOfWork = unitOfWork;

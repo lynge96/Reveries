@@ -1,13 +1,12 @@
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Utilities;
-using Reveries.Console.Interfaces;
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;
 
-public class BookSelectionService : IBookSelectionService
+public class BookSelectionService
 {
     public List<Book> SelectBooksToSave(List<Book> books)
     {

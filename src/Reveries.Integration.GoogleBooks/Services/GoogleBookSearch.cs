@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Exceptions;
-using Reveries.Application.Interfaces.GoogleBooks;
+using Reveries.Application.Interfaces.Books;
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
@@ -10,12 +10,12 @@ using Reveries.Integration.GoogleBooks.Mappers;
 
 namespace Reveries.Integration.GoogleBooks.Services;
 
-public class GoogleBooksService : IGoogleBooksService
+public class GoogleBookSearch : IGoogleBookSearch
 {
     private readonly IGoogleBooksClient _googleBooksClient;
-    private readonly ILogger<GoogleBooksService> _logger;
+    private readonly ILogger<GoogleBookSearch> _logger;
     
-    public GoogleBooksService(IGoogleBooksClient googleBooksClient, ILogger<GoogleBooksService> logger)
+    public GoogleBookSearch(IGoogleBooksClient googleBooksClient, ILogger<GoogleBookSearch> logger)
     {
         _googleBooksClient = googleBooksClient;
         _logger = logger;

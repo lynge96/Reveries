@@ -1,13 +1,13 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Exceptions;
-using Reveries.Application.Interfaces.Isbndb;
+using Reveries.Application.Interfaces.Authors;
 using Reveries.Core.Models;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
 
 namespace Reveries.Integration.Isbndb.Services;
 
-public class IsbndbAuthorService : IIsbndbAuthorService
+public class IsbndbAuthorService : IAuthorSearch
 {
     private readonly IIsbndbAuthorClient _authorClient;
     private readonly ILogger<IsbndbAuthorService> _logger;

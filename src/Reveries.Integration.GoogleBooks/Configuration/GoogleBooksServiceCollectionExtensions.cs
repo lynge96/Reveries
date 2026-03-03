@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Reveries.Application.Interfaces.GoogleBooks;
+using Reveries.Application.Interfaces.Books;
 using Reveries.Integration.GoogleBooks.Services;
 
 namespace Reveries.Integration.GoogleBooks.Configuration;
@@ -16,7 +16,7 @@ public static class GoogleBooksServiceCollectionExtensions
             .ValidateOnStart();
         
         services.AddGoogleBooksClients();
-        services.AddScoped<IGoogleBooksService, GoogleBooksService>();
+        services.AddScoped<IGoogleBookSearch, GoogleBookSearch>();
         
         return services;
     }

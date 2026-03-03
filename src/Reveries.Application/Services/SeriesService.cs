@@ -1,11 +1,10 @@
 using Reveries.Application.Exceptions;
-using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
 
-public class SeriesService : ISeriesService
+public class SeriesService
 {
     private readonly IUnitOfWork _unitOfWork;
 

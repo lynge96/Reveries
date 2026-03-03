@@ -1,11 +1,10 @@
 using Reveries.Application.Interfaces.Cache;
-using Reveries.Application.Interfaces.Services;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Services;
 
-public class BookReadStatusService : IBookReadStatusService
+public class BookReadStatusService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBookCacheService _cache;

@@ -1,18 +1,18 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Exceptions;
-using Reveries.Application.Interfaces.Services;
 using Reveries.Application.Mappers;
 using Reveries.Application.Queries.Abstractions;
+using Reveries.Application.Services;
 
 namespace Reveries.Application.Queries.GetBookByIsbns;
 
 public sealed class GetBooksByIsbnsHandler : IQueryHandler<GetBooksByIsbnsQuery, List<BookDetailsReadModel>>
 {
-    private readonly IBookLookupService _bookLookupService;
+    private readonly BookLookupService _bookLookupService;
     private readonly ILogger<GetBooksByIsbnsHandler> _logger;
     
     public GetBooksByIsbnsHandler(
-        IBookLookupService bookLookupService,
+        BookLookupService bookLookupService,
         ILogger<GetBooksByIsbnsHandler> logger)
     {
         _bookLookupService = bookLookupService;
