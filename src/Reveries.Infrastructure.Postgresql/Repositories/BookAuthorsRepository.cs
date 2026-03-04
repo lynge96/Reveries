@@ -3,31 +3,30 @@ using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 
-namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
+namespace Reveries.Infrastructure.Postgresql.Repositories;
 
-public class BookGenresRepository : IBookGenresRepository
+public class BookAuthorsRepository : IBookAuthorsRepository
 {
     private readonly IDbContext _dbContext;
     
-    public BookGenresRepository(IDbContext dbContext)
+    public BookAuthorsRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(int bookId, IEnumerable<GenreWithId> genres)
+    public async Task AddAsync(int bookId, IEnumerable<AuthorWithId> authors)
     {
         const string sql = """
-                           INSERT INTO library.books_genres (book_id, genre_id)
-                           VALUES (@BookId, @GenreId)
+                           INSERT INTO library.books_authors (book_id, author_id)
+                           VALUES (@BookId, @AuthorId)
                            ON CONFLICT DO NOTHING;
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var parameters = genres
-            .Select(g => new { BookId = bookId, GenreId = g.DbId });
+        var parameters = authors
+            .Select(a => new { BookId = bookId, AuthorId = a.DbId });
         
         await connection.ExecuteAsync(sql, parameters);
     }
-
 }

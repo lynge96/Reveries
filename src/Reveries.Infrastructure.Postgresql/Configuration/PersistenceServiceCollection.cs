@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Reveries.Core.Interfaces.IRepository;
-using Reveries.Infrastructure.Postgresql.Persistence.Repositories;
+using Reveries.Infrastructure.Postgresql.Repositories;
 
 namespace Reveries.Infrastructure.Postgresql.Configuration;
 

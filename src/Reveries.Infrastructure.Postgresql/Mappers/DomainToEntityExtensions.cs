@@ -84,7 +84,7 @@ public static class DomainToEntityExtensions
     {
         return new GenreEntity
         {
-            Name = model.Value
+            GenreName = model.Value
         };
     }
 

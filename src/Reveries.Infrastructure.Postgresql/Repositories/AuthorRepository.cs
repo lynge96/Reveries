@@ -6,7 +6,7 @@ using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
-namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
+namespace Reveries.Infrastructure.Postgresql.Repositories;
 
 public class AuthorRepository : IAuthorRepository
 {

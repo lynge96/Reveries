@@ -3,7 +3,7 @@ using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 
-namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
+namespace Reveries.Infrastructure.Postgresql.Repositories;
 
 public class BookDeweyDecimalsRepository : IBookDeweyDecimalsRepository
 {

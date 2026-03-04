@@ -7,7 +7,7 @@ using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
-namespace Reveries.Infrastructure.Postgresql.Persistence.Repositories;
+namespace Reveries.Infrastructure.Postgresql.Repositories;
 
 public class BookRepository : IBookRepository
 {
@@ -206,7 +206,7 @@ public class BookRepository : IBookRepository
 
         await connection.QueryAsync<BookEntity, PublisherEntity, AuthorEntity?, GenreEntity?, DeweyDecimalEntity?, SeriesEntity, BookEntity>(
             sql,
-            (bookEntity, publisherEntity, authorEntity, subjectEntity, deweyDecimalEntity, seriesEntity) =>
+            (bookEntity, publisherEntity, authorEntity, genreEntity, deweyDecimalEntity, seriesEntity) =>
             {
                 if (!bookDictionary.TryGetValue(bookEntity.Id, out var bookAggregateEntity))
                 {
@@ -222,8 +222,8 @@ public class BookRepository : IBookRepository
                 if (authorEntity != null && bookAggregateEntity.Authors != null && bookAggregateEntity.Authors.All(a => a.AuthorId != authorEntity.AuthorId))
                     bookAggregateEntity.Authors.Add(authorEntity);
 
-                if (subjectEntity != null && bookAggregateEntity.Genres != null && bookAggregateEntity.Genres.All(s => s.GenreId != subjectEntity.GenreId))
-                    bookAggregateEntity.Genres.Add(subjectEntity);
+                if (genreEntity != null && bookAggregateEntity.Genres != null && bookAggregateEntity.Genres.All(s => s.GenreId != genreEntity.GenreId))
+                    bookAggregateEntity.Genres.Add(genreEntity);
 
                 if (deweyDecimalEntity != null && bookAggregateEntity.DeweyDecimals != null && bookAggregateEntity.DeweyDecimals.All(dd => dd.Code != deweyDecimalEntity.Code))
                 {

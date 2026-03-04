@@ -52,7 +52,7 @@ public static class EntityToDomainExtensions
 
     public static Genre ToDomain(this GenreEntity entity)
     {
-        return Genre.Create(entity.Name);
+        return Genre.Create(entity.GenreName);
     }
 
     public static DeweyDecimal ToDomain(this DeweyDecimalEntity entity)
