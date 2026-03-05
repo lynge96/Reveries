@@ -110,6 +110,9 @@ volumes:
   postgres_data:
   redis_data:
   redisinsight_data:
+    
 networks:
   redis-network:
+    driver: bridge
+  backend:
     driver: bridge
