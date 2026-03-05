@@ -1,4 +1,44 @@
 services:
+  api:
+    build:
+      context: .
+      dockerfile: src/Reveries.Api/Dockerfile
+    container_name: reveries-api
+    ports:
+      - "8080:8080"
+    environment:
+      Postgres__Host: postgres
+      Postgres__Port: 5432
+      Postgres__Database: ${POSTGRES_DB}
+      Postgres__Username: ${POSTGRES_USER}
+      Postgres__Password: ${POSTGRES_PASSWORD}
+  
+      Redis__Host: redis
+      Redis__Port: 6379
+      Redis__Password: ${REDIS_PASSWORD}
+  
+      ExternalApis__Isbndb__ApiKey: ${ISBNDB_API_KEY}
+      ExternalApis__GoogleBooks__ApiKey: ${GOOGLEBOOKS_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - backend
+
+  bookscanner:
+    build:
+      context: .
+      dockerfile: src/Reveries.Blazor.BookScanner/Dockerfile
+    container_name: reveries-bookscanner
+    ports:
+      - "8081:8080"
+    environment:
+      Api__BaseUrl: http://api:8080
+    depends_on:
+      - api
+    networks:
+      - backend
+  
   postgres:
     image: postgres:18
     container_name: reveries-postgres

@@ -20,7 +20,7 @@ public class BookApiClient
             if (string.IsNullOrWhiteSpace(isbn))
                 throw new ArgumentException("ISBN is required.");
         
-            var response = await _httpClient.GetAsync($"books/{isbn}");
+            var response = await _httpClient.GetAsync($"/api/v1/books/{isbn}");
 
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadFromJsonAsync<BookDetailsDto>();
@@ -69,7 +69,7 @@ public class BookApiClient
                 DataSource = bookDetailsReadModel.DataSource
             };
             
-            var response = await _httpClient.PostAsJsonAsync("books", createBookRequest);
+            var response = await _httpClient.PostAsJsonAsync("/api/v1/books", createBookRequest);
 
             if (response.IsSuccessStatusCode)
             {
