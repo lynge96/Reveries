@@ -9,16 +9,16 @@ services:
     environment:
       Postgres__Host: postgres
       Postgres__Port: 5432
-      Postgres__Database: ${Postgres__Database}
-      Postgres__Username: ${Postgres__Username}
-      Postgres__Password: ${Postgres__Password}
+      Postgres__Database: ${POSTGRES_DATABASE}
+      Postgres__Username: ${POSTGRES_USERNAME}
+      Postgres__Password: ${POSTGRES_PASSWORD}
   
       Redis__Host: redis
       Redis__Port: 6379
-      Redis__Password: ${Redis__Password}
+      Redis__Password: ${REDIS_PASSWORD}
   
-      ExternalApis__Isbndb__ApiKey: ${ExternalApis__Isbndb__ApiKey}
-      ExternalApis__GoogleBooks__ApiKey: ${ExternalApis__GoogleBooks__ApiKey}
+      ExternalApis__Isbndb__ApiKey: ${EXTERNALAPIS_ISBNDB_APIKEY}
+      ExternalApis__GoogleBooks__ApiKey: ${EXTERNALAPIS_GOOGLEBOOKS_APIKEY}
     depends_on:
       - postgres
       - redis
@@ -44,9 +44,9 @@ services:
     container_name: reveries-postgres
     restart: always
     environment:
-      Postgres__Database: ${Postgres__Database}
-      Postgres__Username: ${Postgres__Username}
-      Postgres__Password: ${Postgres__Password}
+      Postgres__Database: ${POSTGRES_DATABASE}
+      Postgres__Username: ${POSTGRES_USERNAME}
+      Postgres__Password: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -67,7 +67,7 @@ services:
     volumes:
       - redis_data:/data
     environment:
-      Redis__Password: ${Redis__Password}
+      Redis__Password: ${REDIS_PASSWORD}
     networks:
       - redis-network
     healthcheck:
