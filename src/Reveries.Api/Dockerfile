@@ -19,9 +19,9 @@ RUN dotnet restore "Reveries.Api/Reveries.Api.csproj"
 
 COPY src/ .
 
-WORKDIR /src/Reveries.Api
+WORKDIR "/src/Reveries.Api"
 
-RUN dotnet publish src/Reveries.Api/Reveries.Api.csproj  \
+RUN dotnet publish "Reveries.Api.csproj"  \
     -c Release  \
     -o /app/publish  \
     /p:UseAppHost=false

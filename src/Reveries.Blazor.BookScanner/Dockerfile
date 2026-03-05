@@ -13,9 +13,9 @@ RUN dotnet restore "Reveries.Blazor.BookScanner/Reveries.Blazor.BookScanner.cspr
 
 COPY src/ .
 
-WORKDIR /src/Reveries.Blazor.BookScanner
+WORKDIR "/src/Reveries.Blazor.BookScanner"
 
-RUN dotnet publish src/Reveries.Blazor.BookScanner/Reveries.Blazor.BookScanner.csproj  \
+RUN dotnet publish "Reveries.Blazor.BookScanner.csproj"  \
     -c Release  \
     -o /app/publish  \
     /p:UseAppHost=false
