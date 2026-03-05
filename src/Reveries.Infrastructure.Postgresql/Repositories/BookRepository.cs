@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
@@ -6,6 +7,7 @@ using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
+using Reveries.Infrastructure.Postgresql.Views;
 
 namespace Reveries.Infrastructure.Postgresql.Repositories;
 
@@ -110,10 +112,8 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM library.book_details
-                           WHERE normalizedName ILIKE ANY(@Patterns)
-                              OR firstName ILIKE ANY(@Patterns)
-                              OR lastName ILIKE ANY(@Patterns)
+                           FROM library.book_details_flat
+                           WHERE authors ILIKE ANY(@Patterns)
                            """;
 
         var patterns = authorNames
@@ -128,8 +128,8 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM library.book_details
-                           WHERE publisherName ILIKE @Pattern
+                           FROM library.book_details_flat
+                           WHERE "publisherName" ILIKE @Pattern
                            """;
 
         var pattern = $"%{publisherName.Trim()}%";
@@ -144,7 +144,7 @@ public class BookRepository : IBookRepository
 
         const string sql = """
                            SELECT *
-                           FROM library.book_details
+                           FROM library.book_details_flat
                            WHERE title ILIKE ANY(@Patterns)
                            """;
 
@@ -160,7 +160,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM library.book_details
+                           FROM library.book_details_flat
                            WHERE isbn13 = ANY(@Isbns)
                               OR isbn10 = ANY(@Isbns)
                            """;
@@ -174,7 +174,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM library.book_details
+                           FROM library.book_details_flat
                            WHERE id = @Id
                            """;
 
@@ -187,7 +187,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM library.book_details
+                           FROM library.book_details_flat
                            """;
         
         return await QueryBooksAsync(sql);
@@ -202,41 +202,75 @@ public class BookRepository : IBookRepository
     private async Task<List<BookAggregateEntity>> GetBookAggregatesAsync(string sql, object? parameters = null)
     {
         var connection = await _dbContext.GetConnectionAsync();
-        var bookDictionary = new Dictionary<int, BookAggregateEntity>();
+        
+        var rows = await connection.QueryAsync<BookDetailsFlat>(sql, parameters);
+        
+        var result = new List<BookAggregateEntity>();
 
-        await connection.QueryAsync<BookEntity, PublisherEntity, AuthorEntity?, GenreEntity?, DeweyDecimalEntity?, SeriesEntity, BookEntity>(
-            sql,
-            (bookEntity, publisherEntity, authorEntity, genreEntity, deweyDecimalEntity, seriesEntity) =>
+        foreach (var row in rows)
+        {
+            var authors = JsonSerializer.Deserialize<List<AuthorEntity>>(row.Authors) ?? [];
+            var genres = JsonSerializer.Deserialize<List<GenreEntity>>(row.Genres) ?? [];
+            var deweyDecimals = row.DeweyCodes
+                .Select(code => new DeweyDecimalEntity { Code = code })
+                .ToList();
+            
+            var aggregate = new BookAggregateEntity
             {
-                if (!bookDictionary.TryGetValue(bookEntity.Id, out var bookAggregateEntity))
+                Book = new BookEntity
                 {
-                    bookAggregateEntity = new BookAggregateEntity
+                    Id = row.Id,
+                    BookDomainId = row.BookDomainId,
+                    Title = row.Title,
+                    Isbn13 = row.Isbn13,
+                    Isbn10 = row.Isbn10,
+                    PublicationDate = row.PublicationDate,
+                    PageCount = row.PageCount,
+                    Synopsis = row.Synopsis,
+                    Language = row.Language,
+                    Edition = row.Edition,
+                    Binding = row.Binding,
+                    CoverImageUrl = row.CoverImageUrl,
+                    ImageThumbnailUrl = row.ImageThumbnailUrl,
+                    Msrp = row.Msrp,
+                    IsRead = row.IsRead,
+                    SeriesNumber = row.SeriesNumber,
+                    HeightCm = row.HeightCm,
+                    WidthCm = row.WidthCm,
+                    ThicknessCm = row.ThicknessCm,
+                    WeightG = row.WeightG,
+                    DateCreatedBook = row.DateCreatedBook
+                },
+
+                Publisher = row.PublisherId == null
+                    ? null
+                    : new PublisherEntity
                     {
-                        Book = bookEntity,
-                        Publisher = publisherEntity,
-                        Series = seriesEntity
-                    };
-                    bookDictionary.Add(bookEntity.Id, bookAggregateEntity);
-                }
-                
-                if (authorEntity != null && bookAggregateEntity.Authors != null && bookAggregateEntity.Authors.All(a => a.AuthorId != authorEntity.AuthorId))
-                    bookAggregateEntity.Authors.Add(authorEntity);
+                        PublisherId = row.PublisherId.Value,
+                        PublisherDomainId = row.PublisherDomainId,
+                        PublisherName = row.PublisherName,
+                        DateCreatedPublisher = row.DateCreatedPublisher
+                    },
 
-                if (genreEntity != null && bookAggregateEntity.Genres != null && bookAggregateEntity.Genres.All(s => s.GenreId != genreEntity.GenreId))
-                    bookAggregateEntity.Genres.Add(genreEntity);
+                Series = row.SeriesId == null
+                    ? null
+                    : new SeriesEntity
+                    {
+                        SeriesId = row.SeriesId.Value,
+                        SeriesDomainId = row.SeriesDomainId,
+                        SeriesName = row.SeriesName,
+                        DateCreatedSeries = row.DateCreatedSeries
+                    },
 
-                if (deweyDecimalEntity != null && bookAggregateEntity.DeweyDecimals != null && bookAggregateEntity.DeweyDecimals.All(dd => dd.Code != deweyDecimalEntity.Code))
-                {
-                    bookAggregateEntity.DeweyDecimals.Add(deweyDecimalEntity);
-                }
-                
-                return bookEntity;
-            },
-            param: parameters,
-            splitOn: "publisherid,authorid,genreid,code,seriesid"
-        );
-
-        return bookDictionary.Values.ToList();
+                Authors = authors,
+                Genres = genres,
+                DeweyDecimals = deweyDecimals
+            };
+            
+            result.Add(aggregate);
+        }
+        
+        return result;
     }
 
 }
