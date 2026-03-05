@@ -12,7 +12,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddIsbndbServices(this IServiceCollection services, IConfiguration config)
     {
         services.AddOptions<IsbndbSettings>()
-            .Bind(config.GetSection("ExternalApis:Isbndb"))
+            .Bind(config.GetSection("Isbndb"))
             .Validate(s => !string.IsNullOrWhiteSpace(s.ApiUrl), "Isbndb: ApiUrl missing")
             .Validate(s => !string.IsNullOrWhiteSpace(s.ApiKey), "Isbndb: ApiKey missing")
             .Validate(s => s.MaxBulkIsbns > 0, "Isbndb: MaxBulkIsbns must be positive")
