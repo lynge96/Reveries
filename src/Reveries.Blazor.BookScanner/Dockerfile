@@ -22,5 +22,5 @@ RUN dotnet publish "Reveries.Blazor.BookScanner.csproj"  \
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "Reveries.Blazor.BookScanner.dll"]
