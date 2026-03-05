@@ -44,9 +44,9 @@ services:
     container_name: reveries-postgres
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      Postgres__Database: ${POSTGRES_DB}
+      Postgres__Username: ${POSTGRES_USER}
+      Postgres__Password: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -67,7 +67,7 @@ services:
     volumes:
       - redis_data:/data
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      REDIS__PASSWORD: ${REDIS_PASSWORD}
     networks:
       - redis-network
     healthcheck:
