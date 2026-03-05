@@ -1,7 +1,7 @@
 services:
   api:
     build:
-      context: .
+      context: ..
       dockerfile: src/Reveries.Api/Dockerfile
     container_name: reveries-api
     ports:
@@ -27,7 +27,7 @@ services:
 
   bookscanner:
     build:
-      context: .
+      context: ..
       dockerfile: src/Reveries.Blazor.BookScanner/Dockerfile
     container_name: reveries-bookscanner
     ports:
