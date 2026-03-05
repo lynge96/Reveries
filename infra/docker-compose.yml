@@ -67,7 +67,7 @@ services:
     volumes:
       - redis_data:/data
     environment:
-      REDIS__PASSWORD: ${Redis__Password}
+      Redis__Password: ${Redis__Password}
     networks:
       - redis-network
     healthcheck:
