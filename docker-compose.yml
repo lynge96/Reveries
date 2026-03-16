@@ -16,7 +16,7 @@ services:
   
   api:
     build:
-      context: ..
+      context: .
       dockerfile: src/Reveries.Api/Dockerfile
     container_name: reveries-api
     environment:
@@ -40,7 +40,7 @@ services:
 
   bookscanner:
     build:
-      context: ..
+      context: .
       dockerfile: src/Reveries.Blazor.BookScanner/Dockerfile
     container_name: reveries-bookscanner
     environment:
