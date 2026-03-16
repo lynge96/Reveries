@@ -19,6 +19,7 @@ services:
       context: .
       dockerfile: src/Reveries.Api/Dockerfile
     container_name: reveries-api
+    restart: always
     environment:
       Postgres__Host: postgres
       Postgres__Port: 5432
@@ -33,8 +34,10 @@ services:
       Isbndb__ApiKey: ${ISBNDB_APIKEY}
       GoogleBooks__ApiKey: ${GOOGLEBOOKS_APIKEY}
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - reveries-network
 
@@ -43,6 +46,7 @@ services:
       context: .
       dockerfile: src/Reveries.Blazor.BookScanner/Dockerfile
     container_name: reveries-bookscanner
+    restart: always
     environment:
       Api__BaseUrl: http://api:8080
     depends_on:
@@ -64,9 +68,14 @@ services:
       - postgres_data:/var/lib/postgresql
     networks:
       - reveries-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
-    image: redis:7
+    image: redis:alpine
     container_name: reveries-redis
     restart: always
     command: [
@@ -93,8 +102,6 @@ services:
     image: redis/redisinsight:latest
     container_name: reveries-redisinsight
     restart: always
-    ports:
-      - "5540:5540"
     volumes:
       - redisinsight_data:/data
     networks:
@@ -105,6 +112,7 @@ services:
   loki:
     image: grafana/loki:3.0.0
     container_name: reveries-loki
+    restart: always
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
@@ -117,8 +125,9 @@ services:
   grafana:
     image: grafana/grafana:10.0.0
     container_name: reveries-grafana
+    restart: always
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=secret
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_SERVER_ROOT_URL=http://raspberrypi/grafana
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
     networks:
