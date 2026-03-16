@@ -115,7 +115,7 @@ services:
 
   grafana:
     image: grafana/grafana:10.0.0
-    container_name: reverues-grafana
+    container_name: reveries-grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=secret
     networks:
