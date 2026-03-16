@@ -118,6 +118,8 @@ services:
     container_name: reveries-grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=secret
+      - GF_SERVER_ROOT_URL=http://raspberrypi/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     networks:
       - reveries-network
 
