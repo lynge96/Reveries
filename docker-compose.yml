@@ -110,6 +110,7 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./infra/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
     networks:
       - reveries-network
 
@@ -127,6 +128,7 @@ volumes:
   postgres_data:
   redis_data:
   redisinsight_data:
+  loki_data:
     
 networks:
   reveries-network:
