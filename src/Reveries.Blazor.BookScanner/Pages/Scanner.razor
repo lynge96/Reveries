@@ -170,7 +170,7 @@
                 StateHasChanged();
                 
                 await Task.Delay(600);
-                Nav.NavigateTo($"/book/{ScannedIsbn}");
+                Nav.NavigateTo($"book/{ScannedIsbn}");
             }
         }
         catch (Exception ex)
