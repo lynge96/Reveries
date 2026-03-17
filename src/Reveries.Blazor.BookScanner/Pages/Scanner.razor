@@ -1,5 +1,4 @@
-﻿@page "/"
-@page "/scanner"
+﻿@page "/scanner"
 <PageTitle>Reveries | Book Scanner</PageTitle>
 @inject IJSRuntime Js
 @inject NavigationManager Nav
@@ -138,6 +137,10 @@
     {
         if (firstRender)
         {
+            var baseUri = Nav.BaseUri;
+            await Js.InvokeVoidAsync("import", $"{baseUri}js/scanner.js");
+            await Js.InvokeVoidAsync("import", $"{baseUri}js/imageLoader.js");
+            await Js.InvokeVoidAsync("import", $"{baseUri}js/site.js");
             _objRef = DotNetObjectReference.Create(this);
             await Js.InvokeVoidAsync("scanner.startContinuousScan", _objRef);
             await Js.InvokeVoidAsync("disableScroll");

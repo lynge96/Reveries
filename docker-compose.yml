@@ -47,8 +47,6 @@ services:
       dockerfile: src/Reveries.Blazor.BookScanner/Dockerfile
     container_name: reveries-bookscanner
     restart: always
-    environment:
-      Api__BaseUrl: http://api:8080
     depends_on:
       - api
     networks:
