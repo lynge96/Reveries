@@ -19,17 +19,8 @@ FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 
 COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
 
-RUN printf 'events {}\n\
-http {\n\
-    include /etc/nginx/mime.types;\n\
-    server {\n\
-        listen 80;\n\
-        location / {\n\
-            root /usr/share/nginx/html;\n\
-            try_files $uri $uri/ /index.html;\n\
-        }\n\
-    }\n\
-}\n' > /etc/nginx/nginx.conf
+RUN sed -i 's|<base href="/" />|<base href="/scanner/" />|' /usr/share/nginx/html/index.html
 
 EXPOSE 80
