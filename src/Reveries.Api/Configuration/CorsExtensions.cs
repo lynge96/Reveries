@@ -13,6 +13,14 @@ public static class CorsExtensions
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             });
+
+            options.AddPolicy("Production", policy =>
+            {
+                policy
+                    .WithOrigins("https://raspberrypi:8443")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
         });
 
         return services;
