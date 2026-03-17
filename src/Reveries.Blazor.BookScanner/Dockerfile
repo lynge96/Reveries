@@ -20,8 +20,6 @@ WORKDIR /usr/share/nginx/html
 
 COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
 
-RUN sed -i 's|<base href="/" />|<base href="/scanner/" />|' /usr/share/nginx/html/index.html
-
 RUN printf 'events {}\n\
 http {\n\
     include /etc/nginx/mime.types;\n\
