@@ -104,6 +104,8 @@ services:
       - redisinsight_data:/data
     networks:
       - reveries-network
+    environment:
+      - RIPROXYPATH=/redis
     depends_on:
       - redis
   
