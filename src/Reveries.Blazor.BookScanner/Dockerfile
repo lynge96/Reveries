@@ -21,4 +21,6 @@ WORKDIR /usr/share/nginx/html
 COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
 COPY src/Reveries.Blazor.BookScanner/nginx.conf /etc/nginx/nginx.conf
 
+RUN sed -i 's|<base href="/" />|<base href="/scanner/" />|' /usr/share/nginx/html/index.html
+
 EXPOSE 80
