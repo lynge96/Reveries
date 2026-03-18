@@ -1,5 +1,4 @@
 ﻿@page "/"
-@page "/scanner"
 <PageTitle>Reveries | Book Scanner</PageTitle>
 @inject IJSRuntime Js
 @inject NavigationManager Nav
@@ -156,7 +155,6 @@
         _isProcessing = true;
         ScannedIsbn = scannedIsbn;
         _errorMessage = null;
-        await Task.Delay(600);
         
         try
         {
@@ -170,7 +168,7 @@
                 StateHasChanged();
                 
                 await Task.Delay(600);
-                Nav.NavigateTo($"scanner/book/{ScannedIsbn}");
+                Nav.NavigateTo($"book/{ScannedIsbn}");
             }
         }
         catch (Exception ex)

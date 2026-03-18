@@ -1,4 +1,4 @@
-@page "/scanner/book/{Isbn}"
+@page "/book/{Isbn}"
 @using Reveries.Contracts.Books
 <PageTitle>Reveries | @(_book?.Title ?? "Book Details")</PageTitle>
 @inject BookApiClient BooksApi
