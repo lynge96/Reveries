@@ -12,7 +12,8 @@ WORKDIR "/src/Reveries.Blazor.BookScanner"
 
 RUN dotnet publish "Reveries.Blazor.BookScanner.csproj" \
     -c Release \
-    -o /app/publish
+    -o /app/publish \
+    -p:PathBase=/app
 
 FROM nginx:alpine
 
