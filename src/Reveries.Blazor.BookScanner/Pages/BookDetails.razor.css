@@ -114,14 +114,14 @@
     font-size: 1.2rem;
 }
 
-.subject-badges {
+.genre-badges {
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
     margin-top: 0.5rem;
 }
 
-.subject-badge {
+.genre-badge {
     font-weight: 500;
     border-radius: 0.5rem;
     padding: 0.2em 0.5em;
@@ -239,11 +239,11 @@
         font-size: 1.1rem;
     }
     
-    .subject-badges {
+    .genre-badges {
         gap: 0.4rem;
     }
 
-    .subject-badge {
+    .genre-badge {
         font-size: 0.8rem;
     }
 

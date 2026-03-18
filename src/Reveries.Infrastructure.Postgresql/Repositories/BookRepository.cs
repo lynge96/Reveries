@@ -20,7 +20,7 @@ public class BookRepository : IBookRepository
         _dbContext = dbContext;
     }
 
-    public async Task<int> AddAsync(Book book, int? publisherId, int? seriesId)
+    public async Task<int> AddAsync(Book book, int? publisherId, int? seriesId, CancellationToken ct)
     {
         const string sql = """
                            INSERT INTO library.books (domain_id, isbn13, isbn10, title, page_count, is_read, publisher_id,
@@ -34,16 +34,21 @@ public class BookRepository : IBookRepository
                            RETURNING id;
                            """;
         
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
         
         var bookEntity = book.ToDbModel(publisherId, seriesId);
         
-        var id = await connection.ExecuteScalarAsync<int>(sql, bookEntity);
+        var id = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                sql, 
+                bookEntity, 
+                cancellationToken: ct)
+        );
 
         return id;
     }
     
-    public async Task<BookWithId?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null)
+    public async Task<BookWithId?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
@@ -54,21 +59,35 @@ public class BookRepository : IBookRepository
                            LIMIT 1
                            """;
     
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var row = await connection.QueryFirstOrDefaultAsync<BookEntity>(sql, new
-        {
-            Isbn13 = isbn13?.Value, 
-            Isbn10 = isbn10?.Value
-        });
+        var row = await connection.QueryFirstOrDefaultAsync<BookEntity>(
+            new CommandDefinition(
+                sql, 
+                new { Isbn13 = isbn13?.Value, Isbn10 = isbn10?.Value }, 
+                cancellationToken: ct)
+        );
     
         if (row == null)
             return null;
         
         return new BookWithId(row.ToDomain(), row.Id);
     }
-    
-    public async Task UpdateBookSeriesAsync(BookWithId book, int seriesId)
+
+    public async Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct)
+    {
+        const string sql = "SELECT EXISTS (SELECT 1 FROM library.books WHERE isbn13 = @Isbn OR isbn10 = @Isbn)";
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        
+        return await connection.QuerySingleAsync<bool>(
+            new CommandDefinition(
+                sql, 
+                new { Isbn = isbn.Value }, 
+                cancellationToken: ct)
+        );
+    }
+
+    public async Task UpdateBookSeriesAsync(BookWithId book, int seriesId, CancellationToken ct)
     {
         const string sql = """
                            UPDATE library.books
@@ -77,17 +96,17 @@ public class BookRepository : IBookRepository
                            WHERE id = @Id
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
 
-        await connection.ExecuteAsync(sql, new
-        {
-            Id = book.DbId,
-            SeriesId = seriesId,
-            NumberInSeries = book.Book.SeriesNumber
-        });
+    await connection.ExecuteAsync(
+        new CommandDefinition(
+            sql, 
+            new { Id = book.DbId, SeriesId = seriesId, SeriesNumber = book.Book.SeriesNumber }, 
+            cancellationToken: ct)
+    );
     }
 
-    public async Task UpdateBookReadStatusAsync(Book book)
+    public async Task UpdateBookReadStatusAsync(Book book, CancellationToken ct)
     {
         const string sql = """
                            UPDATE library.books
@@ -95,20 +114,24 @@ public class BookRepository : IBookRepository
                            WHERE domain_id = @Id
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
 
-        await connection.ExecuteAsync(sql, new { book.IsRead, book.Id });
+        await connection.ExecuteAsync(new CommandDefinition(
+            sql, 
+            new { book.IsRead, book.Id },
+            cancellationToken: ct)
+        );
     }
 
-    public async Task<List<Book>> GetBooksByAuthorAsync(string authorName)
+    public async Task<List<Book>> GetBooksByAuthorAsync(string authorName, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(authorName))
             return [];
         
-        return await GetBooksByAuthorsAsync(new List<string> { authorName });
+        return await GetBooksByAuthorsAsync(new List<string> { authorName }, ct);
     }
     
-    public async Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<string> authorNames)
+    public async Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<string> authorNames, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
@@ -121,10 +144,10 @@ public class BookRepository : IBookRepository
             .Select(n => $"%{n.Trim()}%")
             .ToList();
 
-        return await QueryBooksAsync(sql, new { Patterns = patterns });
+        return await QueryBooksAsync(sql, new { Patterns = patterns }, ct: ct);
     }
 
-    public async Task<List<Book>> GetBooksByPublisherAsync(string publisherName)
+    public async Task<List<Book>> GetBooksByPublisherAsync(string publisherName, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
@@ -134,10 +157,10 @@ public class BookRepository : IBookRepository
 
         var pattern = $"%{publisherName.Trim()}%";
 
-        return await QueryBooksAsync(sql, new { Pattern = pattern });
+        return await QueryBooksAsync(sql, new { Pattern = pattern }, ct: ct);
     }
 
-    public async Task<List<Book>> GetDetailedBooksByTitleAsync(List<string>? bookTitles)
+    public async Task<List<Book>> GetDetailedBooksByTitleAsync(List<string>? bookTitles, CancellationToken ct)
     {
         if (bookTitles == null || bookTitles.Count == 0)
             return new List<Book>();
@@ -153,10 +176,10 @@ public class BookRepository : IBookRepository
             .Select(t => $"%{t.Trim()}%")
             .ToList();
 
-        return await QueryBooksAsync(sql, new { Patterns = patterns });
+        return await QueryBooksAsync(sql, new { Patterns = patterns }, ct: ct);
     }
     
-    public async Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<Isbn> isbns)
+    public async Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
@@ -167,10 +190,10 @@ public class BookRepository : IBookRepository
 
         var isbnList = isbns.Select(i => i.Value).ToList();
         
-        return await QueryBooksAsync(sql, new { Isbns = isbnList });
+        return await QueryBooksAsync(sql, new { Isbns = isbnList }, ct: ct);
     }
 
-    public async Task<Book?> GetBookByIdAsync(int id)
+    public async Task<Book?> GetBookByIdAsync(int id, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
@@ -178,32 +201,34 @@ public class BookRepository : IBookRepository
                            WHERE id = @Id
                            """;
 
-        var bookList = await QueryBooksAsync(sql, new { Id = id });
+        var bookList = await QueryBooksAsync(sql, new { Id = id }, ct: ct);
         
         return bookList.FirstOrDefault();
     }
 
-    public async Task<List<Book>> GetAllBooksAsync()
+    public async Task<List<Book>> GetAllBooksAsync(CancellationToken ct)
     {
         const string sql = """
                            SELECT *
                            FROM library.book_details_flat
                            """;
         
-        return await QueryBooksAsync(sql);
+        return await QueryBooksAsync(sql, ct: ct);
     }
     
-    private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null)
+    private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null, CancellationToken ct = default)
     {
-        var bookAggregateList = await GetBookAggregatesAsync(sql, parameters);
+        var bookAggregateList = await GetBookAggregatesAsync(sql, parameters, ct);
         return bookAggregateList.Select(BookAggregateMapperExtensions.ToDomainAggregate).ToList();
     }
     
-    private async Task<List<BookAggregateEntity>> GetBookAggregatesAsync(string sql, object? parameters = null)
+    private async Task<List<BookAggregateEntity>> GetBookAggregatesAsync(string sql, object? parameters = null, CancellationToken ct = default)
     {
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
         
-        var rows = await connection.QueryAsync<BookDetailsFlat>(sql, parameters);
+        var rows = await connection.QueryAsync<BookDetailsFlat>(
+            new CommandDefinition(sql, parameters, cancellationToken: ct)
+        );
         
         var result = new List<BookAggregateEntity>();
 

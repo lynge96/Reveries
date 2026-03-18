@@ -4,22 +4,22 @@ using Reveries.Application.Mappers;
 using Reveries.Application.Queries.Abstractions;
 using Reveries.Application.Services;
 
-namespace Reveries.Application.Queries.GetBookByIsbn;
+namespace Reveries.Application.Queries.BookByIsbn;
 
-public sealed class GetBookByIsbnHandler : IQueryHandler<GetBookByIsbnQuery, BookDetailsReadModel>
+public sealed class BookByIsbnHandler : IQueryHandler<BookByIsbnQuery, BookDetailsReadModel>
 {
     private readonly BookLookupService _bookLookupService;
-    private readonly ILogger<GetBookByIsbnHandler> _logger;
+    private readonly ILogger<BookByIsbnHandler> _logger;
     
-    public GetBookByIsbnHandler(
+    public BookByIsbnHandler(
         BookLookupService bookLookupService,
-        ILogger<GetBookByIsbnHandler> logger)
+        ILogger<BookByIsbnHandler> logger)
     {
         _bookLookupService = bookLookupService;
         _logger = logger;
     }
     
-    public async Task<BookDetailsReadModel> HandleAsync(GetBookByIsbnQuery query, CancellationToken ct)
+    public async Task<BookDetailsReadModel> HandleAsync(BookByIsbnQuery query, CancellationToken ct)
     {
         var isbn = query.Isbn;
         var book = await _bookLookupService.FindBookByIsbnAsync(isbn, ct);

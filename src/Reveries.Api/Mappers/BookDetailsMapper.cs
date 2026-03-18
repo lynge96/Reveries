@@ -11,7 +11,7 @@ public static class BookDetailsMapper
 
         return new BookDetailsDto
         {
-            Id = book.Id,
+            BookId = book.Id,
             Isbn10 = book.Isbn10,
             Isbn13 = book.Isbn13,
             Title = book.Title,

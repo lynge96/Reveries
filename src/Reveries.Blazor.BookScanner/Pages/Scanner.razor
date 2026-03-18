@@ -4,7 +4,6 @@
 @inject NavigationManager Nav
 @inject BookApiClient BooksApi
 @inject BookState BookState
-@using Reveries.Contracts.Books
 @implements IDisposable
 
 <div class="scanner-page mt-4 d-flex justify-content-center">
@@ -155,6 +154,7 @@
         _isProcessing = true;
         ScannedIsbn = scannedIsbn;
         _errorMessage = null;
+        StateHasChanged();
         
         try
         {
@@ -165,31 +165,22 @@
                 await Js.InvokeVoidAsync("preloadImage", _bookDto.CoverImageUrl);    // Preloading image
                 
                 BookState.SetBook(_bookDto);
-                StateHasChanged();
-                
-                await Task.Delay(600);
+                await Task.Delay(500);
                 Nav.NavigateTo($"book/{ScannedIsbn}");
             }
         }
         catch (Exception ex)
         {
-            switch (ex)
+            _errorMessage = ex switch
             {
-                case ApiConnectionException:
-                    _errorMessage = ex.Message;
-                    break;
-                case ApiException { StatusCode: HttpStatusCode.BadRequest }:
-                    _errorMessage = scannedIsbn.Length is not (10 or 13)
+                ApiConnectionException => ex.Message,
+                ApiException { StatusCode: HttpStatusCode.BadRequest } =>
+                    scannedIsbn.Length is not (10 or 13)
                         ? "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN."
-                        : "Invalid ISBN number. Please check the number and try again.";
-                    break;
-                case ApiException { StatusCode: HttpStatusCode.NotFound }:
-                    _errorMessage = "The book was not found. Try a different ISBN number.";
-                    break;
-                default:
-                    _errorMessage = "An unexpected error occurred. Please try again later.";
-                    break;
-            }
+                        : "Invalid ISBN number. Please check the number and try again.",
+                ApiException { StatusCode: HttpStatusCode.NotFound } => "The book was not found. Try a different ISBN number.",
+                _ => "An unexpected error occurred. Please try again later."
+            };
             
             _bookDto = null;
             BookState.Clear();

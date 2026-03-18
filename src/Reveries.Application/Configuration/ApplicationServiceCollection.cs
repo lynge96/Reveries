@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Reveries.Application.Commands.CreateBook;
 using Reveries.Application.Commands.SetBookSeries;
-using Reveries.Application.Queries.GetAllBooks;
-using Reveries.Application.Queries.GetBookByDbId;
-using Reveries.Application.Queries.GetBookByIsbn;
-using Reveries.Application.Queries.GetBookByIsbns;
+using Reveries.Application.Queries.AllBooks;
+using Reveries.Application.Queries.BookByDbId;
+using Reveries.Application.Queries.BookByIsbn;
+using Reveries.Application.Queries.BookExists;
+using Reveries.Application.Queries.BooksByIsbns;
 using Reveries.Application.Services;
 
 namespace Reveries.Application.Configuration;
@@ -18,10 +19,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<SetBookSeriesHandler>();
 
         // Queries
-        services.AddScoped<GetBookByIsbnHandler>();
-        services.AddScoped<GetBooksByIsbnsHandler>();
-        services.AddScoped<GetBookByDbIdHandler>();
-        services.AddScoped<GetAllBooksHandler>();
+        services.AddScoped<BookByIsbnHandler>();
+        services.AddScoped<BooksByIsbnsHandler>();
+        services.AddScoped<BookByDbIdHandler>();
+        services.AddScoped<AllBooksHandler>();
+        services.AddScoped<BookExistsHandler>();
         
         // Services
         services.AddScoped<BookPersistenceService>();

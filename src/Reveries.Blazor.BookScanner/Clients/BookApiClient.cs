@@ -12,73 +12,44 @@ public class BookApiClient
     {
         _httpClient = httpClient;
     }
-    
+
     public async Task<BookDetailsDto?> GetAsync(string isbn)
     {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(isbn))
-                throw new ArgumentException("ISBN is required.");
-        
-            var response = await _httpClient.GetAsync($"/api/v1/books/{isbn}");
+        if (string.IsNullOrWhiteSpace(isbn))
+            throw new ArgumentException("ISBN is required.");
 
-            if (response.IsSuccessStatusCode)
-                return await response.Content.ReadFromJsonAsync<BookDetailsDto>();
+        var response = await SendAsync(() => _httpClient.GetAsync($"api/v1/books/{isbn}"));
 
-            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
-            throw new ApiException(error?.Message ?? "Unknown error", response.StatusCode);
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode is null)
-        {
-            throw new ApiConnectionException("Could not establish a connection to the API.", ex);
-        }
-        catch (TaskCanceledException ex)
-        {
-            throw new ApiConnectionException("The API request timed out.", ex);
-        }
+        if (response.IsSuccessStatusCode)
+            return await response.Content.ReadFromJsonAsync<BookDetailsDto>();
+
+        var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+        throw new ApiException(error?.Message ?? "Unknown error", response.StatusCode);
     }
 
-    public async Task<int> CreateAsync(BookDetailsDto bookDetailsReadModel)
+    public async Task<bool> ExistsAsync(string isbn)
+    {
+        var response = await SendAsync(() => _httpClient.GetAsync($"api/v1/books/{isbn}/exists"));
+        return response.IsSuccessStatusCode && await response.Content.ReadFromJsonAsync<bool>();
+    }
+
+    public async Task<int> CreateAsync(BookDetailsDto book)
+    {
+        var request = MapToRequest(book);
+        var response = await SendAsync(() => _httpClient.PostAsJsonAsync("api/v1/books", request));
+
+        if (response.IsSuccessStatusCode)
+            return await response.Content.ReadFromJsonAsync<int>();
+
+        var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+        throw new ApiException(error?.Message ?? "Unknown API error", response.StatusCode);
+    }
+
+    private static async Task<HttpResponseMessage> SendAsync(Func<Task<HttpResponseMessage>> request)
     {
         try
         {
-            var createBookRequest = new CreateBookRequest
-            {
-                Isbn13 = bookDetailsReadModel.Isbn13,
-                Isbn10 = bookDetailsReadModel.Isbn10,
-                Title = bookDetailsReadModel.Title,
-                Authors = bookDetailsReadModel.Authors,
-                Publisher = bookDetailsReadModel.Publisher,
-                Pages = bookDetailsReadModel.Pages,
-                Language = bookDetailsReadModel.Language,
-                PublicationDate = bookDetailsReadModel.PublicationDate,
-                Synopsis = bookDetailsReadModel.Synopsis,
-                ImageUrl = bookDetailsReadModel.CoverImageUrl,
-                ImageThumbnail = bookDetailsReadModel.ImageThumbnailUrl,
-                Msrp = bookDetailsReadModel.Msrp,
-                Binding = bookDetailsReadModel.Binding,
-                Edition = bookDetailsReadModel.Edition,
-                Genres = bookDetailsReadModel.Genres,
-                Series = bookDetailsReadModel.Series,
-                NumberInSeries = bookDetailsReadModel.NumberInSeries,
-                DeweyDecimals = bookDetailsReadModel.DeweyDecimals,
-                HeightCm = bookDetailsReadModel.HeightCm,
-                WidthCm = bookDetailsReadModel.WidthCm,
-                ThicknessCm = bookDetailsReadModel.ThicknessCm,
-                WeightG = bookDetailsReadModel.WeightG,
-                DataSource = bookDetailsReadModel.DataSource
-            };
-            
-            var response = await _httpClient.PostAsJsonAsync("/api/v1/books", createBookRequest);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var bookId = await response.Content.ReadFromJsonAsync<int>();
-                return bookId;
-            }
-
-            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
-            throw new ApiException(error?.Message ?? "Unknown API error", response.StatusCode);
+            return await request();
         }
         catch (HttpRequestException ex) when (ex.StatusCode is null)
         {
@@ -89,5 +60,31 @@ public class BookApiClient
             throw new ApiConnectionException("The API request timed out.", ex);
         }
     }
-    
+
+    private static CreateBookRequest MapToRequest(BookDetailsDto book) => new()
+    {
+        Isbn13 = book.Isbn13,
+        Isbn10 = book.Isbn10,
+        Title = book.Title,
+        Authors = book.Authors,
+        Publisher = book.Publisher,
+        Pages = book.Pages,
+        Language = book.Language,
+        PublicationDate = book.PublicationDate,
+        Synopsis = book.Synopsis,
+        ImageUrl = book.CoverImageUrl,
+        ImageThumbnail = book.ImageThumbnailUrl,
+        Msrp = book.Msrp,
+        Binding = book.Binding,
+        Edition = book.Edition,
+        Genres = book.Genres,
+        Series = book.Series,
+        NumberInSeries = book.NumberInSeries,
+        DeweyDecimals = book.DeweyDecimals,
+        HeightCm = book.HeightCm,
+        WidthCm = book.WidthCm,
+        ThicknessCm = book.ThicknessCm,
+        WeightG = book.WeightG,
+        DataSource = book.DataSource
+    };
 }

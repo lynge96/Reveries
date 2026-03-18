@@ -100,7 +100,7 @@ public class BookLookupService
         List<Book> databaseBooks = [];
         if (missingTitles.Count > 0)
         {
-            databaseBooks = await _unitOfWork.Books.GetDetailedBooksByTitleAsync(missingTitles);
+            databaseBooks = await _unitOfWork.Books.GetDetailedBooksByTitleAsync(missingTitles, ct);
 
             var foundTitlesInDb = databaseBooks
                 .Select(b => b.Title)
@@ -149,7 +149,7 @@ public class BookLookupService
         
         ct.ThrowIfCancellationRequested();
         
-        var databaseBooks = await _unitOfWork.Books.GetBooksByAuthorAsync(author);
+        var databaseBooks = await _unitOfWork.Books.GetBooksByAuthorAsync(author, ct);
         if (databaseBooks.Count > 0)
             return databaseBooks;
         
@@ -174,7 +174,7 @@ public class BookLookupService
         
         ct.ThrowIfCancellationRequested();
         
-        var databaseBooks = await _unitOfWork.Books.GetBooksByPublisherAsync(publisher);
+        var databaseBooks = await _unitOfWork.Books.GetBooksByPublisherAsync(publisher, ct);
         if (databaseBooks.Count > 0)
             return databaseBooks.ArrangeBooks().ToList();
         
@@ -193,7 +193,7 @@ public class BookLookupService
 
     public async Task<List<Book>> GetAllBooksAsync(CancellationToken ct)
     {
-        var databaseBooks = await _unitOfWork.Books.GetAllBooksAsync();
+        var databaseBooks = await _unitOfWork.Books.GetAllBooksAsync(ct);
         if (databaseBooks.Count == 0)
             return [];
         
@@ -206,11 +206,16 @@ public class BookLookupService
 
     public async Task<Book?> FindBookById(int id, CancellationToken ct)
     {
-        var databaseBook = await _unitOfWork.Books.GetBookByIdAsync(id);
+        var databaseBook = await _unitOfWork.Books.GetBookByIdAsync(id, ct);
         
         _logger.LogInformation("Book lookup by Id completed. Id: {BookId}.", id);
         
         return databaseBook ?? null;
+    }
+
+    public async Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct)
+    {
+        return await _unitOfWork.Books.BookExistsAsync(isbn, ct);
     }
     
     private async Task<LookupResult> GetFromCacheAsync(List<Isbn> isbns, CancellationToken ct)
@@ -235,7 +240,7 @@ public class BookLookupService
             return new LookupResult([], []);
 
         var books = await _unitOfWork.Books
-            .GetDetailedBooksByIsbnsAsync(isbns);
+            .GetDetailedBooksByIsbnsAsync(isbns, ct);
 
         var foundKeys = books
             .Select(BookExtensions.GetIsbnKey)

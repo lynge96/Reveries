@@ -4,22 +4,22 @@ using Reveries.Application.Mappers;
 using Reveries.Application.Queries.Abstractions;
 using Reveries.Application.Services;
 
-namespace Reveries.Application.Queries.GetBookByDbId;
+namespace Reveries.Application.Queries.BookByDbId;
 
-public sealed class GetBookByDbIdHandler : IQueryHandler<GetBookByDbIdQuery, BookDetailsReadModel>
+public sealed class BookByDbIdHandler : IQueryHandler<BookByDbIdQuery, BookDetailsReadModel>
 {
     private readonly BookLookupService _bookLookupService;
-    private readonly ILogger<GetBookByDbIdHandler> _logger;
+    private readonly ILogger<BookByDbIdHandler> _logger;
     
-    public GetBookByDbIdHandler(
+    public BookByDbIdHandler(
         BookLookupService bookLookupService,
-        ILogger<GetBookByDbIdHandler> logger)
+        ILogger<BookByDbIdHandler> logger)
     {
         _bookLookupService = bookLookupService;
         _logger = logger;
     }
     
-    public async Task<BookDetailsReadModel> HandleAsync(GetBookByDbIdQuery query, CancellationToken ct)
+    public async Task<BookDetailsReadModel> HandleAsync(BookByDbIdQuery query, CancellationToken ct)
     {
         var book = await _bookLookupService.FindBookById(query.DbId, ct);
 
