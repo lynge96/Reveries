@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>14</LangVersion>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
   </PropertyGroup>
 
   <ItemGroup>
