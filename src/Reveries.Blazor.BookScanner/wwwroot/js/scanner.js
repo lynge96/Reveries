@@ -4,6 +4,8 @@ window.scanner = {
     lastIsbn: null,
 
     startContinuousScan: function (dotNetObj) {
+        this.dotNetObj = dotNetObj;
+        
         if (this.codeReader) {
             console.warn("Scanner is already running");
             return;
@@ -44,6 +46,7 @@ window.scanner = {
                         if (isValidIsbn(text) && text !== this.lastIsbn) {
                             this.lastIsbn = text;
                             dotNetObj.invokeMethodAsync('OnIsbnScanned', text);
+                            setTimeout(() => { this.lastIsbn = null; }, 3000);
                         }
                     }
                 });
@@ -52,6 +55,10 @@ window.scanner = {
     },
 
     stopContinuousScan: function () {
+        if (this.dotNetObj) {
+            this.dotNetObj.dispose();
+            this.dotNetObj = null;
+        }
         if (this.codeReader) {
             try {
                 this.codeReader.reset();

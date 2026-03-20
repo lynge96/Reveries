@@ -58,7 +58,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         {
             try
             {
-                var response = await _bookClient.SearchBooksAsync(title, languageCode, shouldMatchAll: true, ct);
+                var response = await _bookClient.SearchBooksAsync(title, languageCode, shouldMatchAll: true, ct: ct);
 
                 var bookDtos = response.Books;
 

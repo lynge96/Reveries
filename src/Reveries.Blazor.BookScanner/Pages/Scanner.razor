@@ -182,6 +182,7 @@
                 _ => "An unexpected error occurred. Please try again later."
             };
             
+            _ = Js.InvokeVoidAsync("scanner.resetLastIsbn");
             _bookDto = null;
             BookState.Clear();
             StateHasChanged();

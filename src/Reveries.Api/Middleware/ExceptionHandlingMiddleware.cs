@@ -53,7 +53,7 @@ public class ExceptionHandlingMiddleware
                     depEx.UpstreamStatus,
                     depEx.Message);
                 
-                context.Response.StatusCode = (int)depEx.StatusCode;
+                context.Response.StatusCode = StatusCodes.Status502BadGateway;
                 break;
             }
             case ApplicationException appEx:
@@ -81,7 +81,7 @@ public class ExceptionHandlingMiddleware
                     ErrorMessage: exception.Message
                     );
                 
-                _logger.LogError(domEx, "Domain error {@Error}", errorCtx);
+                _logger.LogWarning(domEx, "Domain error {@Error}", errorCtx);
                 
                 context.Response.StatusCode = 400;
                 break;
