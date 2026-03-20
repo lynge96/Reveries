@@ -13,11 +13,11 @@ public class IsbndbAuthorClient : IsbndbBaseClient, IIsbndbAuthorClient
 
     public async Task<AuthorSearchResponseDto?> SearchAuthorsByNameAsync(string authorName, CancellationToken ct)
     {
-        var endpoint = $"authors/{Uri.EscapeDataString(authorName)}";
         var context = $"author search '{authorName}'";
+        var response = await HttpClient.GetAsync($"authors/{Uri.EscapeDataString(authorName)}", ct);
         
-        return await GetAsync<AuthorSearchResponseDto>(
-            endpoint,
+        return await HandleResponseAsync<AuthorSearchResponseDto>(
+            response,
             context,
             validate: r => r?.Authors is not null,
             ct: ct);
@@ -25,11 +25,11 @@ public class IsbndbAuthorClient : IsbndbBaseClient, IIsbndbAuthorClient
 
     public async Task<AuthorBooksResponseDto?> FetchBooksByAuthorAsync(string authorName, CancellationToken ct)
     {
-        var endpoint = $"authors/{Uri.EscapeDataString(authorName)}";
         var context = $"books by author '{authorName}'";
+        var response = await HttpClient.GetAsync($"author/{Uri.EscapeDataString(authorName)}", ct);
         
-        return await GetAsync<AuthorBooksResponseDto>(
-            endpoint,
+        return await HandleResponseAsync<AuthorBooksResponseDto>(
+            response,
             context,
             ct: ct);
     }

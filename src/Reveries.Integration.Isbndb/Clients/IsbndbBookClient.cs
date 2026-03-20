@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
+﻿using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Reveries.Core.ValueObjects;
 using Reveries.Integration.Isbndb.DTOs.Books;
@@ -15,18 +17,17 @@ public class IsbndbBookClient : IsbndbBaseClient, IIsbndbBookClient
 
     public async Task<IsbndbBookDetailsDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
-        var endpoint = $"book/{isbn.Value}";
+        var response = await HttpClient.GetAsync($"book/{isbn.Value}", ct);
         var context = $"ISBN '{isbn}'";
         
-        return await GetAsync<IsbndbBookDetailsDto>(
-            endpoint,
+        return await HandleResponseAsync<IsbndbBookDetailsDto>(
+            response,
             context,
             validate: r => r?.Book is not null,
             ct: ct);
     }
 
-    public async Task<BooksQueryResponseDto?> SearchBooksAsync(string query, string? languageCode, bool shouldMatchAll,
-        CancellationToken ct)
+    public async Task<BooksQueryResponseDto?> SearchBooksAsync(string query, string? languageCode, bool shouldMatchAll, CancellationToken ct)
     {
         var context = $"query '{query}'";
         var basePath = $"books/{Uri.EscapeDataString(query)}";
@@ -37,10 +38,10 @@ public class IsbndbBookClient : IsbndbBaseClient, IIsbndbBookClient
         if (shouldMatchAll)
             queryParams.Add("shouldMatchAll", "1");
         
-        var endpoint = QueryHelpers.AddQueryString(basePath, queryParams);
+        var response = await HttpClient.GetAsync(QueryHelpers.AddQueryString(basePath, queryParams), ct);
         
-        return await GetAsync<BooksQueryResponseDto>(
-            endpoint,
+        return await HandleResponseAsync<BooksQueryResponseDto>(
+            response,
             context,
             validate: r => r?.Books is not null,
             ct: ct);
@@ -48,13 +49,14 @@ public class IsbndbBookClient : IsbndbBaseClient, IIsbndbBookClient
 
     public async Task<BooksListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
     {
-        const string endpoint = "books";
         const string context = "bulk ISBN lookup";
-        var body = new { isbns = isbns.ToList() };
+        var json = JsonSerializer.Serialize(new { isbns = isbns.ToList() });
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
         
-        return await PostAsync<BooksListResponseDto>(
-            endpoint,
-            body,
+        var response = await HttpClient.PostAsync("books", content, ct);
+        
+        return await HandleResponseAsync<BooksListResponseDto>(
+            response,
             context,
             validate: r => r?.Data is not null,
             ct: ct);
