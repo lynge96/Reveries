@@ -15,9 +15,12 @@ public class IsbndbBookClient : IsbndbBaseClient, IIsbndbBookClient
 
     public async Task<IsbndbBookDetailsDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
+        var endpoint = $"book/{isbn.Value}";
+        var context = $"ISBN '{isbn}'";
+        
         return await GetAsync<IsbndbBookDetailsDto>(
-            $"book/{isbn.Value}",
-            context: $"ISBN '{isbn}'",
+            endpoint,
+            context,
             validate: r => r?.Book is not null,
             ct: ct);
     }
@@ -25,6 +28,7 @@ public class IsbndbBookClient : IsbndbBaseClient, IIsbndbBookClient
     public async Task<BooksQueryResponseDto?> SearchBooksAsync(string query, string? languageCode, bool shouldMatchAll,
         CancellationToken ct)
     {
+        var context = $"query '{query}'";
         var basePath = $"books/{Uri.EscapeDataString(query)}";
         var queryParams = new Dictionary<string, string?>();
         
@@ -32,20 +36,26 @@ public class IsbndbBookClient : IsbndbBaseClient, IIsbndbBookClient
             queryParams.Add("language", languageCode);
         if (shouldMatchAll)
             queryParams.Add("shouldMatchAll", "1");
-
+        
+        var endpoint = QueryHelpers.AddQueryString(basePath, queryParams);
+        
         return await GetAsync<BooksQueryResponseDto>(
-            QueryHelpers.AddQueryString(basePath, queryParams),
-            context: $"query '{query}'",
+            endpoint,
+            context,
             validate: r => r?.Books is not null,
             ct: ct);
     }
 
     public async Task<BooksListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
     {
+        const string endpoint = "books";
+        const string context = "bulk ISBN lookup";
+        var body = new { isbns = isbns.ToList() };
+        
         return await PostAsync<BooksListResponseDto>(
-            "books",
-            body: new { isbns = isbns.ToList() },
-            context: "bulk ISBN lookup",
+            endpoint,
+            body,
+            context,
             validate: r => r?.Data is not null,
             ct: ct);
     }

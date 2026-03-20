@@ -13,18 +13,24 @@ public class IsbndbAuthorClient : IsbndbBaseClient, IIsbndbAuthorClient
 
     public async Task<AuthorSearchResponseDto?> SearchAuthorsByNameAsync(string authorName, CancellationToken ct)
     {
+        var endpoint = $"authors/{Uri.EscapeDataString(authorName)}";
+        var context = $"author search '{authorName}'";
+        
         return await GetAsync<AuthorSearchResponseDto>(
-            $"authors/{Uri.EscapeDataString(authorName)}",
-            context: $"author search '{authorName}'",
+            endpoint,
+            context,
             validate: r => r?.Authors is not null,
             ct: ct);
     }
 
     public async Task<AuthorBooksResponseDto?> FetchBooksByAuthorAsync(string authorName, CancellationToken ct)
     {
+        var endpoint = $"authors/{Uri.EscapeDataString(authorName)}";
+        var context = $"books by author '{authorName}'";
+        
         return await GetAsync<AuthorBooksResponseDto>(
-            $"author/{Uri.EscapeDataString(authorName)}",
-            context: $"books by author '{authorName}'",
+            endpoint,
+            context,
             ct: ct);
     }
 }

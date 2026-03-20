@@ -16,20 +16,25 @@ public class IsbndbPublisherClient : IsbndbBaseClient, IIsbndbPublisherClient
         string? languageCode, CancellationToken ct)
     {
         var endpoint = $"publisher/{Uri.EscapeDataString(publisherName)}";
+        var context = $"publisher '{publisherName}'";
+        
         if (!string.IsNullOrWhiteSpace(languageCode))
             endpoint = QueryHelpers.AddQueryString(endpoint, "language", languageCode);
 
         return await GetAsync<PublisherDetailsReponseDto>(
             endpoint, 
-            context: $"publisher '{publisherName}'", 
+            context, 
             ct: ct);
     }
     
     public async Task<PublisherListResponseDto?> SearchPublishersAsync(string publisherName, CancellationToken ct)
     {
+        var endpoint = $"publishers/{Uri.EscapeDataString(publisherName)}";
+        var context = $"publisher search '{publisherName}'";
+        
         return await GetAsync<PublisherListResponseDto>(
-            $"publishers/{Uri.EscapeDataString(publisherName)}",
-            context: $"publisher search '{publisherName}'",
+            endpoint,
+            context,
             ct: ct);
     }
     

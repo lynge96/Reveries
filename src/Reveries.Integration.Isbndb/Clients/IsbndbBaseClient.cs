@@ -52,7 +52,7 @@ public abstract class IsbndbBaseClient
         return await HandleResponseAsync(response, context, validate: validate, ct: ct);
     }
     
-    private async Task<T?> HandleResponseAsync<T>(
+    protected async Task<T?> HandleResponseAsync<T>(
         HttpResponseMessage response, 
         string context, 
         Func<T?, bool>? validate = null, 
