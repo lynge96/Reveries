@@ -15,7 +15,7 @@ public interface IIsbndbBookSearch
     /// <param name="isbns">A list of 10- or 13-digit ISBNs to search for.</param>
     /// <param name="ct">A token to cancel the operation if needed.</param>
     /// <returns>A list of <see cref="Book"/> entities that match the provided ISBNs. Returns an empty list if none are found.</returns>
-    Task<List<Book>> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct = default);
+    Task<List<Book>?> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct = default);
 
     /// <summary>
     /// Searches for books by title and optionally filters by language and book format.
@@ -24,5 +24,5 @@ public interface IIsbndbBookSearch
     /// <param name="languageCode">Optional language code to filter results, e.g., 'en' or 'da'.</param>
     /// <param name="ct">A token to cancel the operation if needed.</param>
     /// <returns>A list of <see cref="Book"/> entities that match the search criteria. Returns an empty list if no matches are found.</returns>
-    Task<List<Book>> GetBooksByTitlesAsync(List<string> titles, string? languageCode, CancellationToken ct = default);
+    Task<List<Book>?> GetBooksByTitlesAsync(List<string> titles, string? languageCode, CancellationToken ct = default);
 }

@@ -51,13 +51,12 @@ public abstract class IsbndbBaseClient
         
         return await HandleResponseAsync(response, context, validate: validate, ct: ct);
     }
-    
-    protected async Task<T?> HandleResponseAsync<T>(
+
+    private async Task<T?> HandleResponseAsync<T>(
         HttpResponseMessage response, 
         string context, 
         Func<T?, bool>? validate = null, 
-        CancellationToken ct = default)
-        where T : class
+        CancellationToken ct = default) where T : class
     {
         switch (response.StatusCode)
         {
@@ -92,7 +91,8 @@ public abstract class IsbndbBaseClient
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "Failed to deserialize ISBNdb response for {Context}. Payload: {Payload}",
-                context, json.TruncateForLog());
+                context, 
+                json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize ISBNdb response for {context}.", ex);
         }
     }

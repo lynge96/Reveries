@@ -18,63 +18,42 @@ public class IsbndbPublisherService : IPublisherSearch
         _logger = logger;
     }
 
-    public async Task<List<Book>> GetBooksByPublisherAsync(string publisher, CancellationToken ct)
+    public async Task<List<Book>?> GetBooksByPublisherAsync(string publisher, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(publisher))
             return [];
-        
-        try
-        {
-            var response = await _publisherClient.FetchPublisherDetailsAsync(publisher, null, ct);
 
-            var bookDtos = response.Books ?? [];
+        var response = await _publisherClient.FetchPublisherDetailsAsync(publisher, null, ct);
 
-            var books = bookDtos
-                .Select(dto => dto.ToBook())
-                .ToList();
+        if (response is null)
+            return null;
 
-            _logger.LogDebug("Publisher '{Publisher}' returned {Count} books.", publisher, books.Count);
+        var books = (response.Books ?? [])
+            .Select(dto => dto.ToBook())
+            .ToList();
 
-            return books;
-        }
-        catch (NotFoundException)
-        {
-            _logger.LogDebug("Publisher '{Publisher}' not found. Returning empty list.", publisher);
-
-            return [];
-        }
+        _logger.LogDebug("Publisher '{Publisher}' returned {Count} books.", publisher, books.Count);
+        return books;
     }
 
-    public async Task<List<Publisher>> GetPublishersByNameAsync(string name, CancellationToken ct)
+    public async Task<List<Publisher>?> GetPublishersByNameAsync(string name, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(name))
             return [];
-        
-        try
-        {
-            var response = await _publisherClient.SearchPublishersAsync(name, ct);
 
-            var publisherNames = response.Publishers ?? [];
+        var response = await _publisherClient.SearchPublishersAsync(name, ct);
 
-            var publishers = publisherNames
-                .Select(Publisher.Create)
-                .Where(p => !string.IsNullOrWhiteSpace(p.Name))
-                .ToList();
+        if (response is null)
+            return null;
 
-            var uniquePublishers = publishers
-                .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
-                .Select(g => g.First())
-                .ToList();
+        var uniquePublishers = (response.Publishers ?? [])
+            .Select(Publisher.Create)
+            .Where(p => !string.IsNullOrWhiteSpace(p.Name))
+            .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
 
-            _logger.LogDebug("Search for '{Name}' returned {Count} distinct publishers.", name, uniquePublishers.Count);
-
-            return uniquePublishers;
-        }
-        catch (NotFoundException)
-        {
-            _logger.LogDebug("No publishers found for '{Name}'. Returning empty list.", name);
-
-            return [];
-        }
+        _logger.LogDebug("Search for '{Name}' returned {Count} distinct publishers.", name, uniquePublishers.Count);
+        return uniquePublishers;
     }
 }
