@@ -3,7 +3,8 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Exceptions;
-using Reveries.Integration.Isbndb.Helpers;
+using Reveries.Application.Extensions;
+using Reveries.Integration.Isbndb.Mappers.Converters;
 
 namespace Reveries.Integration.Isbndb.Clients;
 
@@ -13,6 +14,12 @@ public abstract class IsbndbBaseClient
     private readonly ILogger _logger;
     
     protected abstract string DependencyName { get; }
+    
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new DecimalConverter() }
+    };
 
     protected IsbndbBaseClient(HttpClient httpClient, ILogger logger)
     {
@@ -68,11 +75,25 @@ public abstract class IsbndbBaseClient
                 message: $"ISBNdb returned {(int)response.StatusCode} ({response.StatusCode}) for {context}",
                 upstreamStatus: response.StatusCode);
 
-        return await IsbndbDeserializer.DeserializeAsync(
-            response,
-            context: context,
-            logger: _logger,
-            validate: validate,
-            ct: ct);
+        var json = await response.Content.ReadAsStringAsync(ct);
+
+        try
+        {
+            var result = JsonSerializer.Deserialize<T>(json, JsonOptions);
+
+            if (validate is not null && !validate(result))
+            {
+                _logger.LogWarning("ISBNdb returned empty response for {Context}", context);
+                return null;
+            }
+
+            return result;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Failed to deserialize ISBNdb response for {Context}. Payload: {Payload}",
+                context, json.TruncateForLog());
+            throw new InvalidOperationException($"Failed to deserialize ISBNdb response for {context}.", ex);
+        }
     }
 }
