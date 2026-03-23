@@ -7,20 +7,20 @@ using Reveries.Integration.Isbndb.Mappers.Converters;
 
 namespace Reveries.Integration.Isbndb.Clients;
 
-public abstract class IsbndbBaseClient
+public abstract class IsbndbBaseClient<TClient> where TClient : class
 {
     protected readonly HttpClient HttpClient;
-    private readonly ILogger _logger;
+    private readonly ILogger<TClient> _logger;
     
     protected abstract string DependencyName { get; }
     
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         Converters = { new DecimalConverter() }
     };
 
-    protected IsbndbBaseClient(HttpClient httpClient, ILogger logger)
+    protected IsbndbBaseClient(HttpClient httpClient, ILogger<TClient> logger)
     {
         HttpClient = httpClient;
         _logger = logger;
@@ -38,7 +38,7 @@ public abstract class IsbndbBaseClient
                 _logger.LogError("ISBNdb API key is invalid or expired");
                 return null;
             case HttpStatusCode.NotFound:
-                _logger.LogDebug("ISBNdb returned 404 for {Context}", context);
+                _logger.LogDebug("ISBNdb returned 404 for '{Context}'", context);
                 return null;
         }
 
@@ -52,11 +52,11 @@ public abstract class IsbndbBaseClient
 
         try
         {
-            var result = JsonSerializer.Deserialize<T>(json, JsonOptions);
+            var result = JsonSerializer.Deserialize<T>(json, _jsonOptions);
 
             if (validate is not null && !validate(result))
             {
-                _logger.LogWarning("ISBNdb returned empty response for {Context}", context);
+                _logger.LogWarning("ISBNdb returned empty response for '{Context}'", context);
                 return null;
             }
 
@@ -64,10 +64,10 @@ public abstract class IsbndbBaseClient
         }
         catch (JsonException ex)
         {
-            _logger.LogWarning(ex, "Failed to deserialize ISBNdb response for {Context}. Payload: {Payload}",
+            _logger.LogWarning(ex, "Failed to deserialize ISBNdb response for '{Context}'. Payload: {Payload}",
                 context, 
                 json.TruncateForLog());
-            throw new InvalidOperationException($"Failed to deserialize ISBNdb response for {context}.", ex);
+            throw new InvalidOperationException($"Failed to deserialize ISBNdb response for '{context}'.", ex);
         }
     }
 }

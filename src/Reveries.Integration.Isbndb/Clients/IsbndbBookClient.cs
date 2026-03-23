@@ -8,7 +8,7 @@ using Reveries.Integration.Isbndb.Interfaces;
 
 namespace Reveries.Integration.Isbndb.Clients;
 
-public class IsbndbBookClient : IsbndbBaseClient, IIsbndbBookClient
+public class IsbndbBookClient : IsbndbBaseClient<IsbndbBookClient>, IIsbndbBookClient
 {
     protected override string DependencyName => nameof(IsbndbBookClient);
     

@@ -13,11 +13,11 @@ public class GoogleVolumeInfoDto
     public List<string>? Categories { get; set; }
     public string? Language { get; set; }
     public string? PrintType { get; set; }
-    public ImageLinks? ImageLinks { get; set; }
-    public GoogleDimensions? Dimensions { get; set; }
+    public GoogleImageLinksDto? ImageLinks { get; set; }
+    public GoogleDimensionsDto? Dimensions { get; set; }
 }
 
-public class ImageLinks
+public class GoogleImageLinksDto
 {
     public string Thumbnail { get; set; } = string.Empty;
     public string SmallThumbnail { get; set; } = string.Empty;
@@ -29,7 +29,7 @@ public class GoogleIndustryIdentifierDto
     public string Identifier { get; set; } = string.Empty;
 }
 
-public class GoogleDimensions
+public class GoogleDimensionsDto
 {
     public string? Height { get; set; }
     public string? Width { get; set; }
