@@ -69,7 +69,7 @@ services:
     networks:
       - reveries-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME} -d ${POSTGRES_DATABASE}" ]
       interval: 10s
       timeout: 5s
       retries: 5
