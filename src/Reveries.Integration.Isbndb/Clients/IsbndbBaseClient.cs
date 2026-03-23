@@ -40,6 +40,9 @@ public abstract class IsbndbBaseClient<TClient> where TClient : class
             case HttpStatusCode.NotFound:
                 _logger.LogDebug("ISBNdb returned 404 for '{Context}'", context);
                 return null;
+            case HttpStatusCode.TooManyRequests:
+                _logger.LogWarning("ISBNdb API rate limit exceeded for '{Context}'", context);
+                return null;
         }
 
         if (!response.IsSuccessStatusCode)

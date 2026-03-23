@@ -40,9 +40,7 @@ public class IsbndbBookService : IIsbndbBookSearch
             if (book is null)
                 return null;
             
-            
             _logger.LogDebug("Single ISBN lookup for '{Isbn}' succeeded.", isbn);
-
             return [book];
         }
         
