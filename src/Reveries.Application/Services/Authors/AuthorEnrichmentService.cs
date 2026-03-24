@@ -1,7 +1,7 @@
 using Reveries.Application.Interfaces.Authors;
 using Reveries.Core.Models;
 
-namespace Reveries.Application.Services;
+namespace Reveries.Application.Services.Authors;
 
 public class AuthorEnrichmentService
 {

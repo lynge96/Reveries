@@ -3,7 +3,7 @@ using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
-namespace Reveries.Application.Services;
+namespace Reveries.Application.Services.BookSeries;
 
 public class BookSeriesService
 {
@@ -14,13 +14,13 @@ public class BookSeriesService
         _unitOfWork = unitOfWork;
     }
     
-    public async Task<int> SetSeriesAsync(Isbn? isbn, Series series, int? numberInSeries)
+    public async Task<int> SetSeriesAsync(Isbn? isbn, Series series, int? numberInSeries, CancellationToken ct)
     {
         await _unitOfWork.BeginTransactionAsync();
         
         try
         {
-            var existingBook = await _unitOfWork.Books.GetBookByIsbnAsync(isbn);
+            var existingBook = await _unitOfWork.Books.GetBookByIsbnAsync(isbn, ct: ct);
             if (existingBook == null)
                 throw new NotFoundException($"Book with ISBN '{isbn}' was not found.");
             
@@ -29,13 +29,13 @@ public class BookSeriesService
             if (existingSeries != null)
             {
                 existingBook.Book.SetSeries(existingSeries.Series, numberInSeries);
-                await _unitOfWork.Books.UpdateBookSeriesAsync(existingBook, existingSeries.DbId);
+                await _unitOfWork.Books.UpdateBookSeriesAsync(existingBook, existingSeries.DbId, ct);
             }
             else
             {
                 existingBook.Book.SetSeries(series, numberInSeries);
                 var newSeriesId = await _unitOfWork.Series.AddAsync(series);
-                await _unitOfWork.Books.UpdateBookSeriesAsync(existingBook, newSeriesId);
+                await _unitOfWork.Books.UpdateBookSeriesAsync(existingBook, newSeriesId, ct);
             }
             
             await _unitOfWork.CommitAsync();

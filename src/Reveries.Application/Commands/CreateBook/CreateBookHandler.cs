@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Reveries.Application.Commands.Abstractions;
 using Reveries.Application.Mappers;
 using Reveries.Application.Services;
+using Reveries.Application.Services.Books;
 
 namespace Reveries.Application.Commands.CreateBook;
 

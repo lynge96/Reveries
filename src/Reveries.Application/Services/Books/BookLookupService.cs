@@ -7,7 +7,7 @@ using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
-namespace Reveries.Application.Services;
+namespace Reveries.Application.Services.Books;
 
 public class BookLookupService
 {

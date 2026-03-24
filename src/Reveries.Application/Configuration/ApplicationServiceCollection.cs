@@ -7,6 +7,10 @@ using Reveries.Application.Queries.BookByIsbn;
 using Reveries.Application.Queries.BookExists;
 using Reveries.Application.Queries.BooksByIsbns;
 using Reveries.Application.Services;
+using Reveries.Application.Services.Authors;
+using Reveries.Application.Services.Books;
+using Reveries.Application.Services.BookSeries;
+using Reveries.Application.Services.Publishers;
 
 namespace Reveries.Application.Configuration;
 
@@ -32,7 +36,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<BookLookupService>();
         services.AddScoped<AuthorLookupService>();
         services.AddScoped<PublisherLookupService>();
-        services.AddScoped<SeriesService>();
+        services.AddScoped<CreateSeriesService>();
         services.AddScoped<BookSeriesService>();
         services.AddScoped<BookReadStatusService>();
         

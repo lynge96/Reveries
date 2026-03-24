@@ -1,5 +1,6 @@
 using Reveries.Application.Queries.Abstractions;
 using Reveries.Application.Services;
+using Reveries.Application.Services.Books;
 
 namespace Reveries.Application.Queries.BookExists;
 

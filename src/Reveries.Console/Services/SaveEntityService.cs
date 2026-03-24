@@ -1,5 +1,7 @@
 using Reveries.Application.Exceptions;
 using Reveries.Application.Services;
+using Reveries.Application.Services.Books;
+using Reveries.Application.Services.BookSeries;
 using Reveries.Console.Common.Extensions;
 using Reveries.Core.Models;
 using Spectre.Console;
@@ -9,14 +11,14 @@ namespace Reveries.Console.Services;
 public class SaveEntityService
 {
     private readonly BookPersistenceService _bookPersistenceService;
-    private readonly SeriesService _seriesService;
+    private readonly CreateSeriesService _createSeriesService;
 
     public SaveEntityService(
         BookPersistenceService bookPersistenceService, 
-        SeriesService seriesService)
+        CreateSeriesService createSeriesService)
     {
         _bookPersistenceService = bookPersistenceService;
-        _seriesService = seriesService;
+        _createSeriesService = createSeriesService;
     }
 
     public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default)
@@ -70,7 +72,7 @@ public class SaveEntityService
 
         try
         {
-            var seriesId = await _seriesService.CreateSeriesAsync(series);
+            var seriesId = await _createSeriesService.CreateSeriesAsync(series);
             
             AnsiConsole.MarkupLine($"""
                                     ✅ Successfully saved to database:

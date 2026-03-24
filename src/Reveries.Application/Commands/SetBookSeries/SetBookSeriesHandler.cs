@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Commands.Abstractions;
 using Reveries.Application.Interfaces.Cache;
-using Reveries.Application.Services;
+using Reveries.Application.Services.BookSeries;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Commands.SetBookSeries;
@@ -26,7 +26,7 @@ public sealed class SetBookSeriesHandler : ICommandHandler<SetBookSeriesCommand,
     {
         var series = Series.Create(command.SeriesName);
 
-        var bookDbId = await _bookSeriesService.SetSeriesAsync(command.Isbn, series, command.NumberInSeries);
+        var bookDbId = await _bookSeriesService.SetSeriesAsync(command.Isbn, series, command.NumberInSeries, ct);
         
         await _cache.RemoveBookByIsbnAsync(command.Isbn, ct);
         

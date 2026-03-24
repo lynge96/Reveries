@@ -5,7 +5,7 @@ using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 using BookExtensions = Reveries.Application.Extensions.BookExtensions;
 
-namespace Reveries.Application.Services;
+namespace Reveries.Application.Services.Books;
 
 public class BookEnrichmentService
 {

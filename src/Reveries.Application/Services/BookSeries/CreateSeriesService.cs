@@ -2,13 +2,13 @@ using Reveries.Application.Exceptions;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
-namespace Reveries.Application.Services;
+namespace Reveries.Application.Services.BookSeries;
 
-public class SeriesService
+public class CreateSeriesService
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public SeriesService(IUnitOfWork unitOfWork)
+    public CreateSeriesService(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

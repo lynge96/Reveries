@@ -3,6 +3,7 @@ using Reveries.Application.Exceptions;
 using Reveries.Application.Mappers;
 using Reveries.Application.Queries.Abstractions;
 using Reveries.Application.Services;
+using Reveries.Application.Services.Books;
 
 namespace Reveries.Application.Queries.BookByIsbn;
 

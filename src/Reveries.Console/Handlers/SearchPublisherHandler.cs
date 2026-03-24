@@ -1,5 +1,7 @@
 using Reveries.Application.Extensions;
 using Reveries.Application.Services;
+using Reveries.Application.Services.Books;
+using Reveries.Application.Services.Publishers;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;

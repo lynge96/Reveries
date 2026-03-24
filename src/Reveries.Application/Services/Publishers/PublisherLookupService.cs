@@ -2,7 +2,7 @@ using Reveries.Application.Interfaces.Publishers;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
-namespace Reveries.Application.Services;
+namespace Reveries.Application.Services.Publishers;
 
 public class PublisherLookupService
 {
