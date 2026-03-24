@@ -19,7 +19,7 @@ public class GoogleBookService : IGoogleBookSearch
         _googleBooksClient = googleBooksClient;
         _logger = logger;
     }
-    
+
     public async Task<List<Book>?> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
@@ -39,8 +39,8 @@ public class GoogleBookService : IGoogleBookSearch
         _logger.LogDebug("GoogleBooks ISBN lookup completed. Requested {RequestedCount} ISBNs, found {FoundCount} books.", isbns.Count, books.Count);
         return books;
     }
-
-    public async Task<List<Book>?> GetBooksByTitleAsync(List<string> titles, CancellationToken ct)
+    
+    public async Task<List<Book>?> GetBooksByTitlesAsync(List<string> titles, CancellationToken ct)
     {
         if (titles.Count == 0)
             return [];

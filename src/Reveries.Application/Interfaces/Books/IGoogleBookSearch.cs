@@ -23,5 +23,5 @@ public interface IGoogleBookSearch
     /// <param name="titles">A list of titles or partial titles to search for.</param>
     /// <param name="ct">A token that can be used to cancel the request.</param>
     /// <returns>A list of <see cref="Book"/> entities that match the provided titles. If no matches are found, an empty list is returned.</returns>
-    Task<List<Book>?> GetBooksByTitleAsync(List<string> titles, CancellationToken ct = default);
+    Task<List<Book>?> GetBooksByTitlesAsync(List<string> titles, CancellationToken ct = default);
 }

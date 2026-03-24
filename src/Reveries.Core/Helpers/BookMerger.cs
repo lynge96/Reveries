@@ -6,10 +6,10 @@ namespace Reveries.Core.Helpers;
 
 public static class BookMerger
 {
-    public static Book MergeBooks(Book? isbndbBook, Book? googleBook)
+    public static Book? MergeBooks(Book? isbndbBook, Book? googleBook)
     {
         if (isbndbBook == null && googleBook == null)
-            return null!;
+            return null;
         if (isbndbBook == null)
             return googleBook!;
         if (googleBook == null)
@@ -27,7 +27,7 @@ public static class BookMerger
             Language: MergeLanguage(isbndbBook, googleBook),
             Synopsis: MergeSynopsis(isbndbBook, googleBook),
             ImageThumbnailUrl: MergeImageThumbnail(isbndbBook, googleBook),
-            CoverImageUrl: MergeImageUrl(isbndbBook),
+            CoverImageUrl: MergeImageUrl(isbndbBook, googleBook),
             Msrp: MergeMsrp(isbndbBook),
             Binding: MergeBinding(isbndbBook, googleBook),
             Edition: MergeEdition(isbndbBook, googleBook),
@@ -75,10 +75,10 @@ public static class BookMerger
         => google.Synopsis ?? isbndb.Synopsis;
     
     private static string? MergeImageThumbnail(Book isbndb, Book google)
-        => google.ImageThumbnailUrl ?? isbndb.ImageThumbnailUrl;
+        => google.ImageThumbnailUrl ?? isbndb.ImageThumbnailUrl ?? google.CoverImageUrl;
 
-    private static string? MergeImageUrl(Book isbndb)
-        => isbndb.ImageThumbnailUrl ?? isbndb.CoverImageUrl;
+    private static string? MergeImageUrl(Book isbndb, Book google)
+        => isbndb.ImageThumbnailUrl ?? isbndb.CoverImageUrl ?? google.CoverImageUrl;
 
     private static decimal? MergeMsrp(Book isbndb)
         => isbndb.Msrp;
