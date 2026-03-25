@@ -34,10 +34,10 @@ public abstract class ExternalBaseClient<TClient> where TClient : class
         switch (response.StatusCode)
         {
             case HttpStatusCode.Forbidden or HttpStatusCode.Unauthorized:
-                _logger.LogError("{Dependency} key is invalid or expired", DependencyName);
+                _logger.LogWarning("{Dependency} key is invalid or expired", DependencyName);
                 return null;
             case HttpStatusCode.NotFound:
-                _logger.LogDebug("{Dependency} returned 404 for '{Context}'", DependencyName ,context);
+                _logger.LogInformation("{Dependency} returned 404 for '{Context}'", DependencyName ,context);
                 return null;
             case HttpStatusCode.TooManyRequests:
                 _logger.LogWarning("{Dependency} rate limit exceeded for '{Context}'", DependencyName, context);

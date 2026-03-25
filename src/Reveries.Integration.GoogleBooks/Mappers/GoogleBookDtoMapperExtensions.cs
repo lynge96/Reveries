@@ -29,7 +29,7 @@ public static class GoogleBookDtoMapperExtensions
             languageIso639: googleBookDto.Language,
             synopsis: googleBookDto.Description,
             imageThumbnail: googleBookDto.ImageLinks?.Thumbnail,
-            imageUrl: null,
+            imageUrl: googleBookDto.ImageLinks?.Thumbnail,
             msrp: null,
             binding: googleBookDto.PrintType,
             edition: googleBookDto.Subtitle,

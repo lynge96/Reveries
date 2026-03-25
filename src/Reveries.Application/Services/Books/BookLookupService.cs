@@ -119,12 +119,8 @@ public class BookLookupService
             return databaseBooks;
         
         var apiBooks = await _authorSearch.GetBooksByAuthorAsync(author, ct);
+
         if (apiBooks is null)
-            throw new ExternalDependencyException(
-                dependency: "AuthorSearch",
-                message: $"Author search providers are unavailable for author '{author}'."
-            );
-        if (apiBooks.Count == 0)
             throw new NotFoundException($"Books with author '{author}' were not found.");
         
         _logger.LogInformation(
@@ -148,12 +144,8 @@ public class BookLookupService
             return databaseBooks.ArrangeBooks().ToList();
         
         var apiBooks = await _publisherSearch.GetBooksByPublisherAsync(publisher, ct);
+
         if (apiBooks is null)
-            throw new ExternalDependencyException(
-                dependency: "PublisherSearch",
-                message: $"Publisher search providers are unavailable for publisher '{publisher}'."
-            );
-        if (apiBooks.Count == 0)
             throw new NotFoundException($"Books with publisher '{publisher}' were not found.");
         
         _logger.LogInformation(
@@ -269,14 +261,8 @@ public class BookLookupService
 
         var books = await _bookEnrichmentService
             .AggregateBooksByIsbnsAsync(isbns, ct);
-    
-        if (books is null)
-            throw new ExternalDependencyException(
-                dependency: "BookSearchProviders",
-                message: "All book search providers are unavailable."
-            );
 
-        if (books.Count == 0)
+        if (books is null)
             throw new NotFoundException($"Books with ISBNs '{string.Join(", ", isbns.Select(i => i.Value))}' were not found.");
 
         return new LookupResult<Isbn>(books, []);
@@ -289,16 +275,9 @@ public class BookLookupService
 
         var books = await _bookEnrichmentService
             .AggregateBooksByTitlesAsync(titles, ct);
-
+        
         if (books is null)
-            throw new ExternalDependencyException(
-                dependency: "BookSearchProviders",
-                message: "All book search providers are unavailable."
-            );
-
-        if (books.Count == 0)
-            throw new NotFoundException(
-                $"Books with titles '{string.Join(", ", titles)}' were not found.");
+            throw new NotFoundException($"Books with titles '{string.Join(", ", titles)}' were not found.");
         
         return new LookupResult<string>(books, []);
     }
