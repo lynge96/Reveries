@@ -7,10 +7,6 @@ namespace Reveries.Application.Exceptions;
 /// </summary>
 public class NotFoundException : ApplicationException
 {
-    public NotFoundException()
-        : base("The requested resource was not found.", HttpStatusCode.NotFound) 
-    { }
-    
     public NotFoundException(string message) 
         : base(message, HttpStatusCode.NotFound) 
     { }

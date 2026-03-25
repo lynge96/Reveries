@@ -41,7 +41,7 @@ public class BookPersistenceService
             var authors = await HandleAuthorsAsync(book.Authors);
             var deweyDecimals = await HandleDeweyDecimalsAsync(book.DeweyDecimals);
             
-            var bookDbId = await _unitOfWork.Books.AddAsync(book, publisherId, seriesId);
+            var bookDbId = await _unitOfWork.Books.AddAsync(book, publisherId, seriesId, ct);
 
             await SaveBookAuthorsAsync(bookDbId, authors);
             await SaveBookGenresAsync(bookDbId, genres);
