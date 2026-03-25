@@ -104,6 +104,8 @@ services:
     restart: always
     volumes:
       - redisinsight_data:/data
+    ports:
+      - "5540:5540"
     networks:
       - reveries-network
     environment:
