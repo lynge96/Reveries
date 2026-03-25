@@ -2,16 +2,15 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Exceptions;
-using Reveries.Application.Extensions;
-using Reveries.Integration.Isbndb.Mappers.Converters;
+using Reveries.Integration.Common.Helpers;
+using DecimalConverter = Reveries.Integration.Common.Helpers.DecimalConverter;
 
-namespace Reveries.Integration.Isbndb.Clients;
+namespace Reveries.Integration.Common.Base;
 
-public abstract class IsbndbBaseClient<TClient> where TClient : class
+public abstract class ExternalBaseClient<TClient> where TClient : class
 {
     protected readonly HttpClient HttpClient;
     private readonly ILogger<TClient> _logger;
-    
     protected abstract string DependencyName { get; }
     
     private readonly JsonSerializerOptions _jsonOptions = new()
@@ -19,36 +18,36 @@ public abstract class IsbndbBaseClient<TClient> where TClient : class
         PropertyNameCaseInsensitive = true,
         Converters = { new DecimalConverter() }
     };
-
-    protected IsbndbBaseClient(HttpClient httpClient, ILogger<TClient> logger)
+    
+    protected ExternalBaseClient(HttpClient httpClient, ILogger<TClient> logger)
     {
         HttpClient = httpClient;
         _logger = logger;
     }
-
+    
     protected async Task<T?> HandleResponseAsync<T>(
-        HttpResponseMessage response, 
-        string context, 
-        Func<T?, bool>? validate = null, 
+        HttpResponseMessage response,
+        string context,
+        Func<T?, bool>? validate = null,
         CancellationToken ct = default) where T : class
     {
         switch (response.StatusCode)
         {
-            case HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden:
-                _logger.LogError("ISBNdb API key is invalid or expired");
+            case HttpStatusCode.Forbidden or HttpStatusCode.Unauthorized:
+                _logger.LogError("{Dependency} key is invalid or expired", DependencyName);
                 return null;
             case HttpStatusCode.NotFound:
-                _logger.LogDebug("ISBNdb returned 404 for '{Context}'", context);
+                _logger.LogDebug("{Dependency} returned 404 for '{Context}'", DependencyName ,context);
                 return null;
             case HttpStatusCode.TooManyRequests:
-                _logger.LogWarning("ISBNdb API rate limit exceeded for '{Context}'", context);
+                _logger.LogWarning("{Dependency} rate limit exceeded for '{Context}'", DependencyName, context);
                 return null;
         }
 
         if (!response.IsSuccessStatusCode)
             throw new ExternalDependencyException(
                 dependency: DependencyName,
-                message: $"ISBNdb returned {(int)response.StatusCode} ({response.StatusCode}) for {context}",
+                message: $"Upstream returned {(int)response.StatusCode} ({response.StatusCode}) for {context}",
                 upstreamStatus: response.StatusCode);
 
         var json = await response.Content.ReadAsStringAsync(ct);
@@ -59,7 +58,7 @@ public abstract class IsbndbBaseClient<TClient> where TClient : class
 
             if (validate is not null && !validate(result))
             {
-                _logger.LogWarning("ISBNdb returned empty response for '{Context}'", context);
+                _logger.LogWarning("Google Books returned empty response for {Context}", context);
                 return null;
             }
 
@@ -67,10 +66,11 @@ public abstract class IsbndbBaseClient<TClient> where TClient : class
         }
         catch (JsonException ex)
         {
-            _logger.LogWarning(ex, "Failed to deserialize ISBNdb response for '{Context}'. Payload: {Payload}",
+            _logger.LogWarning(ex, "Failed to deserialize {Dependency} response for '{Context}'. Payload: {Payload}",
+                DependencyName,
                 context, 
                 json.TruncateForLog());
-            throw new InvalidOperationException($"Failed to deserialize ISBNdb response for '{context}'.", ex);
+            throw new InvalidOperationException($"Failed to deserialize {DependencyName} response for '{context}'.", ex);
         }
     }
 }

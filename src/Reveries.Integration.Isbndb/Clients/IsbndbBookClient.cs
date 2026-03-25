@@ -3,14 +3,16 @@ using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Reveries.Core.ValueObjects;
+using Reveries.Integration.Common.Base;
+using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.DTOs.Books;
 using Reveries.Integration.Isbndb.Interfaces;
 
 namespace Reveries.Integration.Isbndb.Clients;
 
-public class IsbndbBookClient : IsbndbBaseClient<IsbndbBookClient>, IIsbndbBookClient
+public class IsbndbBookClient : ExternalBaseClient<IsbndbBookClient>, IIsbndbBookClient
 {
-    protected override string DependencyName => nameof(IsbndbBookClient);
+    protected override string DependencyName => IsbndbSettings.SectionName;
     
     public IsbndbBookClient(HttpClient httpClient, ILogger<IsbndbBookClient> logger)
         : base(httpClient, logger) { }

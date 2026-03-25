@@ -1,16 +1,17 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reveries.Core.ValueObjects;
+using Reveries.Integration.Common.Base;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
 
 namespace Reveries.Integration.GoogleBooks.Clients;
 
-public class GoogleBooksClient : GoogleBaseClient<GoogleBooksClient>, IGoogleBooksClient
+public class GoogleBooksClient : ExternalBaseClient<GoogleBooksClient>, IGoogleBooksClient
 {
     private readonly GoogleBooksSettings _settings;
-    protected override string DependencyName => nameof(GoogleBooksClient);
+    protected override string DependencyName => GoogleBooksSettings.SectionName;
     
     public GoogleBooksClient(HttpClient httpClient, IOptions<GoogleBooksSettings> settings, ILogger<GoogleBooksClient> logger) : base(httpClient, logger)
     {

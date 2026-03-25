@@ -1,4 +1,4 @@
-namespace Reveries.Application.Extensions;
+namespace Reveries.Integration.Common.Helpers;
 
 public static class LoggingStringExtensions
 {
@@ -7,7 +7,7 @@ public static class LoggingStringExtensions
         if (string.IsNullOrEmpty(value))
             return string.Empty;
 
-        return value!.Length > maxLength
+        return value.Length > maxLength
             ? value.Substring(0, maxLength) + "..."
             : value;
     }

@@ -1,12 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
+using Reveries.Integration.Common.Base;
+using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.DTOs.Authors;
 using Reveries.Integration.Isbndb.Interfaces;
 
 namespace Reveries.Integration.Isbndb.Clients;
 
-public class IsbndbAuthorClient : IsbndbBaseClient<IsbndbAuthorClient>, IIsbndbAuthorClient
+public class IsbndbAuthorClient : ExternalBaseClient<IsbndbAuthorClient>, IIsbndbAuthorClient
 {
-    protected override string DependencyName => nameof(IsbndbAuthorClient);
+    protected override string DependencyName => IsbndbSettings.SectionName;
 
     public IsbndbAuthorClient(HttpClient httpClient, ILogger<IsbndbAuthorClient> logger)
         : base(httpClient, logger) { }

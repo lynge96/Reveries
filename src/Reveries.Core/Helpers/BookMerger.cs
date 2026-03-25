@@ -75,7 +75,7 @@ public static class BookMerger
         => google.Synopsis ?? isbndb.Synopsis;
     
     private static string? MergeImageThumbnail(Book isbndb, Book google)
-        => google.ImageThumbnailUrl ?? isbndb.ImageThumbnailUrl ?? google.CoverImageUrl;
+        => google.ImageThumbnailUrl ?? isbndb.ImageThumbnailUrl ?? google.ImageThumbnailUrl;
 
     private static string? MergeImageUrl(Book isbndb, Book google)
         => isbndb.ImageThumbnailUrl ?? isbndb.CoverImageUrl ?? google.CoverImageUrl;
