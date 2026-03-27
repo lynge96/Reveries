@@ -192,9 +192,17 @@
         }
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
+        try
+        {
+            await Js.InvokeVoidAsync("scanner.stopContinuousScan");
+        }
+        catch
+        {
+            // ignored
+        }
+
         _objRef?.Dispose();
-        return ValueTask.CompletedTask;
     }
 }
