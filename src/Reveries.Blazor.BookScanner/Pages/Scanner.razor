@@ -4,7 +4,7 @@
 @inject NavigationManager Nav
 @inject BookApiClient BooksApi
 @inject BookState BookState
-@implements IDisposable
+@implements IAsyncDisposable
 
 <div class="scanner-page mt-4 d-flex justify-content-center">
 
@@ -136,20 +136,18 @@
     {
         if (firstRender)
         {
-            var baseUri = Nav.BaseUri;
-            await Js.InvokeVoidAsync("import", $"{baseUri}js/scanner.js");
-            await Js.InvokeVoidAsync("import", $"{baseUri}js/imageLoader.js");
-            await Js.InvokeVoidAsync("import", $"{baseUri}js/site.js");
+            await Js.InvokeVoidAsync("import", "/js/scanner.js");
+            await Js.InvokeVoidAsync("import", "/js/imageLoader.js");
             _objRef = DotNetObjectReference.Create(this);
             await Js.InvokeVoidAsync("scanner.startContinuousScan", _objRef);
-            await Js.InvokeVoidAsync("disableScroll");
         }
     }
     
     [JSInvokable]
     public async Task OnIsbnScanned(string scannedIsbn)
     {
-        if (_isProcessing) return;
+        if (_isProcessing || _objRef is null)
+            return;
         
         _isProcessing = true;
         ScannedIsbn = scannedIsbn;
@@ -163,9 +161,10 @@
             if (_bookDto != null)
             {
                 await Js.InvokeVoidAsync("preloadImage", _bookDto.CoverImageUrl);    // Preloading image
+                await Js.InvokeVoidAsync("scanner.stopContinuousScan");
                 
                 BookState.SetBook(_bookDto);
-                await Task.Delay(500);
+                await Task.Delay(200);
                 Nav.NavigateTo($"book/{ScannedIsbn}");
             }
         }
@@ -193,10 +192,9 @@
         }
     }
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        _ = Js.InvokeVoidAsync("scanner.stopContinuousScan");
-        _ = Js.InvokeVoidAsync("enableScroll");
         _objRef?.Dispose();
+        return ValueTask.CompletedTask;
     }
 }

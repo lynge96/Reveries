@@ -6,6 +6,7 @@ namespace Reveries.Application.Services.Authors;
 public class AuthorEnrichmentService
 {
     private readonly IAuthorSearch _authorSearch;
+    const int MaxCacheSize = 1000;
     
     public AuthorEnrichmentService(IAuthorSearch authorSearch)
     {
@@ -22,7 +23,13 @@ public class AuthorEnrichmentService
             
             if (!variantsCache.TryGetValue(normalizedName, out var variants))
             {
-                variants = await _authorSearch.GetAuthorsByNameAsync(normalizedName, ct);
+                variants = await _authorSearch.GetAuthorsByNameAsync(normalizedName, ct) ?? [];
+                
+                if (variantsCache.Count >= MaxCacheSize)
+                {
+                    var oldestKey = variantsCache.Keys.First();
+                    variantsCache.Remove(oldestKey);
+                }
 
                 variantsCache[normalizedName] = variants;
             }
