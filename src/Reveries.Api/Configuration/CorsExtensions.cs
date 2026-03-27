@@ -14,12 +14,12 @@ public static class CorsExtensions
                     .AllowAnyHeader();
             });
 
-            options.AddPolicy("Production", policy =>
+            options.AddPolicy("AllowFrontend", policy =>
             {
-                policy
-                    .WithOrigins("https://raspberrypi:8443")
+                policy.WithOrigins("https://scanner.reveries.dk")
+                    .AllowAnyHeader()
                     .AllowAnyMethod()
-                    .AllowAnyHeader();
+                    .AllowCredentials();
             });
         });
 
