@@ -1,18 +1,13 @@
 services:
-  nginx:
-    image: nginx:alpine
-    container_name: reveries-nginx
-    restart: always
-    ports:
-      - "80:80"
-      - "8443:443"
-    volumes:
-      - ./infra/nginx.conf:/etc/nginx/nginx.conf:ro
-      - /home/lynge1996/certs:/etc/nginx/certs
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: reveries-cloudflared
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
       - api
       - bookscanner
-      - grafana
     networks:
       - reveries-network
   
