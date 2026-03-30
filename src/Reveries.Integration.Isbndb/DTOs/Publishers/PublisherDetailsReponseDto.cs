@@ -5,6 +5,5 @@ namespace Reveries.Integration.Isbndb.DTOs.Publishers;
 public class PublisherDetailsReponseDto
 {
     public string Publisher { get; init; } = string.Empty;
-    
     public IEnumerable<IsbndbBookDto>? Books { get; init; }
 }

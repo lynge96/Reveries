@@ -13,6 +13,14 @@ public static class CorsExtensions
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             });
+
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.WithOrigins("https://scanner.reveries.dk")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
         });
 
         return services;

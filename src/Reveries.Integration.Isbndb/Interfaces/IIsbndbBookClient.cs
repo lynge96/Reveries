@@ -20,9 +20,9 @@ public interface IIsbndbBookClient
     ///     A cancellation token to cancel the request if needed.
     /// </param>
     /// <returns>
-    /// A <see cref="BookDetailsDto"/> containing the book's detailed information, or <c>null</c> if the book is not found.
+    /// A <see cref="IsbndbBookDetailsDto"/> containing the book's detailed information, or <c>null</c> if the book is not found.
     /// </returns>
-    Task<BookDetailsDto> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default);
+    Task<IsbndbBookDetailsDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default);
 
     /// <summary>
     /// Returns a list of books that match the given query.
@@ -44,21 +44,21 @@ public interface IIsbndbBookClient
     /// <returns>
     /// A <see cref="BooksQueryResponseDto"/> containing matching books and the total count.
     /// </returns>
-    Task<BooksQueryResponseDto> SearchBooksAsync(string query, string? languageCode, bool shouldMatchAll = true,
+    Task<BooksQueryResponseDto?> SearchBooksAsync(string query, string? languageCode, bool shouldMatchAll = true,
         CancellationToken ct = default);
-    
+
     /// <summary>
     /// Retrieves a list of books matching the provided ISBNs from the data source.
     /// </summary>
     /// <param name="isbns">
-    /// An object containing a collection of ISBN strings to query for.
+    ///     An object containing a collection of ISBN strings to query for.
     /// </param>
     /// <param name="ct">
-    /// A cancellation token that can be used to cancel the operation.
+    ///     A cancellation token that can be used to cancel the operation.
     /// </param>
     /// <returns>
     /// A <see cref="BooksListResponseDto"/> containing the books that match the provided ISBNs, 
     /// or <c>null</c> if no matching books are found or the request fails.
     /// </returns>
-    Task<BooksListResponseDto> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct = default);
+    Task<BooksListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct = default);
 }

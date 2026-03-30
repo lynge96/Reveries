@@ -1,116 +1,44 @@
-﻿using System.Net;
-using System.Text.Json;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Exceptions;
-using Reveries.Application.Extensions;
-using Reveries.Core.Exceptions;
+using Reveries.Integration.Common.Base;
+using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.DTOs.Publishers;
 using Reveries.Integration.Isbndb.Interfaces;
 
 namespace Reveries.Integration.Isbndb.Clients;
 
-public class IsbndbPublisherClient : IIsbndbPublisherClient
+public class IsbndbPublisherClient : ExternalBaseClient<IsbndbPublisherClient>, IIsbndbPublisherClient
 {
-    private readonly HttpClient _httpClient;
-    private readonly ILogger<IsbndbPublisherClient> _logger;
-    
-    private const string DependencyName = nameof(IsbndbPublisherClient);
-    
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    protected override string DependencyName => IsbndbSettings.SectionName;
     
     public IsbndbPublisherClient(HttpClient httpClient, ILogger<IsbndbPublisherClient> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
-    }
+        : base(httpClient, logger) { }
     
-    public async Task<PublisherDetailsReponseDto> FetchPublisherDetailsAsync(string publisherName, string? languageCode, CancellationToken ct)
+    public async Task<PublisherDetailsReponseDto?> FetchPublisherDetailsAsync(string publisherName,
+        string? languageCode, CancellationToken ct)
     {
+        var context = $"publisher '{publisherName}'";
         var endpoint = $"publisher/{Uri.EscapeDataString(publisherName)}";
-
+        
         if (!string.IsNullOrWhiteSpace(languageCode))
-        {
             endpoint = QueryHelpers.AddQueryString(endpoint, "language", languageCode);
-        }
 
-        using var response = await _httpClient.GetAsync(endpoint, ct);
-
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            _logger.LogDebug("Publisher '{PublisherName}' not found.", publisherName);
-            throw new NotFoundException($"Publisher '{publisherName}' was not found in Isbndb.");
-        }
-
-        var json = await response.Content.ReadAsStringAsync(ct);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new ExternalDependencyException(
-                dependency: DependencyName,
-                message: $"Isbndb returned {(int)response.StatusCode} ({response.StatusCode}) for publisher '{publisherName}'.",
-                upstreamStatus: response.StatusCode
-            );
-        }
-
-        try
-        {
-            var result = JsonSerializer.Deserialize<PublisherDetailsReponseDto>(json, JsonOptions);
-            if (result is null)
-            {
-                throw new InvalidOperationException($"Isbndb returned an empty or invalid payload for publisher '{publisherName}'.");
-            }
-
-            return result;
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogWarning(ex, "Failed to deserialize Isbndb publisher details response for '{PublisherName}'. Payload: {Payload}", publisherName, json.TruncateForLog());
-            throw new InvalidOperationException($"Failed to deserialize Isbndb publisher details response for '{publisherName}'.", ex);
-        }
+        var response = await HttpClient.GetAsync(endpoint, ct);
+        
+        return await HandleResponseAsync<PublisherDetailsReponseDto>(
+            response, 
+            context, 
+            ct: ct);
     }
     
-    public async Task<PublisherListResponseDto> SearchPublishersAsync(string publisherName, CancellationToken ct)
+    public async Task<PublisherListResponseDto?> SearchPublishersAsync(string publisherName, CancellationToken ct)
     {
-        var endpoint = $"publishers/{Uri.EscapeDataString(publisherName)}";
-
-        using var response = await _httpClient.GetAsync(endpoint, ct);
-
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            _logger.LogDebug("No publishers matched '{PublisherName}'.", publisherName);
-            throw new NotFoundException($"No publishers matched the name '{publisherName}' in Isbndb.");
-        }
-
-        var json = await response.Content.ReadAsStringAsync(ct);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new ExternalDependencyException(
-                dependency: DependencyName,
-                message: $"Isbndb returned {(int)response.StatusCode} ({response.StatusCode}) for publisher search '{publisherName}'.",
-                upstreamStatus: response.StatusCode
-            );
-        }
-
-        try
-        {
-            var result = JsonSerializer.Deserialize<PublisherListResponseDto>(json, JsonOptions);
-            if (result is null)
-            {
-                throw new InvalidOperationException($"Isbndb returned an empty or invalid publisher search payload for '{publisherName}'.");
-            }
-
-            return result;
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogWarning(ex, "Failed to deserialize Isbndb publisher search response for '{PublisherName}'. Payload: {Payload}", publisherName, json.TruncateForLog());
-            throw new InvalidOperationException($"Failed to deserialize Isbndb publisher search response for '{publisherName}'.", ex);
-        }
+        var context = $"publisher search '{publisherName}'";
+        var response = await HttpClient.GetAsync($"publishers/{Uri.EscapeDataString(publisherName)}", ct);
+        
+        return await HandleResponseAsync<PublisherListResponseDto>(
+            response,
+            context,
+            ct: ct);
     }
-
 }

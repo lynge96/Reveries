@@ -1,14 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Reveries.Application.Commands;
 using Reveries.Application.Commands.CreateBook;
 using Reveries.Application.Commands.SetBookSeries;
-using Reveries.Application.Interfaces.Services;
-using Reveries.Application.Queries;
-using Reveries.Application.Queries.GetAllBooks;
-using Reveries.Application.Queries.GetBookByDbId;
-using Reveries.Application.Queries.GetBookByIsbn;
-using Reveries.Application.Queries.GetBookByIsbns;
+using Reveries.Application.Queries.AllBooks;
+using Reveries.Application.Queries.BookByDbId;
+using Reveries.Application.Queries.BookByIsbn;
+using Reveries.Application.Queries.BookExists;
+using Reveries.Application.Queries.BooksByIsbns;
 using Reveries.Application.Services;
+using Reveries.Application.Services.Authors;
+using Reveries.Application.Services.Books;
+using Reveries.Application.Services.BookSeries;
+using Reveries.Application.Services.Publishers;
 
 namespace Reveries.Application.Configuration;
 
@@ -21,20 +23,22 @@ public static class ServiceCollectionExtensions
         services.AddScoped<SetBookSeriesHandler>();
 
         // Queries
-        services.AddScoped<GetBookByIsbnHandler>();
-        services.AddScoped<GetBooksByIsbnsHandler>();
-        services.AddScoped<GetBookByDbIdHandler>();
-        services.AddScoped<GetAllBooksHandler>();
+        services.AddScoped<BookByIsbnHandler>();
+        services.AddScoped<BooksByIsbnsHandler>();
+        services.AddScoped<BookByDbIdHandler>();
+        services.AddScoped<AllBooksHandler>();
+        services.AddScoped<BookExistsHandler>();
         
         // Services
-        services.AddScoped<IAuthorEnrichmentService, AuthorEnrichmentService>();
-        services.AddScoped<IBookEnrichmentService, BookEnrichmentService>();
-        services.AddScoped<IBookLookupService, BookLookupService>();
-        services.AddScoped<IAuthorLookupService, AuthorLookupService>();
-        services.AddScoped<IPublisherLookupService, PublisherLookupService>();
-        services.AddScoped<ISeriesService, SeriesService>();
-        services.AddScoped<IBookSeriesService, BookSeriesService>();
-        services.AddScoped<IBookReadStatusService, BookReadStatusService>();
+        services.AddScoped<BookPersistenceService>();
+        services.AddScoped<AuthorEnrichmentService>();
+        services.AddScoped<BookEnrichmentService>();
+        services.AddScoped<BookLookupService>();
+        services.AddScoped<AuthorLookupService>();
+        services.AddScoped<PublisherLookupService>();
+        services.AddScoped<CreateSeriesService>();
+        services.AddScoped<BookSeriesService>();
+        services.AddScoped<BookReadStatusService>();
         
         return services;
     }

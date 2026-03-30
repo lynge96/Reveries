@@ -38,9 +38,6 @@ public sealed class AuthorNameVariant
         // 4) Sørg for mellemrum efter punktum før bogstav: "J.Austen" -> "J. Austen"
         s = Regex.Replace(s, @"\.(?=\p{L})", ". ");
 
-        // 5) Kollaps igen (i tilfælde af vi indsatte ekstra spaces)
-        s = Regex.Replace(s, @"\s+", " ").Trim();
-
         return s;
     }
 

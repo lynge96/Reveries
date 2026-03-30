@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
-using Reveries.Console.Interfaces;
+using Reveries.Console.Services;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
 
@@ -13,9 +13,9 @@ public partial class BookSeriesHandler : BaseHandler
     [GeneratedRegex(@"\s+")]
     private static partial Regex RemoveWhitespace();
     public override MenuChoice MenuChoice => MenuChoice.BookSeries;
-    private readonly ISaveEntityService _saveEntityService;
+    private readonly SaveEntityService _saveEntityService;
     
-    public BookSeriesHandler(ISaveEntityService saveEntityService)
+    public BookSeriesHandler(SaveEntityService saveEntityService)
     {
         _saveEntityService = saveEntityService;
     }

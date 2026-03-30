@@ -2,7 +2,7 @@ namespace Reveries.Contracts.Books;
 
 public sealed record BookDetailsDto
 {
-    public required Guid Id { get; init; }
+    public required Guid BookId { get; init; }
     public string? Isbn10 { get; init; }
     public string? Isbn13 { get; init; }
     public required string Title { get; init; }

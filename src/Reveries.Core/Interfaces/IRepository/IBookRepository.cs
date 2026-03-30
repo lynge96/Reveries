@@ -6,17 +6,18 @@ namespace Reveries.Core.Interfaces.IRepository;
 
 public interface IBookRepository
 {
-    Task<int> AddAsync(Book book, int? publisherId, int? seriesId);
-    Task<BookWithId?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null);
-    Task UpdateBookSeriesAsync(BookWithId book, int seriesId);
-    Task UpdateBookReadStatusAsync(Book book);
+    Task<int> AddAsync(Book book, int? publisherId, int? seriesId, CancellationToken ct = default);
+    Task<BookWithId?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null, CancellationToken ct = default);
+    Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct = default);
+    Task UpdateBookSeriesAsync(BookWithId book, int seriesId, CancellationToken ct = default);
+    Task UpdateBookReadStatusAsync(Book book, CancellationToken ct = default);
     
-    Task<List<Book>> GetBooksByAuthorAsync(string authorName);
-    Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<string> authorNames);
-    Task<List<Book>> GetBooksByPublisherAsync(string publisherName);
-    Task<List<Book>> GetDetailedBooksByTitleAsync(List<string> bookTitles);
-    Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<Isbn> isbns);
-    Task<Book?> GetBookByIdAsync(int id);
-    Task<List<Book>> GetAllBooksAsync();
+    Task<List<Book>> GetBooksByAuthorAsync(string authorName, CancellationToken ct = default);
+    Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<string> authorNames, CancellationToken ct = default);
+    Task<List<Book>> GetBooksByPublisherAsync(string publisherName, CancellationToken ct = default);
+    Task<List<Book>> GetDetailedBooksByTitleAsync(List<string> bookTitles, CancellationToken ct = default);
+    Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct = default);
+    Task<Book?> GetBookByIdAsync(int id, CancellationToken ct = default);
+    Task<List<Book>> GetAllBooksAsync(CancellationToken ct = default);
     
 }

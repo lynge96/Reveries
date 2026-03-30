@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict t8ofxbqexday0iE8IM0ratj2WSwVO6yUUIRFCwyOq8srfCcAknhQl66eTpQ0pcp
+\restrict CbzNRv1uoYXgA42xwNV4NtkQAMYENCbjykJh2Z4OT6uJ68o9YLNxUPo3d48O0K5
 
 -- Dumped from database version 18.0 (Debian 18.0-1.pgdg13+3)
 -- Dumped by pg_dump version 18.0 (Debian 18.0-1.pgdg13+3)
@@ -290,7 +290,6 @@ CREATE VIEW library.book_details_flat AS
     b.title,
     b.isbn13,
     b.isbn10,
-    b.publisher_id,
     b.publication_date AS "publicationDate",
     b.page_count AS "pageCount",
     b.synopsis,
@@ -321,11 +320,11 @@ CREATE VIEW library.book_details_flat AS
    FROM (((((library.books b
      LEFT JOIN library.publishers p ON ((b.publisher_id = p.id)))
      LEFT JOIN library.series se ON ((b.series_id = se.id)))
-     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('id', g_1.id, 'name', g_1.name, 'dateCreated', g_1.date_created) ORDER BY g_1.name) AS genres_json
+     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('GenreId', g_1.id, 'GenreName', g_1.name, 'DateCreatedGenre', g_1.date_created) ORDER BY g_1.name) AS genres_json
            FROM (library.books_genres bg
              JOIN library.genres g_1 ON ((bg.genre_id = g_1.id)))
           WHERE (bg.book_id = b.id)) g ON (true))
-     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('id', a_1.id, 'domainId', a_1.domain_id, 'normalizedName', a_1.normalized_name, 'firstName', a_1.first_name, 'lastName', a_1.last_name, 'dateCreated', a_1.date_created) ORDER BY a_1.normalized_name) AS authors_json
+     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('AuthorId', a_1.id, 'AuthorDomainId', a_1.domain_id, 'NormalizedName', a_1.normalized_name, 'FirstName', a_1.first_name, 'LastName', a_1.last_name, 'DateCreatedAuthor', a_1.date_created) ORDER BY a_1.normalized_name) AS authors_json
            FROM (library.books_authors ba
              JOIN library.authors a_1 ON ((ba.author_id = a_1.id)))
           WHERE (ba.book_id = b.id)) a ON (true))
@@ -482,148 +481,6 @@ ALTER TABLE ONLY library.publishers ALTER COLUMN id SET DEFAULT nextval('library
 --
 
 ALTER TABLE ONLY library.series ALTER COLUMN id SET DEFAULT nextval('library.series_id_seq'::regclass);
-
-
---
--- Data for Name: author_name_variants; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.author_name_variants (id, author_id, name_variant, is_primary) FROM stdin;
-50	10	jamesislington	t
-51	10	islingtonjames	f
-52	10	ofislingtonfredericjamespost	f
-53	10	fredericjamespostofislington	f
-\.
-
-
---
--- Data for Name: authors; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.authors (id, domain_id, normalized_name, first_name, last_name, date_created) FROM stdin;
-10	4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed	james islington	James	Islington	2026-02-12 17:55:40.690028
-\.
-
-
---
--- Data for Name: books; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.books (id, domain_id, title, isbn13, isbn10, publisher_id, series_id, series_number, publication_date, page_count, synopsis, language, edition, binding, image_url, image_thumbnail, msrp, is_read, height_cm, width_cm, thickness_cm, weight_g, date_created) FROM stdin;
-\.
-
-
---
--- Data for Name: books_authors; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.books_authors (book_id, author_id) FROM stdin;
-\.
-
-
---
--- Data for Name: books_dewey_decimals; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.books_dewey_decimals (book_id, dewey_decimal_id) FROM stdin;
-\.
-
-
---
--- Data for Name: books_genres; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.books_genres (book_id, genre_id) FROM stdin;
-\.
-
-
---
--- Data for Name: dewey_decimals; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.dewey_decimals (id, code, date_created) FROM stdin;
-9	823.92	2026-02-12 17:55:40.690028
-\.
-
-
---
--- Data for Name: genres; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.genres (id, name, date_created) FROM stdin;
-47	Fiction	2026-02-12 17:55:40.690028
-48	Action & Adventure	2026-02-12 17:55:40.690028
-49	Fantasy	2026-02-12 17:55:40.690028
-50	General	2026-02-12 17:55:40.690028
-51	Epic	2026-02-12 17:55:40.690028
-52	Historical	2026-02-12 17:55:40.690028
-\.
-
-
---
--- Data for Name: publishers; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.publishers (id, domain_id, name, date_created) FROM stdin;
-10	4925c6f9-3a14-4cfc-8a2e-abb60f8245d0	Simon And Schuster	2026-02-12 17:55:40.690028
-\.
-
-
---
--- Data for Name: series; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.series (id, domain_id, name, date_created) FROM stdin;
-\.
-
-
---
--- Name: author_name_variants_id_seq; Type: SEQUENCE SET; Schema: library; Owner: -
---
-
-SELECT pg_catalog.setval('library.author_name_variants_id_seq', 53, true);
-
-
---
--- Name: authors_id_seq; Type: SEQUENCE SET; Schema: library; Owner: -
---
-
-SELECT pg_catalog.setval('library.authors_id_seq', 10, true);
-
-
---
--- Name: books_id_seq; Type: SEQUENCE SET; Schema: library; Owner: -
---
-
-SELECT pg_catalog.setval('library.books_id_seq', 7, true);
-
-
---
--- Name: dewey_decimals_id_seq; Type: SEQUENCE SET; Schema: library; Owner: -
---
-
-SELECT pg_catalog.setval('library.dewey_decimals_id_seq', 9, true);
-
-
---
--- Name: genres_id_seq; Type: SEQUENCE SET; Schema: library; Owner: -
---
-
-SELECT pg_catalog.setval('library.genres_id_seq', 52, true);
-
-
---
--- Name: publishers_id_seq; Type: SEQUENCE SET; Schema: library; Owner: -
---
-
-SELECT pg_catalog.setval('library.publishers_id_seq', 10, true);
-
-
---
--- Name: series_id_seq; Type: SEQUENCE SET; Schema: library; Owner: -
---
-
-SELECT pg_catalog.setval('library.series_id_seq', 1, false);
 
 
 --
@@ -884,5 +741,5 @@ ALTER TABLE ONLY library.books_genres
 -- PostgreSQL database dump complete
 --
 
-\unrestrict t8ofxbqexday0iE8IM0ratj2WSwVO6yUUIRFCwyOq8srfCcAknhQl66eTpQ0pcp
+\unrestrict CbzNRv1uoYXgA42xwNV4NtkQAMYENCbjykJh2Z4OT6uJ68o9YLNxUPo3d48O0K5
 

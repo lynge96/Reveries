@@ -7,11 +7,9 @@ public static class BookDetailsMapper
 {
     public static BookDetailsDto ToDto(this BookDetailsReadModel book)
     {
-        ArgumentNullException.ThrowIfNull(book);
-
         return new BookDetailsDto
         {
-            Id = book.Id,
+            BookId = book.Id,
             Isbn10 = book.Isbn10,
             Isbn13 = book.Isbn13,
             Title = book.Title,

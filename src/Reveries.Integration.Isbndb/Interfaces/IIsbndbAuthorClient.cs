@@ -13,27 +13,27 @@ public interface IIsbndbAuthorClient
     /// Searches for authors by their name.
     /// </summary>
     /// <param name="authorName">
-    /// The name of the author to search for.
+    ///     The name of the author to search for.
     /// </param>
     /// <param name="ct">
-    /// A cancellation token to cancel the request if needed.
+    ///     A cancellation token to cancel the request if needed.
     /// </param>
     /// <returns>
     /// An <see cref="AuthorSearchResponseDto"/> containing matching authors, or <c>null</c> if no authors are found.
     /// </returns>
-    Task<AuthorSearchResponseDto> SearchAuthorsByNameAsync(string authorName, CancellationToken ct = default);
-    
+    Task<AuthorSearchResponseDto?> SearchAuthorsByNameAsync(string authorName, CancellationToken ct = default);
+
     /// <summary>
     /// Retrieves a list of books written by the specified author.
     /// </summary>
     /// <param name="authorName">
-    /// The name of the author whose books are being requested.
+    ///     The name of the author whose books are being requested.
     /// </param>
     /// <param name="ct">
-    /// A cancellation token to cancel the request if needed.
+    ///     A cancellation token to cancel the request if needed.
     /// </param>
     /// <returns>
     /// An <see cref="AuthorBooksResponseDto"/> containing the books by the author, or <c>null</c> if no books are found.
     /// </returns>
-    Task<AuthorBooksResponseDto> FetchBooksByAuthorAsync(string authorName, CancellationToken ct = default);
+    Task<AuthorBooksResponseDto?> FetchBooksByAuthorAsync(string authorName, CancellationToken ct = default);
 }

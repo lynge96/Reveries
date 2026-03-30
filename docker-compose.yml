@@ -1,0 +1,143 @@
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: reveries-cloudflared
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - api
+      - bookscanner
+    networks:
+      - reveries-network
+  
+  api:
+    build:
+      context: .
+      dockerfile: src/Reveries.Api/Dockerfile
+    container_name: reveries-api
+    restart: always
+    environment:
+      Postgres__Host: postgres
+      Postgres__Port: 5432
+      Postgres__Database: ${POSTGRES_DATABASE}
+      Postgres__Username: ${POSTGRES_USERNAME}
+      Postgres__Password: ${POSTGRES_PASSWORD}
+  
+      Redis__Host: redis
+      Redis__Port: 6379
+      Redis__Password: ${REDIS_PASSWORD}
+  
+      Isbndb__ApiKey: ${ISBNDB_APIKEY}
+      GoogleBooks__ApiKey: ${GOOGLEBOOKS_APIKEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - reveries-network
+
+  bookscanner:
+    build:
+      context: .
+      dockerfile: src/Reveries.Blazor.BookScanner/Dockerfile
+    container_name: reveries-bookscanner
+    restart: always
+    depends_on:
+      - api
+    networks:
+      - reveries-network
+  
+  postgres:
+    image: postgres:18
+    container_name: reveries-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - reveries-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME} -d ${POSTGRES_DATABASE}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: reveries-redis
+    restart: always
+    command: [
+      "redis-server",
+      "--maxmemory", "512mb",
+      "--maxmemory-policy", "volatile-lru",
+      "--requirepass", "${REDIS_PASSWORD}"
+    ]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    environment:
+      Redis__Password: ${REDIS_PASSWORD}
+    networks:
+      - reveries-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: reveries-redisinsight
+    restart: always
+    volumes:
+      - redisinsight_data:/data
+    ports:
+      - "5540:5540"
+    networks:
+      - reveries-network
+    environment:
+      - RIPROXYPATH=/redis
+    depends_on:
+      - redis
+  
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: reveries-loki
+    restart: always
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./infra/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - reveries-network
+
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: reveries-grafana
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SERVER_ROOT_URL=https://grafana.reveries.dk
+      - GF_SERVER_SERVE_FROM_SUB_PATH=false
+    networks:
+      - reveries-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  redisinsight_data:
+  loki_data:
+    
+networks:
+  reveries-network:
+    driver: bridge

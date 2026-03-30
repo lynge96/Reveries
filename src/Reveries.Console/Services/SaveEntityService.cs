@@ -1,0 +1,101 @@
+using Reveries.Application.Exceptions;
+using Reveries.Application.Services;
+using Reveries.Application.Services.Books;
+using Reveries.Application.Services.BookSeries;
+using Reveries.Console.Common.Extensions;
+using Reveries.Core.Models;
+using Spectre.Console;
+
+namespace Reveries.Console.Services;
+
+public class SaveEntityService
+{
+    private readonly BookPersistenceService _bookPersistenceService;
+    private readonly CreateSeriesService _createSeriesService;
+
+    public SaveEntityService(
+        BookPersistenceService bookPersistenceService, 
+        CreateSeriesService createSeriesService)
+    {
+        _bookPersistenceService = bookPersistenceService;
+        _createSeriesService = createSeriesService;
+    }
+
+    public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default)
+    {
+        var booksList = books.ToList();
+    
+        if (booksList.Count == 0)
+        {
+            AnsiConsole.MarkupLine("No books were selected to save.".AsWarning());
+            return;
+        }
+
+        AnsiConsole.MarkupLine($"\nSaving {booksList.Count} book(s)...".AsSuccess());
+
+        foreach (var book in booksList)
+        {
+            try
+            {
+                var bookId = await _bookPersistenceService.SaveBookWithRelationsAsync(book, cancellationToken);
+
+                AnsiConsole.MarkupLine($"""
+                                        ✅ Successfully saved to database:
+                                           Title: {book.Title}
+                                           ID: {bookId}
+                                           ISBN: {book.Isbn13?.Value ?? book.Isbn10?.Value ?? "N/A"}
+                                        """.AsPrimary());
+            }
+            catch (BookAlreadyExistsException ex)
+            {
+                AnsiConsole.MarkupLine($"""
+                                        ⚠️ Book already exists:
+                                           Title: {book.Title}
+                                           Error: {ex.Message}
+                                        """.AsWarning());
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"""
+                                        ❌ Transaction failed:
+                                           Title: {book.Title}
+                                           Error: {ex.Message}
+                                           Details: Transaction was rolled back
+                                        """.AsError());
+            }
+        }
+    }
+
+    public async Task SaveSeriesAsync(Series series, CancellationToken cancellationToken = default)
+    {
+        AnsiConsole.MarkupLine($"\nSaving series {series.Name}...".AsSuccess());
+
+        try
+        {
+            var seriesId = await _createSeriesService.CreateSeriesAsync(series);
+            
+            AnsiConsole.MarkupLine($"""
+                                    ✅ Successfully saved to database:
+                                       Name: {series.Name}
+                                       ID: {seriesId}
+                                    """.AsPrimary());
+        }
+        catch (SeriesAlreadyExistsException ex)
+        {
+            AnsiConsole.MarkupLine($"""
+                                    ⚠️ Series already exists:
+                                       Name: {series.Name}
+                                       Error: {ex.Message}
+                                    """.AsWarning());
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"""
+                                    ❌ Transaction failed:
+                                       Name: {series.Name}
+                                       Error: {ex.Message}
+                                       Details: Transaction was rolled back
+                                    """.AsError());
+        }
+    }
+}

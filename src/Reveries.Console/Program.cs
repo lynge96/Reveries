@@ -22,16 +22,20 @@ var host = Host.CreateDefaultBuilder(args)
     {
         var configuration = context.Configuration;
 
+        services.AddApplicationServices();
         services.AddRedisCache(configuration);
         services.AddPostgresql(configuration);
-        services.AddApplicationServices();
         services.AddIsbndbServices(configuration);
         services.AddGoogleBooksServices(configuration);
+        
         services.AddTransient<IConsoleAppRunnerService, ConsoleAppRunnerService>();
+        
         services.AddScoped<IMenuOperationService, MenuOperationService>();
-        services.AddScoped<ISaveEntityService, SaveEntityEntityService>();
-        services.AddScoped<IBookDisplayService, BookDisplayService>();
-        services.AddScoped<IBookSelectionService, BookSelectionService>();
+        
+        services.AddScoped<BookSelectionService>();
+        services.AddScoped<SaveEntityService>();
+        services.AddScoped<BookDisplayService>();
+        
         services.AddScoped<IMenuHandler, SearchBookHandler>();
         services.AddScoped<IMenuHandler, SearchAuthorHandler>();
         services.AddScoped<IMenuHandler, SearchPublisherHandler>();

@@ -1,16 +1,10 @@
 using System.Globalization;
-using Microsoft.AspNetCore.Components;
 using Reveries.Contracts.Books;
 
 namespace Reveries.Blazor.BookScanner.Extensions;
 
 public static class BookDtoExtensions
 {
-    public static MarkupString ToMarkup(this string? synopsis)
-    {
-        return new MarkupString(synopsis ?? "Synopsis not available.");
-    }
-
     public static string FormattedDate(this BookDetailsDto? bookDto)
     {
         var raw = bookDto?.PublicationDate?.Trim();

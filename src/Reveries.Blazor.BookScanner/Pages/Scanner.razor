@@ -1,12 +1,10 @@
 ﻿@page "/"
-@page "/scanner"
 <PageTitle>Reveries | Book Scanner</PageTitle>
 @inject IJSRuntime Js
 @inject NavigationManager Nav
 @inject BookApiClient BooksApi
 @inject BookState BookState
-@using Reveries.Contracts.Books
-@implements IDisposable
+@implements IAsyncDisposable
 
 <div class="scanner-page mt-4 d-flex justify-content-center">
 
@@ -138,21 +136,23 @@
     {
         if (firstRender)
         {
+            await Js.InvokeVoidAsync("import", "/js/scanner.js");
+            await Js.InvokeVoidAsync("import", "/js/imageLoader.js");
             _objRef = DotNetObjectReference.Create(this);
             await Js.InvokeVoidAsync("scanner.startContinuousScan", _objRef);
-            await Js.InvokeVoidAsync("disableScroll");
         }
     }
     
     [JSInvokable]
     public async Task OnIsbnScanned(string scannedIsbn)
     {
-        if (_isProcessing) return;
+        if (_isProcessing || _objRef is null)
+            return;
         
         _isProcessing = true;
         ScannedIsbn = scannedIsbn;
         _errorMessage = null;
-        await Task.Delay(600);
+        StateHasChanged();
         
         try
         {
@@ -161,34 +161,27 @@
             if (_bookDto != null)
             {
                 await Js.InvokeVoidAsync("preloadImage", _bookDto.CoverImageUrl);    // Preloading image
+                await Js.InvokeVoidAsync("scanner.stopContinuousScan");
                 
                 BookState.SetBook(_bookDto);
-                StateHasChanged();
-                
-                await Task.Delay(600);
-                Nav.NavigateTo($"/book/{ScannedIsbn}");
+                await Task.Delay(200);
+                Nav.NavigateTo($"book/{ScannedIsbn}");
             }
         }
         catch (Exception ex)
         {
-            switch (ex)
+            _errorMessage = ex switch
             {
-                case ApiConnectionException:
-                    _errorMessage = ex.Message;
-                    break;
-                case ApiException { StatusCode: HttpStatusCode.BadRequest }:
-                    _errorMessage = scannedIsbn.Length is not (10 or 13)
+                ApiConnectionException => ex.Message,
+                ApiException { StatusCode: HttpStatusCode.BadRequest } =>
+                    scannedIsbn.Length is not (10 or 13)
                         ? "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN."
-                        : "Invalid ISBN number. Please check the number and try again.";
-                    break;
-                case ApiException { StatusCode: HttpStatusCode.NotFound }:
-                    _errorMessage = "The book was not found. Try a different ISBN number.";
-                    break;
-                default:
-                    _errorMessage = "An unexpected error occurred. Please try again later.";
-                    break;
-            }
+                        : "Invalid ISBN number. Please check the number and try again.",
+                ApiException { StatusCode: HttpStatusCode.NotFound } => "The book was not found. Try a different ISBN number.",
+                _ => "An unexpected error occurred. Please try again later."
+            };
             
+            _ = Js.InvokeVoidAsync("scanner.resetLastIsbn");
             _bookDto = null;
             BookState.Clear();
             StateHasChanged();
@@ -199,10 +192,17 @@
         }
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        _ = Js.InvokeVoidAsync("scanner.stopContinuousScan");
-        _ = Js.InvokeVoidAsync("enableScroll");
+        try
+        {
+            await Js.InvokeVoidAsync("scanner.stopContinuousScan");
+        }
+        catch
+        {
+            // ignored
+        }
+
         _objRef?.Dispose();
     }
 }

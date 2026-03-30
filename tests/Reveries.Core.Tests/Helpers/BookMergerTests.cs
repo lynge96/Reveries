@@ -102,7 +102,7 @@ public class BookMergerTests
 
         var result = BookMerger.MergeBooks(isbndb, google);
 
-        Assert.Equal(google.Title, result.Title);
+        Assert.Equal(google.Title, result?.Title);
     }
 
     [Fact]
@@ -113,7 +113,7 @@ public class BookMergerTests
 
         var result = BookMerger.MergeBooks(isbndb, google);
 
-        Assert.Equal(isbndb.Pages, result.Pages);
+        Assert.Equal(isbndb.Pages, result?.Pages);
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class BookMergerTests
 
         var result = BookMerger.MergeBooks(isbndb, google);
 
-        Assert.NotNull(result.Dimensions);
+        Assert.NotNull(result?.Dimensions);
         Assert.Equal(25, result.Dimensions.HeightCm);
         Assert.Equal(16, result.Dimensions.WidthCm);
     }
@@ -137,7 +137,7 @@ public class BookMergerTests
 
         var result = BookMerger.MergeBooks(isbndb, google);
 
-        Assert.Equal(DataSource.CombinedBookApi, result.DataSource);
+        Assert.Equal(DataSource.CombinedBookApi, result?.DataSource);
     }
 
 }

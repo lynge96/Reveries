@@ -1,9 +1,8 @@
 @page "/book/{Isbn}"
-@using Reveries.Contracts.Books
 <PageTitle>Reveries | @(_book?.Title ?? "Book Details")</PageTitle>
+@inject IJSRuntime Js
 @inject BookApiClient BooksApi
 @inject BookState BookState
-@inject NavigationManager Nav
 
 @if (_book == null)
 {
@@ -44,18 +43,13 @@ else
                         <button type="button"
                                 class="btn action-btn w-100 mt-1"
                                 @onclick="@SaveBook"
-                                disabled="@(_bookDbId != null)">
-                            @if (_bookDbId == null)
-                            {
-                                <i class="bi bi-bookmark-fill me-2"></i>
-                                <span>Add book to shelf</span>
-                            }
-                            else if (_isSaving)
+                                disabled="@(_isSaved || _isSaving || _bookAdded)">
+                            @if (_isSaving)
                             {
                                 <div class="spinner-border spinner-border-sm text-light me-2" role="status"></div>
                                 <span>Saving...</span>
                             }
-                            else if (_bookAdded)
+                            else if (_bookAdded || _isSaved)
                             {
                                 <div class="book-added d-flex align-items-center justify-content-center">
                                     <i class="bi bi-bookmark-check me-2"></i>
@@ -64,8 +58,8 @@ else
                             }
                             else
                             {
-                                <i class="bi bi-check-lg me-2"></i>
-                                <span>Already on the shelf</span>
+                                <i class="bi bi-bookmark-fill me-2"></i>
+                                <span>Add book to shelf</span>
                             }
                         </button>
                     </div>
@@ -78,13 +72,13 @@ else
                             @BookHeader
                         </div>
 
-                        <!-- Subjects -->
+                        <!-- Genres -->
                         @if (_book.Genres?.Any() == true)
                         {
-                            <div class="subject-badges">
-                                @foreach (var subject in _book.Genres)
+                            <div class="genre-badges">
+                                @foreach (var genre in _book.Genres)
                                 {
-                                    <span class="subject-badge">@subject</span>
+                                    <span class="genre-badge">@genre</span>
                                 }
                             </div>
                         }
@@ -252,16 +246,16 @@ else
     private const int MaxSynopsisLength = 300;
     private bool _isSaving;
     private bool _bookAdded;
+    private bool _isSaved;
 
     private void ToggleSynopsis()
     {
         _showFullSynopsis = !_showFullSynopsis;
     }
-
-
-    private void GoBack()
+    
+    private async Task GoBack()
     {
-        Nav.NavigateTo("/scanner");
+        await Js.InvokeVoidAsync("history.back");
     }
     
     protected override async Task OnInitializedAsync()
@@ -273,6 +267,17 @@ else
         else if (!string.IsNullOrEmpty(Isbn))
         {
             _book = await BooksApi.GetAsync(Isbn);
+        }
+        
+        if (_book != null)
+        {
+            _isSaved = _book.DataSource switch
+            {
+                "Database" => true,
+                "ExternalApi" => false,
+                "Cache" => await BooksApi.ExistsAsync(Isbn!),
+                _ => false
+            };
         }
     }
 

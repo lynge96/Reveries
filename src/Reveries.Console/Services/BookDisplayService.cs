@@ -1,5 +1,4 @@
 using Reveries.Console.Common.Extensions;
-using Reveries.Console.Interfaces;
 using Reveries.Core.Enums;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
@@ -7,7 +6,7 @@ using Spectre.Console;
 
 namespace Reveries.Console.Services;
 
-public class BookDisplayService : IBookDisplayService
+public class BookDisplayService
 {
     public void DisplayBooksTree(List<Book> books)
     {

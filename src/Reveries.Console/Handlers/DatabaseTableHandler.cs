@@ -1,11 +1,12 @@
-using Reveries.Application.Commands.Abstractions;
 using Reveries.Application.Commands.SetBookSeries;
 using Reveries.Application.Extensions;
-using Reveries.Application.Interfaces.Services;
+using Reveries.Application.Services;
+using Reveries.Application.Services.Books;
+using Reveries.Application.Services.BookSeries;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
-using Reveries.Console.Interfaces;
+using Reveries.Console.Services;
 using Reveries.Core.Models;
 using Spectre.Console;
 
@@ -15,21 +16,21 @@ public class DatabaseTableHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.BooksInDatabase;
     
-    private readonly IBookLookupService _bookLookupService;
-    private readonly ISeriesService _seriesService;
-    private readonly ICommandHandler<SetBookSeriesCommand, int> _setBookSeriesCommandHandler;
-    private readonly IBookDisplayService _bookDisplayService;
-    private readonly IBookReadStatusService _bookReadStatusService;
+    private readonly BookLookupService _bookLookupService;
+    private readonly CreateSeriesService _createSeriesService;
+    private readonly SetBookSeriesHandler _setBookSeriesCommandHandler;
+    private readonly BookDisplayService _bookDisplayService;
+    private readonly BookReadStatusService _bookReadStatusService;
 
     public DatabaseTableHandler(
-        IBookLookupService bookLookupService, 
-        ISeriesService seriesService, 
-        ICommandHandler<SetBookSeriesCommand, int> setBookSeriesCommandHandler,
-        IBookDisplayService bookDisplayService,
-        IBookReadStatusService bookReadStatusService)
+        BookLookupService bookLookupService, 
+        CreateSeriesService createSeriesService, 
+        SetBookSeriesHandler setBookSeriesCommandHandler,
+        BookDisplayService bookDisplayService,
+        BookReadStatusService bookReadStatusService)
     {
         _bookLookupService = bookLookupService;
-        _seriesService = seriesService;
+        _createSeriesService = createSeriesService;
         _setBookSeriesCommandHandler = setBookSeriesCommandHandler;
         _bookDisplayService = bookDisplayService;
         _bookReadStatusService = bookReadStatusService;
@@ -58,7 +59,7 @@ public class DatabaseTableHandler : BaseHandler
 
     private async Task UpdateSelectedBooksWithSeriesAsync(List<Book> books, CancellationToken cancellationToken)
     {
-        var seriesInDb = await _seriesService.GetSeriesAsync();
+        var seriesInDb = await _createSeriesService.GetSeriesAsync();
         if (seriesInDb.Count == 0)
         {
             AnsiConsole.MarkupLine("No series found in database.".AsWarning());
