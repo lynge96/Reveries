@@ -69,7 +69,7 @@ public static class BookMerger
         => Prefer(isbndb.Language, google.Language);
 
     private static string? MergePublishDate(Book isbndb, Book google)
-        => isbndb.PublicationDate ?? google.PublicationDate;
+        => google.PublicationDate ?? isbndb.PublicationDate;
 
     private static string? MergeSynopsis(Book isbndb, Book google)
         => google.Synopsis ?? isbndb.Synopsis;
