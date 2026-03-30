@@ -4,7 +4,7 @@ using Reveries.Core.Enums;
 using Reveries.Core.Helpers;
 using Reveries.Core.Models;
 
-namespace Reveries.Application.Common.Mappers;
+namespace Reveries.Application.Books.Mappers;
 
 public static class BookMapper
 {

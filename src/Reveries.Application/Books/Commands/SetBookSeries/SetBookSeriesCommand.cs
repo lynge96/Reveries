@@ -1,9 +1,9 @@
-using Reveries.Application.Common.Abstractions;
+using MediatR;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Books.Commands.SetBookSeries;
 
-public sealed record SetBookSeriesCommand : ICommand
+public sealed record SetBookSeriesCommand : IRequest<int>
 {
     public Isbn? Isbn { get; init; }
     public required string SeriesName { get; init; }

@@ -1,13 +1,13 @@
+using MediatR;
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Books.Services;
-using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Application.Common.Mappers;
 
 namespace Reveries.Application.Books.Queries.GetBooksByIsbns;
 
-public sealed class GetBooksByIsbnsHandler : IQueryHandler<GetBooksByIsbnsQuery, List<BookDetailsReadModel>>
+public sealed class GetBooksByIsbnsHandler : IRequestHandler<GetBooksByIsbnsQuery, List<BookDetailsReadModel>>
 {
     private readonly BookLookupService _bookLookupService;
     private readonly ILogger<GetBooksByIsbnsHandler> _logger;
@@ -20,15 +20,13 @@ public sealed class GetBooksByIsbnsHandler : IQueryHandler<GetBooksByIsbnsQuery,
         _logger = logger;
     }
     
-    public async Task<List<BookDetailsReadModel>> HandleAsync(GetBooksByIsbnsQuery query, CancellationToken ct)
+    public async Task<List<BookDetailsReadModel>> Handle(GetBooksByIsbnsQuery query, CancellationToken ct)
     {
         var isbns = query.Isbns;
         var books = await _bookLookupService.FindBooksByIsbnAsync(isbns, ct);
         
         if (books.Count == 0)
-        {
             throw new NotFoundException($"Books with ISBNs '{isbns}' were not found.");
-        }
 
         _logger.LogInformation("Successfully retrieved books with ISBNs {Isbns}", new { Isbns = string.Join(", ", isbns) });
         

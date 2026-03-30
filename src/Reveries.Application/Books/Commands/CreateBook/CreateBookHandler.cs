@@ -1,11 +1,11 @@
+using MediatR;
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Services;
-using Reveries.Application.Common.Abstractions;
-using Reveries.Application.Common.Mappers;
 
 namespace Reveries.Application.Books.Commands.CreateBook;
 
-public sealed class CreateBookHandler : ICommandHandler<CreateBookCommand, int>
+public sealed class CreateBookHandler : IRequestHandler<CreateBookCommand, int>
 {
     private readonly BookPersistenceService _bookPersistenceService;
     private readonly ILogger<CreateBookHandler> _logger;
@@ -18,7 +18,7 @@ public sealed class CreateBookHandler : ICommandHandler<CreateBookCommand, int>
         _logger = logger;
     }
     
-    public async Task<int> HandleAsync(CreateBookCommand command, CancellationToken ct)
+    public async Task<int> Handle(CreateBookCommand command, CancellationToken ct)
     {
         var book = command.ToDomain();
 

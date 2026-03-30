@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Reveries.Api.Configuration;
 using Reveries.Api.Middleware;
 using Reveries.Application;
+using Reveries.Application.Books.Commands.CreateBook;
 using Reveries.Infrastructure.Postgresql.Configuration;
 using Reveries.Infrastructure.Redis.Configuration;
 using Reveries.Integration.GoogleBooks.Configuration;
@@ -13,6 +14,9 @@ Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilogConfiguration();
+
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(CreateBookCommand).Assembly));
 
 builder.Services
     .AddApplicationServices()

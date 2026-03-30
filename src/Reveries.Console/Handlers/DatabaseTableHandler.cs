@@ -93,7 +93,7 @@ public class DatabaseTableHandler : BaseHandler
                 NumberInSeries = num
             };
             
-            await _setBookSeriesCommandHandler.HandleAsync(bookSeriesCommand, cancellationToken);
+            await _setBookSeriesCommandHandler.Handle(bookSeriesCommand, cancellationToken);
         }
 
         AnsiConsole.MarkupLine("\nThe following books have been updated:".AsSuccess());

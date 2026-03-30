@@ -17,16 +17,16 @@ public class PublisherLookupService
         _publisherSearch = publisherSearch;
     }
     
-    public async Task<List<Publisher>> FindPublishersByNameAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<List<Publisher>> FindPublishersByNameAsync(string name, CancellationToken ct)
     {
         var dbTask = _unitOfWork.Publishers.GetPublishersByNameAsync(name);
-        var apiTask = _publisherSearch.GetPublishersByNameAsync(name, cancellationToken);
+        var apiTask = _publisherSearch.GetPublishersByNameAsync(name, ct);
         
-        await Task.WhenAll(dbTask, apiTask);
+        await Task.WhenAll(dbTask, apiTask!);
         
-        var publishersInDatabase = dbTask.Result;
-        var publishersFromApi = apiTask.Result;
-        
-        return publishersInDatabase.Concat(publishersFromApi ?? []).ToList();
+        var publishersInDatabase = await dbTask;
+        var publishersFromApi = await apiTask ?? [];
+
+        return publishersInDatabase.Concat(publishersFromApi).ToList();
     }
 }
