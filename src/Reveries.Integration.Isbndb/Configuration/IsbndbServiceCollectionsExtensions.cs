@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Reveries.Application.Interfaces.Authors;
-using Reveries.Application.Interfaces.Books;
-using Reveries.Application.Interfaces.Publishers;
+using Reveries.Application.Authors.Interfaces;
+using Reveries.Application.Books.Interfaces;
+using Reveries.Application.Publishers.Interfaces;
 using Reveries.Integration.Isbndb.Services;
 
 namespace Reveries.Integration.Isbndb.Configuration;

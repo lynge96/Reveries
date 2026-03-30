@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Reveries.Application.Interfaces.Books;
+using Reveries.Application.Books.Interfaces;
 using Reveries.Core.Exceptions;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;

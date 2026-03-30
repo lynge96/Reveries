@@ -1,4 +1,4 @@
-using Reveries.Application.Queries;
+using Reveries.Application.Books.Models;
 using Reveries.Contracts.Books;
 
 namespace Reveries.Api.Mappers;

@@ -1,7 +1,7 @@
 using System.Text.Json;
-using Reveries.Application.Exceptions;
+using Reveries.Application.Common.Exceptions;
 using Reveries.Core.Exceptions;
-using ApplicationException = Reveries.Application.Exceptions.ApplicationException;
+using ApplicationException = Reveries.Application.Common.Exceptions.ApplicationException;
 
 namespace Reveries.Api.Middleware;
 

@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Extensions;
+using Reveries.Application.Books.Extensions;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;

@@ -2,7 +2,7 @@ using DotNetEnv;
 using Microsoft.AspNetCore.HttpOverrides;
 using Reveries.Api.Configuration;
 using Reveries.Api.Middleware;
-using Reveries.Application.Configuration;
+using Reveries.Application;
 using Reveries.Infrastructure.Postgresql.Configuration;
 using Reveries.Infrastructure.Redis.Configuration;
 using Reveries.Integration.GoogleBooks.Configuration;

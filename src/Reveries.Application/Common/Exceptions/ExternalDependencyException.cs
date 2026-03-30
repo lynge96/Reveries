@@ -1,0 +1,17 @@
+using System.Net;
+
+namespace Reveries.Application.Common.Exceptions;
+
+public class ExternalDependencyException : ApplicationException
+{
+    public string Dependency { get; }
+    public HttpStatusCode? UpstreamStatus { get; }
+
+    public ExternalDependencyException(string dependency, string message, HttpStatusCode? upstreamStatus = null)
+        : base(message, HttpStatusCode.InternalServerError)
+    {
+        Dependency = dependency;
+        UpstreamStatus = upstreamStatus;
+    }
+
+}

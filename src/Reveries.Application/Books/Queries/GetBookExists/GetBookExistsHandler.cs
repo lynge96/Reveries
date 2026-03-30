@@ -1,0 +1,22 @@
+using Reveries.Application.Books.Services;
+using Reveries.Application.Common.Abstractions;
+
+namespace Reveries.Application.Books.Queries.GetBookExists;
+
+public sealed class GetBookExistsHandler : IQueryHandler<GetBookExistsQuery, bool>
+{
+    private readonly BookLookupService _bookLookupService;
+
+    public GetBookExistsHandler(
+        BookLookupService bookLookupService)
+    {
+        _bookLookupService = bookLookupService;
+    }
+    
+    public async Task<bool> HandleAsync(GetBookExistsQuery query, CancellationToken ct)
+    {
+        var exists = await _bookLookupService.BookExistsAsync(query.Isbn, ct);
+        
+        return exists;
+    }
+}

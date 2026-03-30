@@ -1,4 +1,4 @@
-using Reveries.Application.Commands.CreateBook;
+using Reveries.Application.Books.Commands.CreateBook;
 using Reveries.Contracts.Books;
 using Reveries.Core.ValueObjects;
 

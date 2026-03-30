@@ -17,4 +17,13 @@
     <PackageReference Include="StackExchange.Redis" Version="2.10.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Authors\Commands\" />
+    <Folder Include="Authors\Queries\" />
+    <Folder Include="BookSeries\Commands\" />
+    <Folder Include="Books\Queries\" />
+    <Folder Include="Publishers\Commands\" />
+    <Folder Include="Publishers\Queries\" />
+  </ItemGroup>
+
 </Project>
