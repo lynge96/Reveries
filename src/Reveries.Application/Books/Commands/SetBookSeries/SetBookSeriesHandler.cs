@@ -1,4 +1,4 @@
-using MediatR;
+using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Services.BookSeries;
@@ -6,7 +6,7 @@ using Reveries.Core.Models;
 
 namespace Reveries.Application.Books.Commands.SetBookSeries;
 
-public sealed class SetBookSeriesHandler : IRequestHandler<SetBookSeriesCommand, int>
+public sealed class SetBookSeriesHandler : IQueryHandler<SetBookSeriesCommand, int>
 {
     private readonly BookSeriesService _bookSeriesService;
     private readonly IBookCacheService _cache;
@@ -22,7 +22,7 @@ public sealed class SetBookSeriesHandler : IRequestHandler<SetBookSeriesCommand,
         _logger = logger;
     }
     
-    public async Task<int> Handle(SetBookSeriesCommand command, CancellationToken ct)
+    public async ValueTask<int> Handle(SetBookSeriesCommand command, CancellationToken ct)
     {
         var series = Series.Create(command.SeriesName);
 

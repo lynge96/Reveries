@@ -10,6 +10,11 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
+        services.AddMediator(options =>
+        {
+            options.ServiceLifetime = ServiceLifetime.Scoped;
+        });
+        
         // Services
         services.AddScoped<BookPersistenceService>();
         services.AddScoped<AuthorEnrichmentService>();

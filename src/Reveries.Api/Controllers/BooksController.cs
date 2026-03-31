@@ -1,4 +1,4 @@
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Mappers;
 using Reveries.Application.Books.Commands.SetBookSeries;

@@ -1,9 +1,9 @@
-using MediatR;
+using Mediator;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Books.Commands.CreateBook;
 
-public sealed record CreateBookCommand : IRequest<int>
+public sealed record CreateBookCommand : IQuery<int>
 {
     public Isbn? Isbn10 { get; init; }
     public Isbn? Isbn13 { get; init; }

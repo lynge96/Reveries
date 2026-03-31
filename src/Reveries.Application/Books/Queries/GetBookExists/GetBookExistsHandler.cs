@@ -1,9 +1,9 @@
-using MediatR;
+using Mediator;
 using Reveries.Application.Books.Services;
 
 namespace Reveries.Application.Books.Queries.GetBookExists;
 
-public sealed class GetBookExistsHandler : IRequestHandler<GetBookExistsQuery, bool>
+public sealed class GetBookExistsHandler : IQueryHandler<GetBookExistsQuery, bool>
 {
     private readonly BookLookupService _bookLookupService;
 
@@ -13,7 +13,7 @@ public sealed class GetBookExistsHandler : IRequestHandler<GetBookExistsQuery, b
         _bookLookupService = bookLookupService;
     }
     
-    public async Task<bool> Handle(GetBookExistsQuery query, CancellationToken ct)
+    public async ValueTask<bool> Handle(GetBookExistsQuery query, CancellationToken ct)
     {
         var exists = await _bookLookupService.BookExistsAsync(query.Isbn, ct);
         

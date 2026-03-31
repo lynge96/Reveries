@@ -1,4 +1,4 @@
-using MediatR;
+using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Models;
@@ -7,7 +7,7 @@ using Reveries.Application.Common.Exceptions;
 
 namespace Reveries.Application.Books.Queries.GetBookByIsbn;
 
-public sealed class GetBookByIsbnHandler : IRequestHandler<GetBookByIsbnQuery, BookDetailsReadModel>
+public sealed class GetBookByIsbnHandler : IQueryHandler<GetBookByIsbnQuery, BookDetailsReadModel>
 {
     private readonly BookLookupService _bookLookupService;
     private readonly ILogger<GetBookByIsbnHandler> _logger;
@@ -20,7 +20,7 @@ public sealed class GetBookByIsbnHandler : IRequestHandler<GetBookByIsbnQuery, B
         _logger = logger;
     }
     
-    public async Task<BookDetailsReadModel> Handle(GetBookByIsbnQuery query, CancellationToken ct)
+    public async ValueTask<BookDetailsReadModel> Handle(GetBookByIsbnQuery query, CancellationToken ct)
     {
         var isbn = query.Isbn;
         var book = await _bookLookupService.FindBookByIsbnAsync(isbn, ct);
