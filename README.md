@@ -5,7 +5,7 @@ Reveries is a personal hobby project that I am developing in my spare time along
 
 It is therefore both a learning project and a product I personally want to use to support my passion for reading books and one I look forward to putting into use.  
 
-### Vision 🔭
+### Vision
 Reveries aims to be a digital book hub where you can build and organize your own collection in the form of a virtual bookshelf.  
 
 The goal is to create a platform that makes it easier to get an overview of the books you own, provides insights into your reading habits, and presents metadata and statistics about which books you have read and which are still waiting to be explored - and who knows what future features will be implemented.  
@@ -20,7 +20,7 @@ For easier creation of books in the system, a book scanner has been made to make
 <img width="393" height="1584" alt="Screenshot 2025-11-18 at 20-52-24 Reveries The Will Of The Many" src="https://github.com/user-attachments/assets/54ef04cb-632d-4df3-9463-936ede42ac8d" />
 
 
-### Project Plan 🎯
+### Project Plan
 The plan for the project is outlined below. The choice of technologies is primarily driven by the desire to gain hands-on experience with widely used and relevant tools from the real world, not necessarily because they represent the most optimal solution for this particular application.  
 
 - **Backend**
@@ -47,7 +47,7 @@ The plan for the project is outlined below. The choice of technologies is primar
   - [ ] **Docker and GitHub Actions**  
     Pipelines automatically package new builds into Docker images and deploy them to the Raspberry Pi, ensuring the application always runs the latest version.  
 
-### Database Schema 📋
+### Database Schema
 Below is an ER diagram of the current entities in the project.  
 The diagram provides an overview of the tables, their relationships, and their fields. It serves as the foundation for the database schema implementation and helps keep the structure organized as the project grows.  
   
