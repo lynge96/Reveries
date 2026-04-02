@@ -32,7 +32,7 @@ The plan for the project is outlined below. The choice of technologies is primar
     Integration with external APIs that provides book data, allowing new titles to be added quickly with rich metadata.  
 
 - **Frontend**
-  - [ ] **TypeScript and React**  
+  - [ ] **TypeScript and Vue**  
     A modern and responsive interface built with React to gain practical experience with one of the most widely adopted frontend libraries.  
 
 - **Database**
