@@ -9,6 +9,7 @@ on:
       - '**.md'
       - '.gitignore'
       - 'LICENSE'
+      - '.github/workflows/bookscanner-docker-image.yml'
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
@@ -97,7 +98,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/reveries-api:${{ steps.meta.outputs.BRANCH_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/reveries-api:${{ steps.meta.outputs.SHORT_SHA }}
+            # ${{ secrets.DOCKERHUB_USERNAME }}/reveries-api:${{ steps.meta.outputs.SHORT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
