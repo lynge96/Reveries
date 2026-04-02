@@ -98,7 +98,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/reveries-api:${{ steps.meta.outputs.BRANCH_TAG }}
-            # ${{ secrets.DOCKERHUB_USERNAME }}/reveries-api:${{ steps.meta.outputs.SHORT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -109,6 +108,5 @@ jobs:
           echo "📦 Repository: ${{ secrets.DOCKERHUB_USERNAME }}/reveries-api"
           echo "🏷️  Tags:"
           echo "   - ${{ steps.meta.outputs.BRANCH_TAG }}"
-          echo "   - ${{ steps.meta.outputs.SHORT_SHA }}"
 
           
