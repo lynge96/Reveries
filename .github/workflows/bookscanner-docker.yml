@@ -89,7 +89,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # 5. Build and push image
-      - name: Build and push production image
+      - name: Build and push image
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -97,8 +97,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}:${{ steps.meta.outputs.BRANCH_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}:${{ steps.meta.outputs.SHORT_SHA }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/reveries-bookscanner:${{ steps.meta.outputs.BRANCH_TAG }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/reveries-bookscanner:${{ steps.meta.outputs.SHORT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
