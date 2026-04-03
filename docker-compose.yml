@@ -12,9 +12,7 @@ services:
       - reveries-network
   
   api:
-    build:
-      context: .
-      dockerfile: src/Reveries.Api/Dockerfile
+    image: angus25/reveries-api:latest
     container_name: reveries-api
     restart: always
     environment:
@@ -39,9 +37,7 @@ services:
       - reveries-network
 
   bookscanner:
-    build:
-      context: .
-      dockerfile: src/Reveries.Blazor.BookScanner/Dockerfile
+    image: angus25/reveries-bookscanner:latest
     container_name: reveries-bookscanner
     restart: always
     depends_on:
