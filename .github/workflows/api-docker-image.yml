@@ -10,6 +10,7 @@ on:
       - '.gitignore'
       - 'LICENSE'
       - '.github/workflows/bookscanner-docker-image.yml'
+      - 'docker-compose.yml'
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
