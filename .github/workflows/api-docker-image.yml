@@ -4,21 +4,30 @@ on:
   push:
     branches:
       - '**'
-    paths-ignore:
-      - 'src/Reveries.Blazor.BookScanner/**'
-      - '**.md'
-      - '.gitignore'
-      - 'LICENSE'
-      - '.github/workflows/bookscanner-docker-image.yml'
-      - 'docker-compose.yml'
+    paths:
+      - 'src/Reveries.Api/**'
+      - 'src/Reveries.Contracts/**'
+      - 'src/Reveries.Core/**'
+      - 'src/Reveries.Infrastructure.Postgresql/**'
+      - 'src/Reveries.Infrastructure.Redis/**'
+      - 'src/Reveries.Integration.Common/**'
+      - 'src/Reveries.Integration.GoogleBooks/**'
+      - 'src/Reveries.Integration.Isbndb/**'
+      - 'tests/**'
+      - '.github/workflows/api-docker-image.yml'
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
-    paths-ignore:
-      - 'src/Reveries.Blazor.BookScanner/**'
-      - '**.md'
-      - '.gitignore'
-      - 'LICENSE'
+    paths:
+      - 'src/Reveries.Api/**'
+      - 'src/Reveries.Contracts/**'
+      - 'src/Reveries.Core/**'
+      - 'src/Reveries.Infrastructure.Postgresql/**'
+      - 'src/Reveries.Infrastructure.Redis/**'
+      - 'src/Reveries.Integration.Common/**'
+      - 'src/Reveries.Integration.GoogleBooks/**'
+      - 'src/Reveries.Integration.Isbndb/**'
+      - 'tests/**'
   workflow_dispatch:
 
 jobs:
