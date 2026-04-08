@@ -1,4 +1,4 @@
-using Reveries.Application.Commands.CreateBook;
+using Reveries.Application.Books.Commands.CreateBook;
 using Reveries.Contracts.Books;
 using Reveries.Core.ValueObjects;
 
@@ -8,8 +8,6 @@ public static class CreateBookRequestMapper
 {
     public static CreateBookCommand ToCommand(this CreateBookRequest request)
     {
-        ArgumentNullException.ThrowIfNull(request);
-
         return new CreateBookCommand
         {
             Isbn10 = request.Isbn10 != null ? Isbn.Create(request.Isbn10) : null,

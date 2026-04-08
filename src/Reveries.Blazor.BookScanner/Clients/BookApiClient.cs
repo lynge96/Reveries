@@ -18,7 +18,7 @@ public class BookApiClient
         if (string.IsNullOrWhiteSpace(isbn))
             throw new ArgumentException("ISBN is required.");
 
-        var response = await SendAsync(() => _httpClient.GetAsync($"api/v1/books/{isbn}"));
+        var response = await SendAsync(() => _httpClient.GetAsync($"books/isbn/{isbn}"));
 
         if (response.IsSuccessStatusCode)
             return await response.Content.ReadFromJsonAsync<BookDetailsDto>();
@@ -29,14 +29,14 @@ public class BookApiClient
 
     public async Task<bool> ExistsAsync(string isbn)
     {
-        var response = await SendAsync(() => _httpClient.GetAsync($"api/v1/books/{isbn}/exists"));
+        var response = await SendAsync(() => _httpClient.GetAsync($"books/{isbn}/exists"));
         return response.IsSuccessStatusCode && await response.Content.ReadFromJsonAsync<bool>();
     }
 
     public async Task<int> CreateAsync(BookDetailsDto book)
     {
         var request = MapToRequest(book);
-        var response = await SendAsync(() => _httpClient.PostAsJsonAsync("api/v1/books", request));
+        var response = await SendAsync(() => _httpClient.PostAsJsonAsync("books", request));
 
         if (response.IsSuccessStatusCode)
             return await response.Content.ReadFromJsonAsync<int>();

@@ -1,0 +1,64 @@
+# .github/dependabot.yml
+version: 2
+updates:
+  # NuGet dependencies
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "lynge96"
+    labels:
+      - "dependencies"
+      - "nuget"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      # Grupper minor og patch updates
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Docker - API
+  - package-ecosystem: "docker"
+    directory: "/src/Reveries.Api"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "api"
+
+  # Docker - BookScanner
+  - package-ecosystem: "docker"
+    directory: "/src/Reveries.Blazor.BookScanner"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "bookscanner"
+      
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      # Gruppér alle action updates sammen
+      github-actions:
+        patterns:
+          - "*"
+
+
+          

@@ -1,62 +1,43 @@
+using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Mappers;
-using Reveries.Application.Commands.CreateBook;
-using Reveries.Application.Commands.SetBookSeries;
-using Reveries.Application.Queries;
-using Reveries.Application.Queries.AllBooks;
-using Reveries.Application.Queries.BookByDbId;
-using Reveries.Application.Queries.BookByIsbn;
-using Reveries.Application.Queries.BookExists;
-using Reveries.Application.Queries.BooksByIsbns;
+using Reveries.Application.Books.Commands.SetBookSeries;
+using Reveries.Application.Books.Models;
+using Reveries.Application.Books.Queries.GetAllBooks;
+using Reveries.Application.Books.Queries.GetBookByDbId;
+using Reveries.Application.Books.Queries.GetBookByIsbn;
+using Reveries.Application.Books.Queries.GetBookExists;
+using Reveries.Application.Books.Queries.GetBooksByIsbns;
 using Reveries.Contracts.Books;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/books")]
+[Route("books")]
 public class BooksController : ControllerBase
 {
-    private readonly CreateBookHandler _createBookHandler;
-    private readonly SetBookSeriesHandler _setBookSeriesHandler;
-    private readonly BookByIsbnHandler _bookByIsbnHandler;
-    private readonly BooksByIsbnsHandler _booksByIsbnsHandler;
-    private readonly BookByDbIdHandler _bookByIdHandler;
-    private readonly AllBooksHandler _allBooksHandler;
-    private readonly BookExistsHandler _bookExistsHandler;
+    private readonly IMediator _mediator;
 
-    public BooksController(
-        CreateBookHandler createBookHandler,
-        SetBookSeriesHandler setBookSeriesHandler,
-        BookByIsbnHandler bookByIsbnHandler,
-        BooksByIsbnsHandler booksByIsbnsHandler,
-        BookByDbIdHandler bookByIdHandler,
-        AllBooksHandler allBooksHandler,
-        BookExistsHandler bookExistsHandler)
+    public BooksController(IMediator mediator)
     {
-        _createBookHandler = createBookHandler;
-        _setBookSeriesHandler = setBookSeriesHandler;
-        _bookByIsbnHandler = bookByIsbnHandler;
-        _booksByIsbnsHandler = booksByIsbnsHandler;
-        _bookByIdHandler = bookByIdHandler;
-        _allBooksHandler = allBooksHandler;
-        _bookExistsHandler = bookExistsHandler;
+        _mediator = mediator;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetAllBooks([FromQuery] bool? isRead, CancellationToken ct)
     {
-        var query = new AllBooksQuery { IsRead = isRead };
-        var books = await _allBooksHandler.HandleAsync(query, ct);
-        var booksDto = books.Select(b => b.ToDto()).ToList();
+        var query = new GetAllBooksQuery { IsRead = isRead };
+        var books = await _mediator.Send(query, ct);
+        var booksDto = books.Select(b => b.ToDto());
         return Ok(booksDto);
     }
     
-    [HttpGet("{isbn}")]
+    [HttpGet("isbn/{isbn}")]
     public async Task<ActionResult<BookDetailsDto>> GetBookByIsbn(string isbn, CancellationToken ct)
     {
-        var query = new BookByIsbnQuery { Isbn = Isbn.Create(isbn) };
-        var book = await _bookByIsbnHandler.HandleAsync(query, ct);
+        var query = new GetBookByIsbnQuery { Isbn = Isbn.Create(isbn) };
+        var book = await _mediator.Send(query, ct);
         var bookDto = book.ToDto();
         return Ok(bookDto);
     }
@@ -64,25 +45,25 @@ public class BooksController : ControllerBase
     [HttpGet("{isbn}/exists")]
     public async Task<ActionResult<bool>> BookExists(string isbn, CancellationToken ct)
     {
-        var query = new BookExistsQuery { Isbn = Isbn.Create(isbn) };
-        var exists = await _bookExistsHandler.HandleAsync(query, ct);
+        var query = new GetBookExistsQuery { Isbn = Isbn.Create(isbn) };
+        var exists = await _mediator.Send(query, ct);
         return Ok(exists);
     }
 
     [HttpPost("isbns")]
-    public async Task<ActionResult<List<BookDetailsDto>>> GetBooksByIsbns([FromBody] BulkIsbnRequest request, CancellationToken ct)
+    public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetBooksByIsbns([FromBody] BulkIsbnRequest request, CancellationToken ct)
     {
-        var query = new BooksByIsbnsQuery { Isbns = request.Isbns.Select(Isbn.Create).ToList() };
-        var books = await _booksByIsbnsHandler.HandleAsync(query, ct);
-        var booksDto = books.Select(b => b.ToDto()).ToList();
+        var query = new GetBooksByIsbnsQuery { Isbns = request.Isbns.Select(Isbn.Create).ToList() };
+        var books = await _mediator.Send(query, ct);
+        var booksDto = books.Select(b => b.ToDto());
         return Ok(booksDto);
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<BookDetailsReadModel>> GetById(int id, CancellationToken ct)
     {
-        var query = new BookByDbIdQuery { DbId = id };
-        var book = await _bookByIdHandler.HandleAsync(query, ct);
+        var query = new GetBookByDbIdQuery { DbId = id };
+        var book = await _mediator.Send(query, ct);
         var bookDto = book.ToDto();
         return Ok(bookDto);
     }
@@ -91,11 +72,11 @@ public class BooksController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateBookRequest request, CancellationToken ct)
     {
         var command = request.ToCommand();
-        var bookId = await _createBookHandler.HandleAsync(command, ct);
+        var bookId = await _mediator.Send(command, ct);
         return CreatedAtAction(nameof(GetById), new { id = bookId }, bookId);
     }
     
-    [HttpPatch("books/{isbn}/series")]
+    [HttpPatch("{isbn}/series")]
     public async Task<IActionResult> SetSeries([FromRoute] string isbn, [FromBody] SetBookSeriesRequest body, CancellationToken ct)
     {
         var command = new SetBookSeriesCommand
@@ -104,7 +85,7 @@ public class BooksController : ControllerBase
             SeriesName = body.SeriesName,
             NumberInSeries = body.NumberInSeries
         };
-        await _setBookSeriesHandler.HandleAsync(command, ct);
+        await _mediator.Send(command, ct);
         return NoContent();
     }
 }

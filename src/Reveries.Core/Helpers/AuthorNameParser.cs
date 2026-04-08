@@ -7,7 +7,7 @@ public static partial class AuthorNameNormalizer
     [GeneratedRegex(@"\s+")]
     private static partial Regex MultipleWhitespaceRegex();
     
-    [GeneratedRegex(@"[^\p{L}\s,'-]")]
+    [GeneratedRegex(@"[^\p{L}\s,'\.\-]")]
     private static partial Regex SpecialCharsRegex();
     
     public static (string FirstName, string LastName) Parse(string rawName)
@@ -35,16 +35,36 @@ public static partial class AuthorNameNormalizer
         return (firstName, lastName);
     }
     
-    /// Parser format: "Firstname Middlename Lastname"
+    /// Parser format: "Firstname Middlename Lastname" or "Initials Lastname"
     private static (string firstName, string lastName) ParseFirstNameFirst(string name)
     {
         var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         
-        return parts.Length switch
+        if (parts.Length == 0)
+            return (string.Empty, string.Empty);
+        
+        if (parts.Length == 1)
+            return (parts[0], string.Empty);
+        
+        // Find the last part that doesn't end with a period (likely the last name)
+        var lastNameIndex = -1;
+        for (var i = parts.Length - 1; i >= 0; i--)
         {
-            0 => (string.Empty, string.Empty),
-            1 => (parts[0], string.Empty),
-            _ => (string.Join(" ", parts[..^1]), parts[^1])
-        };
+            if (!parts[i].EndsWith('.'))
+            {
+                lastNameIndex = i;
+                break;
+            }
+        }
+        
+        // If all parts end with period, or no valid lastname found
+        if (lastNameIndex == -1 || lastNameIndex == 0)
+            return (string.Join(" ", parts[..^1]), parts[^1]);
+        
+        // Split at the last non-initial part
+        var firstName = string.Join(" ", parts[..lastNameIndex]);
+        var lastName = parts[lastNameIndex];
+        
+        return (firstName, lastName);
     }
 }

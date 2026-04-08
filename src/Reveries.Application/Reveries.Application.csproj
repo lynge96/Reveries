@@ -12,9 +12,23 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
+    <PackageReference Include="Mediator.SourceGenerator" Version="3.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.1" />
     <PackageReference Include="StackExchange.Redis" Version="2.10.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Authors\Commands\" />
+    <Folder Include="Authors\Queries\" />
+    <Folder Include="BookSeries\Commands\" />
+    <Folder Include="Books\Queries\" />
+    <Folder Include="Publishers\Commands\" />
+    <Folder Include="Publishers\Queries\" />
   </ItemGroup>
 
 </Project>

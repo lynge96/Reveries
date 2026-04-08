@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Interfaces.Books;
+using Reveries.Application.Books.Interfaces;
 using Reveries.Core.Enums;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
