@@ -9,13 +9,6 @@ on:
       - 'src/Reveries.Contracts/**'
       - 'tests/**'
       - '.github/workflows/bookscanner-docker-image.yml'
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened]
-    paths:
-      - 'src/Reveries.Blazor.BookScanner/**'
-      - 'src/Reveries.Contracts/**'
-      - 'tests/**'
   workflow_dispatch:
 
 jobs:

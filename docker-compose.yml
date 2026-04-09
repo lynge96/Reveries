@@ -122,6 +122,7 @@ services:
     container_name: reveries-grafana
     restart: always
     environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_SERVER_ROOT_URL=https://grafana.reveries.dk
       - GF_SERVER_SERVE_FROM_SUB_PATH=false
