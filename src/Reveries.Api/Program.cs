@@ -43,6 +43,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors(app.Environment.IsDevelopment() ? "Development" : "AllowFrontend");
+app.ConfigureSerilogRequestLogging();
 
 app.UseRouting();
 app.UseHttpsRedirection();
