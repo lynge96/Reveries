@@ -75,7 +75,7 @@ jobs:
             echo "BRANCH_TAG=latest" >> "$GITHUB_OUTPUT"
           else
             BRANCH_NAME=$(echo ${{ github.ref }} | sed 's/refs\/heads\///' | sed 's/\//-/g')
-            echo "BRANCH_TAG=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+            echo "BRANCH_TAG=latest" >> "$GITHUB_OUTPUT"
           fi
 
       # 4. Login to Docker hub
