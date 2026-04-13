@@ -129,11 +129,30 @@ services:
     networks:
       - reveries-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - reveries-network
+
 volumes:
   postgres_data:
   redis_data:
   redisinsight_data:
   loki_data:
+  prometheus-data:
     
 networks:
   reveries-network:
