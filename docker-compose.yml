@@ -126,6 +126,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_SERVER_ROOT_URL=https://grafana.reveries.dk
       - GF_SERVER_SERVE_FROM_SUB_PATH=false
+    volumes:
+      - grafana_data:/var/lib/grafana
     networks:
       - reveries-network
 
@@ -152,6 +154,7 @@ volumes:
   redis_data:
   redisinsight_data:
   loki_data:
+  grafana_data:
   prometheus-data:
     
 networks:
