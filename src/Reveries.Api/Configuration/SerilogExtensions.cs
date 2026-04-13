@@ -7,16 +7,13 @@ public static class SerilogConfigurationExtensions
 {
     public static void AddSerilogConfiguration(this WebApplicationBuilder builder)
     {
-        var environment = builder.Environment.EnvironmentName;
-        var appName = builder.Environment.ApplicationName;
-
-        builder.Host.UseSerilog((context, services, configuration) => configuration
-            .ReadFrom.Configuration(context.Configuration)
-            .ReadFrom.Services(services));
+        // SelfLog.Enable(Console.WriteLine);
         
-        Log.Information("Starting {Application} in {Environment} environment", 
-            appName, 
-            environment);
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)
+            .CreateLogger();
+
+        builder.Host.UseSerilog();
     }
 
     public static void ConfigureSerilogRequestLogging(this WebApplication app)
