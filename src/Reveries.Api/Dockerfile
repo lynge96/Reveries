@@ -8,10 +8,12 @@ WORKDIR /src
 
 COPY ["src/Reveries.Api/Reveries.Api.csproj", "Reveries.Api/"]
 COPY ["src/Reveries.Application/Reveries.Application.csproj", "Reveries.Application/"]
-COPY ["src/Reveries.Core/Reveries.Core.csproj", "Reveries.Core/"]
+COPY ["src/Reveries.Domain/Reveries.Domain.csproj", "Reveries.Domain/"]
 COPY ["src/Reveries.Contracts/Reveries.Contracts.csproj", "Reveries.Contracts/"]
+COPY ["src/Reveries.Infrastructure/Reveries.Infrastructure.csproj", "Reveries.Infrastructure/"]
 COPY ["src/Reveries.Infrastructure.Postgresql/Reveries.Infrastructure.Postgresql.csproj", "Reveries.Infrastructure.Postgresql/"]
 COPY ["src/Reveries.Infrastructure.Redis/Reveries.Infrastructure.Redis.csproj", "Reveries.Infrastructure.Redis/"]
+COPY ["src/Reveries.Integration/Reveries.Integration.csproj", "Reveries.Integration/"]
 COPY ["src/Reveries.Integration.GoogleBooks/Reveries.Integration.GoogleBooks.csproj", "Reveries.Integration.GoogleBooks/"]
 COPY ["src/Reveries.Integration.Isbndb/Reveries.Integration.Isbndb.csproj", "Reveries.Integration.Isbndb/"]
 
