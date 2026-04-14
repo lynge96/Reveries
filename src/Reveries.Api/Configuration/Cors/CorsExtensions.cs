@@ -1,4 +1,4 @@
-namespace Reveries.Api.Configuration;
+namespace Reveries.Api.Configuration.Cors;
 
 public static class CorsExtensions
 {

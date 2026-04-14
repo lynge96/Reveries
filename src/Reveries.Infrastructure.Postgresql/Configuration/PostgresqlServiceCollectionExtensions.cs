@@ -45,7 +45,6 @@ public static class PostgresqlServiceCollectionExtensions
         services.AddRepositories();
         
         services.AddScoped<IDbContext, PostgresDbContext>();
-        
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         DefaultTypeMap.MatchNamesWithUnderscores = true;

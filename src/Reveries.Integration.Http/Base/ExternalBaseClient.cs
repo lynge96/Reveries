@@ -58,7 +58,9 @@ public abstract class ExternalBaseClient<TClient> where TClient : class
 
             if (validate is not null && !validate(result))
             {
-                _logger.LogWarning("Google Books returned empty response for {Context}", context);
+                _logger.LogWarning("{Dependency} returned empty response for {Context}", 
+                    DependencyName, 
+                    context);
                 return null;
             }
 

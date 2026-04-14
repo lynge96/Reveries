@@ -1,22 +1,21 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Core;
 using Serilog.Events;
 
-namespace Reveries.Api.Configuration;
+namespace Reveries.Infrastructure.Common.Logging;
 
 public static class SerilogConfigurationExtensions
 {
-    public static void AddSerilogConfiguration(this WebApplicationBuilder builder)
+    public static void AddSerilog(this WebApplicationBuilder builder)
     {
         // SelfLog.Enable(Console.WriteLine);
-        
-        Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(builder.Configuration)
-            .CreateLogger();
-
+        Log.Logger = CreateLogger(builder);
         builder.Host.UseSerilog();
     }
 
-    public static void ConfigureSerilogRequestLogging(this WebApplication app)
+    public static void UseSerilogRequestLogging(this WebApplication app)
     {
         app.UseSerilogRequestLogging(options =>
         {
@@ -26,9 +25,10 @@ public static class SerilogConfigurationExtensions
             {
                 diagnosticContext.Set("ClientIP", httpContext.Connection.RemoteIpAddress?.ToString());
                 diagnosticContext.Set("UserAgent", httpContext.Request.Headers.UserAgent.ToString());
+                diagnosticContext.Set("TraceId", httpContext.TraceIdentifier);
+                diagnosticContext.Set("CorrelationId", httpContext.Request.Headers["X-Correlation-Id"].ToString());
             };
 
-            // Smart log levels
             options.GetLevel = (httpContext, elapsed, ex) =>
             {
                 if (ex != null || httpContext.Response.StatusCode >= 500) return LogEventLevel.Error;
@@ -37,5 +37,20 @@ public static class SerilogConfigurationExtensions
                 return LogEventLevel.Information;
             };
         });
+    }
+
+    private static Logger CreateLogger(WebApplicationBuilder builder)
+    {
+        var env = builder.Environment.EnvironmentName;
+        var uri = builder.Configuration["Loki:Uri"];
+
+        var level = builder.Environment.IsDevelopment()
+            ? LogEventLevel.Debug
+            : LogEventLevel.Information;
+
+        return new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)
+            .WriteTo.LokiSink(uri!, env, level)
+            .CreateLogger();
     }
 }

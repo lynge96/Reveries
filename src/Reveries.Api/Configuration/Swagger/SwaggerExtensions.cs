@@ -1,10 +1,10 @@
 using Microsoft.OpenApi;
 
-namespace Reveries.Api.Configuration;
+namespace Reveries.Api.Configuration.Swagger;
 
 public static class SwaggerExtensions
 {
-    public static IServiceCollection AddSwaggerDocumentation(this IServiceCollection services)
+    public static IServiceCollection AddSwagger(this IServiceCollection services)
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>

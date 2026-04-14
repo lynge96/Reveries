@@ -7,7 +7,7 @@ namespace Reveries.Integration.GoogleBooks.Configuration;
 
 public static class GoogleBooksServiceCollectionExtensions
 {
-    public static IServiceCollection AddGoogleBooksServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddGoogleBooks(this IServiceCollection services, IConfiguration config)
     {
         services.AddOptions<GoogleBooksSettings>()
             .Bind(config.GetSection("GoogleBooks"))

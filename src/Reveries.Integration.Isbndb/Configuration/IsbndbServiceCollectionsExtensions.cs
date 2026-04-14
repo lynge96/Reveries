@@ -9,7 +9,7 @@ namespace Reveries.Integration.Isbndb.Configuration;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddIsbndbServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddIsbndb(this IServiceCollection services, IConfiguration config)
     {
         services.AddOptions<IsbndbSettings>()
             .Bind(config.GetSection("Isbndb"))

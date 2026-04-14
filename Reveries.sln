@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Core", "src\Reveries.Core\Reveries.Core.csproj", "{618CDA00-ADFC-4D42-A3F8-FB4E9E483656}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Domain", "src\Reveries.Domain\Reveries.Domain.csproj", "{618CDA00-ADFC-4D42-A3F8-FB4E9E483656}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Console", "src\Reveries.Console\Reveries.Console.csproj", "{FA29DE15-34DD-40D8-A3CE-AA3EC5E2A384}"
 EndProject
@@ -29,7 +29,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Application.Tests"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3CB98DB5-CA71-4976-BABD-4712C725E821}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Integration.Common", "src\Reveries.Integration.Common\Reveries.Integration.Common.csproj", "{7AAA946B-2532-42B8-B710-EBEFAB94FF95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Integration.Http", "src\Reveries.Integration.Http\Reveries.Integration.Http.csproj", "{7AAA946B-2532-42B8-B710-EBEFAB94FF95}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure", "src\Reveries.Infrastructure\Reveries.Infrastructure.csproj", "{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Integration", "src\Reveries.Integration\Reveries.Integration.csproj", "{BC4708DE-42AD-483E-8965-975DD3D39473}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -197,6 +201,30 @@ Global
 		{7AAA946B-2532-42B8-B710-EBEFAB94FF95}.Release|x64.Build.0 = Release|Any CPU
 		{7AAA946B-2532-42B8-B710-EBEFAB94FF95}.Release|x86.ActiveCfg = Release|Any CPU
 		{7AAA946B-2532-42B8-B710-EBEFAB94FF95}.Release|x86.Build.0 = Release|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|x64.Build.0 = Debug|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|x86.Build.0 = Debug|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|x64.ActiveCfg = Release|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|x64.Build.0 = Release|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|x86.ActiveCfg = Release|Any CPU
+		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|x86.Build.0 = Release|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Debug|x64.Build.0 = Debug|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Debug|x86.Build.0 = Debug|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Release|x64.ActiveCfg = Release|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Release|x64.Build.0 = Release|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Release|x86.ActiveCfg = Release|Any CPU
+		{BC4708DE-42AD-483E-8965-975DD3D39473}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
