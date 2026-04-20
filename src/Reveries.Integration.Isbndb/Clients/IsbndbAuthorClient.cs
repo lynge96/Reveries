@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Reveries.Integration.Common.Base;
+using Reveries.Integration.Http.Base;
 using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.DTOs.Authors;
 using Reveries.Integration.Isbndb.Interfaces;

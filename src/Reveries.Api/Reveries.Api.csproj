@@ -18,7 +18,8 @@
     <ProjectReference Include="..\Reveries.Application\Reveries.Application.csproj" />
     <ProjectReference Include="..\Reveries.Contracts\Reveries.Contracts.csproj" />
     <ProjectReference Include="..\Reveries.Infrastructure\Reveries.Infrastructure.csproj" />
-    <ProjectReference Include="..\Reveries.Integration\Reveries.Integration.csproj" />
+    <ProjectReference Include="..\Reveries.Integration.GoogleBooks\Reveries.Integration.GoogleBooks.csproj" />
+    <ProjectReference Include="..\Reveries.Integration.Isbndb\Reveries.Integration.Isbndb.csproj" />
   </ItemGroup>
 
   <ItemGroup>

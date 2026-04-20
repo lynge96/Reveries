@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Reveries.Infrastructure.Postgresql.Configuration;
 using Reveries.Infrastructure.Redis.Configuration;
 
-namespace Reveries.Infrastructure.Common;
+namespace Reveries.Infrastructure;
 
 public static class DependencyInjection
 {

@@ -1,4 +1,4 @@
-namespace Reveries.Integration.Common.Helpers;
+namespace Reveries.Integration.Http.Helpers;
 
 public static class LoggingStringExtensions
 {

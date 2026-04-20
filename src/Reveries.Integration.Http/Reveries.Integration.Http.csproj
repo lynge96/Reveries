@@ -4,7 +4,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>Reveries.Integration.Common</RootNamespace>
+        <RootNamespace>Reveries.Integration.Http</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Reveries.Integration.Common.Helpers;
+namespace Reveries.Integration.Http.Helpers;
 
 public class DecimalConverter : JsonConverter<decimal>
 {

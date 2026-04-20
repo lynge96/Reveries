@@ -1,27 +1,33 @@
+using Reveries.Infrastructure.Configuration;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
 using Serilog.Sinks.Grafana.Loki;
 
-namespace Reveries.Infrastructure.Common.Logging;
+namespace Reveries.Infrastructure.Logging;
 
-public static class LokiSinkExtensions
+internal static class LokiSinkExtensions
 {
-    public static LoggerConfiguration LokiSink(this LoggerSinkConfiguration sink, string uri, string env, LogEventLevel level)
+    public static LoggerConfiguration LokiSink(
+        this LoggerSinkConfiguration sink, 
+        LokiSettings settings, 
+        string env, 
+        LogEventLevel level)
     {
         return sink.GrafanaLoki(
-            uri: uri,
+            uri: settings.Uri!,
             labels:
             [
-                new LokiLabel { Key = "app", Value = "reveries-api" },
+                new LokiLabel { Key = "service_name", Value = settings.AppName },
                 new LokiLabel { Key = "env", Value = env.ToLower() }
             ],
+            propertiesAsLabels: ["level"],
             restrictedToMinimumLevel: level,
-            batchPostingLimit: 5000,
-            queueLimit: 500000,
-            period: TimeSpan.FromSeconds(5),
-            textFormatter: new CompactJsonFormatter()
+            batchPostingLimit: settings.BatchPostingLimit,
+            queueLimit: settings.QueueLimit,
+            period: TimeSpan.FromSeconds(settings.PeriodSeconds),
+            textFormatter: new RenderedCompactJsonFormatter()
         );
     }
 }

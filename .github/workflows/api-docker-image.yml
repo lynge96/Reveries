@@ -11,7 +11,6 @@ on:
       - 'src/Reveries.Infrastructure/**'
       - 'src/Reveries.Infrastructure.Postgresql/**'
       - 'src/Reveries.Infrastructure.Redis/**'
-      - 'src/Reveries.Integration/**'
       - 'src/Reveries.Integration.Http/**'
       - 'src/Reveries.Integration.GoogleBooks/**'
       - 'src/Reveries.Integration.Isbndb/**'
@@ -77,7 +76,7 @@ jobs:
             echo "BRANCH_TAG=latest" >> "$GITHUB_OUTPUT"
           else
             BRANCH_NAME=$(echo ${{ github.ref }} | sed 's/refs\/heads\///' | sed 's/\//-/g')
-            echo "BRANCH_TAG=latest" >> "$GITHUB_OUTPUT"
+            echo "BRANCH_TAG=dev" >> "$GITHUB_OUTPUT"
           fi
 
       # 4. Login to Docker hub

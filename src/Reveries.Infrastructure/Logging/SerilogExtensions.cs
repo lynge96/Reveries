@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Reveries.Infrastructure.Configuration;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace Reveries.Infrastructure.Common.Logging;
+namespace Reveries.Infrastructure.Logging;
 
 public static class SerilogConfigurationExtensions
 {
@@ -42,15 +44,23 @@ public static class SerilogConfigurationExtensions
     private static Logger CreateLogger(WebApplicationBuilder builder)
     {
         var env = builder.Environment.EnvironmentName;
-        var uri = builder.Configuration["Loki:Uri"];
-
+        var lokiSettings = builder.Configuration
+            .GetSection(LokiSettings.SectionName)
+            .Get<LokiSettings>() ?? new LokiSettings();
+        
         var level = builder.Environment.IsDevelopment()
             ? LogEventLevel.Debug
             : LogEventLevel.Information;
 
-        return new LoggerConfiguration()
-            .ReadFrom.Configuration(builder.Configuration)
-            .WriteTo.LokiSink(uri!, env, level)
-            .CreateLogger();
+        var config = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration);
+
+        var uri = lokiSettings.Uri;
+        if (!string.IsNullOrWhiteSpace(uri))
+        {
+            config = config.WriteTo.LokiSink(lokiSettings, env, level);
+        }
+        
+        return config.CreateLogger();
     }
 }

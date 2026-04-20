@@ -4,9 +4,10 @@ using Reveries.Api.Configuration.Cors;
 using Reveries.Api.Configuration.Swagger;
 using Reveries.Api.Middleware;
 using Reveries.Application;
-using Reveries.Infrastructure.Common;
-using Reveries.Infrastructure.Common.Logging;
-using Reveries.Integration;
+using Reveries.Infrastructure;
+using Reveries.Infrastructure.Logging;
+using Reveries.Integration.GoogleBooks.Configuration;
+using Reveries.Integration.Isbndb.Configuration;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,8 @@ builder.Services.AddMediator(options =>
 builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
-    .AddIntegrations(builder.Configuration)
+    .AddIsbndb(builder.Configuration)
+    .AddGoogleBooks(builder.Configuration)
     .AddCorsPolicies()
     .AddSwagger()
     .AddControllers();

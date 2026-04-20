@@ -2,10 +2,10 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Integration.Common.Helpers;
-using DecimalConverter = Reveries.Integration.Common.Helpers.DecimalConverter;
+using Reveries.Integration.Http.Helpers;
+using DecimalConverter = Reveries.Integration.Http.Helpers.DecimalConverter;
 
-namespace Reveries.Integration.Common.Base;
+namespace Reveries.Integration.Http.Base;
 
 public abstract class ExternalBaseClient<TClient> where TClient : class
 {

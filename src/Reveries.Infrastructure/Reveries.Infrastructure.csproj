@@ -4,7 +4,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>Reveries.Infrastructure.Common</RootNamespace>
+        <RootNamespace>Reveries.Infrastructure</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
