@@ -1,6 +1,5 @@
 using Reveries.Application.Books.Services;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Application.Services;
 using Reveries.Application.Services.BookSeries;
 using Reveries.Console.Common.Extensions;
 using Reveries.Core.Models;

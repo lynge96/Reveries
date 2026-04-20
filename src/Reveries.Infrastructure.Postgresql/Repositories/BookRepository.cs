@@ -101,7 +101,7 @@ public class BookRepository : IBookRepository
     await connection.ExecuteAsync(
         new CommandDefinition(
             sql, 
-            new { Id = book.DbId, SeriesId = seriesId, SeriesNumber = book.Book.SeriesNumber }, 
+            new { Id = book.DbId, SeriesId = seriesId, book.Book.SeriesNumber }, 
             cancellationToken: ct)
     );
     }
