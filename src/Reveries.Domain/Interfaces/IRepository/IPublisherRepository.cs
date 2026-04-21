@@ -1,11 +1,11 @@
+using System.Data;
 using Reveries.Core.Models;
-using Reveries.Core.ValueObjects.DTOs;
 
 namespace Reveries.Core.Interfaces.IRepository;
 
 public interface IPublisherRepository
 {
-    Task<int> AddAsync(Publisher publisher);
-    Task<PublisherWithId?> GetByNameAsync(string publisherName);
-    Task<List<Publisher>> GetPublishersByNameAsync(string name);
+    Task<Publisher?> GetOrCreateAsync(Publisher? publisher, IDbTransaction? transaction = null, CancellationToken ct = default);
+    Task<Publisher?> GetByNameAsync(string publisherName);
+    Task<List<Publisher>> SearchByNameAsync(string name);
 }

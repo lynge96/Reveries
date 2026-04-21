@@ -1,7 +1,6 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.ValueObjects;
-using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
@@ -35,13 +34,13 @@ public class GenreRepository : IGenreRepository
         return genreDbId;
     }
     
-    public async Task<GenreWithId?> GetByNameAsync(string genreName)
+    public async Task<Genre?> GetByNameAsync(string genreName)
     {
         const string sql = """
                            SELECT 
-                               id AS genreId, 
+                               id, 
                                name, 
-                               date_created AS dateCreatedGenre
+                               date_created
                            FROM library.genres 
                            WHERE name = @Name
                            LIMIT 1
@@ -50,20 +49,17 @@ public class GenreRepository : IGenreRepository
         var connection = await _dbContext.GetConnectionAsync();
     
         var row = await connection.QueryFirstOrDefaultAsync<GenreEntity>(sql, new { Genre = genreName });
-        
-        if (row == null)
-            return null;
-            
-        return new GenreWithId(row.ToDomain(), row.GenreId);
+
+        return row?.ToDomain();
     }
     
-    public async Task<IReadOnlyList<GenreWithId>> GetByNamesAsync(IEnumerable<string> names)
+    public async Task<IReadOnlyList<Genre>> GetByNamesAsync(IEnumerable<string> names)
     {
         const string sql = """
                            SELECT 
-                               id AS genreId,
+                               id,
                                name,
-                               date_created AS dateCreatedGenre
+                               date_created
                            FROM library.genres
                            WHERE name = ANY(@Names);
                            """;
@@ -72,6 +68,6 @@ public class GenreRepository : IGenreRepository
         
         var rows = await connection.QueryAsync<GenreEntity>(sql, new { Names = names.ToArray() });
         
-        return rows.Select(r => new GenreWithId(r.ToDomain(), r.GenreId)).ToList();
+        return rows.Select(r => r.ToDomain()).ToList();
     }
 }

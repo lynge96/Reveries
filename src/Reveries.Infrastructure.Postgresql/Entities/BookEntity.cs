@@ -2,12 +2,11 @@ namespace Reveries.Infrastructure.Postgresql.Entities;
 
 public sealed class BookEntity
 {
-    public int Id { get; set; }
-    public Guid BookDomainId { get; set; }
+    public Guid Id { get; set; }
     public string Title { get; set; } = null!;
     public string? Isbn13 { get; set; }
     public string? Isbn10 { get; set; }
-    public int? PublisherId { get; set; }
+    public Guid? PublisherId { get; set; }
     public string? PublicationDate { get; set; }
     public int? PageCount { get; set; }
     public string? Synopsis { get; set; }
@@ -19,10 +18,10 @@ public sealed class BookEntity
     public decimal? Msrp { get; set; }
     public bool IsRead { get; set; }
     public int? SeriesNumber { get; set; }
-    public int? SeriesId { get; set; }
+    public Guid? SeriesId { get; set; }
     public decimal? HeightCm { get; set; }
     public decimal? WidthCm { get; set; }
     public decimal? ThicknessCm { get; set; }
     public decimal? WeightG { get; set; }
-    public DateTimeOffset? DateCreatedBook { get; set; }
+    public DateTimeOffset? DateCreated { get; set; }
 }

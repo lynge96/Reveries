@@ -230,7 +230,7 @@ public class Book : BaseEntity
         }
     }
     
-    public void SetPublisher(Publisher publisher)
+    public void SetPublisher(Publisher? publisher)
     {
         Publisher = publisher;
     }

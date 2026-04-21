@@ -1,6 +1,6 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
-using Reveries.Core.ValueObjects.DTOs;
+using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Repositories;
@@ -14,7 +14,7 @@ public class BookDeweyDecimalsRepository : IBookDeweyDecimalsRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(int bookId, IEnumerable<DeweyDecimalWithId> deweyDecimals)
+    public async Task AddAsync(Guid bookId, IEnumerable<DeweyDecimal> deweyDecimals)
     {
         const string sql = """
                            INSERT INTO library.books_dewey_decimals (book_id, dewey_decimal_id)

@@ -1,11 +1,10 @@
 using Reveries.Core.Models;
-using Reveries.Core.ValueObjects.DTOs;
 
 namespace Reveries.Core.Interfaces.IRepository;
 
 public interface ISeriesRepository
 {
-    Task<int> AddAsync(Series series);
-    Task<SeriesWithId?> GetByNameAsync(string seriesName);
+    Task<Guid> AddAsync(Series series);
+    Task<Series?> GetByNameAsync(string seriesName);
     Task<List<Series>> GetSeriesAsync();
 }

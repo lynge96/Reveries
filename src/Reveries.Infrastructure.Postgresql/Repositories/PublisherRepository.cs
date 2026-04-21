@@ -1,7 +1,7 @@
+using System.Data;
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
-using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
@@ -16,62 +16,80 @@ public class PublisherRepository : IPublisherRepository
     {
         _dbContext = dbContext;
     }
-    
-    public async Task<int> AddAsync(Publisher publisher)
+
+    public async Task<Publisher?> GetOrCreateAsync(Publisher? publisher, IDbTransaction? transaction, CancellationToken ct)
+    {
+        if (publisher is null)
+            return null;
+        
+        var existing = await GetByNameAsync(publisher.Name);
+        if (existing != null)
+            return existing;
+        
+        await InsertPublisherAsync(publisher, transaction, ct);
+        
+        return publisher;
+    }
+
+    private async Task InsertPublisherAsync(Publisher publisher, IDbTransaction? transaction = null, CancellationToken ct = default)
     {
         const string sql = """
-                           INSERT INTO library.publishers (domain_id, name)
-                           VALUES (@PublisherDomainId, @PublisherName)
-                           ON CONFLICT DO NOTHING
-                           RETURNING id
+                           INSERT INTO library.publishers (id, name)
+                           VALUES (@Id, @Name)
+                           ON CONFLICT (name) DO NOTHING
                            """;
         
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
 
         var publisherEntity = publisher.ToDbModel();
         
-        var publisherDbId = await connection.QuerySingleAsync<int>(sql, publisherEntity);
-
-        return publisherDbId;
+        await connection.QuerySingleAsync(
+            sql, 
+            publisherEntity,
+            transaction
+            );
     }
     
-    public async Task<PublisherWithId?> GetByNameAsync(string publisherName)
+    public async Task<Publisher?> GetByNameAsync(string publisherName)
     {
         const string sql = """
                            SELECT 
-                               id AS publisherId, 
-                               domain_id AS publisherDomainId,
-                               name AS publisherName, 
-                               date_created AS dateCreatedPublisher
+                               id,
+                               name, 
+                               date_created
                            FROM library.publishers
                            WHERE name ILIKE @Name
-                           """;
-
-        var connection = await _dbContext.GetConnectionAsync();
-
-        var row = await connection.QueryFirstOrDefaultAsync<PublisherEntity>(sql, new { Name = publisherName });
-
-        if (row == null)
-            return null;
-
-        return new PublisherWithId(row.ToDomain(), row.PublisherId);
-    }
-
-    public async Task<List<Publisher>> GetPublishersByNameAsync(string name)
-    {
-        const string sql = """
-                           SELECT 
-                               id AS publisherId, 
-                               domain_id AS publisherDomainId,
-                               name AS publisherName, 
-                               date_created AS dateCreatedPublisher
-                           FROM library.publishers
-                           WHERE name ILIKE @Name
+                           LIMIT 1
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
         
-        var rows = await connection.QueryAsync<PublisherEntity>(sql, new { Name = name });
+        var row = await connection.QueryFirstOrDefaultAsync<PublisherEntity>(
+            sql, 
+            new { Name = publisherName }
+            );
+
+        return row?.ToDomain();
+    }
+
+    public async Task<List<Publisher>> SearchByNameAsync(string publisherName)
+    {
+        const string sql = """
+                           SELECT 
+                               id, 
+                               name, 
+                               date_created
+                           FROM library.publishers
+                           WHERE name ILIKE @Name
+                           ORDER BY name
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync();
+        
+        var rows = await connection.QueryAsync<PublisherEntity>(
+            sql, 
+            new { Name = $"%{publisherName}%" }
+            );
         
         return rows.Select(r => r.ToDomain()).ToList();
     }

@@ -4,7 +4,6 @@ using Reveries.Application.Interfaces.Cache;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
-using Reveries.Core.ValueObjects.DTOs;
 
 namespace Reveries.Application.Books.Services;
 

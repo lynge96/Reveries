@@ -1,10 +1,9 @@
 namespace Reveries.Infrastructure.Postgresql.Views;
 
-public sealed class BookDetailsFlat
+public sealed class BookDetails
 {
     // Book
-    public int Id { get; init; }
-    public Guid BookDomainId { get; init; }
+    public Guid BookId { get; init; }
     public string Title { get; init; } = null!;
     public string? Isbn13 { get; init; }
     public string? Isbn10 { get; init; }
@@ -26,14 +25,12 @@ public sealed class BookDetailsFlat
     public DateTimeOffset? DateCreatedBook { get; init; }
     
     // Publisher
-    public int? PublisherId { get; init; }
-    public Guid PublisherDomainId { get; init; }
+    public Guid PublisherId { get; init; }
     public required string PublisherName { get; init; }
     public DateTimeOffset DateCreatedPublisher { get; init; }
 
     // Series
-    public int? SeriesId { get; init; }
-    public Guid SeriesDomainId { get; init; }
+    public Guid SeriesId { get; init; }
     public required string SeriesName { get; init; }
     public DateTimeOffset DateCreatedSeries { get; init; }
 

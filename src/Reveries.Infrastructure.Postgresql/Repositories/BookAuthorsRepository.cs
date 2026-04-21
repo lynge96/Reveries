@@ -1,6 +1,6 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
-using Reveries.Core.ValueObjects.DTOs;
+using Reveries.Core.Models;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Repositories;
@@ -14,7 +14,7 @@ public class BookAuthorsRepository : IBookAuthorsRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(int bookId, IEnumerable<AuthorWithId> authors)
+    public async Task AddAsync(Guid bookId, IEnumerable<Author> authors)
     {
         const string sql = """
                            INSERT INTO library.books_authors (book_id, author_id)
@@ -25,7 +25,7 @@ public class BookAuthorsRepository : IBookAuthorsRepository
         var connection = await _dbContext.GetConnectionAsync();
 
         var parameters = authors
-            .Select(a => new { BookId = bookId, AuthorId = a.DbId });
+            .Select(a => new { BookId = bookId, AuthorId = a.Id });
         
         await connection.ExecuteAsync(sql, parameters);
     }

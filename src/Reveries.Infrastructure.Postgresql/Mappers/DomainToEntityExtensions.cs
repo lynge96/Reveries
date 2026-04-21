@@ -6,11 +6,11 @@ namespace Reveries.Infrastructure.Postgresql.Mappers;
 
 public static class DomainToEntityExtensions
 {
-    public static BookEntity ToDbModel(this Book model, int? publisherId = null, int? seriesId = null)
+    public static BookEntity ToDbModel(this Book model)
     {
         return new BookEntity
         {
-            BookDomainId = model.Id.Value,
+            Id = model.Id.Value,
             Title = model.Title,
             Isbn13 = model.Isbn13?.Value,
             Isbn10 = model.Isbn10?.Value,
@@ -29,10 +29,10 @@ public static class DomainToEntityExtensions
             WidthCm = model.Dimensions?.WidthCm,
             ThicknessCm = model.Dimensions?.ThicknessCm,
             WeightG = model.Dimensions?.WeightG,
-            DateCreatedBook = model.DateCreated,
+            DateCreated = model.DateCreated,
             
-            PublisherId = publisherId,
-            SeriesId = seriesId
+            PublisherId = model.Publisher?.Id.Value,
+            SeriesId = model.Series?.Id.Value,
         };
     }
     
@@ -40,9 +40,9 @@ public static class DomainToEntityExtensions
     {
         return new PublisherEntity
         {
-            PublisherDomainId = model.Id.Value,
-            PublisherName = model.Name,
-            DateCreatedPublisher = model.DateCreated
+            Id = model.Id.Value,
+            Name = model.Name,
+            DateCreated = model.DateCreated
         };
     }
 
@@ -50,9 +50,9 @@ public static class DomainToEntityExtensions
     {
         return new SeriesEntity
         {
-            SeriesDomainId = model.Id.Value,
-            SeriesName = model.Name,
-            DateCreatedSeries = model.DateCreated
+            Id = model.Id.Value,
+            Name = model.Name,
+            DateCreated = model.DateCreated
         };
     }
 
@@ -60,11 +60,11 @@ public static class DomainToEntityExtensions
     {
         return new AuthorEntity
         {
-            AuthorDomainId = model.Id.Value,
+            Id = model.Id.Value,
             FirstName = model.FirstName,
             LastName = model.LastName,
             NormalizedName = model.NormalizedName,
-            DateCreatedAuthor = model.DateCreated,
+            DateCreated = model.DateCreated,
             AuthorNameVariants = model.NameVariants
                 .Select(nv => nv.ToDbModel())
                 .ToList()
@@ -84,7 +84,7 @@ public static class DomainToEntityExtensions
     {
         return new GenreEntity
         {
-            GenreName = model.Value
+            Name = model.Value
         };
     }
 

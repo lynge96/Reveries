@@ -1,6 +1,6 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
-using Reveries.Core.ValueObjects.DTOs;
+using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Repositories;
@@ -14,7 +14,7 @@ public class BookGenresRepository : IBookGenresRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(int bookId, IEnumerable<GenreWithId> genres)
+    public async Task AddAsync(Guid bookId, IEnumerable<Genre> genres)
     {
         const string sql = """
                            INSERT INTO library.books_genres (book_id, genre_id)
@@ -23,9 +23,9 @@ public class BookGenresRepository : IBookGenresRepository
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
-
+        // TODO: Find ud af hvordan ID skal sættes i bridge tabel
         var parameters = genres
-            .Select(g => new { BookId = bookId, GenreId = g.DbId });
+            .Select(g => new { BookId = bookId, GenreId =  });
         
         await connection.ExecuteAsync(sql, parameters);
     }

@@ -1,7 +1,6 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
-using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
@@ -17,11 +16,11 @@ public class AuthorRepository : IAuthorRepository
         _dbContext = dbContext;
     }
     
-    public async Task<int> AddAsync(Author author)
+    public async Task<Guid> AddAsync(Author author)
     {
         const string authorSql = """
-                                 INSERT INTO library.authors (domain_id, normalized_name, first_name, last_name)
-                                 VALUES (@AuthorDomainId, @NormalizedName, @FirstName, @LastName)
+                                 INSERT INTO library.authors (id, normalized_name, first_name, last_name)
+                                 VALUES (@Id, @NormalizedName, @FirstName, @LastName)
                                  ON CONFLICT DO NOTHING
                                  RETURNING id
                                  """;
@@ -37,7 +36,7 @@ public class AuthorRepository : IAuthorRepository
         var authorEntity = author.ToDbModel();
         
         // Insert the author first
-        var authorDbId = await connection.QuerySingleAsync<int>(authorSql, authorEntity);
+        var authorDbId = await connection.QuerySingleAsync<Guid>(authorSql, authorEntity);
 
         // If there are name variants, insert them
         if (authorEntity.AuthorNameVariants != null)
@@ -55,15 +54,14 @@ public class AuthorRepository : IAuthorRepository
         return authorDbId;
     }
     
-    public async Task<AuthorWithId?> GetByNameAsync(string name)
+    public async Task<Author?> GetByNameAsync(string name)
     {
         const string sql = """
-                           SELECT a.id AS authorId,
-                                  a.domain_id AS authorDomainId,
+                           SELECT a.id,
                                   a.normalized_name,
                                   a.first_name,
                                   a.last_name,
-                                  a.date_created AS dateCreatedAuthor
+                                  a.date_created
                            FROM library.authors a
                            WHERE a.normalized_name = @Name
                               OR EXISTS (
@@ -80,21 +78,18 @@ public class AuthorRepository : IAuthorRepository
         
         var authorDto = await connection.QueryFirstOrDefaultAsync<AuthorEntity>(sql, new { Name = name });
 
-        if (authorDto == null) return null;
-        
-        return new AuthorWithId(authorDto.ToDomain(), authorDto.AuthorId);
+        return authorDto?.ToDomain();
     }
 
-    public async Task<IReadOnlyList<AuthorWithId>> GetByNamesAsync(IEnumerable<string> authorNames)
+    public async Task<IReadOnlyList<Author>> GetByNamesAsync(IEnumerable<string> authorNames)
     {
         const string sql = """
                            SELECT DISTINCT
-                               a.id AS authorId,
-                               a.domain_id AS authorDomainId,
+                               a.id,
                                a.normalized_name,
                                a.first_name,
                                a.last_name,
-                               a.date_created AS dateCreatedAuthor
+                               a.date_created
                            FROM library.authors a
                            LEFT JOIN library.author_name_variants anv
                                ON anv.author_id = a.id
@@ -107,18 +102,17 @@ public class AuthorRepository : IAuthorRepository
         
         var rows = await connection.QueryAsync<AuthorEntity>(sql, new { Names = authorNames.ToArray() });
         
-        return rows.Select(r => new AuthorWithId(r.ToDomain(), r.AuthorId)).ToList();
+        return rows.Select(r => r.ToDomain()).ToList();
     }
 
     public async Task<List<Author>> GetAuthorsByNameAsync(string name)
     {
         const string sql = """
-                           SELECT a.id AS authorId,
-                                  a.domain_id AS authorDomainId,
+                           SELECT a.id,
                                   a.normalized_name,
                                   a.first_name,
                                   a.last_name,
-                                  a.date_created AS dateCreatedAuthor
+                                  a.date_created
                            FROM library.authors a
                            WHERE a.first_name ILIKE @Pattern
                               OR a.last_name  ILIKE @Pattern
@@ -127,8 +121,7 @@ public class AuthorRepository : IAuthorRepository
 
         var connection = await _dbContext.GetConnectionAsync();
 
-        var authorDtos = await connection.QueryAsync<AuthorEntity>(sql, 
-            new { Pattern = $"%{name}%" });
+        var authorDtos = await connection.QueryAsync<AuthorEntity>(sql, new { Pattern = $"%{name}%" });
 
         return authorDtos.Select(a => a.ToDomain()).ToList();
     }

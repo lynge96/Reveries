@@ -11,7 +11,7 @@ public static class BookAggregateMapperExtensions
     { 
         var data = new BookReconstitutionData
         (
-            Id: entity.Book.BookDomainId,
+            Id: entity.Book.Id,
             Isbn13: entity.Book.Isbn13,
             Isbn10: entity.Book.Isbn10,
             Title: entity.Book.Title,

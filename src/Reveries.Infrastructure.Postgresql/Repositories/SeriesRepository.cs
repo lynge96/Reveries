@@ -1,7 +1,6 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
-using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
@@ -17,11 +16,11 @@ public class SeriesRepository : ISeriesRepository
         _dbContext = dbContext;
     }
     
-    public async Task<int> AddAsync(Series series)
+    public async Task<Guid> AddAsync(Series series)
     {
         const string sql = """
-                           INSERT INTO library.series (domain_id, name) 
-                           VALUES (@SeriesDomainId, @SeriesName)
+                           INSERT INTO library.series (id, name) 
+                           VALUES (@Id, @Name)
                            ON CONFLICT DO NOTHING
                            RETURNING id;
                            """;
@@ -30,19 +29,18 @@ public class SeriesRepository : ISeriesRepository
 
         var seriesEntity = series.ToDbModel();
         
-        var seriesDbId = await connection.QuerySingleAsync<int>(sql, seriesEntity);
+        var seriesDbId = await connection.QuerySingleAsync<Guid>(sql, seriesEntity);
 
         return seriesDbId;
     }
     
-    public async Task<SeriesWithId?> GetByNameAsync(string seriesName)
+    public async Task<Series?> GetByNameAsync(string seriesName)
     {
         const string sql = """
                            SELECT 
-                               id AS SeriesId, 
-                               domain_id AS SeriesDomainId, 
-                               name AS SeriesName, 
-                               date_created AS DateCreatedSeries 
+                               id,
+                               name, 
+                               date_created
                            FROM library.series 
                            WHERE name ILIKE @Name
                            LIMIT 1;
@@ -51,21 +49,17 @@ public class SeriesRepository : ISeriesRepository
         var connection = await _dbContext.GetConnectionAsync();
     
         var row = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(sql, new { Name = seriesName });
-    
-        if (row == null)
-            return null;
-        
-        return new SeriesWithId(row.ToDomain(), row.SeriesId);
+
+        return row?.ToDomain();
     }
 
     public async Task<List<Series>> GetSeriesAsync()
     {
         const string sql = """
                            SELECT 
-                               id AS SeriesId, 
-                               domain_id AS SeriesDomainId, 
-                               name AS SeriesName, 
-                               date_created AS DateCreatedSeries 
+                               id, 
+                               name, 
+                               date_created
                            FROM library.series;
                            """;
         

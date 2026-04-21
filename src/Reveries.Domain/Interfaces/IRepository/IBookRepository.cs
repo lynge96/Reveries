@@ -1,15 +1,14 @@
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
-using Reveries.Core.ValueObjects.DTOs;
 
 namespace Reveries.Core.Interfaces.IRepository;
 
 public interface IBookRepository
 {
-    Task<int> AddAsync(Book book, int? publisherId, int? seriesId, CancellationToken ct = default);
-    Task<BookWithId?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null, CancellationToken ct = default);
+    Task SaveWithRelationsAsync(Book book, CancellationToken ct = default);
+    Task<Book?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null, CancellationToken ct = default);
     Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct = default);
-    Task UpdateBookSeriesAsync(BookWithId book, int seriesId, CancellationToken ct = default);
+    Task UpdateBookSeriesAsync(Book book, int seriesId, CancellationToken ct = default);
     Task UpdateBookReadStatusAsync(Book book, CancellationToken ct = default);
     
     Task<List<Book>> GetBooksByAuthorAsync(string authorName, CancellationToken ct = default);
