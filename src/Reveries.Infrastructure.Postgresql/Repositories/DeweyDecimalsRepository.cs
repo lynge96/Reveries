@@ -1,7 +1,6 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.ValueObjects;
-using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
@@ -15,59 +14,40 @@ public class DeweyDecimalsRepository : IDeweyDecimalsRepository
     {
         _dbContext = dbContext;
     }
-    
-    public async Task<int> AddAsync(DeweyDecimal deweyDecimal)
+
+    public async Task<List<int>> GetOrCreateDeweyDecimalsAsync(
+        IReadOnlyList<DeweyDecimal> deweyDecimals,
+        CancellationToken ct)
     {
-        const string sql = """
-                           INSERT INTO library.dewey_decimals (code)
-                           VALUES (@Code)
-                           ON CONFLICT DO NOTHING
-                           RETURNING id;
-                           """;
+        if (deweyDecimals.Count == 0)
+            return [];
+        
+        var deweyDecimalIds = new List<int>();
 
-        var connection = await _dbContext.GetConnectionAsync();
-        
-        var deweyDecimalEntity = deweyDecimal.ToDbModel();
-        
-        var deweyDecimalDbId = await connection.QuerySingleAsync<int>(sql, deweyDecimalEntity);
-        
-        return deweyDecimalDbId;
-    }
+        foreach (var deweyDecimal in deweyDecimals)
+        {
+            const string sql = """
+                               INSERT INTO library.dewey_decimals (code)
+                               VALUES (@Code)
+                               ON CONFLICT (code) DO UPDATE
+                               SET code = EXCLUDED.code
+                               RETURNING id
+                               """;
 
-    public async Task<DeweyDecimal?> GetByCodeAsync(string code)
-    {
-        const string sql = """
-                           SELECT 
-                               id AS DeweyDecimalId, 
-                               code AS Code, 
-                               date_created AS DateCreatedDeweyDecimal
-                           FROM library.dewey_decimals 
-                           WHERE code ILIKE @Code
-                           LIMIT 1;
-                           """;
-        
-        var connection = await _dbContext.GetConnectionAsync();
-    
-        var row = await connection.QueryFirstOrDefaultAsync<DeweyDecimalEntity>(sql, new { Code = code });
+            var connection = await _dbContext.GetConnectionAsync(ct);
+            var deweyDecimalEntity = deweyDecimal.ToEntity();
 
-        return row?.ToDomain();
-    }
-
-    public async Task<IReadOnlyList<DeweyDecimal>> GetByCodesAsync(IEnumerable<string> codes)
-    {
-        const string sql = """
-                           SELECT 
-                               id,
-                               code,
-                               date_created
-                           FROM library.dewey_decimals
-                           WHERE code = ANY(@Codes);
-                           """;
+            var command = new CommandDefinition(
+                commandText: sql,
+                parameters: deweyDecimalEntity,
+                cancellationToken: ct
+            );
+            
+            var deweyDecimalDbId = await connection.QuerySingleAsync<int>(command);
+            
+            deweyDecimalIds.Add(deweyDecimalDbId);
+        }
         
-        var connection = await _dbContext.GetConnectionAsync();
-        
-        var rows = await connection.QueryAsync<DeweyDecimalEntity>(sql, new { Codes = codes.ToArray() });
-        
-        return rows.Select(r => r.ToDomain()).ToList();
+        return deweyDecimalIds;
     }
 }

@@ -1,13 +1,13 @@
 using Reveries.Core.Interfaces.IRepository;
 
-namespace Reveries.Core.Interfaces;
+namespace Reveries.Application.Common.Abstractions;
 
 public interface IUnitOfWork
 {
     IBookRepository Books { get; }
     IAuthorRepository Authors { get; }
     ISeriesRepository Series { get; }
-    IDeweyDecimalsRepository DeweyDecimalses { get; }
+    IDeweyDecimalsRepository DeweyDecimals { get; }
     IPublisherRepository Publishers { get; }
     IGenreRepository Genres { get; }
     
@@ -15,7 +15,5 @@ public interface IUnitOfWork
     IBookGenresRepository BookGenres { get; }
     IBookDeweyDecimalsRepository BookDeweyDecimals { get; }
     
-    Task BeginTransactionAsync();
-    Task CommitAsync();
-    Task RollbackAsync();
+    Task<ITransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 }

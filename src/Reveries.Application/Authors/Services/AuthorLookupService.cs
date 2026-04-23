@@ -1,4 +1,5 @@
 using Reveries.Application.Authors.Interfaces;
+using Reveries.Application.Common.Abstractions;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 

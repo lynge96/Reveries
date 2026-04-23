@@ -45,12 +45,12 @@ public static class BookAggregateMapperExtensions
     {
         return new BookAggregateEntity
         {
-            Book = book.ToDbModel(),
-            Publisher = book.Publisher?.ToDbModel(),
-            Authors = book.Authors.Select(a => a.ToDbModel()).ToList(),
-            Genres = book.Genres.Select(g => g.ToDbModel()).ToList(),
-            DeweyDecimals = book.DeweyDecimals.Select(dd => dd.ToDbModel()).ToList(),
-            Series = book.Series?.ToDbModel()
+            Book = book.ToEntity(),
+            Publisher = book.Publisher?.ToEntity(),
+            Authors = book.Authors.Select(a => a.ToEntity()).ToList(),
+            Genres = book.Genres.Select(g => g.ToEntity()).ToList(),
+            DeweyDecimals = book.DeweyDecimals.Select(dd => dd.ToEntity()).ToList(),
+            Series = book.Series?.ToEntity()
         };
     }
 }

@@ -1,3 +1,4 @@
+using System.Data;
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
@@ -15,25 +16,36 @@ public class SeriesRepository : ISeriesRepository
     {
         _dbContext = dbContext;
     }
-    
-    public async Task<Guid> AddAsync(Series series)
+
+    public async Task<Series?> GetOrCreateAsync(
+        Series? series,
+        CancellationToken ct)
     {
-        const string sql = """
-                           INSERT INTO library.series (id, name) 
-                           VALUES (@Id, @Name)
-                           ON CONFLICT DO NOTHING
-                           RETURNING id;
-                           """;
-        
-        var connection = await _dbContext.GetConnectionAsync();
-
-        var seriesEntity = series.ToDbModel();
-        
-        var seriesDbId = await connection.QuerySingleAsync<Guid>(sql, seriesEntity);
-
-        return seriesDbId;
-    }
+        if (series is null)
+            return null;
     
+        const string sql = """
+                           INSERT INTO library.series (id, name)
+                           VALUES (@Id, @Name)
+                           ON CONFLICT (name) DO UPDATE 
+                           SET name = EXCLUDED.name
+                           RETURNING id, name, date_created
+                           """;
+    
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        var seriesEntity = series.ToEntity();
+    
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: new { seriesEntity.Id, seriesEntity.Name },
+            cancellationToken: ct
+        );
+    
+        var result = await connection.QuerySingleAsync<SeriesEntity>(command);
+    
+        return result.ToDomain();
+    }
+
     public async Task<Series?> GetByNameAsync(string seriesName)
     {
         const string sql = """

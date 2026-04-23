@@ -235,7 +235,7 @@ public class Book : BaseEntity
         Publisher = publisher;
     }
     
-    public void SetSeries(Series series, int? numberInSeries = null)
+    public void SetSeries(Series? series, int? numberInSeries = null)
     {
         if (numberInSeries <= 0)
             throw new InvalidSeriesNumberException(numberInSeries);

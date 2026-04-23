@@ -1,8 +1,6 @@
-using Reveries.Core.ValueObjects;
-
 namespace Reveries.Core.Interfaces.IRepository;
 
 public interface IBookDeweyDecimalsRepository
 {
-    Task AddAsync(Guid bookId, IEnumerable<DeweyDecimal> deweyDecimals);
+    Task InsertBookDeweyDecimalsAsync(Guid bookId, IEnumerable<int> deweyDecimalsIds, CancellationToken ct = default);
 }

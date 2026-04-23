@@ -5,10 +5,10 @@ namespace Reveries.Core.Interfaces.IRepository;
 
 public interface IBookRepository
 {
-    Task SaveWithRelationsAsync(Book book, CancellationToken ct = default);
+    Task InsertBookAsync(Book book, CancellationToken ct);
     Task<Book?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null, CancellationToken ct = default);
     Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct = default);
-    Task UpdateBookSeriesAsync(Book book, int seriesId, CancellationToken ct = default);
+    Task UpdateBookSeriesAsync(Book book, Guid seriesId, CancellationToken ct = default);
     Task UpdateBookReadStatusAsync(Book book, CancellationToken ct = default);
     
     Task<List<Book>> GetBooksByAuthorAsync(string authorName, CancellationToken ct = default);

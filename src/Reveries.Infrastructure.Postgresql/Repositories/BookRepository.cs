@@ -1,4 +1,3 @@
-using System.Data;
 using System.Text.Json;
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
@@ -14,39 +13,13 @@ namespace Reveries.Infrastructure.Postgresql.Repositories;
 public class BookRepository : IBookRepository
 {
     private readonly IDbContext _dbContext;
-    private readonly IPublisherRepository _publisherRepository;
     
-    public BookRepository(
-        IDbContext dbContext,
-        IPublisherRepository publisherRepository)
+    public BookRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
-        _publisherRepository = publisherRepository;   
     }
 
-    public async Task SaveWithRelationsAsync(Book book, CancellationToken ct = default)
-    {
-        using var transaction = await _dbContext.BeginTransactionAsync(ct);
-
-        try
-        {
-            // Handle Publisher
-            var publisher = await _publisherRepository.GetOrCreateAsync(book.Publisher, transaction, ct);
-            book.SetPublisher(publisher);
-
-            // Insert book
-            await InsertBookAsync(book, transaction, ct);
-            
-            await _dbContext.CommitTransactionAsync(ct);
-        }
-        catch
-        {
-            await _dbContext.RollbackTransactionAsync(ct);
-            throw;
-        }
-    }
-
-    private async Task InsertBookAsync(Book book, IDbTransaction transaction, CancellationToken ct)
+    public async Task InsertBookAsync(Book book, CancellationToken ct)
     {
         const string sql = """
                            INSERT INTO library.books (
@@ -61,20 +34,17 @@ public class BookRepository : IBookRepository
                                @CoverImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnailUrl, @SeriesId, @SeriesNumber,
                                @HeightCm, @WidthCm, @ThicknessCm, @WeightG
                            )
-                           RETURNING id;
                            """;
         
         var connection = await _dbContext.GetConnectionAsync(ct);
-        
-        var bookEntity = book.ToDbModel();
-        
-        await connection.ExecuteScalarAsync<Guid>(
-            new CommandDefinition(
-                sql, 
-                bookEntity,
-                transaction: transaction,
-                cancellationToken: ct)
-        );
+        var bookEntity = book.ToEntity();
+
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: bookEntity,
+            cancellationToken: ct);
+
+        await connection.ExecuteAsync(command);
     }
     
     public async Task<Book?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10, CancellationToken ct)
@@ -113,7 +83,7 @@ public class BookRepository : IBookRepository
         );
     }
 
-    public async Task UpdateBookSeriesAsync(Book book, int seriesId, CancellationToken ct)
+    public async Task UpdateBookSeriesAsync(Book book, Guid seriesId, CancellationToken ct)
     {
         const string sql = """
                            UPDATE library.books

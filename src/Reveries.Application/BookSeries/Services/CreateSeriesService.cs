@@ -1,8 +1,9 @@
+using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
-namespace Reveries.Application.Services.BookSeries;
+namespace Reveries.Application.BookSeries.Services;
 
 public class CreateSeriesService
 {
@@ -21,7 +22,7 @@ public class CreateSeriesService
             throw new SeriesAlreadyExistsException(series.Name);
         }
         
-        await _unitOfWork.Series.AddAsync(series);
+        await _unitOfWork.Series.GetOrCreateAsync(series);
         return series;
     }
 

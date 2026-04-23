@@ -1,6 +1,5 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
-using Reveries.Core.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Repositories;
@@ -14,20 +13,31 @@ public class BookGenresRepository : IBookGenresRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(Guid bookId, IEnumerable<Genre> genres)
+    public async Task InsertBookGenresAsync(
+        Guid bookId,
+        IEnumerable<int> genreIds,
+        CancellationToken ct)
     {
         const string sql = """
                            INSERT INTO library.books_genres (book_id, genre_id)
                            VALUES (@BookId, @GenreId)
-                           ON CONFLICT DO NOTHING;
+                           ON CONFLICT (book_id, genre_id) DO NOTHING;
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync();
-        // TODO: Find ud af hvordan ID skal sættes i bridge tabel
-        var parameters = genres
-            .Select(g => new { BookId = bookId, GenreId =  });
-        
-        await connection.ExecuteAsync(sql, parameters);
-    }
+        var connection = await _dbContext.GetConnectionAsync(ct);
 
+        var parameters = genreIds.Select(genreId => new
+        {
+            BookId = bookId, 
+            GenreId = genreId
+        });
+
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: parameters,
+            cancellationToken: ct
+        );
+        
+        await connection.ExecuteAsync(command);
+    }
 }

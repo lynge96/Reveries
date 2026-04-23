@@ -1,7 +1,6 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.ValueObjects;
-using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
 
@@ -16,58 +15,40 @@ public class GenreRepository : IGenreRepository
         _dbContext = dbContext;
     }
 
-    public async Task<int> AddAsync(Genre genre)
+    public async Task<List<int>> GetOrCreateGenresAsync(
+        IReadOnlyList<Genre> genres,
+        CancellationToken ct)
     {
-        const string sql = """
-                           INSERT INTO library.genres (name)
-                           VALUES (@Name)
-                           ON CONFLICT DO NOTHING
-                           RETURNING id
-                           """;
+        if (genres.Count == 0)
+            return [];
         
-        var connection = await _dbContext.GetConnectionAsync();
+        var genreIds = new List<int>();
+        
+        foreach (var genre in genres)
+        {
+            const string sql = """
+                               INSERT INTO library.genres (name)
+                               VALUES (@Name)
+                               ON CONFLICT (name) DO UPDATE
+                               SET name = EXCLUDED.name
+                               RETURNING id
+                               """;
+        
+            var connection = await _dbContext.GetConnectionAsync(ct);
+            var genreEntity = genre.ToEntity();
 
-        var genreEntity = genre.ToDbModel();
+            var command = new CommandDefinition(
+                commandText: sql,
+                parameters: genreEntity,
+                cancellationToken: ct
+            );
         
-        var genreDbId = await connection.QuerySingleAsync<int>(sql, genreEntity);
+            var genreDbId = await connection.QuerySingleAsync<int>(command);
+            
+            genreIds.Add(genreDbId);
+        }
+        
+        return genreIds;
+    }
 
-        return genreDbId;
-    }
-    
-    public async Task<Genre?> GetByNameAsync(string genreName)
-    {
-        const string sql = """
-                           SELECT 
-                               id, 
-                               name, 
-                               date_created
-                           FROM library.genres 
-                           WHERE name = @Name
-                           LIMIT 1
-                           """;
-        
-        var connection = await _dbContext.GetConnectionAsync();
-    
-        var row = await connection.QueryFirstOrDefaultAsync<GenreEntity>(sql, new { Genre = genreName });
-
-        return row?.ToDomain();
-    }
-    
-    public async Task<IReadOnlyList<Genre>> GetByNamesAsync(IEnumerable<string> names)
-    {
-        const string sql = """
-                           SELECT 
-                               id,
-                               name,
-                               date_created
-                           FROM library.genres
-                           WHERE name = ANY(@Names);
-                           """;
-        
-        var connection = await _dbContext.GetConnectionAsync();
-        
-        var rows = await connection.QueryAsync<GenreEntity>(sql, new { Names = names.ToArray() });
-        
-        return rows.Select(r => r.ToDomain()).ToList();
-    }
 }

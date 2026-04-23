@@ -15,14 +15,56 @@ public class AuthorRepository : IAuthorRepository
     {
         _dbContext = dbContext;
     }
+
+    public async Task<List<Guid>> GetOrCreateAuthorsAsync(
+        IReadOnlyList<Author> authors,
+        CancellationToken ct)
+    {
+        if (authors.Count == 0)
+            return [];
+        
+        var authorNames = authors.Select(a => a.NormalizedName).Distinct().ToList();
+        
+        var existingAuthors = await GetByNamesAsync(authorNames, ct);
+        var existingByName = existingAuthors.ToDictionary(a => a.NormalizedName);
+        
+        var authorsToCreate = authors
+            .Where(a => !existingByName.ContainsKey(a.NormalizedName))
+            .DistinctBy(a => a.NormalizedName)
+            .ToList();
+        
+        if (authorsToCreate.Count > 0)
+        {
+            foreach (var author in authorsToCreate)
+            {
+                await InsertAuthorAsync(author, ct);
+            }
+        }
+        
+        var result = new List<Author>();
+        foreach (var author in authors)
+        {
+            if (existingByName.TryGetValue(author.NormalizedName, out var existing))
+            {
+                result.Add(existing);
+            }
+            else
+            {
+                var created = authorsToCreate.First(a => a.NormalizedName == author.NormalizedName);
+                result.Add(created);
+            }
+        }
     
-    public async Task<Guid> AddAsync(Author author)
+        return result.Select(a => a.Id.Value).ToList();
+    }
+
+    private async Task InsertAuthorAsync(Author author, CancellationToken ct)
     {
         const string authorSql = """
                                  INSERT INTO library.authors (id, normalized_name, first_name, last_name)
                                  VALUES (@Id, @NormalizedName, @FirstName, @LastName)
-                                 ON CONFLICT DO NOTHING
-                                 RETURNING id
+                                 ON CONFLICT (normalized_name) DO UPDATE
+                                 SET normalized_name = EXCLUDED.normalized_name
                                  """;
 
         const string variantSql = """
@@ -31,78 +73,63 @@ public class AuthorRepository : IAuthorRepository
                                   ON CONFLICT DO NOTHING
                                   """;
 
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        var authorEntity = author.ToEntity();
         
-        var authorEntity = author.ToDbModel();
+        var command = new CommandDefinition(
+            commandText: authorSql,
+            parameters: authorEntity,
+            cancellationToken: ct
+        );
         
         // Insert the author first
-        var authorDbId = await connection.QuerySingleAsync<Guid>(authorSql, authorEntity);
-
+        await connection.QuerySingleAsync<Guid>(command);
+        
         // If there are name variants, insert them
-        if (authorEntity.AuthorNameVariants != null)
+        if (authorEntity.AuthorNameVariants is { Count: > 0 })
         {
-            var variantDtos = authorEntity.AuthorNameVariants.Select(variant => new AuthorNameVariantEntity
-            {
-                AuthorId = authorDbId,
-                NameVariant = variant.NameVariant,
-                IsPrimary = variant.IsPrimary
-            });
-
-            await connection.ExecuteAsync(variantSql, variantDtos);
+            var variantCommand = new CommandDefinition(
+                commandText: variantSql,
+                parameters: authorEntity.AuthorNameVariants,
+                cancellationToken: ct
+            );
+            
+            await connection.ExecuteAsync(variantCommand);
         }
-    
-        return authorDbId;
     }
-    
-    public async Task<Author?> GetByNameAsync(string name)
+
+    private async Task<List<Author>> GetByNamesAsync(List<string> names, CancellationToken ct)
     {
+        if (names.Count == 0)
+            return [];
+        
         const string sql = """
-                           SELECT a.id,
+                           SELECT DISTINCT 
+                                  a.id,
                                   a.normalized_name,
                                   a.first_name,
                                   a.last_name,
                                   a.date_created
                            FROM library.authors a
-                           WHERE a.normalized_name = @Name
+                           WHERE a.normalized_name = ANY(@Names)
                               OR EXISTS (
                                   SELECT 1 
                                   FROM library.author_name_variants anv
                                   WHERE anv.author_id = a.id 
-                                    AND anv.name_variant = @Name
+                                    AND anv.name_variant = ANY(@Names)
                               )
-                           ORDER BY CASE WHEN a.normalized_name = @Name THEN 1 ELSE 2 END
-                           LIMIT 1;
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
         
-        var authorDto = await connection.QueryFirstOrDefaultAsync<AuthorEntity>(sql, new { Name = name });
+        var command = new CommandDefinition(
+            commandText: sql, 
+            parameters: new { Names = names.ToArray() }, 
+            cancellationToken: ct);
+        
+        var authorEntities = await connection.QueryAsync<AuthorEntity>(command);
 
-        return authorDto?.ToDomain();
-    }
-
-    public async Task<IReadOnlyList<Author>> GetByNamesAsync(IEnumerable<string> authorNames)
-    {
-        const string sql = """
-                           SELECT DISTINCT
-                               a.id,
-                               a.normalized_name,
-                               a.first_name,
-                               a.last_name,
-                               a.date_created
-                           FROM library.authors a
-                           LEFT JOIN library.author_name_variants anv
-                               ON anv.author_id = a.id
-                           WHERE
-                               a.normalized_name = ANY(@Names)
-                               OR anv.name_variant = ANY(@Names);
-                           """;
-        
-        var connection = await _dbContext.GetConnectionAsync();
-        
-        var rows = await connection.QueryAsync<AuthorEntity>(sql, new { Names = authorNames.ToArray() });
-        
-        return rows.Select(r => r.ToDomain()).ToList();
+        return authorEntities.Select(a => a.ToDomain()).ToList();
     }
 
     public async Task<List<Author>> GetAuthorsByNameAsync(string name)

@@ -1,6 +1,6 @@
 using Reveries.Application.Books.Services;
+using Reveries.Application.BookSeries.Services;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Application.Services.BookSeries;
 using Reveries.Console.Common.Extensions;
 using Reveries.Core.Models;
 using Spectre.Console;
@@ -71,12 +71,12 @@ public class SaveEntityService
 
         try
         {
-            var seriesId = await _createSeriesService.CreateSeriesAsync(series);
+            var createdSeries = await _createSeriesService.CreateSeriesAsync(series);
             
             AnsiConsole.MarkupLine($"""
                                     ✅ Successfully saved to database:
-                                       Name: {series.Name}
-                                       ID: {seriesId}
+                                       Name: {createdSeries.Name}
+                                       ID: {createdSeries.Id.Value}
                                     """.AsPrimary());
         }
         catch (SeriesAlreadyExistsException ex)

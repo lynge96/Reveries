@@ -1,4 +1,3 @@
-using System.Data;
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
@@ -17,59 +16,33 @@ public class PublisherRepository : IPublisherRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Publisher?> GetOrCreateAsync(Publisher? publisher, IDbTransaction? transaction, CancellationToken ct)
+    public async Task<Publisher?> GetOrCreateAsync(
+        Publisher? publisher,
+        CancellationToken ct)
     {
         if (publisher is null)
             return null;
-        
-        var existing = await GetByNameAsync(publisher.Name);
-        if (existing != null)
-            return existing;
-        
-        await InsertPublisherAsync(publisher, transaction, ct);
-        
-        return publisher;
-    }
-
-    private async Task InsertPublisherAsync(Publisher publisher, IDbTransaction? transaction = null, CancellationToken ct = default)
-    {
+    
         const string sql = """
                            INSERT INTO library.publishers (id, name)
                            VALUES (@Id, @Name)
-                           ON CONFLICT (name) DO NOTHING
+                           ON CONFLICT (name) DO UPDATE 
+                           SET name = EXCLUDED.name
+                           RETURNING id, name, date_created
                            """;
-        
-        var connection = await _dbContext.GetConnectionAsync(ct);
-
-        var publisherEntity = publisher.ToDbModel();
-        
-        await connection.QuerySingleAsync(
-            sql, 
-            publisherEntity,
-            transaction
-            );
-    }
     
-    public async Task<Publisher?> GetByNameAsync(string publisherName)
-    {
-        const string sql = """
-                           SELECT 
-                               id,
-                               name, 
-                               date_created
-                           FROM library.publishers
-                           WHERE name ILIKE @Name
-                           LIMIT 1
-                           """;
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        var publisherEntity = publisher.ToEntity();
 
-        var connection = await _dbContext.GetConnectionAsync();
-        
-        var row = await connection.QueryFirstOrDefaultAsync<PublisherEntity>(
-            sql, 
-            new { Name = publisherName }
-            );
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: publisherEntity,
+            cancellationToken: ct
+        );
 
-        return row?.ToDomain();
+        var result = await connection.QuerySingleAsync<PublisherEntity>(command);
+
+        return result.ToDomain();
     }
 
     public async Task<List<Publisher>> SearchByNameAsync(string publisherName)
@@ -85,11 +58,13 @@ public class PublisherRepository : IPublisherRepository
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
+
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: new { Name = $"%{publisherName}%" }
+        );
         
-        var rows = await connection.QueryAsync<PublisherEntity>(
-            sql, 
-            new { Name = $"%{publisherName}%" }
-            );
+        var rows = await connection.QueryAsync<PublisherEntity>(command);
         
         return rows.Select(r => r.ToDomain()).ToList();
     }

@@ -4,9 +4,6 @@ namespace Reveries.Core.Interfaces.IRepository;
 
 public interface IAuthorRepository
 {
-    Task<Guid> AddAsync(Author author);
-    Task<Author?> GetByNameAsync(string authorName);
-    Task<IReadOnlyList<Author>> GetByNamesAsync(IEnumerable<string> authorNames);
-    
+    Task<List<Guid>> GetOrCreateAuthorsAsync(IReadOnlyList<Author> authors, CancellationToken ct = default);
     Task<List<Author>> GetAuthorsByNameAsync(string name);
 }

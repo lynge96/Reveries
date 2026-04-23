@@ -1,8 +1,7 @@
 using Reveries.Application.Books.Commands.SetBookSeries;
 using Reveries.Application.Books.Extensions;
 using Reveries.Application.Books.Services;
-using Reveries.Application.Services;
-using Reveries.Application.Services.BookSeries;
+using Reveries.Application.BookSeries.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;

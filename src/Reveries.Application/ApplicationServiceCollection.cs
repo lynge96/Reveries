@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Reveries.Application.Authors.Services;
 using Reveries.Application.Books.Services;
+using Reveries.Application.BookSeries.Services;
 using Reveries.Application.Publishers.Services;
-using Reveries.Application.Services.BookSeries;
 
 namespace Reveries.Application;
 

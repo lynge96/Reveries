@@ -1,7 +1,7 @@
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
-namespace Reveries.Application.Interfaces.Cache;
+namespace Reveries.Application.Books.Interfaces;
 
 public interface IBookCacheService
 {
