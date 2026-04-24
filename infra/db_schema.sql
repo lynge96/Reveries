@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict CbzNRv1uoYXgA42xwNV4NtkQAMYENCbjykJh2Z4OT6uJ68o9YLNxUPo3d48O0K5
+\restrict gDYh6jQTHkTgGrxhrXa7rOagg0S4DCOzsyUfb4MltKQLcOqoQ8XoCyfDaQAPkJm
 
--- Dumped from database version 18.0 (Debian 18.0-1.pgdg13+3)
--- Dumped by pg_dump version 18.0 (Debian 18.0-1.pgdg13+3)
+-- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
+-- Dumped by pg_dump version 18.3 (Debian 18.3-1.pgdg13+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -57,9 +57,9 @@ SET default_table_access_method = heap;
 
 CREATE TABLE library.author_name_variants (
     id integer NOT NULL,
-    author_id integer NOT NULL,
     name_variant character varying NOT NULL,
-    is_primary boolean DEFAULT false NOT NULL
+    is_primary boolean DEFAULT false NOT NULL,
+    author_id uuid NOT NULL
 );
 
 
@@ -88,8 +88,7 @@ ALTER SEQUENCE library.author_name_variants_id_seq OWNED BY library.author_name_
 --
 
 CREATE TABLE library.authors (
-    id integer NOT NULL,
-    domain_id uuid NOT NULL,
+    id uuid CONSTRAINT authors_domain_id_not_null NOT NULL,
     normalized_name character varying NOT NULL,
     first_name character varying,
     last_name character varying,
@@ -98,37 +97,14 @@ CREATE TABLE library.authors (
 
 
 --
--- Name: authors_id_seq; Type: SEQUENCE; Schema: library; Owner: -
---
-
-CREATE SEQUENCE library.authors_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: authors_id_seq; Type: SEQUENCE OWNED BY; Schema: library; Owner: -
---
-
-ALTER SEQUENCE library.authors_id_seq OWNED BY library.authors.id;
-
-
---
 -- Name: books; Type: TABLE; Schema: library; Owner: -
 --
 
 CREATE TABLE library.books (
-    id integer NOT NULL,
-    domain_id uuid NOT NULL,
+    id uuid CONSTRAINT books_domain_id_not_null NOT NULL,
     title character varying NOT NULL,
     isbn13 character varying,
     isbn10 character varying,
-    publisher_id integer,
-    series_id integer,
     series_number integer,
     publication_date character varying,
     page_count integer,
@@ -144,7 +120,9 @@ CREATE TABLE library.books (
     width_cm numeric,
     thickness_cm numeric,
     weight_g numeric,
-    date_created timestamp without time zone DEFAULT now() NOT NULL
+    date_created timestamp without time zone DEFAULT now() NOT NULL,
+    publisher_id uuid,
+    series_id uuid
 );
 
 
@@ -153,8 +131,8 @@ CREATE TABLE library.books (
 --
 
 CREATE TABLE library.books_authors (
-    book_id integer NOT NULL,
-    author_id integer NOT NULL
+    book_id uuid NOT NULL,
+    author_id uuid NOT NULL
 );
 
 
@@ -163,8 +141,8 @@ CREATE TABLE library.books_authors (
 --
 
 CREATE TABLE library.books_dewey_decimals (
-    book_id integer NOT NULL,
-    dewey_decimal_id integer NOT NULL
+    dewey_decimal_id integer NOT NULL,
+    book_id uuid NOT NULL
 );
 
 
@@ -173,8 +151,8 @@ CREATE TABLE library.books_dewey_decimals (
 --
 
 CREATE TABLE library.books_genres (
-    book_id integer NOT NULL,
-    genre_id integer NOT NULL
+    genre_id integer NOT NULL,
+    book_id uuid NOT NULL
 );
 
 
@@ -205,8 +183,7 @@ CREATE TABLE library.genres (
 --
 
 CREATE TABLE library.publishers (
-    id integer NOT NULL,
-    domain_id uuid NOT NULL,
+    id uuid CONSTRAINT publishers_domain_id_not_null NOT NULL,
     name character varying NOT NULL,
     date_created timestamp without time zone DEFAULT now() NOT NULL
 );
@@ -217,20 +194,18 @@ CREATE TABLE library.publishers (
 --
 
 CREATE TABLE library.series (
-    id integer NOT NULL,
-    domain_id uuid NOT NULL,
+    id uuid CONSTRAINT series_domain_id_not_null NOT NULL,
     name character varying NOT NULL,
     date_created timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
 --
--- Name: book_details; Type: VIEW; Schema: library; Owner: -
+-- Name: book_details_flat; Type: VIEW; Schema: library; Owner: -
 --
 
-CREATE VIEW library.book_details AS
+CREATE VIEW library.book_details_flat AS
  SELECT b.id,
-    b.domain_id AS bookdomainid,
     b.title,
     b.isbn13,
     b.isbn10,
@@ -251,11 +226,9 @@ CREATE VIEW library.book_details AS
     b.weight_g AS weightg,
     b.date_created AS datecreatedbook,
     p.id AS publisherid,
-    p.domain_id AS publisherdomainid,
     p.name AS publishername,
     p.date_created AS datecreatedpublisher,
     a.id AS authorid,
-    a.domain_id AS authordomainid,
     a.normalized_name AS normalizedname,
     a.first_name AS firstname,
     a.last_name AS lastname,
@@ -266,7 +239,6 @@ CREATE VIEW library.book_details AS
     dd.code,
     dd.date_created AS datecreateddeweydecimal,
     se.id AS seriesid,
-    se.domain_id AS seriesdomainid,
     se.name AS seriesname,
     se.date_created AS datecreatedseries
    FROM ((((((((library.books b
@@ -281,12 +253,11 @@ CREATE VIEW library.book_details AS
 
 
 --
--- Name: book_details_flat; Type: VIEW; Schema: library; Owner: -
+-- Name: books_view; Type: VIEW; Schema: library; Owner: -
 --
 
-CREATE VIEW library.book_details_flat AS
+CREATE VIEW library.books_view AS
  SELECT b.id,
-    b.domain_id AS "bookDomainId",
     b.title,
     b.isbn13,
     b.isbn10,
@@ -307,11 +278,9 @@ CREATE VIEW library.book_details_flat AS
     b.weight_g AS "weightG",
     b.date_created AS "dateCreatedBook",
     p.id AS "publisherId",
-    p.domain_id AS "publisherDomainId",
     p.name AS "publisherName",
     p.date_created AS "dateCreatedPublisher",
     se.id AS "seriesId",
-    se.domain_id AS "seriesDomainId",
     se.name AS "seriesName",
     se.date_created AS "dateCreatedSeries",
     COALESCE(g.genres_json, '[]'::jsonb) AS genres,
@@ -320,11 +289,11 @@ CREATE VIEW library.book_details_flat AS
    FROM (((((library.books b
      LEFT JOIN library.publishers p ON ((b.publisher_id = p.id)))
      LEFT JOIN library.series se ON ((b.series_id = se.id)))
-     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('GenreId', g_1.id, 'GenreName', g_1.name, 'DateCreatedGenre', g_1.date_created) ORDER BY g_1.name) AS genres_json
+     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('Id', g_1.id, 'Name', g_1.name, 'DateCreated', g_1.date_created) ORDER BY g_1.name) AS genres_json
            FROM (library.books_genres bg
              JOIN library.genres g_1 ON ((bg.genre_id = g_1.id)))
           WHERE (bg.book_id = b.id)) g ON (true))
-     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('AuthorId', a_1.id, 'AuthorDomainId', a_1.domain_id, 'NormalizedName', a_1.normalized_name, 'FirstName', a_1.first_name, 'LastName', a_1.last_name, 'DateCreatedAuthor', a_1.date_created) ORDER BY a_1.normalized_name) AS authors_json
+     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('Id', a_1.id, 'NormalizedName', a_1.normalized_name, 'FirstName', a_1.first_name, 'LastName', a_1.last_name, 'DateCreated', a_1.date_created) ORDER BY a_1.normalized_name) AS authors_json
            FROM (library.books_authors ba
              JOIN library.authors a_1 ON ((ba.author_id = a_1.id)))
           WHERE (ba.book_id = b.id)) a ON (true))
@@ -332,26 +301,6 @@ CREATE VIEW library.book_details_flat AS
            FROM (library.books_dewey_decimals bdd
              JOIN library.dewey_decimals dd_1 ON ((dd_1.id = bdd.dewey_decimal_id)))
           WHERE (bdd.book_id = b.id)) dd ON (true));
-
-
---
--- Name: books_id_seq; Type: SEQUENCE; Schema: library; Owner: -
---
-
-CREATE SEQUENCE library.books_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: books_id_seq; Type: SEQUENCE OWNED BY; Schema: library; Owner: -
---
-
-ALTER SEQUENCE library.books_id_seq OWNED BY library.books.id;
 
 
 --
@@ -395,64 +344,10 @@ ALTER SEQUENCE library.genres_id_seq OWNED BY library.genres.id;
 
 
 --
--- Name: publishers_id_seq; Type: SEQUENCE; Schema: library; Owner: -
---
-
-CREATE SEQUENCE library.publishers_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: publishers_id_seq; Type: SEQUENCE OWNED BY; Schema: library; Owner: -
---
-
-ALTER SEQUENCE library.publishers_id_seq OWNED BY library.publishers.id;
-
-
---
--- Name: series_id_seq; Type: SEQUENCE; Schema: library; Owner: -
---
-
-CREATE SEQUENCE library.series_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: series_id_seq; Type: SEQUENCE OWNED BY; Schema: library; Owner: -
---
-
-ALTER SEQUENCE library.series_id_seq OWNED BY library.series.id;
-
-
---
 -- Name: author_name_variants id; Type: DEFAULT; Schema: library; Owner: -
 --
 
 ALTER TABLE ONLY library.author_name_variants ALTER COLUMN id SET DEFAULT nextval('library.author_name_variants_id_seq'::regclass);
-
-
---
--- Name: authors id; Type: DEFAULT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.authors ALTER COLUMN id SET DEFAULT nextval('library.authors_id_seq'::regclass);
-
-
---
--- Name: books id; Type: DEFAULT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.books ALTER COLUMN id SET DEFAULT nextval('library.books_id_seq'::regclass);
 
 
 --
@@ -470,33 +365,11 @@ ALTER TABLE ONLY library.genres ALTER COLUMN id SET DEFAULT nextval('library.gen
 
 
 --
--- Name: publishers id; Type: DEFAULT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.publishers ALTER COLUMN id SET DEFAULT nextval('library.publishers_id_seq'::regclass);
-
-
---
--- Name: series id; Type: DEFAULT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.series ALTER COLUMN id SET DEFAULT nextval('library.series_id_seq'::regclass);
-
-
---
 -- Name: author_name_variants author_name_variants_pkey; Type: CONSTRAINT; Schema: library; Owner: -
 --
 
 ALTER TABLE ONLY library.author_name_variants
     ADD CONSTRAINT author_name_variants_pkey PRIMARY KEY (id);
-
-
---
--- Name: authors authors_domain_id_key; Type: CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.authors
-    ADD CONSTRAINT authors_domain_id_key UNIQUE (domain_id);
 
 
 --
@@ -524,11 +397,11 @@ ALTER TABLE ONLY library.books_authors
 
 
 --
--- Name: books books_domain_id_key; Type: CONSTRAINT; Schema: library; Owner: -
+-- Name: books_dewey_decimals books_dewey_decimals_pkey; Type: CONSTRAINT; Schema: library; Owner: -
 --
 
-ALTER TABLE ONLY library.books
-    ADD CONSTRAINT books_domain_id_key UNIQUE (domain_id);
+ALTER TABLE ONLY library.books_dewey_decimals
+    ADD CONSTRAINT books_dewey_decimals_pkey PRIMARY KEY (book_id, dewey_decimal_id);
 
 
 --
@@ -588,22 +461,6 @@ ALTER TABLE ONLY library.genres
 
 
 --
--- Name: books_dewey_decimals pk_books_dewey_decimals; Type: CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.books_dewey_decimals
-    ADD CONSTRAINT pk_books_dewey_decimals PRIMARY KEY (book_id, dewey_decimal_id);
-
-
---
--- Name: publishers publishers_domain_id_key; Type: CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.publishers
-    ADD CONSTRAINT publishers_domain_id_key UNIQUE (domain_id);
-
-
---
 -- Name: publishers publishers_name_key; Type: CONSTRAINT; Schema: library; Owner: -
 --
 
@@ -617,14 +474,6 @@ ALTER TABLE ONLY library.publishers
 
 ALTER TABLE ONLY library.publishers
     ADD CONSTRAINT publishers_pkey PRIMARY KEY (id);
-
-
---
--- Name: series series_domain_id_key; Type: CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.series
-    ADD CONSTRAINT series_domain_id_key UNIQUE (domain_id);
 
 
 --
@@ -652,6 +501,27 @@ ALTER TABLE ONLY library.dewey_decimals
 
 
 --
+-- Name: idx_author_name_variants_author_id; Type: INDEX; Schema: library; Owner: -
+--
+
+CREATE INDEX idx_author_name_variants_author_id ON library.author_name_variants USING btree (author_id);
+
+
+--
+-- Name: idx_books_authors_author_id; Type: INDEX; Schema: library; Owner: -
+--
+
+CREATE INDEX idx_books_authors_author_id ON library.books_authors USING btree (author_id);
+
+
+--
+-- Name: idx_books_authors_book_id; Type: INDEX; Schema: library; Owner: -
+--
+
+CREATE INDEX idx_books_authors_book_id ON library.books_authors USING btree (book_id);
+
+
+--
 -- Name: idx_books_dewey_decimals_book_id; Type: INDEX; Schema: library; Owner: -
 --
 
@@ -659,87 +529,59 @@ CREATE INDEX idx_books_dewey_decimals_book_id ON library.books_dewey_decimals US
 
 
 --
--- Name: idx_books_dewey_decimals_dewey_id; Type: INDEX; Schema: library; Owner: -
+-- Name: idx_books_dewey_decimals_dewey_decimal_id; Type: INDEX; Schema: library; Owner: -
 --
 
-CREATE INDEX idx_books_dewey_decimals_dewey_id ON library.books_dewey_decimals USING btree (dewey_decimal_id);
-
-
---
--- Name: author_name_variants fk_author_name_variants_author; Type: FK CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.author_name_variants
-    ADD CONSTRAINT fk_author_name_variants_author FOREIGN KEY (author_id) REFERENCES library.authors(id) ON DELETE CASCADE;
+CREATE INDEX idx_books_dewey_decimals_dewey_decimal_id ON library.books_dewey_decimals USING btree (dewey_decimal_id);
 
 
 --
--- Name: books_authors fk_books_authors_author; Type: FK CONSTRAINT; Schema: library; Owner: -
+-- Name: idx_books_genres_book_id; Type: INDEX; Schema: library; Owner: -
 --
 
-ALTER TABLE ONLY library.books_authors
-    ADD CONSTRAINT fk_books_authors_author FOREIGN KEY (author_id) REFERENCES library.authors(id) ON DELETE CASCADE;
-
-
---
--- Name: books_authors fk_books_authors_book; Type: FK CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.books_authors
-    ADD CONSTRAINT fk_books_authors_book FOREIGN KEY (book_id) REFERENCES library.books(id) ON DELETE CASCADE;
+CREATE INDEX idx_books_genres_book_id ON library.books_genres USING btree (book_id);
 
 
 --
--- Name: books_dewey_decimals fk_books_dewey_decimals_book; Type: FK CONSTRAINT; Schema: library; Owner: -
+-- Name: idx_books_genres_genre_id; Type: INDEX; Schema: library; Owner: -
 --
 
-ALTER TABLE ONLY library.books_dewey_decimals
-    ADD CONSTRAINT fk_books_dewey_decimals_book FOREIGN KEY (book_id) REFERENCES library.books(id) ON DELETE CASCADE;
+CREATE INDEX idx_books_genres_genre_id ON library.books_genres USING btree (genre_id);
 
 
 --
--- Name: books_dewey_decimals fk_books_dewey_decimals_dewey; Type: FK CONSTRAINT; Schema: library; Owner: -
+-- Name: idx_books_publisher_id; Type: INDEX; Schema: library; Owner: -
+--
+
+CREATE INDEX idx_books_publisher_id ON library.books USING btree (publisher_id);
+
+
+--
+-- Name: idx_books_series_id; Type: INDEX; Schema: library; Owner: -
+--
+
+CREATE INDEX idx_books_series_id ON library.books USING btree (series_id);
+
+
+--
+-- Name: books_dewey_decimals books_dewey_decimals_dewey_decimal_id_fkey; Type: FK CONSTRAINT; Schema: library; Owner: -
 --
 
 ALTER TABLE ONLY library.books_dewey_decimals
-    ADD CONSTRAINT fk_books_dewey_decimals_dewey FOREIGN KEY (dewey_decimal_id) REFERENCES library.dewey_decimals(id) ON DELETE CASCADE;
+    ADD CONSTRAINT books_dewey_decimals_dewey_decimal_id_fkey FOREIGN KEY (dewey_decimal_id) REFERENCES library.dewey_decimals(id) ON DELETE CASCADE;
 
 
 --
--- Name: books fk_books_publisher; Type: FK CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.books
-    ADD CONSTRAINT fk_books_publisher FOREIGN KEY (publisher_id) REFERENCES library.publishers(id);
-
-
---
--- Name: books fk_books_series; Type: FK CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.books
-    ADD CONSTRAINT fk_books_series FOREIGN KEY (series_id) REFERENCES library.series(id);
-
-
---
--- Name: books_genres fk_books_subjects_book; Type: FK CONSTRAINT; Schema: library; Owner: -
+-- Name: books_genres books_genres_genre_id_fkey; Type: FK CONSTRAINT; Schema: library; Owner: -
 --
 
 ALTER TABLE ONLY library.books_genres
-    ADD CONSTRAINT fk_books_subjects_book FOREIGN KEY (book_id) REFERENCES library.books(id) ON DELETE CASCADE;
-
-
---
--- Name: books_genres fk_books_subjects_subject; Type: FK CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.books_genres
-    ADD CONSTRAINT fk_books_subjects_subject FOREIGN KEY (genre_id) REFERENCES library.genres(id) ON DELETE CASCADE;
+    ADD CONSTRAINT books_genres_genre_id_fkey FOREIGN KEY (genre_id) REFERENCES library.genres(id) ON DELETE CASCADE;
 
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict CbzNRv1uoYXgA42xwNV4NtkQAMYENCbjykJh2Z4OT6uJ68o9YLNxUPo3d48O0K5
+\unrestrict gDYh6jQTHkTgGrxhrXa7rOagg0S4DCOzsyUfb4MltKQLcOqoQ8XoCyfDaQAPkJm
 
