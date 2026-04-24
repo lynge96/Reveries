@@ -4,7 +4,7 @@ using Reveries.Api.Mappers;
 using Reveries.Application.Books.Commands.SetBookSeries;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Books.Queries.GetAllBooks;
-using Reveries.Application.Books.Queries.GetBookByDbId;
+using Reveries.Application.Books.Queries.GetBookById;
 using Reveries.Application.Books.Queries.GetBookByIsbn;
 using Reveries.Application.Books.Queries.GetBookExists;
 using Reveries.Application.Books.Queries.GetBooksByIsbns;
@@ -59,10 +59,10 @@ public class BooksController : ControllerBase
         return Ok(booksDto);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<BookDetailsReadModel>> GetById(int id, CancellationToken ct)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<BookDetailsReadModel>> GetById(Guid id, CancellationToken ct)
     {
-        var query = new GetBookByDbIdQuery { DbId = id };
+        var query = new GetBookByIdQuery { BookId = id };
         var book = await _mediator.Send(query, ct);
         var bookDto = book.ToDto();
         return Ok(bookDto);

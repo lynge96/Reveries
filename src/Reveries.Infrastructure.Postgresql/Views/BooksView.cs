@@ -1,9 +1,9 @@
 namespace Reveries.Infrastructure.Postgresql.Views;
 
-public sealed class BookDetails
+public sealed class BooksView
 {
     // Book
-    public Guid BookId { get; init; }
+    public Guid Id { get; init; }
     public string Title { get; init; } = null!;
     public string? Isbn13 { get; init; }
     public string? Isbn10 { get; init; }

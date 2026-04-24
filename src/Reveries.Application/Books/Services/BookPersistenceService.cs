@@ -47,7 +47,7 @@ public class BookPersistenceService
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to cache book with ISBN {Isbn}.", book.Isbn13 ?? book.Isbn10);
+                _logger.LogWarning(e, "Failed to cache book with ISBN {Isbn}.", book.Isbn13 ?? book.Isbn10);
             }
             
             return book.Id;

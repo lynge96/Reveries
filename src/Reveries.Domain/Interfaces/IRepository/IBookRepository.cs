@@ -16,7 +16,7 @@ public interface IBookRepository
     Task<List<Book>> GetBooksByPublisherAsync(string publisherName, CancellationToken ct = default);
     Task<List<Book>> GetDetailedBooksByTitleAsync(List<string> bookTitles, CancellationToken ct = default);
     Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct = default);
-    Task<Book?> GetBookByIdAsync(int id, CancellationToken ct = default);
+    Task<Book?> GetBookByIdAsync(Guid id, CancellationToken ct = default);
     Task<List<Book>> GetAllBooksAsync(CancellationToken ct = default);
     
 }

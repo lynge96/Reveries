@@ -131,7 +131,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM library.book_details
+                           FROM library.books_view
                            WHERE authors ILIKE ANY(@Patterns)
                            """;
 
@@ -147,7 +147,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM library.book_details
+                           FROM library.books_view
                            WHERE "publisherName" ILIKE @Pattern
                            """;
 
@@ -163,7 +163,7 @@ public class BookRepository : IBookRepository
 
         const string sql = """
                            SELECT *
-                           FROM library.book_details
+                           FROM library.books_view
                            WHERE title ILIKE ANY(@Patterns)
                            """;
 
@@ -179,7 +179,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM library.book_details
+                           FROM library.books_view
                            WHERE isbn13 = ANY(@Isbns)
                               OR isbn10 = ANY(@Isbns)
                            """;
@@ -189,14 +189,14 @@ public class BookRepository : IBookRepository
         return await QueryBooksAsync(sql, new { Isbns = isbnList }, ct: ct);
     }
 
-    public async Task<Book?> GetBookByIdAsync(int id, CancellationToken ct)
+    public async Task<Book?> GetBookByIdAsync(Guid id, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
-                           FROM library.book_details
+                           FROM library.books_view
                            WHERE id = @Id
                            """;
-
+        
         var bookList = await QueryBooksAsync(sql, new { Id = id }, ct: ct);
         
         return bookList.FirstOrDefault();
@@ -206,7 +206,7 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            SELECT *
-                           FROM library.book_details
+                           FROM library.books_view
                            """;
         
         return await QueryBooksAsync(sql, ct: ct);
@@ -221,10 +221,9 @@ public class BookRepository : IBookRepository
     private async Task<List<BookAggregateEntity>> GetBookAggregatesAsync(string sql, object? parameters = null, CancellationToken ct = default)
     {
         var connection = await _dbContext.GetConnectionAsync(ct);
+        var command = new CommandDefinition(sql, parameters, cancellationToken: ct);
         
-        var rows = await connection.QueryAsync<BookDetails>(
-            new CommandDefinition(sql, parameters, cancellationToken: ct)
-        );
+        var rows = await connection.QueryAsync<BooksView>(command);
         
         var result = new List<BookAggregateEntity>();
 
@@ -240,7 +239,7 @@ public class BookRepository : IBookRepository
             {
                 Book = new BookEntity
                 {
-                    Id = row.BookId,
+                    Id = row.Id,
                     Title = row.Title,
                     Isbn13 = row.Isbn13,
                     Isbn10 = row.Isbn10,
