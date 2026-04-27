@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict gDYh6jQTHkTgGrxhrXa7rOagg0S4DCOzsyUfb4MltKQLcOqoQ8XoCyfDaQAPkJm
+\restrict x9VoRGbVnMOg77cN1bfZ0YFCQCQhBJhWWsUout0BhxupcusmWn2KbxQXhBG7HvR
 
 -- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
 -- Dumped by pg_dump version 18.3 (Debian 18.3-1.pgdg13+1)
@@ -373,22 +373,6 @@ ALTER TABLE ONLY library.author_name_variants
 
 
 --
--- Name: authors authors_normalized_name_key; Type: CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.authors
-    ADD CONSTRAINT authors_normalized_name_key UNIQUE (normalized_name);
-
-
---
--- Name: authors authors_pkey; Type: CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.authors
-    ADD CONSTRAINT authors_pkey PRIMARY KEY (id);
-
-
---
 -- Name: books_authors books_authors_pkey; Type: CONSTRAINT; Schema: library; Owner: -
 --
 
@@ -458,6 +442,22 @@ ALTER TABLE ONLY library.genres
 
 ALTER TABLE ONLY library.genres
     ADD CONSTRAINT genres_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: authors idx_authors_normalized_name_key; Type: CONSTRAINT; Schema: library; Owner: -
+--
+
+ALTER TABLE ONLY library.authors
+    ADD CONSTRAINT idx_authors_normalized_name_key UNIQUE (normalized_name);
+
+
+--
+-- Name: authors idx_authors_pkey; Type: CONSTRAINT; Schema: library; Owner: -
+--
+
+ALTER TABLE ONLY library.authors
+    ADD CONSTRAINT idx_authors_pkey PRIMARY KEY (id);
 
 
 --
@@ -564,24 +564,71 @@ CREATE INDEX idx_books_series_id ON library.books USING btree (series_id);
 
 
 --
--- Name: books_dewey_decimals books_dewey_decimals_dewey_decimal_id_fkey; Type: FK CONSTRAINT; Schema: library; Owner: -
+-- Name: idx_books_title; Type: INDEX; Schema: library; Owner: -
+--
+
+CREATE INDEX idx_books_title ON library.books USING btree (title);
+
+
+--
+-- Name: author_name_variants fk_author_name_variants_author_id; Type: FK CONSTRAINT; Schema: library; Owner: -
+--
+
+ALTER TABLE ONLY library.author_name_variants
+    ADD CONSTRAINT fk_author_name_variants_author_id FOREIGN KEY (author_id) REFERENCES library.authors(id) ON DELETE CASCADE;
+
+
+--
+-- Name: books_authors fk_books_authors_author_id; Type: FK CONSTRAINT; Schema: library; Owner: -
+--
+
+ALTER TABLE ONLY library.books_authors
+    ADD CONSTRAINT fk_books_authors_author_id FOREIGN KEY (author_id) REFERENCES library.authors(id) ON DELETE CASCADE;
+
+
+--
+-- Name: books_authors fk_books_authors_book_id; Type: FK CONSTRAINT; Schema: library; Owner: -
+--
+
+ALTER TABLE ONLY library.books_authors
+    ADD CONSTRAINT fk_books_authors_book_id FOREIGN KEY (book_id) REFERENCES library.books(id) ON DELETE CASCADE;
+
+
+--
+-- Name: books_dewey_decimals fk_books_dewey_decimals_book_id; Type: FK CONSTRAINT; Schema: library; Owner: -
 --
 
 ALTER TABLE ONLY library.books_dewey_decimals
-    ADD CONSTRAINT books_dewey_decimals_dewey_decimal_id_fkey FOREIGN KEY (dewey_decimal_id) REFERENCES library.dewey_decimals(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_books_dewey_decimals_book_id FOREIGN KEY (book_id) REFERENCES library.books(id) ON DELETE CASCADE;
 
 
 --
--- Name: books_genres books_genres_genre_id_fkey; Type: FK CONSTRAINT; Schema: library; Owner: -
+-- Name: books_dewey_decimals fk_books_dewey_decimals_dewey_id; Type: FK CONSTRAINT; Schema: library; Owner: -
+--
+
+ALTER TABLE ONLY library.books_dewey_decimals
+    ADD CONSTRAINT fk_books_dewey_decimals_dewey_id FOREIGN KEY (dewey_decimal_id) REFERENCES library.dewey_decimals(id) ON DELETE CASCADE;
+
+
+--
+-- Name: books_genres fk_books_genres_book_id; Type: FK CONSTRAINT; Schema: library; Owner: -
 --
 
 ALTER TABLE ONLY library.books_genres
-    ADD CONSTRAINT books_genres_genre_id_fkey FOREIGN KEY (genre_id) REFERENCES library.genres(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_books_genres_book_id FOREIGN KEY (book_id) REFERENCES library.books(id) ON DELETE CASCADE;
+
+
+--
+-- Name: books_genres fk_books_genres_genre_id; Type: FK CONSTRAINT; Schema: library; Owner: -
+--
+
+ALTER TABLE ONLY library.books_genres
+    ADD CONSTRAINT fk_books_genres_genre_id FOREIGN KEY (genre_id) REFERENCES library.genres(id) ON DELETE CASCADE;
 
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict gDYh6jQTHkTgGrxhrXa7rOagg0S4DCOzsyUfb4MltKQLcOqoQ8XoCyfDaQAPkJm
+\unrestrict x9VoRGbVnMOg77cN1bfZ0YFCQCQhBJhWWsUout0BhxupcusmWn2KbxQXhBG7HvR
 

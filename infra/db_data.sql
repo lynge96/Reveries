@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict YShvlQm9ZRafKaI0Xbecimz8iSPmCWMPMeyYwdcaLPk2NKVDflsbrNQi9AbEhWi
+\restrict RjsCVWfMnVDWfBFYNeNrZMmcVKr3JSmLl5S7qFFz3gTe6qWsnX0CdnJHTo9iGiG
 
 -- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
 -- Dumped by pg_dump version 18.3 (Debian 18.3-1.pgdg13+1)
@@ -20,10 +20,30 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Data for Name: authors; Type: TABLE DATA; Schema: library; Owner: -
+--
+
+COPY library.authors (id, normalized_name, first_name, last_name, date_created) FROM stdin;
+4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed	james islington	James	Islington	2026-02-12 17:55:40.690028
+355185c3-90ca-4a93-be79-2b1d3a2d4633	frank herbert	Frank	Herbert	2026-02-12 19:10:55.531748
+ad17b5b5-37e7-42f4-8ead-469087228da2	andrzej sapkowski	Andrzej	Sapkowski	2026-02-12 19:12:10.973471
+fd16400e-97aa-4e1b-98be-45bda89a211e	andy weir	Andy	Weir	2026-02-12 19:13:06.631366
+09657f26-612b-4799-b240-36ec2d0c2a9d	fonda lee	Fonda	Lee	2026-02-12 19:13:21.821302
+03dde1d8-76c8-41c4-aab2-03ea66659272	john gwynne	John	Gwynne	2026-02-12 19:13:29.993659
+7d319db0-e498-4b10-98ca-120378080229	neal shusterman	Neal	Shusterman	2026-02-12 19:13:54.414107
+9f537022-d4bb-46dd-b20f-a0420c6b7086	joe abercrombie	Joe	Abercrombie	2026-02-12 19:14:35.157782
+d992239a-4857-47db-9ae3-cae5d8d6edc4	andreas steno	Andreas	Steno	2026-03-27 12:40:15.29416
+47a5bb2c-f5b0-4aa2-8100-b0dfd0a18191	jesper ravnborg	Jesper	Ravnborg	2026-03-27 12:40:15.29416
+8b2c0400-9a12-42f7-b3e5-5938ecaa5f90	rick rubin	Rick	Rubin	2026-04-27 07:20:01.119895
+\.
+
+
+--
 -- Data for Name: author_name_variants; Type: TABLE DATA; Schema: library; Owner: -
 --
 
 COPY library.author_name_variants (id, name_variant, is_primary, author_id) FROM stdin;
+125	rick rubin	t	8b2c0400-9a12-42f7-b3e5-5938ecaa5f90
 50	jamesislington	t	4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed
 51	islingtonjames	f	4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed
 52	ofislingtonfredericjamespost	f	4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed
@@ -99,24 +119,6 @@ COPY library.author_name_variants (id, name_variant, is_primary, author_id) FROM
 122	dave senior joe abercrombie	f	9f537022-d4bb-46dd-b20f-a0420c6b7086
 123	andreas steno	t	d992239a-4857-47db-9ae3-cae5d8d6edc4
 124	jesper ravnborg	t	47a5bb2c-f5b0-4aa2-8100-b0dfd0a18191
-\.
-
-
---
--- Data for Name: authors; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.authors (id, normalized_name, first_name, last_name, date_created) FROM stdin;
-4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed	james islington	James	Islington	2026-02-12 17:55:40.690028
-355185c3-90ca-4a93-be79-2b1d3a2d4633	frank herbert	Frank	Herbert	2026-02-12 19:10:55.531748
-ad17b5b5-37e7-42f4-8ead-469087228da2	andrzej sapkowski	Andrzej	Sapkowski	2026-02-12 19:12:10.973471
-fd16400e-97aa-4e1b-98be-45bda89a211e	andy weir	Andy	Weir	2026-02-12 19:13:06.631366
-09657f26-612b-4799-b240-36ec2d0c2a9d	fonda lee	Fonda	Lee	2026-02-12 19:13:21.821302
-03dde1d8-76c8-41c4-aab2-03ea66659272	john gwynne	John	Gwynne	2026-02-12 19:13:29.993659
-7d319db0-e498-4b10-98ca-120378080229	neal shusterman	Neal	Shusterman	2026-02-12 19:13:54.414107
-9f537022-d4bb-46dd-b20f-a0420c6b7086	joe abercrombie	Joe	Abercrombie	2026-02-12 19:14:35.157782
-d992239a-4857-47db-9ae3-cae5d8d6edc4	andreas steno	Andreas	Steno	2026-03-27 12:40:15.29416
-47a5bb2c-f5b0-4aa2-8100-b0dfd0a18191	jesper ravnborg	Jesper	Ravnborg	2026-03-27 12:40:15.29416
 \.
 
 
@@ -205,7 +207,6 @@ COPY library.genres (id, name, date_created) FROM stdin;
 47	Fiction	2026-02-12 17:55:40.690028
 48	Action & Adventure	2026-02-12 17:55:40.690028
 49	Fantasy	2026-02-12 17:55:40.690028
-50	General	2026-02-12 17:55:40.690028
 51	Epic	2026-02-12 17:55:40.690028
 52	Historical	2026-02-12 17:55:40.690028
 53	Science Fiction	2026-02-12 19:10:55.531748
@@ -234,6 +235,11 @@ COPY library.genres (id, name, date_created) FROM stdin;
 76	Dragons & Mythical Creatures	2026-02-12 19:14:17.641953
 77	Dark Fantasy	2026-02-12 19:14:35.157782
 78	Military	2026-02-12 19:14:50.127283
+79	Body, Mind & Spirit	2026-04-27 07:20:01.119895
+50	General	2026-02-12 17:55:40.690028
+81	Psychology	2026-04-27 07:20:01.119895
+82	Creative Ability	2026-04-27 07:20:01.119895
+83	Self-Help	2026-04-27 07:20:01.119895
 \.
 
 
@@ -351,6 +357,7 @@ be97dc00-a0d0-4d37-a0e6-cde563299f8c	Orion Publishing Group, Limited	2026-02-12 
 cbe01d90-be61-4742-8cd8-7437abe4a0b6	Simon & Schuster Bfyr	2026-02-12 19:14:01.64641
 ca9fdb85-91ab-409b-915d-f6a5d48fc114	Little, Brown Book Group Limited	2026-02-12 19:14:25.554524
 6fce1ddd-19f5-40b6-81c0-aceff14ab767	People's Press	2026-03-27 12:40:15.29416
+076c7ad0-f31c-4bae-a2e7-54c033161c53	Canongate	2026-04-27 07:20:01.119895
 \.
 
 
@@ -366,7 +373,7 @@ COPY library.series (id, name, date_created) FROM stdin;
 -- Name: author_name_variants_id_seq; Type: SEQUENCE SET; Schema: library; Owner: -
 --
 
-SELECT pg_catalog.setval('library.author_name_variants_id_seq', 124, true);
+SELECT pg_catalog.setval('library.author_name_variants_id_seq', 125, true);
 
 
 --
@@ -380,12 +387,12 @@ SELECT pg_catalog.setval('library.dewey_decimals_id_seq', 11, true);
 -- Name: genres_id_seq; Type: SEQUENCE SET; Schema: library; Owner: -
 --
 
-SELECT pg_catalog.setval('library.genres_id_seq', 78, true);
+SELECT pg_catalog.setval('library.genres_id_seq', 88, true);
 
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict YShvlQm9ZRafKaI0Xbecimz8iSPmCWMPMeyYwdcaLPk2NKVDflsbrNQi9AbEhWi
+\unrestrict RjsCVWfMnVDWfBFYNeNrZMmcVKr3JSmLl5S7qFFz3gTe6qWsnX0CdnJHTo9iGiG
 
