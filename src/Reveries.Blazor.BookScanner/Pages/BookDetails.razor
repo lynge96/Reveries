@@ -241,7 +241,7 @@ else
 @code {
     [Parameter] public string? Isbn { get; set; }
     private BookDetailsDto? _book;
-    private int? _bookDbId;
+    private Guid? _bookDbId;
     private bool _showFullSynopsis;
     private const int MaxSynopsisLength = 300;
     private bool _isSaving;
@@ -290,7 +290,7 @@ else
 
             _bookDbId = await BooksApi.CreateAsync(_book!);
 
-            if (_bookDbId > 0)
+            if (_bookDbId.HasValue)
             {
                 _bookAdded = true;
                 

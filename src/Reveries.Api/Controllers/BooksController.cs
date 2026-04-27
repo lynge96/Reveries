@@ -73,7 +73,7 @@ public class BooksController : ControllerBase
     {
         var command = request.ToCommand();
         var bookId = await _mediator.Send(command, ct);
-        return CreatedAtAction(nameof(GetById), new { id = bookId }, bookId);
+        return CreatedAtAction(nameof(GetById), new { id = bookId.Value }, bookId.Value);
     }
     
     [HttpPatch("{isbn}/series")]

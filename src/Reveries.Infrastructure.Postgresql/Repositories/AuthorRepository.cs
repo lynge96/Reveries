@@ -65,6 +65,7 @@ public class AuthorRepository : IAuthorRepository
                                  VALUES (@Id, @NormalizedName, @FirstName, @LastName)
                                  ON CONFLICT (normalized_name) DO UPDATE
                                  SET normalized_name = EXCLUDED.normalized_name
+                                 RETURNING id
                                  """;
 
         const string variantSql = """
@@ -83,7 +84,8 @@ public class AuthorRepository : IAuthorRepository
         );
         
         // Insert the author first
-        await connection.QuerySingleAsync<Guid>(command);
+        var authorId = await connection.QuerySingleAsync<Guid>(command);
+        authorEntity.AuthorNameVariants?.ForEach(v => v.AuthorId = authorId);
         
         // If there are name variants, insert them
         if (authorEntity.AuthorNameVariants is { Count: > 0 })

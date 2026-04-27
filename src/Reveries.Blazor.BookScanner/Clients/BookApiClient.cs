@@ -33,13 +33,13 @@ public class BookApiClient
         return response.IsSuccessStatusCode && await response.Content.ReadFromJsonAsync<bool>();
     }
 
-    public async Task<int> CreateAsync(BookDetailsDto book)
+    public async Task<Guid> CreateAsync(BookDetailsDto book)
     {
         var request = MapToRequest(book);
         var response = await SendAsync(() => _httpClient.PostAsJsonAsync("books", request));
 
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<int>();
+            return await response.Content.ReadFromJsonAsync<Guid>();
 
         var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
         throw new ApiException(error?.Message ?? "Unknown API error", response.StatusCode);

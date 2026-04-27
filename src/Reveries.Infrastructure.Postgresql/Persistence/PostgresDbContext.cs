@@ -43,8 +43,6 @@ public class PostgresDbContext : IDbContext
 
     public async Task<IDbTransaction> BeginTransactionAsync(CancellationToken ct = default)
     {
-        _logger.LogDebug("Beginning transaction.");
-        
         if (_disposed) throw new ObjectDisposedException(nameof(PostgresDbContext));
         if (_transaction != null) 
             return _transaction;
@@ -56,8 +54,6 @@ public class PostgresDbContext : IDbContext
 
     public async Task CommitTransactionAsync(CancellationToken ct = default)
     {
-        _logger.LogDebug("Committing transaction.");
-        
         if (_transaction == null) return;
         
         await _transaction.CommitAsync(ct);
@@ -67,8 +63,6 @@ public class PostgresDbContext : IDbContext
 
     public async Task RollbackTransactionAsync(CancellationToken ct = default)
     {
-        _logger.LogDebug("Rolling back transaction.");
-        
         if (_transaction is null) return;
         
         await _transaction.RollbackAsync(ct);
@@ -84,8 +78,6 @@ public class PostgresDbContext : IDbContext
         {
             if (_transaction != null)
             {
-                _logger.LogWarning("Transaction disposed without commit. Rolling back.");
-
                 await _transaction.RollbackAsync();
                 await _transaction.DisposeAsync();
             }
