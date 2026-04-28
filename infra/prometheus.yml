@@ -14,3 +14,8 @@ scrape_configs:
       - targets: ['host.docker.internal:9100']
         labels:
           instance: 'raspberrypi'
+  
+  # Scrape PostgreSQL Exporter
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
