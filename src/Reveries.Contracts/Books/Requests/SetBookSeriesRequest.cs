@@ -1,4 +1,4 @@
-namespace Reveries.Contracts.Books;
+namespace Reveries.Contracts.Books.Requests;
 
 public sealed record SetBookSeriesRequest
 {

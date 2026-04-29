@@ -1,4 +1,4 @@
-namespace Reveries.Contracts.Books;
+namespace Reveries.Contracts.Books.Dtos;
 
 public sealed record BookDetailsDto
 {

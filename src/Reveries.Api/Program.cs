@@ -24,14 +24,14 @@ builder.Services
     .AddIsbndb(builder.Configuration)
     .AddGoogleBooks(builder.Configuration)
     .AddCorsPolicies()
-    .AddSwagger()
+    .AddSwagger(builder.Configuration)
     .AddControllers();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwaggerDocumentation();
+    app.UseSwaggerDocumentation(app.Configuration);
 }
         
 app.UseForwardedHeaders(new ForwardedHeadersOptions

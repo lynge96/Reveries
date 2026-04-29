@@ -1,5 +1,6 @@
 using Reveries.Application.Books.Commands.CreateBook;
 using Reveries.Contracts.Books;
+using Reveries.Contracts.Books.Requests;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Api.Mappers;

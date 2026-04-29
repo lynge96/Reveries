@@ -1,4 +1,4 @@
-namespace Reveries.Contracts.Books;
+namespace Reveries.Contracts.Books.Requests;
 
 public record CreateBookRequest
 {

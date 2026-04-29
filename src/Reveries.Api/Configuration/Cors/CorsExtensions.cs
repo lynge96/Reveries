@@ -16,7 +16,7 @@ public static class CorsExtensions
 
             options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins("https://scanner.reveries.dk")
+                policy.WithOrigins("https://scanner.reveries.dk", "https://localhost:7238")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();

@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using Reveries.Blazor.BookScanner.Exceptions;
-using Reveries.Contracts.Books;
+using Reveries.Contracts.Books.Dtos;
+using Reveries.Contracts.Books.Requests;
 
 namespace Reveries.Blazor.BookScanner.Clients;
 
@@ -29,7 +30,7 @@ public class BookApiClient
 
     public async Task<bool> ExistsAsync(string isbn)
     {
-        var response = await SendAsync(() => _httpClient.GetAsync($"books/{isbn}/exists"));
+        var response = await SendAsync(() => _httpClient.GetAsync($"books/isbn/{isbn}/exists"));
         return response.IsSuccessStatusCode && await response.Content.ReadFromJsonAsync<bool>();
     }
 
