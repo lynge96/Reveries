@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Common.Exceptions;
+using Reveries.Integration.Http.Exceptions;
 using Reveries.Integration.Http.Helpers;
 using DecimalConverter = Reveries.Integration.Http.Helpers.DecimalConverter;
 
@@ -48,7 +48,7 @@ public abstract class ExternalBaseClient<TClient> where TClient : class
             throw new ExternalDependencyException(
                 dependency: DependencyName,
                 message: $"Upstream returned {(int)response.StatusCode} ({response.StatusCode}) for {context}",
-                upstreamStatus: response.StatusCode);
+                upstreamStatus: (int)response.StatusCode);
 
         var json = await response.Content.ReadAsStringAsync(ct);
 
@@ -59,8 +59,7 @@ public abstract class ExternalBaseClient<TClient> where TClient : class
             if (validate is not null && !validate(result))
             {
                 _logger.LogWarning("{Dependency} returned empty response for {Context}", 
-                    DependencyName, 
-                    context);
+                    DependencyName, context);
                 return null;
             }
 
@@ -69,9 +68,7 @@ public abstract class ExternalBaseClient<TClient> where TClient : class
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "Failed to deserialize {Dependency} response for '{Context}'. Payload: {Payload}",
-                DependencyName,
-                context, 
-                json.TruncateForLog());
+                DependencyName, context, json.TruncateForLog());
             throw new InvalidOperationException($"Failed to deserialize {DependencyName} response for '{context}'.", ex);
         }
     }

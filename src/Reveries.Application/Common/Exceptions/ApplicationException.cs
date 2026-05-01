@@ -7,7 +7,7 @@ public abstract class ApplicationException : Exception
     public HttpStatusCode StatusCode { get; }
     public string ErrorType { get; }
 
-    protected ApplicationException(string message, HttpStatusCode statusCode) 
+    protected ApplicationException(string message, HttpStatusCode statusCode = HttpStatusCode.InternalServerError) 
         : base(message)
     {
         StatusCode = statusCode;
