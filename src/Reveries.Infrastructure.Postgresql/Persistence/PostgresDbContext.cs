@@ -44,7 +44,8 @@ public class PostgresDbContext : IDbContext
     public async Task<IDbTransaction> BeginTransactionAsync(CancellationToken ct = default)
     {
         if (_disposed) throw new ObjectDisposedException(nameof(PostgresDbContext));
-        if (_transaction != null) throw new InvalidOperationException("Transaction already in progress.");
+        if (_transaction != null) 
+            return _transaction;
 
         var conn = (NpgsqlConnection)await GetConnectionAsync(ct);
         _transaction = await conn.BeginTransactionAsync(ct);
@@ -77,14 +78,12 @@ public class PostgresDbContext : IDbContext
         {
             if (_transaction != null)
             {
+                await _transaction.RollbackAsync();
                 await _transaction.DisposeAsync();
             }
 
             if (_connection != null)
             {
-                if (_connection.State == ConnectionState.Open)
-                    await _connection.CloseAsync();
-                
                 await _connection.DisposeAsync();
             }
         }

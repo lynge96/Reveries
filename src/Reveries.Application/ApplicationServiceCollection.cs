@@ -1,14 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Reveries.Application.Authors.Services;
 using Reveries.Application.Books.Services;
+using Reveries.Application.BookSeries.Services;
 using Reveries.Application.Publishers.Services;
-using Reveries.Application.Services.BookSeries;
 
 namespace Reveries.Application;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddMediator(options =>
         {

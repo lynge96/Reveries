@@ -1,7 +1,7 @@
+using System.Data;
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
-using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
@@ -16,33 +16,43 @@ public class SeriesRepository : ISeriesRepository
     {
         _dbContext = dbContext;
     }
-    
-    public async Task<int> AddAsync(Series series)
+
+    public async Task<Series?> GetOrCreateAsync(
+        Series? series,
+        CancellationToken ct)
     {
-        const string sql = """
-                           INSERT INTO library.series (domain_id, name) 
-                           VALUES (@SeriesDomainId, @SeriesName)
-                           ON CONFLICT DO NOTHING
-                           RETURNING id;
-                           """;
-        
-        var connection = await _dbContext.GetConnectionAsync();
-
-        var seriesEntity = series.ToDbModel();
-        
-        var seriesDbId = await connection.QuerySingleAsync<int>(sql, seriesEntity);
-
-        return seriesDbId;
-    }
+        if (series is null)
+            return null;
     
-    public async Task<SeriesWithId?> GetByNameAsync(string seriesName)
+        const string sql = """
+                           INSERT INTO library.series (id, name)
+                           VALUES (@Id, @Name)
+                           ON CONFLICT (name) DO UPDATE 
+                           SET name = EXCLUDED.name
+                           RETURNING id, name, date_created
+                           """;
+    
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        var seriesEntity = series.ToEntity();
+    
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: new { seriesEntity.Id, seriesEntity.Name },
+            cancellationToken: ct
+        );
+    
+        var result = await connection.QuerySingleAsync<SeriesEntity>(command);
+    
+        return result.ToDomain();
+    }
+
+    public async Task<Series?> GetByNameAsync(string seriesName)
     {
         const string sql = """
                            SELECT 
-                               id AS SeriesId, 
-                               domain_id AS SeriesDomainId, 
-                               name AS SeriesName, 
-                               date_created AS DateCreatedSeries 
+                               id,
+                               name, 
+                               date_created
                            FROM library.series 
                            WHERE name ILIKE @Name
                            LIMIT 1;
@@ -51,21 +61,17 @@ public class SeriesRepository : ISeriesRepository
         var connection = await _dbContext.GetConnectionAsync();
     
         var row = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(sql, new { Name = seriesName });
-    
-        if (row == null)
-            return null;
-        
-        return new SeriesWithId(row.ToDomain(), row.SeriesId);
+
+        return row?.ToDomain();
     }
 
     public async Task<List<Series>> GetSeriesAsync()
     {
         const string sql = """
                            SELECT 
-                               id AS SeriesId, 
-                               domain_id AS SeriesDomainId, 
-                               name AS SeriesName, 
-                               date_created AS DateCreatedSeries 
+                               id, 
+                               name, 
+                               date_created
                            FROM library.series;
                            """;
         

@@ -1,4 +1,4 @@
-using Reveries.Core.Interfaces;
+using Reveries.Application.Common.Abstractions;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 
@@ -12,12 +12,13 @@ public class UnitOfWork : IUnitOfWork
     public ISeriesRepository Series { get; }
     public IBookGenresRepository BookGenres { get; }
     public IBookDeweyDecimalsRepository BookDeweyDecimals { get; }
-    public IDeweyDecimalsRepository DeweyDecimalses { get; }
+    public IDeweyDecimalsRepository DeweyDecimals { get; }
     public IPublisherRepository Publishers { get; }
     public IBookAuthorsRepository BookAuthors { get; }
     public IGenreRepository Genres { get; }
     
-    public UnitOfWork(IDbContext dbContext,
+    public UnitOfWork(
+        IDbContext dbContext,
         IBookRepository bookRepository,
         IAuthorRepository authorRepository,
         ISeriesRepository seriesRepository,
@@ -35,13 +36,14 @@ public class UnitOfWork : IUnitOfWork
         Publishers = publisherRepository;
         BookAuthors = bookAuthorsRepository;
         BookGenres = bookGenresRepository;
-        DeweyDecimalses = deweyDecimalsRepository;
+        DeweyDecimals = deweyDecimalsRepository;
         Genres = genreRepository;
         BookDeweyDecimals = bookDeweyDecimalsRepository;
     }
-    
-    public Task BeginTransactionAsync() => _dbContext.BeginTransactionAsync();
-    public Task CommitAsync() => _dbContext.CommitTransactionAsync();
-    public Task RollbackAsync() => _dbContext.RollbackTransactionAsync();
 
+    public async Task<ITransaction> BeginTransactionAsync(CancellationToken ct)
+    {
+        await _dbContext.BeginTransactionAsync(ct);
+        return new DbTransaction(_dbContext);
+    }
 }

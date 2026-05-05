@@ -8,7 +8,7 @@ namespace Reveries.Integration.GoogleBooks.Configuration;
 
 public static class GoogleBooksClientExtensions
 {
-    public static IServiceCollection AddGoogleBooksClients(this IServiceCollection services)
+    internal static IServiceCollection AddGoogleBooksClients(this IServiceCollection services)
     {
         services.AddHttpClient<IGoogleBooksClient, GoogleBooksClient>(ConfigureGoogleBooksClient);
 

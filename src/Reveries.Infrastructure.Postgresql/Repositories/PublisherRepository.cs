@@ -1,7 +1,6 @@
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
-using Reveries.Core.ValueObjects.DTOs;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;
@@ -16,62 +15,56 @@ public class PublisherRepository : IPublisherRepository
     {
         _dbContext = dbContext;
     }
-    
-    public async Task<int> AddAsync(Publisher publisher)
+
+    public async Task<Publisher?> GetOrCreateAsync(
+        Publisher? publisher,
+        CancellationToken ct)
     {
-        const string sql = """
-                           INSERT INTO library.publishers (domain_id, name)
-                           VALUES (@PublisherDomainId, @PublisherName)
-                           ON CONFLICT DO NOTHING
-                           RETURNING id
-                           """;
-        
-        var connection = await _dbContext.GetConnectionAsync();
-
-        var publisherEntity = publisher.ToDbModel();
-        
-        var publisherDbId = await connection.QuerySingleAsync<int>(sql, publisherEntity);
-
-        return publisherDbId;
-    }
-    
-    public async Task<PublisherWithId?> GetByNameAsync(string publisherName)
-    {
-        const string sql = """
-                           SELECT 
-                               id AS publisherId, 
-                               domain_id AS publisherDomainId,
-                               name AS publisherName, 
-                               date_created AS dateCreatedPublisher
-                           FROM library.publishers
-                           WHERE name ILIKE @Name
-                           """;
-
-        var connection = await _dbContext.GetConnectionAsync();
-
-        var row = await connection.QueryFirstOrDefaultAsync<PublisherEntity>(sql, new { Name = publisherName });
-
-        if (row == null)
+        if (publisher is null)
             return null;
+    
+        const string sql = """
+                           INSERT INTO library.publishers (id, name)
+                           VALUES (@Id, @Name)
+                           ON CONFLICT (name) DO UPDATE 
+                           SET name = EXCLUDED.name
+                           RETURNING id, name, date_created
+                           """;
+    
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        var publisherEntity = publisher.ToEntity();
 
-        return new PublisherWithId(row.ToDomain(), row.PublisherId);
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: publisherEntity,
+            cancellationToken: ct
+        );
+
+        var result = await connection.QuerySingleAsync<PublisherEntity>(command);
+
+        return result.ToDomain();
     }
 
-    public async Task<List<Publisher>> GetPublishersByNameAsync(string name)
+    public async Task<List<Publisher>> SearchByNameAsync(string publisherName)
     {
         const string sql = """
                            SELECT 
-                               id AS publisherId, 
-                               domain_id AS publisherDomainId,
-                               name AS publisherName, 
-                               date_created AS dateCreatedPublisher
+                               id, 
+                               name, 
+                               date_created
                            FROM library.publishers
                            WHERE name ILIKE @Name
+                           ORDER BY name
                            """;
 
         var connection = await _dbContext.GetConnectionAsync();
+
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: new { Name = $"%{publisherName}%" }
+        );
         
-        var rows = await connection.QueryAsync<PublisherEntity>(sql, new { Name = name });
+        var rows = await connection.QueryAsync<PublisherEntity>(command);
         
         return rows.Select(r => r.ToDomain()).ToList();
     }

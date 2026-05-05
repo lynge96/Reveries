@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Authors.Interfaces;
 using Reveries.Application.Books.Extensions;
+using Reveries.Application.Books.Interfaces;
+using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Application.Interfaces.Cache;
 using Reveries.Application.Publishers.Interfaces;
-using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
@@ -171,7 +171,7 @@ public class BookLookupService
         return databaseBooks;
     }
 
-    public async Task<Book?> FindBookById(int id, CancellationToken ct)
+    public async Task<Book?> FindBookById(Guid id, CancellationToken ct)
     {
         var databaseBook = await _unitOfWork.Books.GetBookByIdAsync(id, ct);
         

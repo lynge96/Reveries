@@ -8,7 +8,7 @@ namespace Reveries.Integration.Isbndb.Configuration;
 
 public static class IsbndbClientExtensions
 {
-    public static IServiceCollection AddIsbndbClients(this IServiceCollection services)
+    internal static IServiceCollection AddIsbndbClients(this IServiceCollection services)
     {
         services.AddHttpClient<IIsbndbBookClient, IsbndbBookClient>(ConfigureIsbndb);
         services.AddHttpClient<IIsbndbAuthorClient, IsbndbAuthorClient>(ConfigureIsbndb);

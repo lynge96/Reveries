@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reveries.Core.ValueObjects;
-using Reveries.Integration.Common.Base;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
+using Reveries.Integration.Http.Base;
 
 namespace Reveries.Integration.GoogleBooks.Clients;
 

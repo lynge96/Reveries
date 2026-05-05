@@ -44,7 +44,7 @@ The plan for the project is outlined below. The choice of technologies is primar
     Implemented to optimize response times and provide a faster, more responsive user experience. Using a Cache-Aside strategy, data is cached in memory and refreshed from the database when needed.
 
 - **CI/CD**
-  - [ ] **Docker and GitHub Actions**  
+  - [x] **Docker and GitHub Actions**  
     Pipelines automatically package new builds into Docker images and deploy them to the Raspberry Pi, ensuring the application always runs the latest version.  
 
 ### Database Schema 📋

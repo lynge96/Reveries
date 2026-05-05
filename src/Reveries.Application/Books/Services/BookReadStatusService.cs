@@ -1,4 +1,5 @@
-using Reveries.Application.Interfaces.Cache;
+using Reveries.Application.Books.Interfaces;
+using Reveries.Application.Common.Abstractions;
 using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 

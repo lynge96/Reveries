@@ -22,11 +22,11 @@ var host = Host.CreateDefaultBuilder(args)
     {
         var configuration = context.Configuration;
 
-        services.AddApplicationServices();
+        services.AddApplication();
         services.AddRedisCache(configuration);
         services.AddPostgresql(configuration);
-        services.AddIsbndbServices(configuration);
-        services.AddGoogleBooksServices(configuration);
+        services.AddIsbndb(configuration);
+        services.AddGoogleBooks(configuration);
         
         services.AddTransient<IConsoleAppRunnerService, ConsoleAppRunnerService>();
         

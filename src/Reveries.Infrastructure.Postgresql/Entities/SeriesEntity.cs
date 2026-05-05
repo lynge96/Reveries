@@ -2,8 +2,7 @@ namespace Reveries.Infrastructure.Postgresql.Entities;
 
 public sealed class SeriesEntity
 {
-    public int SeriesId { get; set; }
-    public Guid SeriesDomainId { get; set; }
-    public string SeriesName { get; set; } = null!;
-    public DateTimeOffset? DateCreatedSeries { get; set; }
+    public Guid Id { get; set; }
+    public string Name { get; set; } = null!;
+    public DateTimeOffset? DateCreated { get; set; }
 }

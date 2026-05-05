@@ -1,5 +1,6 @@
 using System.Globalization;
 using Reveries.Contracts.Books;
+using Reveries.Contracts.Books.Dtos;
 
 namespace Reveries.Blazor.BookScanner.Extensions;
 

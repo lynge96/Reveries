@@ -1,12 +1,13 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Interfaces.Cache;
-using Reveries.Application.Services.BookSeries;
+using Reveries.Application.Books.Interfaces;
+using Reveries.Application.BookSeries.Services;
+using Reveries.Core.Identity;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Books.Commands.SetBookSeries;
 
-public sealed class SetBookSeriesHandler : IQueryHandler<SetBookSeriesCommand, int>
+public sealed class SetBookSeriesHandler : IQueryHandler<SetBookSeriesCommand, BookId>
 {
     private readonly BookSeriesService _bookSeriesService;
     private readonly IBookCacheService _cache;
@@ -22,11 +23,11 @@ public sealed class SetBookSeriesHandler : IQueryHandler<SetBookSeriesCommand, i
         _logger = logger;
     }
     
-    public async ValueTask<int> Handle(SetBookSeriesCommand command, CancellationToken ct)
+    public async ValueTask<BookId> Handle(SetBookSeriesCommand command, CancellationToken ct)
     {
         var series = Series.Create(command.SeriesName);
 
-        var bookDbId = await _bookSeriesService.SetSeriesAsync(command.Isbn, series, command.NumberInSeries, ct);
+        var bookId = await _bookSeriesService.SetSeriesAsync(command.Isbn, series, command.NumberInSeries, ct);
         
         await _cache.RemoveBookByIsbnAsync(command.Isbn, ct);
         
@@ -36,6 +37,6 @@ public sealed class SetBookSeriesHandler : IQueryHandler<SetBookSeriesCommand, i
             command.NumberInSeries,
             command.Isbn?.Value);
         
-        return bookDbId;
+        return bookId;
     }
 }

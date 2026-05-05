@@ -1,9 +1,10 @@
+using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Core.Interfaces;
+using Reveries.Core.Identity;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
-namespace Reveries.Application.Services.BookSeries;
+namespace Reveries.Application.BookSeries.Services;
 
 public class BookSeriesService
 {
@@ -14,9 +15,9 @@ public class BookSeriesService
         _unitOfWork = unitOfWork;
     }
     
-    public async Task<int> SetSeriesAsync(Isbn? isbn, Series series, int? numberInSeries, CancellationToken ct)
+    public async Task<BookId> SetSeriesAsync(Isbn? isbn, Series series, int? numberInSeries, CancellationToken ct)
     {
-        await _unitOfWork.BeginTransactionAsync();
+        await using var tx = await _unitOfWork.BeginTransactionAsync(ct);
         
         try
         {
@@ -28,23 +29,23 @@ public class BookSeriesService
             
             if (existingSeries != null)
             {
-                existingBook.Book.SetSeries(existingSeries.Series, numberInSeries);
-                await _unitOfWork.Books.UpdateBookSeriesAsync(existingBook, existingSeries.DbId, ct);
+                existingBook.SetSeries(existingSeries, numberInSeries);
+                await _unitOfWork.Books.UpdateBookSeriesAsync(existingBook, existingSeries.Id.Value, ct);
             }
             else
             {
-                existingBook.Book.SetSeries(series, numberInSeries);
-                var newSeriesId = await _unitOfWork.Series.AddAsync(series);
-                await _unitOfWork.Books.UpdateBookSeriesAsync(existingBook, newSeriesId, ct);
+                existingBook.SetSeries(series, numberInSeries);
+                var createdSeries = await _unitOfWork.Series.GetOrCreateAsync(series, ct: ct);
+                await _unitOfWork.Books.UpdateBookSeriesAsync(existingBook, createdSeries!.Id.Value, ct);
             }
             
-            await _unitOfWork.CommitAsync();
+            await tx.CommitAsync(ct);
 
-            return existingBook.DbId;
+            return existingBook.Id;
         }
         catch 
         {
-            await _unitOfWork.RollbackAsync();
+            await tx.RollbackAsync(ct);
             throw;
         }
     }

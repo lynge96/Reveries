@@ -1,5 +1,6 @@
 using Reveries.Application.Books.Models;
-using Reveries.Contracts.Books;
+using Reveries.Contracts.Books.Dtos;
+using Reveries.Contracts.Books.Responses;
 
 namespace Reveries.Api.Mappers;
 
@@ -34,6 +35,18 @@ public static class BookDetailsMapper
             DeweyDecimals = book.DeweyDecimals,
             Genres = book.Genres,
             DataSource = book.DataSource
+        };
+    }
+
+    public static BooksResponse ToResponse(this IEnumerable<BookDetailsReadModel> books)
+    {
+        var items = books
+            .Select(b => b.ToDto())
+            .ToList();
+
+        return new BooksResponse
+        {
+            Items = items,
         };
     }
 }
