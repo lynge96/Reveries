@@ -1,6 +1,3 @@
 namespace Reveries.Contracts.Books.Responses;
 
-public class CreateBookResponse
-{
-    public Guid Id { get; init; }
-}
+public sealed record CreateBookResponse(Guid Id);
