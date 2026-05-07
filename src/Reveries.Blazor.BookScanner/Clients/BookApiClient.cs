@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using Reveries.Blazor.BookScanner.Exceptions;
 using Reveries.Contracts.Books.Dtos;
 using Reveries.Contracts.Books.Requests;
+using Reveries.Contracts.Books.Responses;
 
 namespace Reveries.Blazor.BookScanner.Clients;
 
@@ -34,13 +35,17 @@ public class BookApiClient
         return response.IsSuccessStatusCode && await response.Content.ReadFromJsonAsync<bool>();
     }
 
-    public async Task<Guid> CreateAsync(BookDetailsDto book)
+    public async Task<CreateBookResponse> CreateAsync(BookDetailsDto book)
     {
         var request = MapToRequest(book);
         var response = await SendAsync(() => _httpClient.PostAsJsonAsync("books", request));
 
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<Guid>();
+        {
+            var result = await response.Content.ReadFromJsonAsync<CreateBookResponse>();
+            
+            return result ?? throw new ApiException("API returned null response.", response.StatusCode);
+        }
 
         var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
         throw new ApiException(error?.Message ?? "Unknown API error", response.StatusCode);

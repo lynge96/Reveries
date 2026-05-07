@@ -289,8 +289,9 @@ else
             _isSaving = true;
             StateHasChanged();
 
-            _bookDbId = await BooksApi.CreateAsync(_book!);
-
+            var createBookResponse = await BooksApi.CreateAsync(_book!);
+            _bookDbId = createBookResponse.Id;
+            
             if (_bookDbId.HasValue)
             {
                 _bookAdded = true;
