@@ -87,7 +87,7 @@ services:
       - reveries-network
 
   redis:
-    image: redis:8-alpine
+    image: redis:7.2-alpine
     container_name: reveries-redis
     restart: always
     command: [
