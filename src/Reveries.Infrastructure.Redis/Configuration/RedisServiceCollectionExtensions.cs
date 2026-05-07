@@ -21,12 +21,21 @@ public static class RedisServiceCollectionExtensions
             var settings = serviceProvider.GetRequiredService<IOptions<RedisSettings>>().Value;
             var connectionString = settings.GetConnectionString();
             
-            return ConnectionMultiplexer.Connect(connectionString);
+            var options = ConfigurationOptions.Parse(connectionString);
+            options.AbortOnConnectFail = false;
+            options.ConnectTimeout = 5000;
+            
+            return ConnectionMultiplexer.Connect(options);
         });
         
         services.AddScoped<IRedisCacheService, RedisCacheService>();
         services.AddScoped<IBookCacheService, BookCacheService>();
         
         return services;
+    }
+
+    public static IHealthChecksBuilder AddRedisHealthCheck(this IHealthChecksBuilder builder)
+    {
+        return builder.AddCheck<RedisHealthCheck>("redis");
     }
 }

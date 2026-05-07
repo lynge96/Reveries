@@ -65,4 +65,9 @@ public static class PostgresqlServiceCollectionExtensions
         
         return services;
     }
+
+    public static IHealthChecksBuilder AddPostgresqlHealthCheck(this IHealthChecksBuilder builder)
+    {
+        return builder.AddCheck<PostgresHealthCheck>("postgres");
+    }
 }

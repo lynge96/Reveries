@@ -1,6 +1,7 @@
 using DotNetEnv;
 using Microsoft.AspNetCore.HttpOverrides;
 using Reveries.Api.Configuration.Cors;
+using Reveries.Api.Configuration.HealthCheck;
 using Reveries.Api.Configuration.Swagger;
 using Reveries.Api.Middleware;
 using Reveries.Application;
@@ -17,6 +18,7 @@ builder.Services.AddMediator(options =>
 {
     options.ServiceLifetime = ServiceLifetime.Scoped;
 });
+builder.Services.AddApplicationHealthChecks();
 
 builder.Services
     .AddApplication()
@@ -33,7 +35,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerDocumentation(app.Configuration);
 }
-        
+
+app.MapStandardHealthChecks("/healthz");
+
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
@@ -48,4 +52,5 @@ app.UseRouting();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
