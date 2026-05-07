@@ -55,8 +55,7 @@ The diagram provides an overview of the tables, their relationships, and their f
 ```mermaid
 erDiagram
     authors {
-        int id PK
-        uuid domain_id UK
+        uuid id PK
         varchar normalized_name UK
         varchar first_name
         varchar last_name
@@ -65,19 +64,18 @@ erDiagram
     
     author_name_variants {
         int id PK
-        int author_id FK
+        uuid author_id FK
         varchar name_variant
         boolean is_primary
     }
     
     books {
-        int id PK
-        uuid domain_id UK
+        uuid id PK
         varchar title
         varchar isbn13 UK
         varchar isbn10 UK
-        int publisher_id FK
-        int series_id FK
+        uuid publisher_id FK
+        uuid series_id FK
         int series_number
         varchar publication_date
         int page_count
@@ -97,8 +95,7 @@ erDiagram
     }
     
     publishers {
-        int id PK
-        uuid domain_id UK
+        uuid id PK
         varchar name UK
         timestamp date_created
     }
@@ -110,17 +107,17 @@ erDiagram
     }
     
     books_authors {
-        int book_id PK, FK
-        int author_id PK, FK
+        uuid book_id PK, FK
+        uuid author_id PK, FK
     }
     
     books_genres {
-        int book_id PK, FK
-        int subject_id PK, FK
+        uuid book_id PK, FK
+        int genre_id PK, FK
     }
     
     books_dewey_decimals {
-        int book_id PK, FK
+        uuid book_id PK, FK
         int dewey_decimal_id PK, FK
     }
 
@@ -131,8 +128,7 @@ erDiagram
     }
 
     series {
-        int id PK
-        uuid domain_id UK
+        uuid id PK
         varchar name UK
         timestamp date_created
     }
