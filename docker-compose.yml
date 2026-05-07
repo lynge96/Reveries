@@ -87,25 +87,23 @@ services:
       - reveries-network
 
   redis:
-    image: redis:alpine
+    image: redis:8-alpine
     container_name: reveries-redis
     restart: always
     command: [
       "redis-server",
       "--maxmemory", "512mb",
-      "--maxmemory-policy", "volatile-lru",
+      "--maxmemory-policy", "allkeys-lru",
       "--requirepass", "${REDIS_PASSWORD}"
     ]
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    environment:
-      Redis__Password: ${REDIS_PASSWORD}
     networks:
       - reveries-network
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a $REDIS_PASSWORD ping | grep PONG"]
       interval: 10s
       timeout: 5s
       retries: 3
