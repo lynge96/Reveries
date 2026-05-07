@@ -6,10 +6,8 @@ services:
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
-      api:
-        condition: service_healthy
-      bookscanner:
-        condition: service_completed_successfully
+      - api
+      - bookscanner
     networks:
       - reveries-network
   
