@@ -33,9 +33,15 @@ public static class SerilogConfigurationExtensions
 
             options.GetLevel = (httpContext, elapsed, ex) =>
             {
-                if (ex != null || httpContext.Response.StatusCode >= 500) return LogEventLevel.Error;
-                if (httpContext.Request.Path.StartsWithSegments("/health")) return LogEventLevel.Verbose;
-                if (elapsed > 1000) return LogEventLevel.Warning;
+                if (ex != null || httpContext.Response.StatusCode >= 500) 
+                    return LogEventLevel.Error;
+                
+                if (httpContext.Request.Path.StartsWithSegments("/healthz")) 
+                    return LogEventLevel.Verbose;
+                
+                if (elapsed > 1500) 
+                    return LogEventLevel.Warning;
+                
                 return LogEventLevel.Information;
             };
         });
