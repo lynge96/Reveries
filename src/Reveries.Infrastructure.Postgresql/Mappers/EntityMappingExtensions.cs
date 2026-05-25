@@ -11,9 +11,9 @@ public static class EntityMappingExtensions
         return new BookEntity
         {
             Id = book.Id.Value,
-            Title = book.Title,
-            Isbn13 = book.Isbn13?.Value,
-            Isbn10 = book.Isbn10?.Value,
+            Title = book.Title.ToString(),
+            Isbn13 = book.Isbn13?.ToString(),
+            Isbn10 = book.Isbn10?.ToString(),
             PageCount = book.Pages,
             IsRead = book.IsRead,
             PublicationDate = book.PublicationDate,

@@ -1,7 +1,5 @@
 using Reveries.Application.Books.Commands.CreateBook;
-using Reveries.Application.Books.Models;
 using Reveries.Core.Enums;
-using Reveries.Core.Helpers;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Books.Mappers;
@@ -35,37 +33,5 @@ public static class BookMapper
             subjects: cmd.Genres,
             deweyDecimals: cmd.DeweyDecimals
         );
-    }
-
-    public static BookDetailsReadModel ToReadModel(this Book book)
-    {
-        return new BookDetailsReadModel
-        {
-            Id = book.Id.Value,
-            Isbn10 = book.Isbn10?.Value,
-            Isbn13 = book.Isbn13?.Value,
-            Title = book.Title,
-            Series = book.Series?.Name,
-            NumberInSeries = book.SeriesNumber,
-            Authors = book.Authors.Select(a => a.NormalizedName.ToTitleCase()).ToList(),
-            Publisher = book.Publisher?.Name,
-            Language = book.Language,
-            Pages = book.Pages,
-            PublicationDate = book.PublicationDate,
-            Synopsis = book.Synopsis,
-            Binding = book.Binding,
-            Edition = book.Edition,
-            ImageThumbnailUrl = book.ImageThumbnailUrl,
-            CoverImageUrl = book.CoverImageUrl,
-            Msrp = book.Msrp,
-            IsRead = book.IsRead,
-            WeightG = book.Dimensions?.WeightG,
-            HeightCm = book.Dimensions?.HeightCm,
-            WidthCm = book.Dimensions?.WidthCm,
-            ThicknessCm = book.Dimensions?.ThicknessCm,
-            DeweyDecimals = book.DeweyDecimals.Select(dd => dd.Code).ToList(),
-            Genres = book.Genres.Select(g => g.Value).ToList(),
-            DataSource = book.DataSource.ToString()
-        };
     }
 }

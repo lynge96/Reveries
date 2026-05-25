@@ -53,5 +53,5 @@ public interface IGoogleBooksClient
     /// A <see cref="GoogleBookResponseDto"/> containing matching book items,
     /// or <c>null</c> if no results are found.
     /// </returns>
-    Task<GoogleBookResponseDto?> SearchBooksByTitleAsync(string title, CancellationToken ct = default);
+    Task<GoogleBookResponseDto?> SearchBooksByTitleAsync(Title title, CancellationToken ct = default);
 }

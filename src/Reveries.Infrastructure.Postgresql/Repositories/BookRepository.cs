@@ -156,9 +156,9 @@ public class BookRepository : IBookRepository
         return await QueryBooksAsync(sql, new { Pattern = pattern }, ct: ct);
     }
 
-    public async Task<List<Book>> GetDetailedBooksByTitleAsync(List<string>? bookTitles, CancellationToken ct)
+    public async Task<List<Book>> GetDetailedBooksByTitleAsync(List<Title> bookTitles, CancellationToken ct)
     {
-        if (bookTitles == null || bookTitles.Count == 0)
+        if (bookTitles.Count == 0)
             return [];
 
         const string sql = """
@@ -168,8 +168,8 @@ public class BookRepository : IBookRepository
                            """;
 
         var patterns = bookTitles
-            .Where(t => !string.IsNullOrWhiteSpace(t))
-            .Select(t => $"%{t.Trim()}%")
+            .Where(t => !string.IsNullOrWhiteSpace(t.Value))
+            .Select(t => $"%{t.Value.Trim()}%")
             .ToList();
 
         return await QueryBooksAsync(sql, new { Patterns = patterns }, ct: ct);

@@ -5,6 +5,7 @@ using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Books.Queries.FindBooksByTitles;
 
@@ -65,7 +66,7 @@ public sealed class FindBooksByTitlesHandler : IQueryHandler<FindBooksByTitlesQu
         return allBooks;
     }
     
-    private async Task<BookLookupResult<string>> GetFromCacheAsync(List<string> titles, CancellationToken ct)
+    private async Task<BookLookupResult<Title>> GetFromCacheAsync(List<Title> titles, CancellationToken ct)
     {
         var books = await _cacheService.GetBooksByTitlesAsync(titles, ct);
 
@@ -77,13 +78,13 @@ public sealed class FindBooksByTitlesHandler : IQueryHandler<FindBooksByTitlesQu
             .Where(t => !foundKeys.Contains(t))
             .ToList();
 
-        return new BookLookupResult<string>(books, missingTitles);
+        return new BookLookupResult<Title>(books, missingTitles);
     }
     
-    private async Task<BookLookupResult<string>> GetFromDatabaseAsync(List<string> titles, CancellationToken ct)
+    private async Task<BookLookupResult<Title>> GetFromDatabaseAsync(List<Title> titles, CancellationToken ct)
     {
         if (titles.Count == 0)
-            return BookLookupResult<string>.Empty;
+            return BookLookupResult<Title>.Empty;
 
         var books = await _unitOfWork.Books
             .GetDetailedBooksByTitleAsync(titles, ct);
@@ -96,6 +97,6 @@ public sealed class FindBooksByTitlesHandler : IQueryHandler<FindBooksByTitlesQu
             .Where(t => !foundKeys.Contains(t))
             .ToList();
 
-        return new BookLookupResult<string>(books, missingTitles);
+        return new BookLookupResult<Title>(books, missingTitles);
     }
 }

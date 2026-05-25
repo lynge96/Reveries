@@ -1,14 +1,14 @@
 using Mediator;
-using Reveries.Application.Books.Services;
+using Reveries.Application.Books.Interfaces;
 
 namespace Reveries.Application.Books.Queries.GetBookExists;
 
 public sealed class GetBookExistsHandler : IQueryHandler<GetBookExistsQuery, bool>
 {
-    private readonly BookLookupService _bookLookupService;
+    private readonly IBookLookupService _bookLookupService;
 
     public GetBookExistsHandler(
-        BookLookupService bookLookupService)
+        IBookLookupService bookLookupService)
     {
         _bookLookupService = bookLookupService;
     }

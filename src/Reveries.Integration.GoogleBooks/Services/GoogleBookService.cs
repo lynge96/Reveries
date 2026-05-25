@@ -40,7 +40,7 @@ public class GoogleBookService : IGoogleBookSearch
         return books;
     }
     
-    public async Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<string> titles, CancellationToken ct)
+    public async Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, CancellationToken ct)
     {
         if (titles.Count == 0)
             return [];
@@ -74,7 +74,7 @@ public class GoogleBookService : IGoogleBookSearch
         return await FetchVolumeAndMergeAsync(bookResponse.Items.First(), ct);
     }
 
-    private async Task<Book?> FetchAndMergeByTitleAsync(string title, CancellationToken ct)
+    private async Task<Book?> FetchAndMergeByTitleAsync(Title title, CancellationToken ct)
     {
         var bookResponse = await _googleBooksClient.SearchBooksByTitleAsync(title, ct);
 
@@ -99,7 +99,7 @@ public class GoogleBookService : IGoogleBookSearch
 
     private static Book MergeGoogleBooks(Book book, Book? volume)
     {
-        var mergedTitle = !string.IsNullOrWhiteSpace(book.Title)
+        var mergedTitle = !string.IsNullOrWhiteSpace(book.Title.Value)
             ? book.Title
             : volume?.Title ?? throw new InvalidOperationException($"Book title is missing from both sources, for book with ISBN '{book.Isbn13?.Value ?? volume?.Isbn13?.Value}'.");
     
@@ -130,7 +130,7 @@ public class GoogleBookService : IGoogleBookSearch
             Id: book.Id.Value,
             Isbn13: book.Isbn13?.Value ?? volume?.Isbn13?.Value,
             Isbn10: book.Isbn10?.Value ?? volume?.Isbn10?.Value,
-            Title: mergedTitle,
+            Title: mergedTitle.Value,
             Pages: mergedPages,
             IsRead: false,
             PublicationDate: book.PublicationDate ?? volume?.PublicationDate,

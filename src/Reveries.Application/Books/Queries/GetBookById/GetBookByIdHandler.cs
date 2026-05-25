@@ -1,6 +1,6 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Books.Services;
+using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Core.Models;
 
@@ -8,11 +8,11 @@ namespace Reveries.Application.Books.Queries.GetBookById;
 
 public sealed class GetBookByIdHandler : IQueryHandler<GetBookByIdQuery, Book>
 {
-    private readonly BookLookupService _bookLookupService;
+    private readonly IBookLookupService _bookLookupService;
     private readonly ILogger<GetBookByIdHandler> _logger;
     
     public GetBookByIdHandler(
-        BookLookupService bookLookupService,
+        IBookLookupService bookLookupService,
         ILogger<GetBookByIdHandler> logger)
     {
         _bookLookupService = bookLookupService;

@@ -43,9 +43,9 @@ public class GoogleBooksClient : ExternalBaseClient<GoogleBooksClient>, IGoogleB
             ct: ct);
     }
 
-    public async Task<GoogleBookResponseDto?> SearchBooksByTitleAsync(string title, CancellationToken ct)
+    public async Task<GoogleBookResponseDto?> SearchBooksByTitleAsync(Title title, CancellationToken ct)
     {
-        var url = $"volumes?q=intitle:\"{Uri.EscapeDataString(title)}\"&key={_settings.ApiKey}";
+        var url = $"volumes?q=intitle:\"{Uri.EscapeDataString(title.Value)}\"&key={_settings.ApiKey}";
         var response = await HttpClient.GetAsync(url, ct);
         var context = $"Book by title '{title}'";
 

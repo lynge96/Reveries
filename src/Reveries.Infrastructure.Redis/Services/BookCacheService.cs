@@ -120,22 +120,22 @@ public class BookCacheService : IBookCacheService
         await Task.WhenAll(tasks);
     }
 
-    public async Task<IReadOnlyList<Book>> GetBooksByTitlesAsync(IEnumerable<string> titles, CancellationToken ct)
+    public async Task<IReadOnlyList<Book>> GetBooksByTitlesAsync(IEnumerable<Title> titles, CancellationToken ct)
     {
         var distinctTitles = titles
-            .Where(t => !string.IsNullOrWhiteSpace(t))
-            .Distinct(_titleComparer)
+            .Where(t => !string.IsNullOrWhiteSpace(t.Value))
+            .Distinct()
             .ToList();
         
         var batch = _cache.CreateBatch();
         var titleTasks = distinctTitles.ToDictionary(
             title => title,
-            title => batch.StringGetAsync(CacheKeys.BookIsbnsByTitle(title))
+            title => batch.StringGetAsync(CacheKeys.BookIsbnsByTitle(title.Value))
         );
         batch.Execute();
         await Task.WhenAll(titleTasks.Values);
         
-        var isbnResults = new Dictionary<string, List<Isbn>>();
+        var isbnResults = new Dictionary<Title, List<Isbn>>();
         foreach (var (title, task) in titleTasks)
         {
             var redisVal = await task;
@@ -203,8 +203,8 @@ public class BookCacheService : IBookCacheService
             return;
 
         var titleIsbnMap = booksToCache
-            .Where(b => !string.IsNullOrWhiteSpace(b.Title))
-            .GroupBy(b => b.Title, _titleComparer)
+            .Where(b => !string.IsNullOrWhiteSpace(b.Title.Value))
+            .GroupBy(b => b.Title.Value, _titleComparer)
             .ToDictionary(
                 g => g.Key,
                 g => g.Select(BookExtensions.GetIsbnKey)

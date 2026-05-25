@@ -60,7 +60,7 @@ public static class BookMerger
     }
     
     private static string? MergeTitle(Book isbndb, Book google)
-        => Prefer(google.Title, isbndb.Title);
+        => Prefer(google.Title.Value, isbndb.Title.Value);
     
     private static int? MergePages(Book isbndb, Book google)
         => isbndb.Pages > 0 ? isbndb.Pages : google.Pages;

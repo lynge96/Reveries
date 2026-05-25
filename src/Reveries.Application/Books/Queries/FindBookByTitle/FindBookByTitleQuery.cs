@@ -1,14 +1,15 @@
 using Mediator;
 using Reveries.Core.Models;
+using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Books.Queries.FindBookByTitle;
 
 public sealed record FindBookByTitleQuery : IQuery<Book>
 {
-    public string Title { get; }
+    public Title Title { get; }
     
     public FindBookByTitleQuery(string title)
     {
-        Title = title;
+        Title = Title.Create(title);
     }
 }

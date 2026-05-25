@@ -42,8 +42,7 @@ public class BookMergerService : IBookMergerService
         return mergedBooks;
     }
     
-    public List<Book> AggregateBooksByTitlesAsync(
-        IReadOnlyList<string> titles, 
+    public List<Book> AggregateBooksByTitlesAsync(IReadOnlyList<Title> titles,
         IReadOnlyList<Book>? isbndbBooks,
         IReadOnlyList<Book>? googleBooks)
     {

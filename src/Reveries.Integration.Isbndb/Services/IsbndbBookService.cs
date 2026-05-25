@@ -53,7 +53,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         return books;
     }
     
-    public async Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<string> titles, string? languageCode,
+    public async Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode,
         CancellationToken ct)
     {
         if (titles.Count == 0)
@@ -61,7 +61,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         
         var tasks = titles.Select(async title =>
         {
-            var response = await _bookClient.SearchBooksAsync(title, languageCode, shouldMatchAll: true, ct: ct);
+            var response = await _bookClient.SearchBooksAsync(title.Value, languageCode, shouldMatchAll: true, ct: ct);
 
             var mapped = response?.Books
                 .Select(b => b.ToBook())

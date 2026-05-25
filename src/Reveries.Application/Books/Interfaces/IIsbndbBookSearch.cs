@@ -24,5 +24,5 @@ public interface IIsbndbBookSearch
     /// <param name="languageCode">Optional language code to filter results, e.g., 'en' or 'da'.</param>
     /// <param name="ct">A token to cancel the operation if needed.</param>
     /// <returns>A list of <see cref="Book"/> entities that match the search criteria. Returns an empty list if no matches are found.</returns>
-    Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<string> titles, string? languageCode, CancellationToken ct = default);
+    Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode, CancellationToken ct = default);
 }
