@@ -1,9 +1,14 @@
 using Mediator;
-using Reveries.Application.Books.Models;
+using Reveries.Core.Models;
 
 namespace Reveries.Application.Books.Queries.GetAllBooks;
 
-public sealed record GetAllBooksQuery : IQuery<List<BookDetailsReadModel>>
+public sealed record GetAllBooksQuery : IQuery<List<Book>>
 {
-    public bool? IsRead { get; init; } = false;
+    public bool? IsRead { get; }
+
+    public GetAllBooksQuery(bool? isRead = false)
+    {
+        IsRead = isRead;
+    }
 }

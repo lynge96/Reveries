@@ -1,164 +1,135 @@
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Authors.Interfaces;
-using Reveries.Application.Books.Extensions;
 using Reveries.Application.Books.Interfaces;
+using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Application.Publishers.Interfaces;
 using Reveries.Core.Models;
 using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.Books.Services;
 
-public class BookLookupService
+public class BookLookupService : IBookLookupService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly BookEnrichmentService _bookEnrichmentService;
-    private readonly IAuthorSearch _authorSearch;
-    private readonly IPublisherSearch _publisherSearch;
+    private readonly IBookMergerService _bookMergerService;
     private readonly IBookCacheService _bookCacheService;
     private readonly ILogger<BookLookupService> _logger;
+    private readonly IIsbndbBookSearch _isbnDbClient;
+    private readonly IGoogleBookSearch _googleBooksClient;
 
     public BookLookupService(
+        IIsbndbBookSearch isbnDbClient, 
+        IGoogleBookSearch googleBooksClient,
         IUnitOfWork unitOfWork, 
-        BookEnrichmentService bookEnrichmentService, 
-        IAuthorSearch authorSearch, 
-        IPublisherSearch publisherSearch, 
+        IBookMergerService bookMergerService, 
         IBookCacheService bookCacheService, 
         ILogger<BookLookupService> logger)
     {
+        _isbnDbClient = isbnDbClient;
+        _googleBooksClient = googleBooksClient;
         _unitOfWork = unitOfWork;
-        _bookEnrichmentService = bookEnrichmentService;
-        _authorSearch = authorSearch;
-        _publisherSearch = publisherSearch;
+        _bookMergerService = bookMergerService;
         _bookCacheService = bookCacheService;
         _logger = logger;
     }
     
-    public async Task<Book> FindBookByIsbnAsync(Isbn isbn, CancellationToken ct)
+    public async Task<BookLookupResult<Isbn>> LookupByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
-        var books = await FindBooksByIsbnAsync([isbn], ct);
-        
-        return books.FirstOrDefault() ?? throw new NotFoundException($"Book with ISBN '{isbn}' was not found.");
+        var result = await LookupByIsbnsAsync([isbn], ct);
+        return result;
     }
 
-    public async Task<List<Book>> FindBooksByIsbnAsync(List<Isbn> isbns, CancellationToken ct)
+    public async Task<BookLookupResult<Isbn>> LookupByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
-            return [];
+            return BookLookupResult<Isbn>.Empty;
         
-        var cacheResult = await GetFromCacheAsync(isbns, ct);
-        var dbResult = await GetFromDatabaseAsync(cacheResult.Missing, ct);
-        var apiResult = await GetFromApiAsync(dbResult.Missing, ct);
+        var results = await Task.WhenAll(
+            TryLookupFromIsbnDbAsync(isbns, ct),
+            TryLookupFromGoogleBooksAsync(isbns, ct)
+        );
+        
+        var isbndbBooks = results[0];
+        var googleBooks = results[1];
 
-        var allBooks = cacheResult.Found
-            .Concat(dbResult.Found)
-            .Concat(apiResult.Found)
-            .ToList();
-
-        var booksToCache = dbResult.Found.Concat(apiResult.Found).ToList();
-        if (booksToCache.Count != 0)
+        if (googleBooks is null && isbndbBooks is null)
         {
-            await _bookCacheService.SetBooksByIsbnsAsync(booksToCache, ct);
+            _logger.LogWarning(
+                "All external sources failed for ISBNs: {Isbns}", 
+                string.Join(", ", isbns.Select(i => i.Value)));
+            return new BookLookupResult<Isbn>([], isbns.ToList());
         }
         
-        _logger.LogInformation(
-            "Book lookup completed. Requested {Requested}. Cache {Cache}, DB {Db}, API {Api}",
-            isbns.Count,
-            cacheResult.Found.Count,
-            dbResult.Found.Count,
-            apiResult.Found.Count
-        );
+        var mergedBooks = _bookMergerService.AggregateBooksByIsbnsAsync(isbns, isbndbBooks, googleBooks);
+        
+        var foundIsbnKeys = mergedBooks
+            .Select(b => b.Isbn13?.Value ?? b.Isbn10?.Value)
+            .Where(k => k is not null)
+            .ToHashSet();
 
-        return allBooks;
+        var missingIsbns = isbns
+            .Where(isbn => !foundIsbnKeys.Contains(isbn.Value))
+            .ToList();
+
+        _logger.LogInformation(
+            "ISBN lookup completed. Requested: {Requested}, Found: {Found}, NotFound: {NotFound}, Sources: ISBNDB={IsbnDbCount}, Google={GoogleCount}",
+            isbns.Count,
+            mergedBooks.Count,
+            missingIsbns.Count,
+            isbndbBooks?.Count ?? 0,
+            googleBooks?.Count ?? 0);
+
+        return new BookLookupResult<Isbn>(mergedBooks, missingIsbns);
     }
 
-    public async Task<List<Book>> FindBooksByTitleAsync(List<string> titles, CancellationToken ct)
+    public async Task<BookLookupResult<string>> LookupByTitleAsync(string title, CancellationToken ct)
+    {
+        var result = await LookupByTitlesAsync([title], ct);
+        return result;
+    }
+
+    public async Task<BookLookupResult<string>> LookupByTitlesAsync(IReadOnlyList<string> titles, CancellationToken ct)
     {
         if (titles.Count == 0)
-            return [];
+            return BookLookupResult<string>.Empty;
         
-        var distinctTitles = titles
-            .Where(t => !string.IsNullOrWhiteSpace(t))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        var results = await Task.WhenAll(
+            TryLookupFromIsbnDbAsync(titles, ct),
+            TryLookupFromGoogleBooksAsync(titles, ct)
+        );
         
-        var cacheResult = await GetFromCacheAsync(distinctTitles, ct);
-        var dbResult = await GetFromDatabaseAsync(cacheResult.Missing, ct);
-        var apiResult = await GetFromApiAsync(dbResult.Missing, ct);
-
-        var allBooks = cacheResult.Found
-            .Concat(dbResult.Found)
-            .Concat(apiResult.Found)
-            .ToList();
+        var isbndbBooks = results[0];
+        var googleBooks = results[1];
         
-        var booksToCache = dbResult.Found.Concat(apiResult.Found).ToList();
-        if (booksToCache.Count != 0)
+        if (googleBooks is null && isbndbBooks is null)
         {
-            await _bookCacheService.CacheBooksByTitlesAsync(booksToCache, ct);
+            _logger.LogWarning(
+                "All external sources failed for ISBNs: {Isbns}", 
+                string.Join(", ", titles.Select(t => t)));
+            return new BookLookupResult<string>([], titles);
         }
         
+        var mergedBooks = _bookMergerService.AggregateBooksByTitlesAsync(titles, isbndbBooks, googleBooks);
+        
+        var foundTitles = mergedBooks
+            .Select(b => b.Title)
+            .ToHashSet();
+        
+        var missingTitles = titles
+            .Where(t => !foundTitles.Contains(t))
+            .ToList();
+        
         _logger.LogInformation(
-            "Book lookup by Titles completed. Requested {RequestedCount}. Cache: {CacheCount}, DB: {DbCount}, API: {ApiCount}",
-            distinctTitles.Count,
-            cacheResult.Found.Count,
-            dbResult.Found.Count,
-            apiResult.Found.Count
-        );
-
-        return allBooks;
+            "Titles lookup completed. Requested: {Requested}, Found: {Found}, NotFound: {NotFound}, Sources: ISBNDB={IsbnDbCount}, Google={GoogleCount}",
+            titles.Count,
+            mergedBooks.Count,
+            missingTitles.Count,
+            isbndbBooks?.Count ?? 0,
+            googleBooks?.Count ?? 0);
+        
+        return new BookLookupResult<string>(mergedBooks, missingTitles);   
     }
     
-    public async Task<List<Book>> FindBooksByAuthorAsync(string author, CancellationToken ct)
-    {
-        if (string.IsNullOrWhiteSpace(author))
-            return [];
-        
-        var databaseBooks = await _unitOfWork.Books.GetBooksByAuthorAsync(author, ct);
-        if (databaseBooks.Count > 0)
-            return databaseBooks;
-        
-        var apiBooks = await _authorSearch.GetBooksByAuthorAsync(author, ct);
-
-        if (apiBooks is null)
-            throw new NotFoundException($"Books with author '{author}' were not found.");
-        
-        _logger.LogInformation(
-            "Book lookup by Author completed. Requested '{Author}'. DB: {DbCount}, API: {ApiCount}. Final: {Total}.",
-            author,
-            databaseBooks.Count,
-            apiBooks.Count,
-            databaseBooks.Count + apiBooks.Count
-        );
-        
-        return apiBooks;
-    }
-
-    public async Task<List<Book>> FindBooksByPublisherAsync(string publisher, CancellationToken ct)
-    {
-        if (string.IsNullOrWhiteSpace(publisher))
-            return [];
-        
-        var databaseBooks = await _unitOfWork.Books.GetBooksByPublisherAsync(publisher, ct);
-        if (databaseBooks.Count > 0)
-            return databaseBooks.ArrangeBooks().ToList();
-        
-        var apiBooks = await _publisherSearch.GetBooksByPublisherAsync(publisher, ct);
-
-        if (apiBooks is null)
-            throw new NotFoundException($"Books with publisher '{publisher}' were not found.");
-        
-        _logger.LogInformation(
-            "Book lookup by publisher completed. Requested '{PublisherName}'. DB: {DbCount}, API: {ApiCount}. Final: {Total}.",
-            publisher,
-            databaseBooks.Count,
-            apiBooks.Count,
-            databaseBooks.Count + apiBooks.Count
-        );
-        
-        return apiBooks;
-    }
-
     public async Task<List<Book>> GetAllBooksAsync(CancellationToken ct)
     {
         var databaseBooks = await _unitOfWork.Books.GetAllBooksAsync(ct);
@@ -170,7 +141,7 @@ public class BookLookupService
         _logger.LogInformation("Book lookup by all books completed. DB: {DbCount}.", databaseBooks.Count);
         return databaseBooks;
     }
-
+    
     public async Task<Book?> FindBookById(Guid id, CancellationToken ct)
     {
         var databaseBook = await _unitOfWork.Books.GetBookByIdAsync(id, ct);
@@ -184,103 +155,57 @@ public class BookLookupService
         return await _unitOfWork.Books.BookExistsAsync(isbn, ct);
     }
     
-    private async Task<LookupResult<Isbn>> GetFromCacheAsync(List<Isbn> isbns, CancellationToken ct)
+    private async Task<IReadOnlyList<Book>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
-        var books = await _bookCacheService.GetBooksByIsbnsAsync(isbns, ct);
-
-        var foundKeys = books
-            .Select(BookExtensions.GetIsbnKey)
-            .Where(k => !string.IsNullOrWhiteSpace(k))
-            .ToHashSet();
-
-        var missing = isbns
-            .Where(i => !foundKeys.Contains(i.Value))
-            .ToList();
-
-        return new LookupResult<Isbn>(books, missing);
-    }
-    
-    private async Task<LookupResult<string>> GetFromCacheAsync(List<string> titles, CancellationToken ct)
-    {
-        var books = await _bookCacheService.GetBooksByTitlesAsync(titles, ct);
-
-        var foundKeys = books
-            .Select(b => b.Title)
-            .ToHashSet();
-
-        var missing = titles
-            .Where(t => !foundKeys.Contains(t))
-            .ToList();
-
-        return new LookupResult<string>(books, missing);
-    }
-    
-    private async Task<LookupResult<Isbn>> GetFromDatabaseAsync(List<Isbn> isbns, CancellationToken ct)
-    {
-        if (isbns.Count == 0)
-            return new LookupResult<Isbn>([], []);
-
-        var books = await _unitOfWork.Books
-            .GetDetailedBooksByIsbnsAsync(isbns, ct);
-
-        var foundKeys = books
-            .Select(BookExtensions.GetIsbnKey)
-            .Where(k => !string.IsNullOrWhiteSpace(k))
-            .ToHashSet();
-
-        var missing = isbns
-            .Where(i => !foundKeys.Contains(i.Value))
-            .ToList();
-
-        return new LookupResult<Isbn>(books, missing);
+        try
+        {
+            return await _isbnDbClient.GetBooksByIsbnsAsync(isbns, ct);
+        }
+        catch (ExternalDependencyException ex)
+        {
+            _logger.LogWarning(ex, "IsbnDb lookup failed, returning all as not found");
+            return null;
+        }
     }
 
-    private async Task<LookupResult<string>> GetFromDatabaseAsync(List<string> titles, CancellationToken ct)
+    private async Task<IReadOnlyList<Book>?> TryLookupFromIsbnDbAsync(IReadOnlyList<string> titles,
+        CancellationToken ct)
     {
-        if (titles.Count == 0)
-            return new LookupResult<string>([], []);
-
-        var books = await _unitOfWork.Books
-            .GetDetailedBooksByTitleAsync(titles, ct);
-
-        var foundKeys = books
-            .Select(b => b.Title)
-            .ToHashSet();
-
-        var missing = titles
-            .Where(t => !foundKeys.Contains(t))
-            .ToList();
-
-        return new LookupResult<string>(books, missing);
+        try
+        {
+            return await _isbnDbClient.GetBooksByTitlesAsync(titles, null, ct);
+        }
+        catch (ExternalDependencyException ex)
+        {
+            _logger.LogWarning(ex, "IsbnDb lookup failed, returning all as not found");
+            return null;
+        }
     }
-    
-    private async Task<LookupResult<Isbn>> GetFromApiAsync(List<Isbn> isbns, CancellationToken ct)
+
+    private async Task<IReadOnlyList<Book>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
-        if (isbns.Count == 0)
-            return new LookupResult<Isbn>([], []);
-
-        var books = await _bookEnrichmentService
-            .AggregateBooksByIsbnsAsync(isbns, ct);
-
-        if (books is null)
-            throw new NotFoundException($"Books with ISBNs '{string.Join(", ", isbns.Select(i => i.Value))}' were not found.");
-
-        return new LookupResult<Isbn>(books, []);
+        try
+        {
+            return await _googleBooksClient.GetBooksByIsbnsAsync(isbns, ct);
+        }
+        catch (ExternalDependencyException ex)
+        {
+            _logger.LogWarning(ex, "GoogleBooks lookup failed, returning all as not found");
+            return null;
+        }
     }
-    
-    private async Task<LookupResult<string>> GetFromApiAsync(List<string> titles, CancellationToken ct)
+
+    private async Task<IReadOnlyList<Book>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<string> titles,
+        CancellationToken ct)
     {
-        if (titles.Count == 0)
-            return new LookupResult<string>([], []);
-
-        var books = await _bookEnrichmentService
-            .AggregateBooksByTitlesAsync(titles, ct);
-        
-        if (books is null)
-            throw new NotFoundException($"Books with titles '{string.Join(", ", titles)}' were not found.");
-        
-        return new LookupResult<string>(books, []);
+        try
+        {
+            return await _googleBooksClient.GetBooksByTitlesAsync(titles, ct);
+        }
+        catch (ExternalDependencyException ex)
+        {
+            _logger.LogWarning(ex, "GoogleBooks lookup failed, returning all as not found");
+            return null;
+        }
     }
-    
-    private sealed record LookupResult<T>(IReadOnlyList<Book> Found, List<T> Missing);
 }

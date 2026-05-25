@@ -17,9 +17,9 @@ public class IsbndbPublisherService : IPublisherSearch
         _logger = logger;
     }
 
-    public async Task<List<Book>?> GetBooksByPublisherAsync(string publisher, CancellationToken ct)
+    public async Task<List<Book>?> GetBooksByPublisherAsync(Publisher publisher, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(publisher))
+        if (string.IsNullOrWhiteSpace(publisher.Name))
             return [];
 
         var response = await _publisherClient.FetchPublisherDetailsAsync(publisher, null, ct);
@@ -35,12 +35,12 @@ public class IsbndbPublisherService : IPublisherSearch
         return books;
     }
 
-    public async Task<List<Publisher>?> GetPublishersByNameAsync(string name, CancellationToken ct)
+    public async Task<List<Publisher>?> GetPublishersByNameAsync(Publisher publisher, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        if (string.IsNullOrWhiteSpace(publisher.Name))
             return [];
 
-        var response = await _publisherClient.SearchPublishersAsync(name, ct);
+        var response = await _publisherClient.SearchPublishersAsync(publisher.Name, ct);
 
         if (response is null)
             return null;
@@ -52,7 +52,9 @@ public class IsbndbPublisherService : IPublisherSearch
             .Select(g => g.First())
             .ToList();
 
-        _logger.LogDebug("Search for '{Name}' returned {Count} distinct publishers.", name, uniquePublishers.Count);
+        _logger.LogDebug("Search for '{Name}' returned {Count} distinct publishers.", 
+            publisher.Name, 
+            uniquePublishers.Count);
         return uniquePublishers;
     }
 }

@@ -5,5 +5,10 @@ namespace Reveries.Application.Books.Queries.GetBookExists;
 
 public sealed record GetBookExistsQuery : IQuery<bool>
 {
-    public required Isbn Isbn { get; init; }
+    public Isbn Isbn { get; }
+    
+    public GetBookExistsQuery(string isbn)
+    {
+        Isbn = Isbn.Create(isbn);
+    }
 }

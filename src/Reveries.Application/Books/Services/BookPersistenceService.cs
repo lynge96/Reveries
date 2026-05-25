@@ -8,7 +8,7 @@ using Reveries.Core.Models;
 
 namespace Reveries.Application.Books.Services;
 
-public class BookPersistenceService
+public class BookPersistenceService : IBookPersistenceService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<BookPersistenceService> _logger;

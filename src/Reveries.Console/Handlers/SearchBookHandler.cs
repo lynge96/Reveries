@@ -1,11 +1,11 @@
 using Reveries.Application.Books.Extensions;
-using Reveries.Application.Books.Services;
+using Reveries.Application.Books.Queries.FindBooksByIsbns;
+using Reveries.Application.Books.Queries.FindBooksByTitles;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services;
 using Reveries.Core.Models;
-using Reveries.Core.ValueObjects;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;
@@ -16,26 +16,29 @@ public class SearchBookHandler : BaseHandler
     private readonly SaveEntityService _saveEntityService;
     private readonly BookSelectionService _bookSelectionService;
     private readonly BookDisplayService _bookDisplayService;
-    private readonly BookLookupService _bookLookupService;
+    private readonly FindBooksByIsbnsHandler _booksByIsbnsHandler;
+    private readonly FindBooksByTitlesHandler _booksByTitlesHandler;
 
     public SearchBookHandler(
         SaveEntityService saveEntityService, 
         BookSelectionService bookSelectionService, 
         BookDisplayService bookDisplayService, 
-        BookLookupService bookLookupService)
+        FindBooksByIsbnsHandler booksByIsbnsHandler,
+        FindBooksByTitlesHandler booksByTitlesHandler)
     {
         _saveEntityService = saveEntityService;
         _bookSelectionService = bookSelectionService;
         _bookDisplayService = bookDisplayService;
-        _bookLookupService = bookLookupService;
+        _booksByIsbnsHandler = booksByIsbnsHandler;
+        _booksByTitlesHandler = booksByTitlesHandler;
     }
     
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken ct)
     {
         var searchInput = ConsolePromptUtility.GetUserInput("Enter book title or ISBN, separated by comma:");
 
         var (bookResults, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(() => SearchBooksAsync(searchInput, cancellationToken));
+            .RunWithStatusAsync(() => SearchBooksAsync(searchInput, ct));
 
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
         
@@ -46,10 +49,10 @@ public class SearchBookHandler : BaseHandler
         var booksToSave = _bookSelectionService.SelectBooksToSave(filteredBooks);
         
         if (booksToSave.Count > 0)
-            await _saveEntityService.SaveBooksAsync(booksToSave, cancellationToken);
+            await _saveEntityService.SaveBooksAsync(booksToSave, ct);
     }
 
-    private async Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken cancellationToken)
+    private async Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken ct)
     {
         var tokens = searchInput
             .Split([','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -62,14 +65,16 @@ public class SearchBookHandler : BaseHandler
 
         if (isbnTokens.Count != 0)
         {
-            var isbns = isbnTokens.Select(Isbn.Create).ToList();
+            var query = new FindBooksByIsbnsQuery(isbnTokens);
+            var books = await _booksByIsbnsHandler.Handle(query, ct);
             
-            var books = await _bookLookupService.FindBooksByIsbnAsync(isbns, cancellationToken);
             results.AddRange(books);
         }
         if (titleTokens.Count != 0)
         {
-            var books = await _bookLookupService.FindBooksByTitleAsync(titleTokens, cancellationToken);
+            var query = new FindBooksByTitlesQuery(titleTokens);
+            var books = await _booksByTitlesHandler.Handle(query, ct);
+            
             results.AddRange(books);
         }
 

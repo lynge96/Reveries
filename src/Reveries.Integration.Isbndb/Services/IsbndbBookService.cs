@@ -23,7 +23,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         _logger = logger;
     }
     
-    public async Task<List<Book>?> GetBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct)
+    public async Task<List<Book>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
@@ -53,7 +53,8 @@ public class IsbndbBookService : IIsbndbBookSearch
         return books;
     }
     
-    public async Task<List<Book>?> GetBooksByTitlesAsync(List<string> titles, string? languageCode, CancellationToken ct)
+    public async Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<string> titles, string? languageCode,
+        CancellationToken ct)
     {
         if (titles.Count == 0)
             return [];
@@ -92,7 +93,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         return book;
     }
     
-    private async Task<List<Book>?> GetMultipleBooksAsync(List<Isbn> isbns, CancellationToken ct)
+    private async Task<List<Book>?> GetMultipleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, ct);
         

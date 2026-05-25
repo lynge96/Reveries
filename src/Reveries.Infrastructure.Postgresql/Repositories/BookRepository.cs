@@ -119,15 +119,15 @@ public class BookRepository : IBookRepository
         );
     }
 
-    public async Task<List<Book>> GetBooksByAuthorAsync(string authorName, CancellationToken ct)
+    public async Task<List<Book>> GetBooksByAuthorAsync(Author author, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(authorName))
+        if (string.IsNullOrWhiteSpace(author.NormalizedName))
             return [];
         
-        return await GetBooksByAuthorsAsync(new List<string> { authorName }, ct);
+        return await GetBooksByAuthorsAsync([author], ct);
     }
     
-    public async Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<string> authorNames, CancellationToken ct)
+    public async Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<Author> authors, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
@@ -135,15 +135,15 @@ public class BookRepository : IBookRepository
                            WHERE authors ILIKE ANY(@Patterns)
                            """;
 
-        var patterns = authorNames
-            .Where(n => !string.IsNullOrWhiteSpace(n))
-            .Select(n => $"%{n.Trim()}%")
+        var patterns = authors
+            .Where(n => !string.IsNullOrWhiteSpace(n.NormalizedName))
+            .Select(n => $"%{n.NormalizedName.Trim()}%")
             .ToList();
 
         return await QueryBooksAsync(sql, new { Patterns = patterns }, ct: ct);
     }
 
-    public async Task<List<Book>> GetBooksByPublisherAsync(string publisherName, CancellationToken ct)
+    public async Task<List<Book>> GetBooksByPublisherAsync(Publisher publisher, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
@@ -151,7 +151,7 @@ public class BookRepository : IBookRepository
                            WHERE "publisherName" ILIKE @Pattern
                            """;
 
-        var pattern = $"%{publisherName.Trim()}%";
+        var pattern = $"%{publisher.Name.Trim()}%";
 
         return await QueryBooksAsync(sql, new { Pattern = pattern }, ct: ct);
     }

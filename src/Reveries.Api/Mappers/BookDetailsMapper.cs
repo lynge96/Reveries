@@ -1,23 +1,23 @@
-using Reveries.Application.Books.Models;
 using Reveries.Contracts.Books.Dtos;
 using Reveries.Contracts.Books.Responses;
+using Reveries.Core.Models;
 
 namespace Reveries.Api.Mappers;
 
 public static class BookDetailsMapper
 {
-    public static BookDetailsDto ToDto(this BookDetailsReadModel book)
+    public static BookDetailsDto ToDto(this Book book)
     {
         return new BookDetailsDto
         {
-            BookId = book.Id,
-            Isbn10 = book.Isbn10,
-            Isbn13 = book.Isbn13,
+            BookId = book.Id.Value,
+            Isbn10 = book.Isbn10?.Value,
+            Isbn13 = book.Isbn13?.Value,
             Title = book.Title,
-            Series = book.Series,
-            NumberInSeries = book.NumberInSeries,
-            Authors = book.Authors,
-            Publisher = book.Publisher,
+            Series = book.Series?.Name,
+            NumberInSeries = book.SeriesNumber,
+            Authors = book.Authors.Select(a => a.NormalizedName).ToList(),
+            Publisher = book.Publisher?.Name,
             Language = book.Language,
             Pages = book.Pages,
             PublicationDate = book.PublicationDate,
@@ -28,17 +28,17 @@ public static class BookDetailsMapper
             ImageThumbnailUrl = book.ImageThumbnailUrl,
             Msrp = book.Msrp,
             IsRead = book.IsRead,
-            HeightCm = book.HeightCm,
-            WidthCm = book.WidthCm,
-            ThicknessCm = book.ThicknessCm,
-            WeightG = book.WeightG,
-            DeweyDecimals = book.DeweyDecimals,
-            Genres = book.Genres,
-            DataSource = book.DataSource
+            HeightCm = book.Dimensions?.HeightCm,
+            WidthCm = book.Dimensions?.WidthCm,
+            ThicknessCm = book.Dimensions?.ThicknessCm,
+            WeightG = book.Dimensions?.WeightG,
+            DeweyDecimals = book.DeweyDecimals.Select(dd => dd.Code).ToList(),
+            Genres = book.Genres.Select(g => g.Value).ToList(),
+            DataSource = book.DataSource.ToString()
         };
     }
 
-    public static BooksResponse ToResponse(this IEnumerable<BookDetailsReadModel> books)
+    public static BooksResponse ToResponse(this IEnumerable<Book> books)
     {
         var items = books
             .Select(b => b.ToDto())

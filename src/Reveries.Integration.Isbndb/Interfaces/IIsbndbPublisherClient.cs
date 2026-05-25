@@ -1,4 +1,5 @@
-﻿using Reveries.Integration.Isbndb.DTOs.Publishers;
+﻿using Reveries.Core.Models;
+using Reveries.Integration.Isbndb.DTOs.Publishers;
 
 namespace Reveries.Integration.Isbndb.Interfaces;
 
@@ -12,7 +13,7 @@ public interface IIsbndbPublisherClient
     /// <summary>
     /// Retrieves detailed information about a specific publisher from the ISBNdb API.
     /// </summary>
-    /// <param name="publisherName">
+    /// <param name="publisher">
     ///     The name of the publisher to retrieve details for. This should be the full or partial name as expected by the API.
     /// </param>
     /// <param name="languageCode">
@@ -26,7 +27,7 @@ public interface IIsbndbPublisherClient
     /// A <see cref="PublisherDetailsReponseDto"/> containing detailed information about the requested publisher,
     /// or <c>null</c> if no matching data is found.
     /// </returns>
-    Task<PublisherDetailsReponseDto?> FetchPublisherDetailsAsync(string publisherName, string? languageCode, CancellationToken ct);
+    Task<PublisherDetailsReponseDto?> FetchPublisherDetailsAsync(Publisher publisher, string? languageCode, CancellationToken ct);
 
     /// <summary>
     /// Retrieves a list of publishers that fits the query from the ISBNdb API.

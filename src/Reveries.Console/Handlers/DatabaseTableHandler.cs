@@ -35,10 +35,10 @@ public class DatabaseTableHandler : BaseHandler
         _bookReadStatusService = bookReadStatusService;
     }
     
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken ct)
     {
         var (booksInDb, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(() => _bookLookupService.GetAllBooksAsync(cancellationToken));
+            .RunWithStatusAsync(() => _bookLookupService.GetAllBooksAsync(ct));
         var sortedBooks = booksInDb.ArrangeBooks();
         
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
@@ -47,18 +47,18 @@ public class DatabaseTableHandler : BaseHandler
         
         var menu = new Dictionary<string, Func<CancellationToken, Task>>
         {
-            ["Add books to existing series"] = ct => UpdateSelectedBooksWithSeriesAsync(sortedBooks, ct),
-            ["Update read status"] = ct => UpdateSelectedBooksReadStatusAsync(sortedBooks, ct),
+            ["Add books to existing series"] = token => UpdateSelectedBooksWithSeriesAsync(sortedBooks, token),
+            ["Update read status"] = token => UpdateSelectedBooksReadStatusAsync(sortedBooks, token),
             ["Go back"] = _ => Task.CompletedTask
         };
 
         var selection = ConsolePromptUtility.ShowSelectionPrompt("What do you want to do?", menu.Keys.ToArray());
-        await menu[selection](cancellationToken);
+        await menu[selection](ct);
     }
 
-    private async Task UpdateSelectedBooksWithSeriesAsync(List<Book> books, CancellationToken cancellationToken)
+    private async Task UpdateSelectedBooksWithSeriesAsync(List<Book> books, CancellationToken ct)
     {
-        var seriesInDb = await _createSeriesService.GetSeriesAsync();
+        var seriesInDb = await _createSeriesService.GetSeriesAsync(ct);
         if (seriesInDb.Count == 0)
         {
             AnsiConsole.MarkupLine("No series found in database.".AsWarning());
@@ -85,14 +85,8 @@ public class DatabaseTableHandler : BaseHandler
             if (int.TryParse(numberInSeries, out var num))
                 book.SetSeries(series, num);
 
-            var bookSeriesCommand = new SetBookSeriesCommand
-            {
-                Isbn = book.Isbn13,
-                SeriesName = series.Name,
-                NumberInSeries = num
-            };
-            
-            await _setBookSeriesCommandHandler.Handle(bookSeriesCommand, cancellationToken);
+            var bookSeriesCommand = new SetBookSeriesCommand(book.Isbn13?.Value ?? book.Isbn10!.Value, series.Name, num);
+            await _setBookSeriesCommandHandler.Handle(bookSeriesCommand, ct);
         }
 
         AnsiConsole.MarkupLine("\nThe following books have been updated:".AsSuccess());

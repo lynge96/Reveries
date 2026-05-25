@@ -1,3 +1,4 @@
+using Reveries.Application.BookSeries.Interfaces;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Core.Identity;
@@ -6,7 +7,7 @@ using Reveries.Core.ValueObjects;
 
 namespace Reveries.Application.BookSeries.Services;
 
-public class BookSeriesService
+public class BookSeriesService : IBookSeriesService
 {
     private readonly IUnitOfWork _unitOfWork;
     
@@ -25,7 +26,7 @@ public class BookSeriesService
             if (existingBook == null)
                 throw new NotFoundException($"Book with ISBN '{isbn}' was not found.");
             
-            var existingSeries = await _unitOfWork.Series.GetByNameAsync(series.Name);
+            var existingSeries = await _unitOfWork.Series.GetByNameAsync(series, ct);
             
             if (existingSeries != null)
             {

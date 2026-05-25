@@ -7,41 +7,22 @@ using BookExtensions = Reveries.Application.Books.Extensions.BookExtensions;
 
 namespace Reveries.Application.Books.Services;
 
-public class BookEnrichmentService
+public class BookMergerService : IBookMergerService
 {
-    private readonly IIsbndbBookSearch _isbndbSearch;
-    private readonly IGoogleBookSearch _googleSearch;
-    private readonly ILogger<BookEnrichmentService> _logger;
+    private readonly ILogger<BookMergerService> _logger;
 
-    public BookEnrichmentService(
-        IIsbndbBookSearch isbndbBookSearch,
-        IGoogleBookSearch googleBookSearch, 
-        ILogger<BookEnrichmentService> logger)
+    public BookMergerService(ILogger<BookMergerService> logger)
     {
-        _isbndbSearch = isbndbBookSearch;
-        _googleSearch = googleBookSearch;
         _logger = logger;
     }
     
-    public async Task<List<Book>?> AggregateBooksByIsbnsAsync(List<Isbn> isbns, CancellationToken ct)
+    public List<Book> AggregateBooksByIsbnsAsync(
+        IReadOnlyList<Isbn> isbns,
+        IReadOnlyList<Book>? isbndbBooks,
+        IReadOnlyList<Book>? googleBooks)
     {
-        if (isbns.Count == 0)
+        if (isbns.Count == 0 || isbndbBooks is null && googleBooks is null)
             return [];
-
-        var results = await Task.WhenAll(
-            _isbndbSearch.GetBooksByIsbnsAsync(isbns, ct),
-            _googleSearch.GetBooksByIsbnsAsync(isbns, ct)
-        );
-        var isbndbBooks = results[0];
-        if (isbndbBooks is null) 
-            _logger.LogDebug("No books found in ISBNDB for {Isbns} ISBNs.", string.Join(", ", isbns.Select(i => i.Value)));
-        
-        var googleBooks = results[1];
-        if (googleBooks is null) 
-            _logger.LogDebug("No books found in Google Books for {Isbns} ISBNs.", string.Join(", ", isbns.Select(i => i.Value)));
-        
-        if (googleBooks is null && isbndbBooks is null)
-            return null;
         
         var googleDict = BuildIsbnDictionary(googleBooks ?? []);
         var isbndbDict = BuildIsbnDictionary(isbndbBooks ?? []);
@@ -54,33 +35,20 @@ public class BookEnrichmentService
 
                 return BookMerger.MergeBooks(isbndbBook, googleBook);
             })
-            .Where(b => b is not null)
-            .Select(b => b!)
+            .OfType<Book>()
             .ToList();
         
         _logger.LogDebug("Aggregated {MergedCount} books from {IsbnCount} ISBNs.", mergedBooks.Count, isbns.Count);
         return mergedBooks;
     }
-
-    public async Task<List<Book>?> AggregateBooksByTitlesAsync(List<string> titles, CancellationToken ct)
+    
+    public List<Book> AggregateBooksByTitlesAsync(
+        IReadOnlyList<string> titles, 
+        IReadOnlyList<Book>? isbndbBooks,
+        IReadOnlyList<Book>? googleBooks)
     {
         if (titles.Count == 0)
             return [];
-        
-        var results = await Task.WhenAll(
-            _isbndbSearch.GetBooksByTitlesAsync(titles, null, ct),
-            _googleSearch.GetBooksByTitlesAsync(titles, ct)
-        );
-        var isbndbBooks = results[0];
-        if (isbndbBooks is null) 
-            _logger.LogDebug("No books found in ISBNDB for {Titles}.", string.Join(", ", titles));
-        
-        var googleBooks = results[1];
-        if (googleBooks is null) 
-            _logger.LogDebug("No books found in Google Books for {Titles}.", string.Join(", ", titles));
-        
-        if (googleBooks is null && isbndbBooks is null)
-            return null;
         
         var mergedByIsbn = MergeBookDictionaries(googleBooks ?? [], isbndbBooks ?? []);
         
@@ -102,7 +70,9 @@ public class BookEnrichmentService
                 (isbn: b.Isbn10?.Value, book: b),
                 (isbn: b.Isbn13?.Value, book: b)
             })
-            .ToDictionary(x => x.isbn!, x => x.book);
+            .Where(x => x.isbn is not null)
+            .GroupBy(x => x.isbn!)
+            .ToDictionary(g => g.Key, g => g.First().book);
     }
     
     private static Dictionary<string, Book> MergeBookDictionaries(IEnumerable<Book> primary, IEnumerable<Book> secondary)

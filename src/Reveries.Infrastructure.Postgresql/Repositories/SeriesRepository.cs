@@ -1,4 +1,3 @@
-using System.Data;
 using Dapper;
 using Reveries.Core.Interfaces.IRepository;
 using Reveries.Core.Models;
@@ -46,7 +45,7 @@ public class SeriesRepository : ISeriesRepository
         return result.ToDomain();
     }
 
-    public async Task<Series?> GetByNameAsync(string seriesName)
+    public async Task<Series?> GetByNameAsync(Series series, CancellationToken ct)
     {
         const string sql = """
                            SELECT 
@@ -58,14 +57,14 @@ public class SeriesRepository : ISeriesRepository
                            LIMIT 1;
                            """;
     
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
     
-        var row = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(sql, new { Name = seriesName });
+        var row = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(sql, new { series.Name });
 
         return row?.ToDomain();
     }
 
-    public async Task<List<Series>> GetSeriesAsync()
+    public async Task<List<Series>> GetSeriesAsync(CancellationToken ct)
     {
         const string sql = """
                            SELECT 
@@ -75,7 +74,7 @@ public class SeriesRepository : ISeriesRepository
                            FROM library.series;
                            """;
         
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
 
         var rows = await connection.QueryAsync<SeriesEntity>(sql);
         

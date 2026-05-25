@@ -20,7 +20,7 @@ public class SaveEntityService
         _createSeriesService = createSeriesService;
     }
 
-    public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken cancellationToken = default)
+    public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken ct = default)
     {
         var booksList = books.ToList();
     
@@ -36,7 +36,7 @@ public class SaveEntityService
         {
             try
             {
-                var bookId = await _bookPersistenceService.SaveBookWithRelationsAsync(book, cancellationToken);
+                var bookId = await _bookPersistenceService.SaveBookWithRelationsAsync(book, ct);
 
                 AnsiConsole.MarkupLine($"""
                                         ✅ Successfully saved to database:
@@ -65,13 +65,13 @@ public class SaveEntityService
         }
     }
 
-    public async Task SaveSeriesAsync(Series series, CancellationToken cancellationToken = default)
+    public async Task SaveSeriesAsync(Series series, CancellationToken ct = default)
     {
         AnsiConsole.MarkupLine($"\nSaving series {series.Name}...".AsSuccess());
 
         try
         {
-            var createdSeries = await _createSeriesService.CreateSeriesAsync(series);
+            var createdSeries = await _createSeriesService.CreateSeriesAsync(series, ct);
             
             AnsiConsole.MarkupLine($"""
                                     ✅ Successfully saved to database:

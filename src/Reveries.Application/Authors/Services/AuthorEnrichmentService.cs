@@ -3,7 +3,7 @@ using Reveries.Core.Models;
 
 namespace Reveries.Application.Authors.Services;
 
-public class AuthorEnrichmentService
+public class AuthorEnrichmentService : IAuthorEnrichmentService
 {
     private readonly IAuthorSearch _authorSearch;
     const int MaxCacheSize = 1000;
@@ -23,7 +23,7 @@ public class AuthorEnrichmentService
             
             if (!variantsCache.TryGetValue(normalizedName, out var variants))
             {
-                variants = await _authorSearch.GetAuthorsByNameAsync(normalizedName, ct) ?? [];
+                variants = await _authorSearch.GetAuthorsByNameAsync(author, ct) ?? [];
                 
                 if (variantsCache.Count >= MaxCacheSize)
                 {
