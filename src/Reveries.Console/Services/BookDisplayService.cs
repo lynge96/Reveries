@@ -29,7 +29,7 @@ public class BookDisplayService
                 DataSource.Cache => " (Cache)",
                 _ => ""
             };
-            var bookNode = root.AddNode("📖 " + Markup.Escape(book.Title).Bold().AsPrimary() + sourceLabel.AsInfo());
+            var bookNode = root.AddNode("📖 " + Markup.Escape(book.Title.Value).Bold().AsPrimary() + sourceLabel.AsInfo());
             AddBookDetails(bookNode, book);
         }
         
@@ -62,7 +62,7 @@ public class BookDisplayService
                 (i + 1).ToString().AsInfo(),
                 book.Isbn13?.ToString() ?? book.Isbn10?.ToString() ?? "",
                 book.IsRead ? "✅" : "❌",
-                Markup.Escape(book.Title).Bold().AsSecondary(),
+                Markup.Escape(book.Title.Value).Bold().AsSecondary(),
                 Markup.Escape(book.GetAuthorNames()),
                 book.Pages?.ToString() ?? "",
                 book.PublicationDate ?? "Unknown date",

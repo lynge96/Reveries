@@ -80,7 +80,7 @@ public static class CacheDtoMappers
             Id = book.Id.Value,
             Isbn10 = book.Isbn10?.ToString(),
             Isbn13 = book.Isbn13?.ToString(),
-            Title = book.Title,
+            Title = book.Title.ToString(),
             Series = book.Series?.ToCacheDto(),
             NumberInSeries = book.SeriesNumber,
             Authors = book.Authors.Select(a => a.ToCacheDto()).ToList(),

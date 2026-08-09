@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Reveries.Application.Common.Exceptions;
 using Reveries.Core.Exceptions;
-using Reveries.Integration.Http.Exceptions;
 using ApplicationException = Reveries.Application.Common.Exceptions.ApplicationException;
 
 namespace Reveries.Api.Middleware;

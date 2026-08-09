@@ -1,11 +1,10 @@
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Publishers.Interfaces;
-using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Publishers.Services;
 
-public class PublisherLookupService
+public class PublisherLookupService : IPublisherLookupService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPublisherSearch _publisherSearch;
@@ -18,10 +17,10 @@ public class PublisherLookupService
         _publisherSearch = publisherSearch;
     }
     
-    public async Task<List<Publisher>> FindPublishersByNameAsync(string name, CancellationToken ct)
+    public async Task<List<Publisher>> FindPublishersByNameAsync(Publisher publisher, CancellationToken ct)
     {
-        var dbTask = _unitOfWork.Publishers.SearchByNameAsync(name);
-        var apiTask = _publisherSearch.GetPublishersByNameAsync(name, ct);
+        var dbTask = _unitOfWork.Publishers.SearchByNameAsync(publisher, ct);
+        var apiTask = _publisherSearch.GetPublishersByNameAsync(publisher, ct);
         
         await Task.WhenAll(dbTask, apiTask!);
         

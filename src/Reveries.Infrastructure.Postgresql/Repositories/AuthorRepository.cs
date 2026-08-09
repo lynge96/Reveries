@@ -134,7 +134,7 @@ public class AuthorRepository : IAuthorRepository
         return authorEntities.Select(a => a.ToDomain()).ToList();
     }
 
-    public async Task<List<Author>> GetAuthorsByNameAsync(string name)
+    public async Task<List<Author>> GetAuthorsByNameAsync(Author author, CancellationToken ct)
     {
         const string sql = """
                            SELECT a.id,
@@ -148,9 +148,9 @@ public class AuthorRepository : IAuthorRepository
                               OR a.normalized_name ILIKE @Pattern
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var authorDtos = await connection.QueryAsync<AuthorEntity>(sql, new { Pattern = $"%{name}%" });
+        var authorDtos = await connection.QueryAsync<AuthorEntity>(sql, new { Pattern = $"%{author.NormalizedName}%" });
 
         return authorDtos.Select(a => a.ToDomain()).ToList();
     }

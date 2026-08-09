@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Reveries.Integration.Http.Exceptions;
+using Reveries.Application.Common.Exceptions;
 using Reveries.Integration.Http.Helpers;
 using DecimalConverter = Reveries.Integration.Http.Helpers.DecimalConverter;
 

@@ -2,15 +2,14 @@ using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Mappers;
 using Reveries.Application.Books.Commands.SetBookSeries;
+using Reveries.Application.Books.Queries.FindBookByIsbn;
+using Reveries.Application.Books.Queries.FindBooksByIsbns;
 using Reveries.Application.Books.Queries.GetAllBooks;
 using Reveries.Application.Books.Queries.GetBookById;
-using Reveries.Application.Books.Queries.GetBookByIsbn;
 using Reveries.Application.Books.Queries.GetBookExists;
-using Reveries.Application.Books.Queries.GetBooksByIsbns;
 using Reveries.Contracts.Books.Dtos;
 using Reveries.Contracts.Books.Requests;
 using Reveries.Contracts.Books.Responses;
-using Reveries.Core.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Reveries.Api.Controllers;
@@ -39,7 +38,7 @@ public class BooksController : ControllerBase
         [FromQuery] GetAllBooksRequest request, 
         CancellationToken ct)
     {
-        var query = new GetAllBooksQuery { IsRead = request.IsRead };
+        var query = new GetAllBooksQuery(request.IsRead);
         var books = await _mediator.Send(query, ct);
 
         return Ok(books.ToResponse());
@@ -54,7 +53,7 @@ public class BooksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<BookDetailsDto>> GetBookByIsbn(string isbn, CancellationToken ct)
     {
-        var query = new GetBookByIsbnQuery { Isbn = Isbn.Create(isbn) };
+        var query = new FindBookByIsbnQuery(isbn);
         var book = await _mediator.Send(query, ct);
 
         return Ok(book.ToDto());
@@ -68,7 +67,7 @@ public class BooksController : ControllerBase
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     public async Task<ActionResult<bool>> BookExists(string isbn, CancellationToken ct)
     {
-        var query = new GetBookExistsQuery { Isbn = Isbn.Create(isbn) };
+        var query = new GetBookExistsQuery(isbn);
         var exists = await _mediator.Send(query, ct);
         
         return Ok(exists);
@@ -82,7 +81,7 @@ public class BooksController : ControllerBase
     [ProducesResponseType(typeof(BooksResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<BooksResponse>> GetBooksByIsbns([FromBody] BulkIsbnRequest request, CancellationToken ct)
     {
-        var query = new GetBooksByIsbnsQuery { Isbns = request.Isbns.Select(Isbn.Create).ToList() };
+        var query = new FindBooksByIsbnsQuery(request.Isbns);
         var books = await _mediator.Send(query, ct);
 
         return Ok(books.ToResponse());
@@ -96,7 +95,7 @@ public class BooksController : ControllerBase
     [ProducesResponseType(typeof(BookDetailsDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<BookDetailsDto>> GetById(Guid id, CancellationToken ct)
     {
-        var query = new GetBookByIdQuery { BookId = id };
+        var query = new GetBookByIdQuery(id);
         var book = await _mediator.Send(query, ct);
 
         return Ok(book.ToDto());
@@ -124,12 +123,8 @@ public class BooksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> SetSeries([FromRoute] string isbn, [FromBody] SetBookSeriesRequest body, CancellationToken ct)
     {
-        var command = new SetBookSeriesCommand
-        {
-            Isbn = Isbn.Create(isbn),
-            SeriesName = body.SeriesName,
-            NumberInSeries = body.NumberInSeries
-        };
+        var command = new SetBookSeriesCommand(isbn, body.SeriesName, body.NumberInSeries);
+
         await _mediator.Send(command, ct);
         return NoContent();
     }

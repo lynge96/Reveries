@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Reveries.Integration.Http.Exceptions;
+namespace Reveries.Application.Common.Exceptions;
 
 public class ExternalDependencyException : Exception
 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Reveries.Core.Models;
 using Reveries.Integration.Http.Base;
 using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.DTOs.Publishers;
@@ -14,11 +15,11 @@ public class IsbndbPublisherClient : ExternalBaseClient<IsbndbPublisherClient>, 
     public IsbndbPublisherClient(HttpClient httpClient, ILogger<IsbndbPublisherClient> logger)
         : base(httpClient, logger) { }
     
-    public async Task<PublisherDetailsReponseDto?> FetchPublisherDetailsAsync(string publisherName,
+    public async Task<PublisherDetailsReponseDto?> FetchPublisherDetailsAsync(Publisher publisher,
         string? languageCode, CancellationToken ct)
     {
-        var context = $"publisher '{publisherName}'";
-        var endpoint = $"publisher/{Uri.EscapeDataString(publisherName)}";
+        var context = $"publisher '{publisher.Name}'";
+        var endpoint = $"publisher/{Uri.EscapeDataString(publisher.Name)}";
         
         if (!string.IsNullOrWhiteSpace(languageCode))
             endpoint = QueryHelpers.AddQueryString(endpoint, "language", languageCode);

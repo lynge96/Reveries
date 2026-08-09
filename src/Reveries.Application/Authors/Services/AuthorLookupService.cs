@@ -1,11 +1,10 @@
 using Reveries.Application.Authors.Interfaces;
 using Reveries.Application.Common.Abstractions;
-using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Authors.Services;
 
-public class AuthorLookupService
+public class AuthorLookupService : IAuthorLookupService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAuthorSearch _authorSearch;
@@ -18,10 +17,10 @@ public class AuthorLookupService
         _authorSearch = authorSearch;
     }
 
-    public async Task<List<Author>> FindAuthorsByNameAsync(string authorName, CancellationToken cancellationToken = default)
+    public async Task<List<Author>> FindAuthorsByNameAsync(Author author, CancellationToken ct)
     {
-        var dbTask = _unitOfWork.Authors.GetAuthorsByNameAsync(authorName);
-        var apiTask = _authorSearch.GetAuthorsByNameAsync(authorName, cancellationToken);
+        var dbTask = _unitOfWork.Authors.GetAuthorsByNameAsync(author, ct);
+        var apiTask = _authorSearch.GetAuthorsByNameAsync(author, ct);
 
         await Task.WhenAll(dbTask, apiTask);
 

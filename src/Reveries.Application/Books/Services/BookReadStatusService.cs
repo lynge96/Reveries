@@ -1,11 +1,10 @@
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Common.Abstractions;
-using Reveries.Core.Interfaces;
 using Reveries.Core.Models;
 
 namespace Reveries.Application.Books.Services;
 
-public class BookReadStatusService
+public class BookReadStatusService : IBookReadStatusService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBookCacheService _cache;
@@ -20,7 +19,7 @@ public class BookReadStatusService
     
     public async Task UpdateReadStatusAsync(Book book, CancellationToken ct)
     {
-        await _unitOfWork.Books.UpdateBookReadStatusAsync(book);
+        await _unitOfWork.Books.UpdateBookReadStatusAsync(book, ct);
         await _cache.RemoveBookByIsbnAsync(book.Isbn13 ?? book.Isbn10, ct);
     }
 }

@@ -45,7 +45,7 @@ public class PublisherRepository : IPublisherRepository
         return result.ToDomain();
     }
 
-    public async Task<List<Publisher>> SearchByNameAsync(string publisherName)
+    public async Task<List<Publisher>> SearchByNameAsync(Publisher publisher, CancellationToken ct)
     {
         const string sql = """
                            SELECT 
@@ -57,11 +57,11 @@ public class PublisherRepository : IPublisherRepository
                            ORDER BY name
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync();
+        var connection = await _dbContext.GetConnectionAsync(ct);
 
         var command = new CommandDefinition(
             commandText: sql,
-            parameters: new { Name = $"%{publisherName}%" }
+            parameters: new { Name = $"%{publisher.Name}%" }
         );
         
         var rows = await connection.QueryAsync<PublisherEntity>(command);

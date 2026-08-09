@@ -17,12 +17,12 @@ public class IsbndbAuthorService : IAuthorSearch
         _logger = logger;
     }
 
-    public async Task<IReadOnlyList<Author>?> GetAuthorsByNameAsync(string authorName, CancellationToken ct)
+    public async Task<IReadOnlyList<Author>?> GetAuthorsByNameAsync(Author author, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(authorName))
+        if (string.IsNullOrWhiteSpace(author.NormalizedName))
             return [];
 
-        var response = await _authorClient.SearchAuthorsByNameAsync(authorName, ct);
+        var response = await _authorClient.SearchAuthorsByNameAsync(author, ct);
 
         if (response is null)
             return null;
@@ -33,16 +33,19 @@ public class IsbndbAuthorService : IAuthorSearch
             .Select(g => g.First())
             .ToList();
 
-        _logger.LogDebug("Search for '{AuthorName}' returned {Count} distinct authors.", authorName, distinctAuthors.Count);
+        _logger.LogDebug("Search for '{AuthorName}' returned {Count} distinct authors.", 
+            author.NormalizedName, 
+            distinctAuthors.Count);
+        
         return distinctAuthors;
     }
     
-    public async Task<List<Book>?> GetBooksByAuthorAsync(string authorName, CancellationToken ct)
+    public async Task<List<Book>?> GetBooksByAuthorAsync(Author author, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(authorName))
+        if (string.IsNullOrWhiteSpace(author.NormalizedName))
             return [];
 
-        var response = await _authorClient.FetchBooksByAuthorAsync(authorName, ct);
+        var response = await _authorClient.FetchBooksByAuthorAsync(author, ct);
 
         if (response is null)
             return null;
@@ -51,7 +54,10 @@ public class IsbndbAuthorService : IAuthorSearch
             .Select(b => b.ToBook())
             .ToList();
 
-        _logger.LogDebug("Found {Count} books for author '{AuthorName}'.", books.Count, authorName);
+        _logger.LogDebug("Found {Count} books for author '{AuthorName}'.", 
+            books.Count, 
+            author.NormalizedName);
+        
         return books;
     }
 

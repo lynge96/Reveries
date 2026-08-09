@@ -15,7 +15,7 @@ public class Book : BaseEntity
     public BookId Id { get; private init; }
     public Isbn? Isbn13 { get; private init; }
     public Isbn? Isbn10 { get; private init; }
-    public required string Title { get; init; }
+    public required Title Title { get; init; }
     public IReadOnlyList<Author> Authors => _authors;
     public int? Pages { get; private set; }
     public bool IsRead { get; private set; }
@@ -39,7 +39,7 @@ public class Book : BaseEntity
     
     public override string ToString()
     {
-        var title = string.IsNullOrEmpty(Title) ? "Unknown Title" : Title;
+        var title = string.IsNullOrEmpty(Title.Value) ? "Unknown Title" : Title.Value;
         var authors = Authors
             .Select(a => a.ToString())
             .Where(a => !string.IsNullOrWhiteSpace(a))
@@ -100,7 +100,7 @@ public class Book : BaseEntity
             Id = BookId.New(),
             Isbn13 = isbn13 != null ? Isbn.Create(isbn13) : null,
             Isbn10 = isbn10 != null ? Isbn.Create(isbn10) : null,
-            Title = title,
+            Title = Title.Create(title),
             IsRead = false,
             PublicationDate = publishDate,
             Publisher = publisher != null ? Publisher.Create(publisher) : null,
@@ -160,7 +160,7 @@ public class Book : BaseEntity
             Id = new BookId(data.Id),
             Isbn13 = data.Isbn13 != null ? new Isbn(data.Isbn13) : null,
             Isbn10 = data.Isbn10 != null ? new Isbn(data.Isbn10) : null,
-            Title = data.Title,
+            Title = new Title(data.Title),
             Pages = data.Pages,
             IsRead = data.IsRead,
             PublicationDate = data.PublicationDate,

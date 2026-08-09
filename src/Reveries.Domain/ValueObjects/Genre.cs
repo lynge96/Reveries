@@ -2,7 +2,7 @@ using Reveries.Core.Helpers;
 
 namespace Reveries.Core.ValueObjects;
 
-public class Genre
+public sealed record Genre
 {
     public string Value { get; }
 

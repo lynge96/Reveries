@@ -20,7 +20,7 @@ public partial class BookSeriesHandler : BaseHandler
         _saveEntityService = saveEntityService;
     }
     
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken ct)
     {
         var seriesInput = ConsolePromptUtility.GetUserInput("Enter the name of the new series:");
         var seriesName = RemoveWhitespace().Replace(seriesInput.Trim().ToTitleCase(), " ");
@@ -31,6 +31,6 @@ public partial class BookSeriesHandler : BaseHandler
         
         var newSeries = Series.Create(seriesName);
 
-        await _saveEntityService.SaveSeriesAsync(newSeries, cancellationToken);
+        await _saveEntityService.SaveSeriesAsync(newSeries, ct);
     }
 }

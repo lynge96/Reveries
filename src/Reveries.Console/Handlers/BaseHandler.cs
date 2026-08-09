@@ -10,7 +10,7 @@ public abstract class BaseHandler : IMenuHandler
 {
     public abstract MenuChoice MenuChoice { get; }
     
-    protected abstract Task ExecuteAsync(CancellationToken cancellationToken);
+    protected abstract Task ExecuteAsync(CancellationToken ct);
     
     public async Task HandleAsync(CancellationToken cancellationToken = default)
     {
