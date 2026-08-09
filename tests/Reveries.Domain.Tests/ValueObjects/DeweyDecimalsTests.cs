@@ -1,7 +1,7 @@
 using Reveries.Domain.Models;
 using Reveries.Domain.ValueObjects;
 
-namespace Reveries.Domain.Tests.Models;
+namespace Reveries.Domain.Tests.ValueObjects;
 
 public class DeweyDecimalsTests
 {
