@@ -1,0 +1,39 @@
+name: Publish - Bookscanner Image
+
+# Runs only on merge to main (a push), and only when something that affects
+# the scanner image changed. Build & tests run first as a gate; the image is
+# only built and pushed if they pass.
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/Reveries.Blazor.BookScanner/**'
+      - 'src/Reveries.Contracts/**'
+      - '.github/workflows/bookscanner.yml'
+      - '.github/workflows/_test.yml'
+      - '.github/workflows/_docker-build.yml'
+  workflow_dispatch:
+
+# Queue overlapping merges instead of cancelling — don't interrupt a push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Build & Test
+    uses: ./.github/workflows/_test.yml
+    permissions:
+      contents: read
+      checks: write
+
+  publish:
+    name: Publish Bookscanner Image
+    needs: test
+    uses: ./.github/workflows/_docker-build.yml
+    permissions:
+      contents: read
+    with:
+      dockerfile: src/Reveries.Blazor.BookScanner/Dockerfile
+      image-name: reveries-bookscanner
+    secrets: inherit

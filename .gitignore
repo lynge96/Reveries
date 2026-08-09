@@ -65,7 +65,7 @@ nunit-*.xml
 .env
 *.env
 
-.github
-*.github
-
 CLAUDE.md
+
+# Git Bash crash dumps (Windows)
+*.stackdump

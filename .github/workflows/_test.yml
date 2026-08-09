@@ -1,0 +1,40 @@
+name: Build & Test
+
+# Reusable workflow: compiles the solution and runs the tests.
+# Called by pr.yml as the merge gate, and by the publish workflows before an
+# image is built. `dotnet test` builds first, so a compile break fails here
+# too — this single job is the "does it compile + do the tests pass" check.
+on:
+  workflow_call:
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+      - name: Publish test report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test results
+          path: TestResults/*.trx
+          reporter: dotnet-trx

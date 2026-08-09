@@ -1,0 +1,46 @@
+name: Publish - API Image
+
+# Runs only on merge to main (a push), and only when something that affects
+# the API image changed. Build & tests run first as a gate; the image is only
+# built and pushed if they pass.
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/Reveries.Api/**'
+      - 'src/Reveries.Contracts/**'
+      - 'src/Reveries.Domain/**'
+      - 'src/Reveries.Infrastructure/**'
+      - 'src/Reveries.Infrastructure.Postgresql/**'
+      - 'src/Reveries.Infrastructure.Redis/**'
+      - 'src/Reveries.Integration.Http/**'
+      - 'src/Reveries.Integration.GoogleBooks/**'
+      - 'src/Reveries.Integration.Isbndb/**'
+      - '.github/workflows/api.yml'
+      - '.github/workflows/_test.yml'
+      - '.github/workflows/_docker-build.yml'
+  workflow_dispatch:
+
+# Queue overlapping merges instead of cancelling — don't interrupt a push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Build & Test
+    uses: ./.github/workflows/_test.yml
+    permissions:
+      contents: read
+      checks: write
+
+  publish:
+    name: Publish API Image
+    needs: test
+    uses: ./.github/workflows/_docker-build.yml
+    permissions:
+      contents: read
+    with:
+      dockerfile: src/Reveries.Api/Dockerfile
+      image-name: reveries-api
+    secrets: inherit
