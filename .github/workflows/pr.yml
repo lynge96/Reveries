@@ -1,4 +1,4 @@
-name: PR - Build & Test
+name: PR
 
 # Runs on every pull request, regardless of target branch (and each new
 # commit pushed to it). This is the merge gate — mark its check as required
@@ -17,6 +17,5 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-test:
-    name: Build & Test
+  test:
     uses: ./.github/workflows/_test.yml

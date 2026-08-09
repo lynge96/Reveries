@@ -1,4 +1,4 @@
-name: Publish - API Image
+name: Publish API
 
 # Runs only on merge to main (a push), and only when something that affects
 # the API image changed. Build & tests run first as a gate; the image is only
@@ -28,14 +28,12 @@ concurrency:
 
 jobs:
   test:
-    name: Build & Test
     uses: ./.github/workflows/_test.yml
     permissions:
       contents: read
       checks: write
 
   publish:
-    name: Publish API Image
     needs: test
     uses: ./.github/workflows/_docker-build.yml
     permissions:
