@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
-using Reveries.Core.Exceptions;
+using Reveries.Domain.Exceptions;
 
-namespace Reveries.Core.ValueObjects;
+namespace Reveries.Domain.ValueObjects;
 
 public sealed partial record Isbn
 {

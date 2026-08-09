@@ -1,6 +1,6 @@
 using Dapper;
-using Reveries.Core.Interfaces.IRepository;
-using Reveries.Core.Models;
+using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Models;
 using Reveries.Infrastructure.Postgresql.Entities;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 using Reveries.Infrastructure.Postgresql.Mappers;

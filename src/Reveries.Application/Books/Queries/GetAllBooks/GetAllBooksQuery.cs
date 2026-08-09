@@ -1,5 +1,5 @@
 using Mediator;
-using Reveries.Core.Models;
+using Reveries.Domain.Models;
 
 namespace Reveries.Application.Books.Queries.GetAllBooks;
 

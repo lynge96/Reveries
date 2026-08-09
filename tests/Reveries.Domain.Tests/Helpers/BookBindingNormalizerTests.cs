@@ -1,7 +1,7 @@
-using Reveries.Core.Enums;
-using Reveries.Core.Helpers;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Helpers;
 
-namespace Reveries.Core.Tests.Helpers;
+namespace Reveries.Domain.Tests.Helpers;
 
 public class BookBindingNormalizerTests
 {

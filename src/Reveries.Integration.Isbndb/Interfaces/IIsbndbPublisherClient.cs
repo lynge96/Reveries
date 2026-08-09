@@ -1,4 +1,4 @@
-﻿using Reveries.Core.Models;
+﻿using Reveries.Domain.Models;
 using Reveries.Integration.Isbndb.DTOs.Publishers;
 
 namespace Reveries.Integration.Isbndb.Interfaces;

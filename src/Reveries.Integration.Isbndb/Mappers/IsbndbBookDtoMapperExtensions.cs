@@ -1,7 +1,7 @@
-﻿using Reveries.Core.Enums;
-using Reveries.Core.Models;
+﻿using Reveries.Domain.Enums;
+using Reveries.Domain.Models;
 using Reveries.Integration.Isbndb.DTOs.Books;
-using Reveries.Core.Helpers;
+using Reveries.Domain.Helpers;
 
 namespace Reveries.Integration.Isbndb.Mappers;
 

@@ -1,6 +1,6 @@
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Publishers.Interfaces;
-using Reveries.Core.Models;
+using Reveries.Domain.Models;
 
 namespace Reveries.Application.Publishers.Services;
 

@@ -1,4 +1,4 @@
-namespace Reveries.Core.Enums;
+namespace Reveries.Domain.Enums;
 
 [Flags]
 public enum DataSource

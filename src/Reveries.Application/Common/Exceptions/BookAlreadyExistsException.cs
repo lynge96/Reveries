@@ -1,5 +1,5 @@
 using System.Net;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.ValueObjects;
 
 namespace Reveries.Application.Common.Exceptions;
 

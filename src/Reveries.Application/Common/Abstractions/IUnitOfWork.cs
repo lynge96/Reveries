@@ -1,4 +1,4 @@
-using Reveries.Core.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.IRepository;
 
 namespace Reveries.Application.Common.Abstractions;
 

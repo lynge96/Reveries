@@ -1,6 +1,6 @@
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.ValueObjects;
 
-namespace Reveries.Core.Interfaces.IRepository;
+namespace Reveries.Domain.Interfaces.IRepository;
 
 public interface IDeweyDecimalsRepository
 {

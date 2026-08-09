@@ -1,8 +1,8 @@
-using Reveries.Core.Enums;
-using Reveries.Core.Helpers;
-using Reveries.Core.Models;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Models;
 
-namespace Reveries.Core.Tests.Helpers;
+namespace Reveries.Domain.Tests.Helpers;
 
 public class BookMergerTests
 {

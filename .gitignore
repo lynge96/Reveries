@@ -67,3 +67,5 @@ nunit-*.xml
 
 .github
 *.github
+
+CLAUDE.md

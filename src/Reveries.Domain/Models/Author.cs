@@ -1,8 +1,8 @@
-using Reveries.Core.Helpers;
-using Reveries.Core.Identity;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Identity;
+using Reveries.Domain.ValueObjects;
 
-namespace Reveries.Core.Models;
+namespace Reveries.Domain.Models;
 
 public class Author : BaseEntity
 {

@@ -1,7 +1,7 @@
-using Reveries.Core.Identity;
-using Reveries.Core.Models;
+using Reveries.Domain.Identity;
+using Reveries.Domain.Models;
 
-namespace Reveries.Core.Tests.Models;
+namespace Reveries.Domain.Tests.Models;
 
 public class SeriesTests
 {

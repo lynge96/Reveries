@@ -3,8 +3,8 @@ using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services;
-using Reveries.Core.Helpers;
-using Reveries.Core.Models;
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Models;
 
 namespace Reveries.Console.Handlers;
 

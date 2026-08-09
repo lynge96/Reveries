@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Books.Interfaces;
-using Reveries.Core.Exceptions;
-using Reveries.Core.Models;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.Exceptions;
+using Reveries.Domain.Models;
+using Reveries.Domain.ValueObjects;
 using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;

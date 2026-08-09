@@ -1,7 +1,7 @@
-using Reveries.Core.Models;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.Models;
+using Reveries.Domain.ValueObjects;
 
-namespace Reveries.Core.Interfaces.IRepository;
+namespace Reveries.Domain.Interfaces.IRepository;
 
 public interface IBookRepository
 {
