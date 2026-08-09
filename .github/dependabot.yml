@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # GitHub Actions used in workflows and composite actions.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # Docker base images in the API and bookscanner Dockerfiles.
+  - package-ecosystem: docker
+    directories:
+      - /src/Reveries.Api
+      - /src/Reveries.Blazor.BookScanner
+    schedule:
+      interval: weekly
+
+  # NuGet packages across the solution. Minor/patch bumps are grouped into a
+  # single PR to cut noise; majors come as separate PRs for closer review.
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      nuget-minor-patch:
+        update-types: ["minor", "patch"]

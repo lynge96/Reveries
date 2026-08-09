@@ -17,9 +17,12 @@ on:
       - 'src/Reveries.Integration.GoogleBooks/**'
       - 'src/Reveries.Integration.Isbndb/**'
       - '.github/workflows/api.yml'
-      - '.github/workflows/_test.yml'
-      - '.github/workflows/_docker-build.yml'
+      - '.github/actions/build-test/**'
+      - '.github/actions/docker-build/**'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 # Queue overlapping merges instead of cancelling — don't interrupt a push.
 concurrency:
@@ -28,17 +31,32 @@ concurrency:
 
 jobs:
   test:
-    uses: ./.github/workflows/_test.yml
+    name: Build & Test
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       checks: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Build & test
+        uses: ./.github/actions/build-test
 
   publish:
+    name: Build & Push
     needs: test
-    uses: ./.github/workflows/_docker-build.yml
-    permissions:
-      contents: read
-    with:
-      dockerfile: src/Reveries.Api/Dockerfile
-      image-name: reveries-api
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Build & push image
+        uses: ./.github/actions/docker-build
+        with:
+          dockerfile: src/Reveries.Api/Dockerfile
+          image-name: reveries-api
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
