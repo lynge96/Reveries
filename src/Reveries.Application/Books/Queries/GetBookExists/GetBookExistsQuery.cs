@@ -1,5 +1,5 @@
 using Mediator;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.ValueObjects;
 
 namespace Reveries.Application.Books.Queries.GetBookExists;
 

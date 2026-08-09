@@ -2,7 +2,7 @@ using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Services;
-using Reveries.Core.Identity;
+using Reveries.Domain.Identity;
 
 namespace Reveries.Application.Books.Commands.CreateBook;
 

@@ -1,10 +1,10 @@
-using Reveries.Core.Enums;
-using Reveries.Core.Exceptions;
-using Reveries.Core.Identity;
-using Reveries.Core.Models;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Exceptions;
+using Reveries.Domain.Identity;
+using Reveries.Domain.Models;
+using Reveries.Domain.ValueObjects;
 
-namespace Reveries.Core.Tests.Models;
+namespace Reveries.Domain.Tests.Models;
 
 public class BookTests
 {

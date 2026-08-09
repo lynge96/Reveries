@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Reveries.Application.Authors.Interfaces;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Core.Models;
+using Reveries.Domain.Models;
 
 namespace Reveries.Application.Books.Queries.FindBooksByAuthor;
 

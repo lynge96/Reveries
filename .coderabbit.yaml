@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit configuration — moderate verbosity.
+language: en-US
+
+reviews:
+  # "chill" gives fewer, higher-signal comments than "assertive" — moderate noise.
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  review_status: true
+  poem: false                 # skip the generated poem — pure noise
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false             # don't review draft PRs
+  # Don't review generated / non-source paths.
+  path_filters:
+    - "!**/bin/**"
+    - "!**/obj/**"
+    - "!**/*.min.*"
+  # Steer the review with this repo's architecture rules.
+  path_instructions:
+    - path: "src/Reveries.Domain/**"
+      instructions: >-
+        Domain layer must not depend on Application, Infrastructure, or any
+        ORM/EF types. Flag framework or outer-layer references. Prefer methods
+        that preserve invariants over public setters.
+    - path: "tests/**"
+      instructions: >-
+        Test project — focus on missing edge cases and clarity. Do not nitpick
+        naming style.
+
+chat:
+  auto_reply: true

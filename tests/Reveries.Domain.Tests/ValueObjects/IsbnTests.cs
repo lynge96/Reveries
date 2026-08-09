@@ -1,7 +1,7 @@
-using Reveries.Core.Exceptions;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.Exceptions;
+using Reveries.Domain.ValueObjects;
 
-namespace Reveries.Core.Tests.ValueObjects;
+namespace Reveries.Domain.Tests.ValueObjects;
 
 public class IsbnTests
 {

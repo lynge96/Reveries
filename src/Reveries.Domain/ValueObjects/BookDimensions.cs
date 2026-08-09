@@ -1,4 +1,4 @@
-namespace Reveries.Core.ValueObjects;
+namespace Reveries.Domain.ValueObjects;
 
 public sealed record BookDimensions
 {

@@ -1,5 +1,5 @@
 using Reveries.Application.Authors.Interfaces;
-using Reveries.Core.Models;
+using Reveries.Domain.Models;
 
 namespace Reveries.Application.Authors.Services;
 

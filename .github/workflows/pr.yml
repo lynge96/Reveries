@@ -1,0 +1,30 @@
+name: PR
+
+# Runs on every pull request, regardless of target branch (and each new
+# commit pushed to it). This is the merge gate — mark its check as required
+# in branch protection.
+on:
+  pull_request:
+
+# Least privilege: read the code; checks:write lets the test reporter publish.
+permissions:
+  contents: read
+  checks: write
+
+# Cancel superseded runs when new commits are pushed to the same PR.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Build & test
+        uses: ./.github/actions/build-test

@@ -1,4 +1,4 @@
-﻿using Reveries.Core.ValueObjects;
+﻿using Reveries.Domain.ValueObjects;
 using Reveries.Integration.Isbndb.DTOs.Books;
 
 namespace Reveries.Integration.Isbndb.Interfaces;

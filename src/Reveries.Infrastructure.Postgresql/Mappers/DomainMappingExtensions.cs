@@ -1,7 +1,7 @@
-using Reveries.Core.Enums;
-using Reveries.Core.Identity;
-using Reveries.Core.Models;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Identity;
+using Reveries.Domain.Models;
+using Reveries.Domain.ValueObjects;
 using Reveries.Infrastructure.Postgresql.Entities;
 
 namespace Reveries.Infrastructure.Postgresql.Mappers;

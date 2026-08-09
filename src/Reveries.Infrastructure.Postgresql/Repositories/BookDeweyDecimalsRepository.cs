@@ -1,5 +1,5 @@
 using Dapper;
-using Reveries.Core.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Infrastructure.Postgresql.Interfaces;
 
 namespace Reveries.Infrastructure.Postgresql.Repositories;

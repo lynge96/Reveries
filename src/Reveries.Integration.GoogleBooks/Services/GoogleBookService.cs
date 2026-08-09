@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
-using Reveries.Core.Enums;
-using Reveries.Core.Models;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Models;
+using Reveries.Domain.ValueObjects;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
 using Reveries.Integration.GoogleBooks.Mappers;

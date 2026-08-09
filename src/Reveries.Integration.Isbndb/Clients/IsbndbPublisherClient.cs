@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Reveries.Core.Models;
+using Reveries.Domain.Models;
 using Reveries.Integration.Http.Base;
 using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.DTOs.Publishers;

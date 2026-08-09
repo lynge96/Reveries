@@ -1,4 +1,4 @@
-namespace Reveries.Core.Exceptions;
+namespace Reveries.Domain.Exceptions;
 
 public class InvalidIsbnException : DomainException
 {

@@ -1,6 +1,6 @@
-using Reveries.Core.Enums;
+using Reveries.Domain.Enums;
 
-namespace Reveries.Core.Helpers;
+namespace Reveries.Domain.Helpers;
 
 public static class BookBindingNormalizer
 {

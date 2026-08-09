@@ -1,0 +1,66 @@
+name: Publish API
+
+# Runs only on merge to main (a push), and only when something that affects
+# the API image changed. Build & tests run first as a gate; the image is only
+# built and pushed if they pass.
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/Reveries.Api/**'
+      - 'src/Reveries.Application/**'
+      - 'src/Reveries.Contracts/**'
+      - 'src/Reveries.Domain/**'
+      - 'src/Reveries.Infrastructure/**'
+      - 'src/Reveries.Infrastructure.Postgresql/**'
+      - 'src/Reveries.Infrastructure.Redis/**'
+      - 'src/Reveries.Integration.Http/**'
+      - 'src/Reveries.Integration.GoogleBooks/**'
+      - 'src/Reveries.Integration.Isbndb/**'
+      - '.github/workflows/api.yml'
+      - '.github/actions/build-test/**'
+      - '.github/actions/docker-build/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Queue overlapping merges instead of cancelling — don't interrupt a push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Build & test
+        uses: ./.github/actions/build-test
+
+  publish:
+    name: Build & Push
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build & push image
+        uses: ./.github/actions/docker-build
+        with:
+          dockerfile: src/Reveries.Api/Dockerfile
+          image-name: reveries-api
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}

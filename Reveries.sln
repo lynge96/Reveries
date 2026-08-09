@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Api", "src\Reverie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Contracts", "src\Reveries.Contracts\Reveries.Contracts.csproj", "{7A178805-CFE5-4103-9137-A470F4021F9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Core.Tests", "tests\Reveries.Core.Tests\Reveries.Core.Tests.csproj", "{A4C305D1-CB41-421F-A0AC-70CF16ACB290}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Domain.Tests", "tests\Reveries.Domain.Tests\Reveries.Domain.Tests.csproj", "{A4C305D1-CB41-421F-A0AC-70CF16ACB290}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Application.Tests", "tests\Reveries.Application.Tests\Reveries.Application.Tests.csproj", "{8ECE6BE9-6102-4E9B-BD02-FA06595A955A}"
 EndProject

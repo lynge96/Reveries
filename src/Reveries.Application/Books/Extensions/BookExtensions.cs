@@ -1,5 +1,5 @@
-using Reveries.Core.Enums;
-using Reveries.Core.Models;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Models;
 
 namespace Reveries.Application.Books.Extensions;
 

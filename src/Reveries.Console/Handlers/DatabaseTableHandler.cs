@@ -6,7 +6,7 @@ using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services;
-using Reveries.Core.Models;
+using Reveries.Domain.Models;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;

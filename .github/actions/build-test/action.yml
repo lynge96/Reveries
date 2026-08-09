@@ -1,0 +1,35 @@
+name: Build & Test
+description: Restore, build (Release) and test the solution, publishing a trx test report.
+
+# Composite action holding the shared build+test steps. The calling job must
+# check out the repo first. `dotnet test` builds before running, so a compile
+# break fails here too — this is the "does it compile + do the tests pass" gate.
+runs:
+  using: composite
+  steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: '10.0.x'
+        cache: true
+        cache-dependency-path: '**/*.csproj'
+
+    - name: Restore dependencies
+      shell: bash
+      run: dotnet restore
+
+    - name: Build
+      shell: bash
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run tests
+      shell: bash
+      run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+    - name: Publish test report
+      uses: dorny/test-reporter@v3
+      if: always()
+      with:
+        name: Test results
+        path: TestResults/*.trx
+        reporter: dotnet-trx

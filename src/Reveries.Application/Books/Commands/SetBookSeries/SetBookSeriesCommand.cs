@@ -1,6 +1,6 @@
 using Mediator;
-using Reveries.Core.Identity;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.Identity;
+using Reveries.Domain.ValueObjects;
 
 namespace Reveries.Application.Books.Commands.SetBookSeries;
 

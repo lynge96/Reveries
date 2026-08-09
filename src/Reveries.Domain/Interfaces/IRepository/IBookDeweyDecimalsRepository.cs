@@ -1,4 +1,4 @@
-namespace Reveries.Core.Interfaces.IRepository;
+namespace Reveries.Domain.Interfaces.IRepository;
 
 public interface IBookDeweyDecimalsRepository
 {

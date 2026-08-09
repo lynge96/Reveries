@@ -1,5 +1,5 @@
-using Reveries.Core.Identity;
-using Reveries.Core.Models;
+using Reveries.Domain.Identity;
+using Reveries.Domain.Models;
 
 namespace Reveries.Application.Books.Interfaces;
 

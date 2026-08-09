@@ -2,8 +2,8 @@ using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.BookSeries.Services;
-using Reveries.Core.Identity;
-using Reveries.Core.Models;
+using Reveries.Domain.Identity;
+using Reveries.Domain.Models;
 
 namespace Reveries.Application.Books.Commands.SetBookSeries;
 

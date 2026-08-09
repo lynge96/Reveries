@@ -1,6 +1,6 @@
-using Reveries.Core.Identity;
-using Reveries.Core.Models;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.Identity;
+using Reveries.Domain.Models;
+using Reveries.Domain.ValueObjects;
 
 namespace Reveries.Application.BookSeries.Interfaces;
 

@@ -1,7 +1,7 @@
 using System.Globalization;
-using Reveries.Core.Enums;
-using Reveries.Core.Helpers;
-using Reveries.Core.Models;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Models;
 using Reveries.Integration.GoogleBooks.DTOs;
 
 namespace Reveries.Integration.GoogleBooks.Mappers;

@@ -4,7 +4,7 @@ using Reveries.Application.Books.Extensions;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Application.Publishers.Interfaces;
-using Reveries.Core.Models;
+using Reveries.Domain.Models;
 
 namespace Reveries.Application.Books.Queries.FindBooksByPublisher;
 

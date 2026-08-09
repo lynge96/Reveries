@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Reveries.Core.Helpers;
+namespace Reveries.Domain.Helpers;
 
 public static partial class AuthorNameNormalizer
 {

@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
-using Reveries.Core.Helpers;
-using Reveries.Core.Models;
-using Reveries.Core.ValueObjects;
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Models;
+using Reveries.Domain.ValueObjects;
 using BookExtensions = Reveries.Application.Books.Extensions.BookExtensions;
 
 namespace Reveries.Application.Books.Services;

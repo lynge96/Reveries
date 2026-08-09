@@ -3,8 +3,8 @@ using Reveries.Application.Authors.Services;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Core.Identity;
-using Reveries.Core.Models;
+using Reveries.Domain.Identity;
+using Reveries.Domain.Models;
 
 namespace Reveries.Application.Books.Services;
 
