@@ -24,7 +24,7 @@ internal static class LokiSinkExtensions
             ],
             propertiesAsLabels: ["level"],
             restrictedToMinimumLevel: level,
-            batchPostingLimit: settings.BatchPostingLimit,
+            batchSizeLimit: settings.BatchPostingLimit,
             queueLimit: settings.QueueLimit,
             period: TimeSpan.FromSeconds(settings.PeriodSeconds),
             textFormatter: new RenderedCompactJsonFormatter()
