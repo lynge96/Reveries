@@ -13,10 +13,8 @@ COPY ["src/Reveries.Application/Reveries.Application.csproj", "Reveries.Applicat
 COPY ["src/Reveries.Domain/Reveries.Domain.csproj", "Reveries.Domain/"]
 COPY ["src/Reveries.Contracts/Reveries.Contracts.csproj", "Reveries.Contracts/"]
 COPY ["src/Reveries.Infrastructure/Reveries.Infrastructure.csproj", "Reveries.Infrastructure/"]
-COPY ["src/Reveries.Infrastructure.Postgresql/Reveries.Infrastructure.Postgresql.csproj", "Reveries.Infrastructure.Postgresql/"]
-COPY ["src/Reveries.Infrastructure.Redis/Reveries.Infrastructure.Redis.csproj", "Reveries.Infrastructure.Redis/"]
-COPY ["src/Reveries.Integration.GoogleBooks/Reveries.Integration.GoogleBooks.csproj", "Reveries.Integration.GoogleBooks/"]
-COPY ["src/Reveries.Integration.Isbndb/Reveries.Integration.Isbndb.csproj", "Reveries.Integration.Isbndb/"]
+COPY ["src/Reveries.Persistence/Reveries.Persistence.csproj", "Reveries.Persistence/"]
+COPY ["src/Reveries.Integration/Reveries.Integration.csproj", "Reveries.Integration/"]
 
 RUN dotnet restore "Reveries.Api/Reveries.Api.csproj"
 

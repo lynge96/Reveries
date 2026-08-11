@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Integration", "src\Reveries.Integration\Reveries.Integration.csproj", "{72FB21E6-399A-4E14-ABE1-8273FEE71844}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Persistence", "src\Reveries.Persistence\Reveries.Persistence.csproj", "{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -155,6 +157,18 @@ Global
 		{72FB21E6-399A-4E14-ABE1-8273FEE71844}.Release|x64.Build.0 = Release|Any CPU
 		{72FB21E6-399A-4E14-ABE1-8273FEE71844}.Release|x86.ActiveCfg = Release|Any CPU
 		{72FB21E6-399A-4E14-ABE1-8273FEE71844}.Release|x86.Build.0 = Release|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Debug|x64.Build.0 = Debug|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Debug|x86.Build.0 = Debug|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Release|x64.ActiveCfg = Release|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Release|x64.Build.0 = Release|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Release|x86.ActiveCfg = Release|Any CPU
+		{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
