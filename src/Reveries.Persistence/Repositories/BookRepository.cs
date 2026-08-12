@@ -261,19 +261,23 @@ public class BookRepository : IBookRepository
                     DateCreated = row.DateCreatedBook
                 },
 
-                Publisher = new PublisherEntity
-                {
-                    Id = row.PublisherId,
-                    Name = row.PublisherName,
-                    DateCreated = row.DateCreatedPublisher
-                },
+                Publisher = row.PublisherId is { } publisherId
+                    ? new PublisherEntity
+                    {
+                        Id = publisherId,
+                        Name = row.PublisherName!,
+                        DateCreated = row.DateCreatedPublisher
+                    }
+                    : null,
 
-                Series = new SeriesEntity
-                {
-                    Id = row.SeriesId,
-                    Name = row.SeriesName,
-                    DateCreated = row.DateCreatedSeries
-                },
+                Series = row.SeriesId is { } seriesId
+                    ? new SeriesEntity
+                    {
+                        Id = seriesId,
+                        Name = row.SeriesName!,
+                        DateCreated = row.DateCreatedSeries
+                    }
+                    : null,
 
                 Authors = authors,
                 Genres = genres,

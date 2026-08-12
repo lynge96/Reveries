@@ -24,15 +24,15 @@ public sealed class BooksView
     public decimal? WeightG { get; init; }
     public DateTimeOffset? DateCreatedBook { get; init; }
     
-    // Publisher
-    public Guid PublisherId { get; init; }
-    public required string PublisherName { get; init; }
-    public DateTimeOffset DateCreatedPublisher { get; init; }
+    // Publisher (null when the book has no publisher — LEFT JOIN)
+    public Guid? PublisherId { get; init; }
+    public string? PublisherName { get; init; }
+    public DateTimeOffset? DateCreatedPublisher { get; init; }
 
-    // Series
-    public Guid SeriesId { get; init; }
-    public required string SeriesName { get; init; }
-    public DateTimeOffset DateCreatedSeries { get; init; }
+    // Series (null when the book has no series — LEFT JOIN)
+    public Guid? SeriesId { get; init; }
+    public string? SeriesName { get; init; }
+    public DateTimeOffset? DateCreatedSeries { get; init; }
 
     // JSON fields
     public string Genres { get; init; } = "[]";
