@@ -81,7 +81,7 @@ public class LayerDependencyTests
     {
         // Arrange
         const string repositories = "Reveries.Persistence.Repositories";
-        Assembly[] outerLayers = [ApplicationAssembly, InfrastructureAssembly, IntegrationAssembly, ApiAssembly];
+        Assembly[] outerLayers = [ContractsAssembly, ApplicationAssembly, InfrastructureAssembly, IntegrationAssembly, ApiAssembly];
 
         // Act
         var offenders = outerLayers

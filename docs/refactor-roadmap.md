@@ -72,18 +72,28 @@ layer rules on the compiled namespaces. Four rules are in place:
 
 The one piece of work that de-risks both the domain and the query work at once.
 
-- [ ] Add a new **`Reveries.Persistence.Tests`** project (mirroring the
+- [x] Add a new **`Reveries.Persistence.Tests`** project (mirroring the
       Persistence layer) with **Testcontainers** (real Postgres in a throwaway
       container). Repository/SQL tests belong here, not in `Application.Tests`.
-- [ ] Add **repository-level tests** that exercise the hand-written Dapper SQL
-      against real Postgres — these are the safety net for Phase 2. Cover at
-      least `BookRepository` hydration (book + authors + genres + dewey + series).
+      A shared `PostgresContainerFixture` starts one container per collection,
+      applies `db_schema.sql` via a single `ApplySchemaAsync` seam, and resets
+      between tests with `TRUNCATE`.
+- [x] Add **repository-level tests** that exercise the hand-written Dapper SQL
+      against real Postgres — these are the safety net for Phase 2. Covered:
+      `BookRepository` full view hydration (book + authors + genres + dewey +
+      series), a write round-trip through a real `UnitOfWork` transaction, the
+      ISBN lookup cross-matching, and `GetAllBooksAsync` (empty + multi-row
+      without relation leakage). These already caught and fixed a real bug: a
+      book with no publisher/series was hydrated as a fabricated object with a
+      null name instead of `null`.
 - [ ] In **`Reveries.Application.Tests`** (use-case tests, infrastructure
       stubbed), write characterisation tests for the critical path: scan ISBN →
       enrich (with stubbed ISBNDB / Google Books HTTP responses) → persist → read
       back. Delete the placeholder `UnitTest1.cs`.
-- [ ] Wire the new integration tests into CI (`pr.yml`) — Docker is already
-      available in the pipeline, so Testcontainers runs there unchanged.
+- [x] Wire the new integration tests into CI (`pr.yml`) — already covered: the
+      `build-test` action runs an unfiltered `dotnet test` over the whole
+      solution, and `ubuntu-latest` provides a running Docker daemon, so
+      Testcontainers runs on every PR with no extra configuration.
 
 **Why integration and not unit?** The Dapper SQL is hand-written; it can only be
 verified against a real database. Mocking the repositories would test the C#, not
