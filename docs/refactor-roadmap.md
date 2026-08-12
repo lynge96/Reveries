@@ -50,9 +50,21 @@ test projects can mirror the production layers cleanly:
   - **`Reveries.Persistence`** — the Dapper/Npgsql database adapter (namespaces
     `Reveries.Persistence.*`; DB session and `IUnitOfWork` under `Context/`).
 
-Layer boundaries that assembly separation no longer enforces are to be recovered
-by a planned **architecture test** (NetArchTest / ArchUnitNET) asserting the layer
-rules on namespaces — a follow-up once the mirrored test projects exist.
+The outer layer is mirrored by test projects — `Reveries.Persistence.Tests`,
+`Reveries.Integration.Tests`, and `Reveries.Api.Tests` — alongside the existing
+`Reveries.Domain.Tests` and `Reveries.Application.Tests`.
+
+Layer boundaries that assembly separation no longer enforces are recovered by a
+**`Reveries.Architecture.Tests`** project using **NetArchTest**, asserting the
+layer rules on the compiled namespaces. Four rules are in place:
+
+1. Domain depends on no outer layer.
+2. Application depends only on Domain (not Contracts, Infrastructure, Persistence,
+   Integration, or Api).
+3. Contracts has no dependency on Domain (no domain type crosses the API boundary).
+4. The concrete `Reveries.Persistence.Repositories` types do not leak out of
+   Persistence — outer layers reach them only through the `IRepository`
+   interfaces and the `AddPostgresql` DI extension.
 
 ---
 
