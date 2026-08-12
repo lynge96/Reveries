@@ -35,18 +35,53 @@ either of the other two, and query work needs a real database to verify against.
 
 ---
 
+## Completed — solution restructuring
+
+Before Phase 0, the outer layer was consolidated from **6 projects to 3** so that
+test projects can mirror the production layers cleanly:
+
+- `Reveries.Integration.Http` + `.GoogleBooks` + `.Isbndb` → **`Reveries.Integration`**
+  (folders `Http/`, `GoogleBooks/`, `Isbndb/`; namespaces unchanged).
+- `Reveries.Infrastructure` + `.Postgresql` + `.Redis` → first merged into one
+  `Reveries.Infrastructure`, then persistence was split back out (it has the
+  strongest case: heaviest isolated dependencies, largest, and the main
+  integration-test target). Final split:
+  - **`Reveries.Infrastructure`** — composition + Serilog logging + Redis caching.
+  - **`Reveries.Persistence`** — the Dapper/Npgsql database adapter (namespaces
+    `Reveries.Persistence.*`; DB session and `IUnitOfWork` under `Context/`).
+
+The outer layer is mirrored by test projects — `Reveries.Persistence.Tests`,
+`Reveries.Integration.Tests`, and `Reveries.Api.Tests` — alongside the existing
+`Reveries.Domain.Tests` and `Reveries.Application.Tests`.
+
+Layer boundaries that assembly separation no longer enforces are recovered by a
+**`Reveries.Architecture.Tests`** project using **NetArchTest**, asserting the
+layer rules on the compiled namespaces. Four rules are in place:
+
+1. Domain depends on no outer layer.
+2. Application depends only on Domain (not Contracts, Infrastructure, Persistence,
+   Integration, or Api).
+3. Contracts has no dependency on Domain (no domain type crosses the API boundary).
+4. The concrete `Reveries.Persistence.Repositories` types do not leak out of
+   Persistence — outer layers reach them only through the `IRepository`
+   interfaces and the `AddPostgresql` DI extension.
+
+---
+
 ## Phase 0 — Safety net (the keystone)
 
 The one piece of work that de-risks both the domain and the query work at once.
 
-- [ ] Add **Testcontainers** (real Postgres in a throwaway container) to
-      `Reveries.Application.Tests`; delete the placeholder `UnitTest1.cs`.
-- [ ] Write characterisation **integration tests** for the critical path:
-      scan ISBN → enrich (with stubbed ISBNDB / Google Books HTTP responses) →
-      persist → read back. Assert the round-tripped `Book` matches what went in.
+- [ ] Add a new **`Reveries.Persistence.Tests`** project (mirroring the
+      Persistence layer) with **Testcontainers** (real Postgres in a throwaway
+      container). Repository/SQL tests belong here, not in `Application.Tests`.
 - [ ] Add **repository-level tests** that exercise the hand-written Dapper SQL
       against real Postgres — these are the safety net for Phase 2. Cover at
       least `BookRepository` hydration (book + authors + genres + dewey + series).
+- [ ] In **`Reveries.Application.Tests`** (use-case tests, infrastructure
+      stubbed), write characterisation tests for the critical path: scan ISBN →
+      enrich (with stubbed ISBNDB / Google Books HTTP responses) → persist → read
+      back. Delete the placeholder `UnitTest1.cs`.
 - [ ] Wire the new integration tests into CI (`pr.yml`) — Docker is already
       available in the pipeline, so Testcontainers runs there unchanged.
 

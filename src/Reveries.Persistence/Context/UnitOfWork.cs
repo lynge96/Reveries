@@ -1,0 +1,49 @@
+using Reveries.Application.Common.Abstractions;
+using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Persistence.Interfaces;
+
+namespace Reveries.Persistence.Context;
+
+public class UnitOfWork : IUnitOfWork
+{
+    private readonly IDbContext _dbContext;
+    public IBookRepository Books { get; }
+    public IAuthorRepository Authors { get; }
+    public ISeriesRepository Series { get; }
+    public IBookGenresRepository BookGenres { get; }
+    public IBookDeweyDecimalsRepository BookDeweyDecimals { get; }
+    public IDeweyDecimalsRepository DeweyDecimals { get; }
+    public IPublisherRepository Publishers { get; }
+    public IBookAuthorsRepository BookAuthors { get; }
+    public IGenreRepository Genres { get; }
+    
+    public UnitOfWork(
+        IDbContext dbContext,
+        IBookRepository bookRepository,
+        IAuthorRepository authorRepository,
+        ISeriesRepository seriesRepository,
+        IPublisherRepository publisherRepository,
+        IBookAuthorsRepository bookAuthorsRepository,
+        IBookGenresRepository bookGenresRepository,
+        IDeweyDecimalsRepository deweyDecimalsRepository,
+        IGenreRepository genreRepository,
+        IBookDeweyDecimalsRepository bookDeweyDecimalsRepository)
+    {
+        _dbContext = dbContext;
+        Books = bookRepository;
+        Authors = authorRepository;
+        Series = seriesRepository;
+        Publishers = publisherRepository;
+        BookAuthors = bookAuthorsRepository;
+        BookGenres = bookGenresRepository;
+        DeweyDecimals = deweyDecimalsRepository;
+        Genres = genreRepository;
+        BookDeweyDecimals = bookDeweyDecimalsRepository;
+    }
+
+    public async Task<ITransaction> BeginTransactionAsync(CancellationToken ct)
+    {
+        await _dbContext.BeginTransactionAsync(ct);
+        return new DbTransaction(_dbContext);
+    }
+}

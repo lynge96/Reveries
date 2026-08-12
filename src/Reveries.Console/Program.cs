@@ -7,7 +7,7 @@ using Reveries.Application;
 using Reveries.Console.Handlers;
 using Reveries.Console.Interfaces;
 using Reveries.Console.Services;
-using Reveries.Infrastructure.Postgresql.Configuration;
+using Reveries.Persistence.Configuration;
 using Reveries.Infrastructure.Redis.Configuration;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.Isbndb.Configuration;

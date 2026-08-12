@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Reveries.Infrastructure.Postgresql.Configuration;
+using Reveries.Persistence.Configuration;
 using Reveries.Infrastructure.Redis.Configuration;
 
 namespace Reveries.Api.Configuration.HealthCheck;

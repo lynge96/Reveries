@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Reveries.Api\Reveries.Api.csproj" />
     <ProjectReference Include="..\Reveries.Application\Reveries.Application.csproj" />
+    <ProjectReference Include="..\Reveries.Persistence\Reveries.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>

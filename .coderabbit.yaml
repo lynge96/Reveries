@@ -54,7 +54,7 @@ reviews:
         Request/response DTOs for the API boundary only. Domain types must never
         cross the API boundary directly — flag any Domain type exposed here.
         Mapping to/from these DTOs belongs in Reveries.Api/Mappers.
-    - path: "src/Reveries.Infrastructure.Postgresql/Repositories/**"
+    - path: "src/Reveries.Persistence/Repositories/**"
       instructions: >-
         Repositories use Dapper with hand-written SQL — there is no ORM migration
         framework. If a change alters the schema (new/changed columns or tables),
