@@ -14,15 +14,16 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:18")
         .Build();
 
-    private NpgsqlDataSource _dataSource = null!;
+    private NpgsqlDataSource? _dataSource;
 
-    public NpgsqlDataSource DataSource => _dataSource;
+    public NpgsqlDataSource DataSource =>
+        _dataSource ?? throw new InvalidOperationException("Fixture has not been initialized.");
 
     public string ConnectionString => _container.GetConnectionString();
 
     /// <summary>A fresh context over the shared container.</summary>
     public PostgresDbContext NewDbContext() =>
-        new(_dataSource, NullLogger<PostgresDbContext>.Instance);
+        new(DataSource, NullLogger<PostgresDbContext>.Instance);
 
     public async Task InitializeAsync()
     {
@@ -46,7 +47,7 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
             Environment.NewLine,
             lines.Where(line => !line.StartsWith('\\')));
 
-        await using var command = _dataSource.CreateCommand(sql);
+        await using var command = DataSource.CreateCommand(sql);
         await command.ExecuteNonQueryAsync();
     }
 
@@ -71,13 +72,22 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
                            RESTART IDENTITY CASCADE
                            """;
 
-        await using var command = _dataSource.CreateCommand(sql);
+        await using var command = DataSource.CreateCommand(sql);
         await command.ExecuteNonQueryAsync();
     }
 
     public async Task DisposeAsync()
     {
-        await _dataSource.DisposeAsync();
-        await _container.DisposeAsync();
+        try
+        {
+            // Only dispose the data source if startup got far enough to create it,
+            // so a failed InitializeAsync surfaces its real exception, not an NRE.
+            if (_dataSource is not null)
+                await _dataSource.DisposeAsync();
+        }
+        finally
+        {
+            await _container.DisposeAsync();
+        }
     }
 }

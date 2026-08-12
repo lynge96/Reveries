@@ -5,7 +5,7 @@ using Reveries.Persistence.Tests.Fixtures;
 namespace Reveries.Persistence.Tests.Repositories;
 
 /// <summary>
-/// Exercises the hand-written Dapper SQL and the books_view hydration against a
+/// Exercises the handwritten Dapper SQL and the books_view hydration against a
 /// real Postgres. Each test runs on an empty database reset by the fixture.
 /// </summary>
 [Collection(DatabaseCollection.Name)]
@@ -34,7 +34,7 @@ public class BookRepositoryTests : IAsyncLifetime
 
         // Assert
         Assert.NotNull(book);
-        Assert.Equal(bookId, book!.Id.Value);
+        Assert.Equal(bookId, book.Id.Value);
         Assert.Equal("Nineteen Eighty-Four", book.Title.Value);
         Assert.Equal("9780451524935", book.Isbn13!.Value);
         Assert.Equal("0451524934", book.Isbn10!.Value);
