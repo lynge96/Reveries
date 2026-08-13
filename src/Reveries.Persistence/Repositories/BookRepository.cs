@@ -32,7 +32,7 @@ public class BookRepository : IBookRepository
                            VALUES (
                                @Id, @Isbn13, @Isbn10, @Title, @PageCount, @IsRead, @PublisherId,
                                @Language, @PublicationDate, @Synopsis,
-                               @CoverImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnailUrl, @SeriesId, @SeriesNumber,
+                               @ImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnail, @SeriesId, @SeriesNumber,
                                @HeightCm, @WidthCm, @ThicknessCm, @WeightG
                            )
                            """;
@@ -242,8 +242,8 @@ public class BookRepository : IBookRepository
                     Language = row.Language,
                     Edition = row.Edition,
                     Binding = row.Binding,
-                    CoverImageUrl = row.CoverImageUrl,
-                    ImageThumbnailUrl = row.ImageThumbnailUrl,
+                    ImageUrl = row.CoverImageUrl,
+                    ImageThumbnail = row.ImageThumbnailUrl,
                     Msrp = row.Msrp,
                     IsRead = row.IsRead,
                     SeriesNumber = row.SeriesNumber,

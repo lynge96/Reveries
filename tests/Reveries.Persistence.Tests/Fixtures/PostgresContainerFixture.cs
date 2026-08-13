@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
+using Reveries.Persistence.Configuration;
 using Reveries.Persistence.Context;
 using Testcontainers.PostgreSql;
 
@@ -27,6 +28,7 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        DapperConfiguration.Configure();
         await _container.StartAsync();
         _dataSource = NpgsqlDataSource.Create(_container.GetConnectionString());
         await ApplySchemaAsync();

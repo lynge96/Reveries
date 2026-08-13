@@ -84,6 +84,24 @@ public class GetBookByIsbnTests : IAsyncLifetime
         Assert.Null(book);
     }
 
+    [Fact]
+    public async Task Maps_snake_case_columns_to_the_domain_book()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        await SeedBookWithDetailsAsync(id);
+
+        // Act
+        var book = await LookupAsync(Isbn.Create(Isbn13), null);
+
+        // Assert — these come from snake_case columns via the underscore convention
+        Assert.NotNull(book);
+        Assert.Equal(328, book!.Pages);
+        Assert.True(book.IsRead);
+        Assert.Equal("http://img/cover.jpg", book.CoverImageUrl);
+        Assert.Equal("http://img/thumb.jpg", book.ImageThumbnailUrl);
+    }
+
     private async Task<Book?> LookupAsync(Isbn? isbn13, Isbn? isbn10)
     {
         await using var dbContext = _fixture.NewDbContext();
@@ -96,5 +114,26 @@ public class GetBookByIsbnTests : IAsyncLifetime
         await connection.ExecuteAsync(
             "INSERT INTO library.books (id, title, isbn13, isbn10) VALUES (@Id, @Title, @Isbn13, @Isbn10)",
             new { Id = id, Title = title, Isbn13 = isbn13, Isbn10 = isbn10 });
+    }
+
+    private async Task SeedBookWithDetailsAsync(Guid id)
+    {
+        await using var connection = await _fixture.DataSource.OpenConnectionAsync();
+        await connection.ExecuteAsync(
+            """
+            INSERT INTO library.books (id, title, isbn13, isbn10, page_count, is_read, image_url, image_thumbnail)
+            VALUES (@Id, @Title, @Isbn13, @Isbn10, @PageCount, @IsRead, @ImageUrl, @ImageThumbnail)
+            """,
+            new
+            {
+                Id = id,
+                Title = "Nineteen Eighty-Four",
+                Isbn13,
+                Isbn10,
+                PageCount = 328,
+                IsRead = true,
+                ImageUrl = "http://img/cover.jpg",
+                ImageThumbnail = "http://img/thumb.jpg"
+            });
     }
 }
