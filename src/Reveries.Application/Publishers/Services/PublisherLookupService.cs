@@ -1,25 +1,25 @@
-using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Publishers.Interfaces;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
 
 namespace Reveries.Application.Publishers.Services;
 
 public class PublisherLookupService : IPublisherLookupService
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublisherRepository _publishers;
     private readonly IPublisherSearch _publisherSearch;
 
     public PublisherLookupService(
-        IUnitOfWork unitOfWork, 
+        IPublisherRepository publishers,
         IPublisherSearch publisherSearch)
     {
-        _unitOfWork = unitOfWork;
+        _publishers = publishers;
         _publisherSearch = publisherSearch;
     }
-    
+
     public async Task<List<Publisher>> FindPublishersByNameAsync(Publisher publisher, CancellationToken ct)
     {
-        var dbTask = _unitOfWork.Publishers.SearchByNameAsync(publisher, ct);
+        var dbTask = _publishers.SearchByNameAsync(publisher, ct);
         var apiTask = _publisherSearch.GetPublishersByNameAsync(publisher, ct);
         
         await Task.WhenAll(dbTask, apiTask!);

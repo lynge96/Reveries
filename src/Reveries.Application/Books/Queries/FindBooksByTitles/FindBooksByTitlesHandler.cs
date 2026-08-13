@@ -2,8 +2,8 @@ using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
-using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
 using Reveries.Domain.ValueObjects;
 
@@ -12,18 +12,18 @@ namespace Reveries.Application.Books.Queries.FindBooksByTitles;
 public sealed class FindBooksByTitlesHandler : IQueryHandler<FindBooksByTitlesQuery, List<Book>>
 {
     private readonly IBookLookupService _lookupService;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IBookRepository _books;
     private readonly IBookCacheService _cacheService;
     private readonly ILogger<FindBooksByTitlesHandler> _logger;
-    
+
     public FindBooksByTitlesHandler(
         IBookLookupService lookupService,
-        IUnitOfWork unitOfWork,
+        IBookRepository books,
         IBookCacheService cacheService,
         ILogger<FindBooksByTitlesHandler> logger)
     {
         _lookupService = lookupService;
-        _unitOfWork = unitOfWork;
+        _books = books;
         _cacheService = cacheService;
         _logger = logger;
     }
@@ -86,7 +86,7 @@ public sealed class FindBooksByTitlesHandler : IQueryHandler<FindBooksByTitlesQu
         if (titles.Count == 0)
             return BookLookupResult<Title>.Empty;
 
-        var books = await _unitOfWork.Books
+        var books = await _books
             .GetDetailedBooksByTitleAsync(titles, ct);
 
         var foundKeys = books

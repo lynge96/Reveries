@@ -48,7 +48,7 @@ test projects can mirror the production layers cleanly:
   integration-test target). Final split:
   - **`Reveries.Infrastructure`** — composition + Serilog logging + Redis caching.
   - **`Reveries.Persistence`** — the Dapper/Npgsql database adapter (namespaces
-    `Reveries.Persistence.*`; DB session and `IUnitOfWork` under `Context/`).
+    `Reveries.Persistence.*`; DB session and `ITransactionManager` under `Context/`).
 
 The outer layer is mirrored by test projects — `Reveries.Persistence.Tests`,
 `Reveries.Integration.Tests`, and `Reveries.Api.Tests` — alongside the existing
@@ -81,9 +81,10 @@ The one piece of work that de-risks both the domain and the query work at once.
 - [x] Add **repository-level tests** that exercise the hand-written Dapper SQL
       against real Postgres — these are the safety net for Phase 2. Covered:
       `BookRepository` full view hydration (book + authors + genres + dewey +
-      series), a write round-trip through a real `UnitOfWork` transaction, the
-      ISBN lookup cross-matching, and `GetAllBooksAsync` (empty + multi-row
-      without relation leakage). These already caught and fixed a real bug: a
+      series), a write round-trip through a real transaction, the ISBN lookup
+      cross-matching, `GetAllBooksAsync` (empty + multi-row without relation
+      leakage), and the `PostgresDbContext` transaction lifecycle (re-entrancy
+      guard and post-commit reuse). These already caught and fixed a real bug: a
       book with no publisher/series was hydrated as a fabricated object with a
       null name instead of `null`.
 - [ ] In **`Reveries.Application.Tests`** (use-case tests, infrastructure
@@ -151,9 +152,13 @@ Now the domain is stable, optimise the outer edge with the Phase 0 tests as a ne
       `BookDeweyDecimalsRepository`). Confirm whether loading one `Book` fans out
       into many round-trips (N+1) and collapse them into set-based joins where
       it helps.
-- [ ] Verify multi-table writes run inside a transaction via
-      `IUnitOfWork.BeginTransactionAsync(ct)` so a book plus its authors/genres
-      commit or roll back together.
+- [x] Verify multi-table writes run inside a transaction so a book plus its
+      authors/genres commit or roll back together. The `IUnitOfWork` aggregate was
+      replaced by a focused `ITransactionManager` (transactional boundary only);
+      repositories are injected directly into the services that need them. A
+      `CreateCommand` seam on `IDbContext` attaches the active transaction to
+      every Dapper command, and `BeginTransactionAsync` guards against re-entrancy.
+      Proven by the write round-trip and `PostgresDbContext` lifecycle tests.
 - [ ] Review indexes against the real query patterns (ISBN lookups, title
       search, author joins). Add missing indexes as migrations (Phase 1 tooling).
 - [ ] Re-check the Redis cache-aside paths (`IBookCacheService`) for correctness

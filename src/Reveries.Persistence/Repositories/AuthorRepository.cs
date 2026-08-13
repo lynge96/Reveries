@@ -76,26 +76,18 @@ public class AuthorRepository : IAuthorRepository
 
         var connection = await _dbContext.GetConnectionAsync(ct);
         var authorEntity = author.ToEntity();
-        
-        var command = new CommandDefinition(
-            commandText: authorSql,
-            parameters: authorEntity,
-            cancellationToken: ct
-        );
-        
+
+        var command = _dbContext.CreateCommand(authorSql, authorEntity, ct);
+
         // Insert the author first
         var authorId = await connection.QuerySingleAsync<Guid>(command);
         authorEntity.AuthorNameVariants?.ForEach(v => v.AuthorId = authorId);
-        
+
         // If there are name variants, insert them
         if (authorEntity.AuthorNameVariants is { Count: > 0 })
         {
-            var variantCommand = new CommandDefinition(
-                commandText: variantSql,
-                parameters: authorEntity.AuthorNameVariants,
-                cancellationToken: ct
-            );
-            
+            var variantCommand = _dbContext.CreateCommand(variantSql, authorEntity.AuthorNameVariants, ct);
+
             await connection.ExecuteAsync(variantCommand);
         }
     }
@@ -123,12 +115,9 @@ public class AuthorRepository : IAuthorRepository
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
-        
-        var command = new CommandDefinition(
-            commandText: sql, 
-            parameters: new { Names = names.ToArray() }, 
-            cancellationToken: ct);
-        
+
+        var command = _dbContext.CreateCommand(sql, new { Names = names.ToArray() }, ct);
+
         var authorEntities = await connection.QueryAsync<AuthorEntity>(command);
 
         return authorEntities.Select(a => a.ToDomain()).ToList();
@@ -150,7 +139,9 @@ public class AuthorRepository : IAuthorRepository
 
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var authorDtos = await connection.QueryAsync<AuthorEntity>(sql, new { Pattern = $"%{author.NormalizedName}%" });
+        var command = _dbContext.CreateCommand(sql, new { Pattern = $"%{author.NormalizedName}%" }, ct);
+
+        var authorDtos = await connection.QueryAsync<AuthorEntity>(command);
 
         return authorDtos.Select(a => a.ToDomain()).ToList();
     }

@@ -37,12 +37,8 @@ public class DeweyDecimalsRepository : IDeweyDecimalsRepository
             var connection = await _dbContext.GetConnectionAsync(ct);
             var deweyDecimalEntity = deweyDecimal.ToEntity();
 
-            var command = new CommandDefinition(
-                commandText: sql,
-                parameters: deweyDecimalEntity,
-                cancellationToken: ct
-            );
-            
+            var command = _dbContext.CreateCommand(sql, deweyDecimalEntity, ct);
+
             var deweyDecimalDbId = await connection.QuerySingleAsync<int>(command);
             
             deweyDecimalIds.Add(deweyDecimalDbId);

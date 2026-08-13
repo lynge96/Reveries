@@ -1,33 +1,33 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Authors.Interfaces;
-using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
 
 namespace Reveries.Application.Books.Queries.FindBooksByAuthor;
 
 public sealed class FindBooksByAuthorHandler : IQueryHandler<FindBooksByAuthorQuery, List<Book>>
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IBookRepository _books;
     private readonly IAuthorSearch _authorSearch;
     private readonly ILogger<FindBooksByAuthorHandler> _logger;
-    
+
     public FindBooksByAuthorHandler(
-        IUnitOfWork unitOfWork,
+        IBookRepository books,
         IAuthorSearch authorSearch,
         ILogger<FindBooksByAuthorHandler> logger)
     {
-        _unitOfWork = unitOfWork;
+        _books = books;
         _authorSearch = authorSearch;
         _logger = logger;
     }
-    
+
     public async ValueTask<List<Book>> Handle(FindBooksByAuthorQuery query, CancellationToken ct)
     {
         var author = query.Author;
-        
-        var databaseBooks = await _unitOfWork.Books.GetBooksByAuthorAsync(author, ct);
+
+        var databaseBooks = await _books.GetBooksByAuthorAsync(author, ct);
         if (databaseBooks.Count > 0)
             return databaseBooks;
         

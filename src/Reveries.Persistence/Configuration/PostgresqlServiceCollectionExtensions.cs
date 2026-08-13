@@ -58,8 +58,7 @@ public static class PostgresqlServiceCollectionExtensions
         
         // DbContext
         services.AddScoped<IDbContext, PostgresDbContext>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<ITransaction, DbTransaction>();
+        services.AddScoped<ITransactionManager, TransactionManager>();
 
         DefaultTypeMap.MatchNamesWithUnderscores = true;
         

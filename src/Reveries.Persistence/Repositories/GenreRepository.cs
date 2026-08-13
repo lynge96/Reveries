@@ -37,12 +37,8 @@ public class GenreRepository : IGenreRepository
             var connection = await _dbContext.GetConnectionAsync(ct);
             var genreEntity = genre.ToEntity();
 
-            var command = new CommandDefinition(
-                commandText: sql,
-                parameters: genreEntity,
-                cancellationToken: ct
-            );
-        
+            var command = _dbContext.CreateCommand(sql, genreEntity, ct);
+
             var genreDbId = await connection.QuerySingleAsync<int>(command);
             
             genreIds.Add(genreDbId);

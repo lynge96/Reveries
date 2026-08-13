@@ -3,8 +3,8 @@ using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Extensions;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
-using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
 using Reveries.Domain.ValueObjects;
 
@@ -13,18 +13,18 @@ namespace Reveries.Application.Books.Queries.FindBooksByIsbns;
 public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuery, List<Book>>
 {
     private readonly IBookLookupService _lookupService;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IBookRepository _books;
     private readonly IBookCacheService _cacheService;
     private readonly ILogger<FindBooksByIsbnsHandler> _logger;
-    
+
     public FindBooksByIsbnsHandler(
         IBookLookupService lookupService,
-        IUnitOfWork unitOfWork,
+        IBookRepository books,
         IBookCacheService cacheService,
         ILogger<FindBooksByIsbnsHandler> logger)
     {
         _cacheService = cacheService;
-        _unitOfWork = unitOfWork;
+        _books = books;
         _lookupService = lookupService;
         _logger = logger;
     }
@@ -87,7 +87,7 @@ public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuer
         if (isbns.Count == 0)
             return BookLookupResult<Isbn>.Empty;
 
-        var books = await _unitOfWork.Books
+        var books = await _books
             .GetDetailedBooksByIsbnsAsync(isbns, ct);
 
         var foundKeys = books

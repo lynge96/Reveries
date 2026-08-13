@@ -26,17 +26,13 @@ public class BookAuthorsRepository : IBookAuthorsRepository
 
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var parameters = authorIds.Select(authorId => new 
-        { 
-            BookId = bookId, 
-            AuthorId = authorId 
+        var parameters = authorIds.Select(authorId => new
+        {
+            BookId = bookId,
+            AuthorId = authorId
         });
-    
-        var command = new CommandDefinition(
-            commandText: sql,
-            parameters: parameters,
-            cancellationToken: ct
-        );
+
+        var command = _dbContext.CreateCommand(sql, parameters, ct);
 
         await connection.ExecuteAsync(command);
     }
