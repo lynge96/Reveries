@@ -3,6 +3,7 @@ using Dapper;
 using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
 using Reveries.Domain.ValueObjects;
+using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;

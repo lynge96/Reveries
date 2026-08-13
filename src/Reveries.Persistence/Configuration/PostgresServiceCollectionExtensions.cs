@@ -13,9 +13,9 @@ using Reveries.Persistence.Repositories;
 
 namespace Reveries.Persistence.Configuration;
 
-public static class PostgresqlServiceCollectionExtensions
+public static class PostgresServiceCollectionExtensions
 {
-    public static IServiceCollection AddPostgresql(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddPostgres(this IServiceCollection services, IConfiguration config)
     {
         services.AddOptions<PostgresSettings>()
             .Bind(config.GetSection("Postgres"))
@@ -65,7 +65,7 @@ public static class PostgresqlServiceCollectionExtensions
         return services;
     }
 
-    public static IHealthChecksBuilder AddPostgresqlHealthCheck(this IHealthChecksBuilder builder)
+    public static IHealthChecksBuilder AddPostgresHealthCheck(this IHealthChecksBuilder builder)
     {
         return builder.AddCheck<PostgresHealthCheck>("postgres");
     }

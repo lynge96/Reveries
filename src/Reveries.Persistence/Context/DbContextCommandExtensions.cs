@@ -1,6 +1,7 @@
 using Dapper;
+using Reveries.Persistence.Interfaces;
 
-namespace Reveries.Persistence.Interfaces;
+namespace Reveries.Persistence.Context;
 
 public static class DbContextCommandExtensions
 {

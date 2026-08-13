@@ -24,7 +24,7 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddApplication();
         services.AddRedisCache(configuration);
-        services.AddPostgresql(configuration);
+        services.AddPostgres(configuration);
         services.AddIsbndb(configuration);
         services.AddGoogleBooks(configuration);
         

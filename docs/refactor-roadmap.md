@@ -64,7 +64,7 @@ layer rules on the compiled namespaces. Four rules are in place:
 3. Contracts has no dependency on Domain (no domain type crosses the API boundary).
 4. The concrete `Reveries.Persistence.Repositories` types do not leak out of
    Persistence — outer layers reach them only through the `IRepository`
-   interfaces and the `AddPostgresql` DI extension.
+   interfaces and the `AddPostgres` DI extension.
 
 ---
 
