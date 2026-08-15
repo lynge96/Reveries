@@ -1,4 +1,4 @@
-namespace Reveries.Domain.Models;
+namespace Reveries.Domain;
 
 public abstract class BaseEntity
 {

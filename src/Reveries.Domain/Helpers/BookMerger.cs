@@ -1,8 +1,5 @@
-using Reveries.Domain.Enums;
-using Reveries.Domain.Models;
-using Reveries.Domain.ValueObjects;
 
-namespace Reveries.Domain.Helpers;
+namespace Reveries.Domain;
 
 public static class BookMerger
 {

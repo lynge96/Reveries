@@ -1,6 +1,5 @@
 using Reveries.Application.Books.Commands.CreateBook;
-using Reveries.Domain.Enums;
-using Reveries.Domain.Models;
+using Reveries.Domain;
 
 namespace Reveries.Application.Books.Mappers;
 

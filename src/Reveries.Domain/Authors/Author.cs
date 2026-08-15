@@ -1,8 +1,5 @@
-using Reveries.Domain.Helpers;
-using Reveries.Domain.Identity;
-using Reveries.Domain.ValueObjects;
 
-namespace Reveries.Domain.Models;
+namespace Reveries.Domain;
 
 public class Author : BaseEntity
 {

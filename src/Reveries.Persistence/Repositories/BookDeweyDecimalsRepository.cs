@@ -1,5 +1,5 @@
 using Dapper;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 

@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Reveries.Domain.Helpers;
+namespace Reveries.Domain;
 
 public static partial class PublisherNameNormalizer
 {

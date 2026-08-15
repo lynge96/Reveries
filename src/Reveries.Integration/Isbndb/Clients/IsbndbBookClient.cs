@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain;
 using Reveries.Integration.Http.Base;
 using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.DTOs.Books;

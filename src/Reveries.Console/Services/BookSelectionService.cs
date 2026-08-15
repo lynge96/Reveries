@@ -1,7 +1,6 @@
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Utilities;
-using Reveries.Domain.Enums;
-using Reveries.Domain.Models;
+using Reveries.Domain;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;

@@ -1,6 +1,5 @@
 using Reveries.Application.Books.Models;
-using Reveries.Domain.Models;
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain;
 
 namespace Reveries.Application.Books.Interfaces;
 

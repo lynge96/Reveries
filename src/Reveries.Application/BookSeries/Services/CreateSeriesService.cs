@@ -1,7 +1,6 @@
 using Reveries.Application.BookSeries.Interfaces;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain.Interfaces.IRepository;
-using Reveries.Domain.Models;
+using Reveries.Domain;
 
 namespace Reveries.Application.BookSeries.Services;
 

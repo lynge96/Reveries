@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using Reveries.Application.Common.Abstractions;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Repositories;

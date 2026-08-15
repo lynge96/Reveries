@@ -1,5 +1,4 @@
-using Reveries.Domain.Models;
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain;
 using Reveries.Persistence.Entities;
 
 namespace Reveries.Persistence.Mappers;

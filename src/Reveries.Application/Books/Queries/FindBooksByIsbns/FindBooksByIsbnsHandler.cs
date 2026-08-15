@@ -4,9 +4,7 @@ using Reveries.Application.Books.Extensions;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain.Interfaces.IRepository;
-using Reveries.Domain.Models;
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain;
 
 namespace Reveries.Application.Books.Queries.FindBooksByIsbns;
 

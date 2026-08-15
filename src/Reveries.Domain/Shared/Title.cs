@@ -1,4 +1,4 @@
-namespace Reveries.Domain.ValueObjects;
+namespace Reveries.Domain;
 
 public sealed record Title
 {

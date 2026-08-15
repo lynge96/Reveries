@@ -1,5 +1,4 @@
-using Reveries.Domain.Enums;
-using Reveries.Domain.Helpers;
+using Reveries.Domain;
 
 namespace Reveries.Domain.Tests.Helpers;
 

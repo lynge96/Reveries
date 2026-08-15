@@ -2,7 +2,7 @@ using Reveries.Application.Books.Services;
 using Reveries.Application.BookSeries.Services;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Console.Common.Extensions;
-using Reveries.Domain.Models;
+using Reveries.Domain;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;

@@ -1,4 +1,4 @@
-namespace Reveries.Domain.Enums;
+namespace Reveries.Domain;
 
 public enum BindingType
 {

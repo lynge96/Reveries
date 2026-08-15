@@ -1,4 +1,4 @@
-namespace Reveries.Domain.Identity;
+namespace Reveries.Domain;
 
 public readonly record struct PublisherId(Guid Value)
 {

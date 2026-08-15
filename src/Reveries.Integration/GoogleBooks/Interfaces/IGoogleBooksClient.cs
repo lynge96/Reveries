@@ -1,4 +1,4 @@
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain;
 using Reveries.Integration.GoogleBooks.DTOs;
 
 namespace Reveries.Integration.GoogleBooks.Interfaces;

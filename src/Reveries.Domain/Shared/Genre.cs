@@ -1,6 +1,5 @@
-using Reveries.Domain.Helpers;
 
-namespace Reveries.Domain.ValueObjects;
+namespace Reveries.Domain;
 
 public sealed record Genre
 {

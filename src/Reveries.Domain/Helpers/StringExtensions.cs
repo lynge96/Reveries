@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Reveries.Domain.Helpers;
+namespace Reveries.Domain;
 
 public static class StringExtensions
 {

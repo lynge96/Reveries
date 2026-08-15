@@ -2,7 +2,7 @@ using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain.Models;
+using Reveries.Domain;
 
 namespace Reveries.Application.Books.Queries.FindBookByTitle;
 

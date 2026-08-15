@@ -1,5 +1,5 @@
 using Dapper;
-using Reveries.Domain.Models;
+using Reveries.Domain;
 using Reveries.Persistence.Repositories;
 using Reveries.Persistence.Tests.Fixtures;
 

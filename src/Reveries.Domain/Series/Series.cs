@@ -1,7 +1,5 @@
-using Reveries.Domain.Helpers;
-using Reveries.Domain.Identity;
 
-namespace Reveries.Domain.Models;
+namespace Reveries.Domain;
 
 public class Series : BaseEntity
 {

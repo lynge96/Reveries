@@ -1,4 +1,4 @@
-namespace Reveries.Domain.Exceptions;
+namespace Reveries.Domain;
 
 public abstract class DomainException : Exception
 {

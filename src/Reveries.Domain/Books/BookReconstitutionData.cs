@@ -1,7 +1,5 @@
-using Reveries.Domain.Enums;
-using Reveries.Domain.ValueObjects;
 
-namespace Reveries.Domain.Models;
+namespace Reveries.Domain;
 
 public sealed record BookReconstitutionData(
     Guid Id,

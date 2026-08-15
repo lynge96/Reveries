@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Reveries.Domain.ValueObjects;
+namespace Reveries.Domain;
 
 public sealed record AuthorNameVariant
 {
