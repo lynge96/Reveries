@@ -152,6 +152,14 @@ Now the domain is stable, optimise the outer edge with the Phase 0 tests as a ne
       `BookDeweyDecimalsRepository`). Confirm whether loading one `Book` fans out
       into many round-trips (N+1) and collapse them into set-based joins where
       it helps.
+- [x] **Collapse the write-path N+1.** The `GetOrCreate` repositories (`Author`,
+      `Genre`, `DeweyDecimal`) issued one round-trip per element, and the
+      join-table inserts ran one Dapper execution per row. All now use a single
+      `unnest`-based bulk upsert/insert per call: saving a book with N authors /
+      genres / dewey codes is a constant number of statements instead of scaling
+      with N. Duplicates within a batch are handled with `SELECT DISTINCT` (which
+      also avoids Postgres's "ON CONFLICT DO UPDATE cannot affect row a second
+      time"). Pinned by `GetOrCreateBatchTests`.
 - [x] Verify multi-table writes run inside a transaction so a book plus its
       authors/genres commit or roll back together. The `IUnitOfWork` aggregate was
       replaced by a focused `ITransactionManager` (transactional boundary only);

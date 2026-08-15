@@ -19,21 +19,20 @@ public class BookGenresRepository : IBookGenresRepository
         IEnumerable<int> genreIds,
         CancellationToken ct)
     {
+        var ids = genreIds.Distinct().ToArray();
+        if (ids.Length == 0)
+            return;
+
         const string sql = """
                            INSERT INTO library.books_genres (book_id, genre_id)
-                           VALUES (@BookId, @GenreId)
-                           ON CONFLICT (book_id, genre_id) DO NOTHING;
+                           SELECT @BookId, genre_id
+                           FROM unnest(@GenreIds::int[]) AS genre_id
+                           ON CONFLICT (book_id, genre_id) DO NOTHING
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var parameters = genreIds.Select(genreId => new
-        {
-            BookId = bookId,
-            GenreId = genreId
-        });
-
-        var command = _dbContext.CreateCommand(sql, parameters, ct);
+        var command = _dbContext.CreateCommand(sql, new { BookId = bookId, GenreIds = ids }, ct);
 
         await connection.ExecuteAsync(command);
     }

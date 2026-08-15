@@ -19,21 +19,20 @@ public class BookAuthorsRepository : IBookAuthorsRepository
         IEnumerable<Guid> authorIds,
         CancellationToken ct)
     {
+        var ids = authorIds.Distinct().ToArray();
+        if (ids.Length == 0)
+            return;
+
         const string sql = """
                            INSERT INTO library.books_authors (book_id, author_id)
-                           VALUES (@BookId, @AuthorId)
+                           SELECT @BookId, author_id
+                           FROM unnest(@AuthorIds::uuid[]) AS author_id
                            ON CONFLICT (book_id, author_id) DO NOTHING
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var parameters = authorIds.Select(authorId => new
-        {
-            BookId = bookId,
-            AuthorId = authorId
-        });
-
-        var command = _dbContext.CreateCommand(sql, parameters, ct);
+        var command = _dbContext.CreateCommand(sql, new { BookId = bookId, AuthorIds = ids }, ct);
 
         await connection.ExecuteAsync(command);
     }

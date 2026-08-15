@@ -3,7 +3,6 @@ using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.ValueObjects;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
-using Reveries.Persistence.Mappers;
 
 namespace Reveries.Persistence.Repositories;
 
@@ -22,29 +21,24 @@ public class DeweyDecimalsRepository : IDeweyDecimalsRepository
     {
         if (deweyDecimals.Count == 0)
             return [];
-        
-        var deweyDecimalIds = new List<int>();
 
-        foreach (var deweyDecimal in deweyDecimals)
-        {
-            const string sql = """
-                               INSERT INTO library.dewey_decimals (code)
-                               VALUES (@Code)
-                               ON CONFLICT (code) DO UPDATE
-                               SET code = EXCLUDED.code
-                               RETURNING id
-                               """;
+        var codes = deweyDecimals.Select(d => d.Code).ToArray();
 
-            var connection = await _dbContext.GetConnectionAsync(ct);
-            var deweyDecimalEntity = deweyDecimal.ToEntity();
+        const string sql = """
+                           INSERT INTO library.dewey_decimals (code)
+                           SELECT DISTINCT code
+                           FROM unnest(@Codes::text[]) AS code
+                           ON CONFLICT (code) DO UPDATE
+                           SET code = EXCLUDED.code
+                           RETURNING id
+                           """;
 
-            var command = _dbContext.CreateCommand(sql, deweyDecimalEntity, ct);
+        var connection = await _dbContext.GetConnectionAsync(ct);
 
-            var deweyDecimalDbId = await connection.QuerySingleAsync<int>(command);
-            
-            deweyDecimalIds.Add(deweyDecimalDbId);
-        }
-        
-        return deweyDecimalIds;
+        var command = _dbContext.CreateCommand(sql, new { Codes = codes }, ct);
+
+        var ids = await connection.QueryAsync<int>(command);
+
+        return ids.ToList();
     }
 }
