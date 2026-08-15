@@ -32,7 +32,6 @@ public static class CreateBookRequestMapper
             ImageThumbnail = request.ImageThumbnail,
             ImageUrl = request.ImageUrl,
             Msrp = request.Msrp,
-            IsRead = request.IsRead,
 
             HeightCm = request.HeightCm,
             WidthCm = request.WidthCm,

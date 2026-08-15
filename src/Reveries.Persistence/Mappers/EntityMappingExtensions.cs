@@ -15,7 +15,6 @@ public static class EntityMappingExtensions
             Isbn13 = book.Isbn13?.ToString(),
             Isbn10 = book.Isbn10?.ToString(),
             PageCount = book.Pages,
-            IsRead = book.IsRead,
             PublicationDate = book.PublicationDate,
             Synopsis = book.Synopsis,
             Language = book.Language,

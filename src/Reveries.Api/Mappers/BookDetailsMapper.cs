@@ -27,7 +27,6 @@ public static class BookDetailsMapper
             CoverImageUrl = book.CoverImageUrl,
             ImageThumbnailUrl = book.ImageThumbnailUrl,
             Msrp = book.Msrp,
-            IsRead = book.IsRead,
             HeightCm = book.Dimensions?.HeightCm,
             WidthCm = book.Dimensions?.WidthCm,
             ThicknessCm = book.Dimensions?.ThicknessCm,

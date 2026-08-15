@@ -132,7 +132,6 @@ public class GoogleBookService : IGoogleBookSearch
             Isbn10: book.Isbn10?.Value ?? volume?.Isbn10?.Value,
             Title: mergedTitle.Value,
             Pages: mergedPages,
-            IsRead: false,
             PublicationDate: book.PublicationDate ?? volume?.PublicationDate,
             Language: book.Language ?? volume?.Language,
             Synopsis: mergedSynopsis,

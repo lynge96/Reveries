@@ -67,14 +67,6 @@ public class BookTests
     }
     
     [Fact]
-    public void Create_SetsIsReadToFalse()
-    {
-        var book = CreateValidBook();
-
-        Assert.False(book.IsRead);
-    }
-    
-    [Fact]
     public void Create_NormalizesIsbn()
     {
         var book = CreateValidBook();
@@ -92,27 +84,6 @@ public class BookTests
     }
     
     [Fact]
-    public void MarkAsRead_SetsIsReadToTrue()
-    {
-        var book = CreateValidBook();
-
-        book.MarkAsRead();
-
-        Assert.True(book.IsRead);
-    }
-    
-    [Fact]
-    public void MarkAsRead_IsIdempotent()
-    {
-        var book = CreateValidBook();
-
-        book.MarkAsRead();
-        book.MarkAsRead();
-
-        Assert.True(book.IsRead);
-    }
-    
-    [Fact]
     public void UpdateDataSource_ChangesDataSource()
     {
         var book = CreateValidBook();
@@ -120,36 +91,6 @@ public class BookTests
         book.UpdateDataSource(DataSource.IsbndbApi);
 
         Assert.Equal(DataSource.IsbndbApi, book.DataSource);
-    }
-    
-    [Fact]
-    public void Reconstitute_PreservesIsRead()
-    {
-        var bookId = BookId.New();
-        var bookData = new BookReconstitutionData
-        (
-            Id: bookId.Value,
-            Isbn13: "9781402894626",
-            Isbn10: "1402894627",
-            Title: "Persisted Book",
-            Pages: 250,
-            IsRead: true,
-            PublicationDate: "2019",
-            Language: "English",
-            Synopsis: null,
-            ImageThumbnailUrl: null,
-            CoverImageUrl: null,
-            Msrp: null,
-            Binding: null,
-            Edition: null,
-            SeriesNumber: null,
-            Dimensions: null,
-            DataSource: DataSource.GoogleBooksApi
-        );
-        
-        var book = Book.Reconstitute(bookData);
-
-        Assert.True(book.IsRead);
     }
     
     [Fact]

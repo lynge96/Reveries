@@ -45,7 +45,6 @@ public class BookWriteRoundTripTests : IAsyncLifetime
         Assert.Equal(book.Pages, persisted.Pages);
         Assert.Equal(book.Language, persisted.Language);
         Assert.Equal(book.PublicationDate, persisted.PublicationDate);
-        Assert.False(persisted.IsRead);
         Assert.Equal(book.Publisher!.Name, persisted.Publisher!.Name);
         Assert.Null(persisted.Series);
 

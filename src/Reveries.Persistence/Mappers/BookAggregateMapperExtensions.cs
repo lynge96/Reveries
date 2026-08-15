@@ -16,7 +16,6 @@ public static class BookAggregateMapperExtensions
             Isbn10: entity.Book.Isbn10,
             Title: entity.Book.Title,
             Pages: entity.Book.PageCount,
-            IsRead: entity.Book.IsRead,
             PublicationDate: entity.Book.PublicationDate,
             Language: entity.Book.Language,
             Synopsis: entity.Book.Synopsis,

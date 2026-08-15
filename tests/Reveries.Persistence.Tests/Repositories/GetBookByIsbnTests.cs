@@ -97,7 +97,6 @@ public class GetBookByIsbnTests : IAsyncLifetime
         // Assert — these come from snake_case columns via the underscore convention
         Assert.NotNull(book);
         Assert.Equal(328, book!.Pages);
-        Assert.True(book.IsRead);
         Assert.Equal("http://img/cover.jpg", book.CoverImageUrl);
         Assert.Equal("http://img/thumb.jpg", book.ImageThumbnailUrl);
     }
@@ -121,8 +120,8 @@ public class GetBookByIsbnTests : IAsyncLifetime
         await using var connection = await _fixture.DataSource.OpenConnectionAsync();
         await connection.ExecuteAsync(
             """
-            INSERT INTO library.books (id, title, isbn13, isbn10, page_count, is_read, image_url, image_thumbnail)
-            VALUES (@Id, @Title, @Isbn13, @Isbn10, @PageCount, @IsRead, @ImageUrl, @ImageThumbnail)
+            INSERT INTO library.books (id, title, isbn13, isbn10, page_count, image_url, image_thumbnail)
+            VALUES (@Id, @Title, @Isbn13, @Isbn10, @PageCount, @ImageUrl, @ImageThumbnail)
             """,
             new
             {
@@ -131,7 +130,6 @@ public class GetBookByIsbnTests : IAsyncLifetime
                 Isbn13,
                 Isbn10,
                 PageCount = 328,
-                IsRead = true,
                 ImageUrl = "http://img/cover.jpg",
                 ImageThumbnail = "http://img/thumb.jpg"
             });

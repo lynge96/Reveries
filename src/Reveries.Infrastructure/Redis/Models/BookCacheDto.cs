@@ -19,7 +19,6 @@ public sealed record BookCacheDto
     public string? ImageThumbnailUrl { get; init; }
     public string? CoverImageUrl { get; init; }
     public decimal? Msrp { get; init; }
-    public bool IsRead { get; init; }
     public decimal? WeightG { get; init; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }

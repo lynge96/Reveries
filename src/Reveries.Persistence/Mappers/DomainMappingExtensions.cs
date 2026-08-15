@@ -17,7 +17,6 @@ public static class DomainMappingExtensions
             Isbn13: bookEntity.Isbn13,
             Isbn10: bookEntity.Isbn10,
             Pages: bookEntity.PageCount,
-            IsRead: bookEntity.IsRead,
             PublicationDate: bookEntity.PublicationDate,
             Language: bookEntity.Language,
             Synopsis: bookEntity.Synopsis,

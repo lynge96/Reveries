@@ -26,9 +26,6 @@ public sealed class GetAllBooksHandler : IQueryHandler<GetAllBooksQuery, List<Bo
         
         if (books.Count == 0)
             throw new NotFoundException("No books were found.");
-        
-        if (query.IsRead.HasValue)
-            books = books.Where(b => b.IsRead == query.IsRead.Value).ToList();
 
         _logger.LogInformation("Successfully retrieved {Count} books.", books.Count);
         

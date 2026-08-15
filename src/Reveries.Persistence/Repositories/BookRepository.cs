@@ -24,13 +24,13 @@ public class BookRepository : IBookRepository
     {
         const string sql = """
                            INSERT INTO library.books (
-                               id, isbn13, isbn10, title, page_count, is_read, publisher_id,
+                               id, isbn13, isbn10, title, page_count, publisher_id,
                                language, publication_date, synopsis,
                                image_url, msrp, binding, edition, image_thumbnail, series_id, series_number,
                                height_cm, width_cm, thickness_cm, weight_g
                            )
                            VALUES (
-                               @Id, @Isbn13, @Isbn10, @Title, @PageCount, @IsRead, @PublisherId,
+                               @Id, @Isbn13, @Isbn10, @Title, @PageCount, @PublisherId,
                                @Language, @PublicationDate, @Synopsis,
                                @ImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnail, @SeriesId, @SeriesNumber,
                                @HeightCm, @WidthCm, @ThicknessCm, @WeightG
@@ -93,21 +93,6 @@ public class BookRepository : IBookRepository
             sql,
             new { book.Id, SeriesId = seriesId, book.SeriesNumber },
             ct);
-
-        await connection.ExecuteAsync(command);
-    }
-
-    public async Task UpdateBookReadStatusAsync(Book book, CancellationToken ct)
-    {
-        const string sql = """
-                           UPDATE library.books
-                           SET is_read = @IsRead
-                           WHERE id = @Id
-                           """;
-
-        var connection = await _dbContext.GetConnectionAsync(ct);
-
-        var command = _dbContext.CreateCommand(sql, new { book.IsRead, book.Id }, ct);
 
         await connection.ExecuteAsync(command);
     }
@@ -245,7 +230,6 @@ public class BookRepository : IBookRepository
                     ImageUrl = row.CoverImageUrl,
                     ImageThumbnail = row.ImageThumbnailUrl,
                     Msrp = row.Msrp,
-                    IsRead = row.IsRead,
                     SeriesNumber = row.SeriesNumber,
                     HeightCm = row.HeightCm,
                     WidthCm = row.WidthCm,

@@ -16,7 +16,6 @@ public sealed class BooksView
     public string? CoverImageUrl { get; init; }
     public string? ImageThumbnailUrl { get; init; }
     public decimal? Msrp { get; init; }
-    public bool IsRead { get; init; }
     public int? SeriesNumber { get; init; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }

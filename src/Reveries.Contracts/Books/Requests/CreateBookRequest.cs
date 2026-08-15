@@ -18,7 +18,6 @@ public record CreateBookRequest
     public string? ImageThumbnail { get; set; }
     public string? ImageUrl { get; set; }
     public decimal? Msrp { get; set; }
-    public bool IsRead { get; set; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }
     public decimal? ThicknessCm { get; init; }

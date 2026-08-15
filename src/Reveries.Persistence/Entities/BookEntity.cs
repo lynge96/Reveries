@@ -16,7 +16,6 @@ public sealed class BookEntity
     public string? ImageUrl { get; set; }
     public string? ImageThumbnail { get; set; }
     public decimal? Msrp { get; set; }
-    public bool IsRead { get; set; }
     public int? SeriesNumber { get; set; }
     public Guid? SeriesId { get; set; }
     public decimal? HeightCm { get; set; }

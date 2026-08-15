@@ -22,7 +22,6 @@ public sealed record CreateBookCommand : IQuery<BookId>
     public string? ImageThumbnail { get; init; }
     public string? ImageUrl { get; init; }
     public decimal? Msrp { get; init; }
-    public bool IsRead { get; init; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }
     public decimal? ThicknessCm { get; init; }

@@ -22,7 +22,6 @@ public static class BookMerger
             Isbn13: MergeIsbn13(isbndbBook, googleBook),
             Isbn10: MergeIsbn10(isbndbBook, googleBook),
             Pages: MergePages(isbndbBook, googleBook),
-            IsRead: false,
             PublicationDate: MergePublishDate(isbndbBook, googleBook),
             Language: MergeLanguage(isbndbBook, googleBook),
             Synopsis: MergeSynopsis(isbndbBook, googleBook),

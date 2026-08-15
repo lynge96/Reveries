@@ -39,7 +39,6 @@ public class BookRepositoryTests : IAsyncLifetime
         Assert.Equal("9780451524935", book.Isbn13!.Value);
         Assert.Equal("0451524934", book.Isbn10!.Value);
         Assert.Equal(328, book.Pages);
-        Assert.True(book.IsRead);
         Assert.Equal("English", book.Language);
         Assert.Equal("1949", book.PublicationDate);
 
@@ -114,10 +113,10 @@ public class BookRepositoryTests : IAsyncLifetime
             """
             INSERT INTO library.books
                 (id, title, isbn13, isbn10, series_number, publication_date, page_count,
-                 language, is_read, publisher_id, series_id)
+                 language, publisher_id, series_id)
             VALUES
                 (@Id, @Title, @Isbn13, @Isbn10, @SeriesNumber, @PublicationDate, @PageCount,
-                 @Language, @IsRead, @PublisherId, @SeriesId)
+                 @Language, @PublisherId, @SeriesId)
             """,
             new
             {
@@ -129,7 +128,6 @@ public class BookRepositoryTests : IAsyncLifetime
                 PublicationDate = "1949",
                 PageCount = 328,
                 Language = "English",
-                IsRead = true,
                 PublisherId = publisherId,
                 SeriesId = seriesId
             });

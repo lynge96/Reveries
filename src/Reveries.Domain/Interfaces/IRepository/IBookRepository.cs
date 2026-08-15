@@ -9,8 +9,7 @@ public interface IBookRepository
     Task<Book?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10 = null, CancellationToken ct = default);
     Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct = default);
     Task UpdateBookSeriesAsync(Book book, Guid seriesId, CancellationToken ct = default);
-    Task UpdateBookReadStatusAsync(Book book, CancellationToken ct = default);
-    
+
     Task<List<Book>> GetBooksByAuthorAsync(Author author, CancellationToken ct = default);
     Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<Author> authors, CancellationToken ct = default);
     Task<List<Book>> GetBooksByPublisherAsync(Publisher publisher, CancellationToken ct = default);

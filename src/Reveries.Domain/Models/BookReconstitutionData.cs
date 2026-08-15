@@ -9,7 +9,6 @@ public sealed record BookReconstitutionData(
     string? Isbn13,
     string? Isbn10,
     int? Pages,
-    bool IsRead,
     string? PublicationDate,
     string? Language,
     string? Synopsis,

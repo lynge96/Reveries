@@ -34,11 +34,9 @@ public class BooksController : ControllerBase
         Description = "Fetches every book in the database",
         OperationId = "Books_GetAll")]
     [ProducesResponseType(typeof(BooksResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<BooksResponse>> GetAllBooks(
-        [FromQuery] GetAllBooksRequest request, 
-        CancellationToken ct)
+    public async Task<ActionResult<BooksResponse>> GetAllBooks(CancellationToken ct)
     {
-        var query = new GetAllBooksQuery(request.IsRead);
+        var query = new GetAllBooksQuery();
         var books = await _mediator.Send(query, ct);
 
         return Ok(books.ToResponse());

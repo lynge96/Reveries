@@ -50,7 +50,7 @@ public class BookDisplayService
 
         var columnNames = new[]
         {
-            "#", "ISBN", "Read", "Title", "Author", "Pages", "Published", 
+            "#", "ISBN", "Title", "Author", "Pages", "Published",
             "Publisher", "#", "Series", "Binding", "Data source"
         };
         table.AddColumns(columnNames.Select(c => c.Bold().AsPrimary()).ToArray());
@@ -61,7 +61,6 @@ public class BookDisplayService
             table.AddRow(
                 (i + 1).ToString().AsInfo(),
                 book.Isbn13?.ToString() ?? book.Isbn10?.ToString() ?? "",
-                book.IsRead ? "✅" : "❌",
                 Markup.Escape(book.Title.Value).Bold().AsSecondary(),
                 Markup.Escape(book.GetAuthorNames()),
                 book.Pages?.ToString() ?? "",
@@ -79,8 +78,8 @@ public class BookDisplayService
         var totalPages = books.Sum(b => b.Pages ?? 0);
         var avgPages = books.Count > 0 ? totalPages / books.Count : 0;
         
-        table.Columns[5].Footer($"Pages: {totalPages}".Bold().AsSecondary());
-        table.Columns[6].Footer($"Avg. pages: {avgPages:N0}".Bold().AsSecondary());
+        table.Columns[4].Footer($"Pages: {totalPages}".Bold().AsSecondary());
+        table.Columns[5].Footer($"Avg. pages: {avgPages:N0}".Bold().AsSecondary());
 
         AnsiConsole.Write(table);
     }

@@ -18,7 +18,6 @@ public class Book : BaseEntity
     public required Title Title { get; init; }
     public IReadOnlyList<Author> Authors => _authors;
     public int? Pages { get; private set; }
-    public bool IsRead { get; private set; }
     public Publisher? Publisher { get; private set; }
     public string? Language { get; private init; }
     public string? PublicationDate { get; private init; }
@@ -101,7 +100,6 @@ public class Book : BaseEntity
             Isbn13 = isbn13 != null ? Isbn.Create(isbn13) : null,
             Isbn10 = isbn10 != null ? Isbn.Create(isbn10) : null,
             Title = Title.Create(title),
-            IsRead = false,
             PublicationDate = publishDate,
             Publisher = publisher != null ? Publisher.Create(publisher) : null,
             Language = languageIso639.GetLanguageName(),
@@ -162,7 +160,6 @@ public class Book : BaseEntity
             Isbn10 = data.Isbn10 != null ? new Isbn(data.Isbn10) : null,
             Title = new Title(data.Title),
             Pages = data.Pages,
-            IsRead = data.IsRead,
             PublicationDate = data.PublicationDate,
             Publisher = data.Publisher,
             Language = data.Language,
@@ -204,18 +201,6 @@ public class Book : BaseEntity
         DataSource = newDataSource;
     }
     
-    public void MarkAsRead()
-    {
-        if (IsRead) return;
-        IsRead = true;
-    }
-
-    public void MarkAsUnread()
-    {
-        if (!IsRead) return;
-        IsRead = false;
-    }
-
     private void SetPages(int? pages)
     {
         switch (pages)
