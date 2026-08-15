@@ -44,8 +44,10 @@ public class PostgresDbContext : IDbContext
     public async Task<IDbTransaction> BeginTransactionAsync(CancellationToken ct = default)
     {
         if (_disposed) throw new ObjectDisposedException(nameof(PostgresDbContext));
-        if (_transaction != null) 
-            return _transaction;
+
+        if (_transaction is not null)
+            throw new InvalidOperationException(
+                "A transaction is already active on this context; nested transactions are not supported.");
 
         var conn = (NpgsqlConnection)await GetConnectionAsync(ct);
         _transaction = await conn.BeginTransactionAsync(ct);

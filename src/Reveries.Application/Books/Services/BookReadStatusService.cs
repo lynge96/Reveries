@@ -1,25 +1,25 @@
 using Reveries.Application.Books.Interfaces;
-using Reveries.Application.Common.Abstractions;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
 
 namespace Reveries.Application.Books.Services;
 
 public class BookReadStatusService : IBookReadStatusService
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IBookRepository _books;
     private readonly IBookCacheService _cache;
-    
+
     public BookReadStatusService(
-        IUnitOfWork unitOfWork,
+        IBookRepository books,
         IBookCacheService cache)
     {
-        _unitOfWork = unitOfWork;
+        _books = books;
         _cache = cache;
     }
-    
+
     public async Task UpdateReadStatusAsync(Book book, CancellationToken ct)
     {
-        await _unitOfWork.Books.UpdateBookReadStatusAsync(book, ct);
+        await _books.UpdateBookReadStatusAsync(book, ct);
         await _cache.RemoveBookByIsbnAsync(book.Isbn13 ?? book.Isbn10, ct);
     }
 }

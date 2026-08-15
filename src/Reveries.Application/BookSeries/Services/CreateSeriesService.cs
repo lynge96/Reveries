@@ -1,34 +1,34 @@
 using Reveries.Application.BookSeries.Interfaces;
-using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
 
 namespace Reveries.Application.BookSeries.Services;
 
 public class CreateSeriesService : ICreateSeriesService
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ISeriesRepository _series;
 
-    public CreateSeriesService(IUnitOfWork unitOfWork)
+    public CreateSeriesService(ISeriesRepository series)
     {
-        _unitOfWork = unitOfWork;
+        _series = series;
     }
-    
+
     public async Task<Series> CreateSeriesAsync(Series series, CancellationToken ct)
     {
-        var existingSeries = await _unitOfWork.Series.GetByNameAsync(series, ct);
+        var existingSeries = await _series.GetByNameAsync(series, ct);
         if (existingSeries != null)
         {
             throw new SeriesAlreadyExistsException(series.Name);
         }
-        
-        await _unitOfWork.Series.GetOrCreateAsync(series, ct);
+
+        await _series.GetOrCreateAsync(series, ct);
         return series;
     }
 
     public async Task<List<Series>> GetSeriesAsync(CancellationToken ct)
     {
-        var series = await _unitOfWork.Series.GetSeriesAsync(ct);
+        var series = await _series.GetSeriesAsync(ct);
         return series;
     }
 }

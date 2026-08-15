@@ -1,8 +1,8 @@
 using Dapper;
 using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.ValueObjects;
+using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
-using Reveries.Persistence.Mappers;
 
 namespace Reveries.Persistence.Repositories;
 
@@ -21,34 +21,25 @@ public class GenreRepository : IGenreRepository
     {
         if (genres.Count == 0)
             return [];
-        
-        var genreIds = new List<int>();
-        
-        foreach (var genre in genres)
-        {
-            const string sql = """
-                               INSERT INTO library.genres (name)
-                               VALUES (@Name)
-                               ON CONFLICT (name) DO UPDATE
-                               SET name = EXCLUDED.name
-                               RETURNING id
-                               """;
-        
-            var connection = await _dbContext.GetConnectionAsync(ct);
-            var genreEntity = genre.ToEntity();
 
-            var command = new CommandDefinition(
-                commandText: sql,
-                parameters: genreEntity,
-                cancellationToken: ct
-            );
-        
-            var genreDbId = await connection.QuerySingleAsync<int>(command);
-            
-            genreIds.Add(genreDbId);
-        }
-        
-        return genreIds;
+        var names = genres.Select(g => g.Value).ToArray();
+
+        const string sql = """
+                           INSERT INTO library.genres (name)
+                           SELECT DISTINCT name
+                           FROM unnest(@Names::text[]) AS name
+                           ON CONFLICT (name) DO UPDATE
+                           SET name = EXCLUDED.name
+                           RETURNING id
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync(ct);
+
+        var command = _dbContext.CreateCommand(sql, new { Names = names }, ct);
+
+        var ids = await connection.QueryAsync<int>(command);
+
+        return ids.ToList();
     }
 
 }

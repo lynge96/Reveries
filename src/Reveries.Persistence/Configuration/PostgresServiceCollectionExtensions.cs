@@ -1,9 +1,7 @@
-﻿using Dapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Npgsql;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Domain.Interfaces.IRepository;
@@ -13,36 +11,32 @@ using Reveries.Persistence.Repositories;
 
 namespace Reveries.Persistence.Configuration;
 
-public static class PostgresqlServiceCollectionExtensions
+public static class PostgresServiceCollectionExtensions
 {
-    public static IServiceCollection AddPostgresql(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddPostgres(this IServiceCollection services, IConfiguration config)
     {
-        services.AddOptions<PostgresSettings>()
-            .Bind(config.GetSection("Postgres"))
-            .Validate(s => !string.IsNullOrWhiteSpace(s.Host), "Postgres: Host missing")
-            .Validate(s => s.Port > 0, "Postgres: Port invalid")
-            .Validate(s => !string.IsNullOrWhiteSpace(s.Database), "Postgres: Database missing")
-            .Validate(s => !string.IsNullOrWhiteSpace(s.Username), "Postgres: Username missing")
-            .Validate(s => !string.IsNullOrWhiteSpace(s.Password) || !string.IsNullOrWhiteSpace(s.ConnectionString), "Postgres: Password or ConnectionString required")
-            .ValidateOnStart();
-        
+        DapperConfiguration.Configure();
+
+        var connectionString = config.GetConnectionString("ReveriesDb");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException(
+                "Missing connection string 'ConnectionStrings:ReveriesDb'. Set it via user-secrets (dev) " +
+                "or the ConnectionStrings__ReveriesDb environment variable (prod).");
+
         services.AddSingleton<NpgsqlDataSource>(serviceProvider =>
         {
-            var settings = serviceProvider.GetRequiredService<IOptions<PostgresSettings>>().Value;
-            var connectionString = settings.GetConnectionString();
-
             var builder = new NpgsqlDataSourceBuilder(connectionString);
-            
+
             var env = serviceProvider.GetRequiredService<IHostEnvironment>();
-            if (env.IsDevelopment()) 
+            if (env.IsDevelopment())
             {
-                // log SQL i dev
-                builder.UseLoggerFactory(serviceProvider.GetRequiredService<ILoggerFactory>()); 
+                builder.UseLoggerFactory(serviceProvider.GetRequiredService<ILoggerFactory>());
                 builder.EnableParameterLogging();
             }
 
             return builder.Build();
         });
+
         // Entity tabeller
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<IPublisherRepository, PublisherRepository>();
@@ -50,24 +44,23 @@ public static class PostgresqlServiceCollectionExtensions
         services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IDeweyDecimalsRepository, DeweyDecimalsRepository>();
         services.AddScoped<ISeriesRepository, SeriesRepository>();
-        
+
         // Bridge tabeller
         services.AddScoped<IBookDeweyDecimalsRepository, BookDeweyDecimalsRepository>();
         services.AddScoped<IBookGenresRepository, BookGenresRepository>();
         services.AddScoped<IBookAuthorsRepository, BookAuthorsRepository>();
-        
+
         // DbContext
         services.AddScoped<IDbContext, PostgresDbContext>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<ITransaction, DbTransaction>();
+        services.AddScoped<ITransactionManager, TransactionManager>();
 
-        DefaultTypeMap.MatchNamesWithUnderscores = true;
-        
         return services;
     }
 
-    public static IHealthChecksBuilder AddPostgresqlHealthCheck(this IHealthChecksBuilder builder)
+    public static IHealthChecksBuilder AddPostgresHealthCheck(this IHealthChecksBuilder builder)
     {
-        return builder.AddCheck<PostgresHealthCheck>("postgres");
+        return builder.AddNpgSql(
+            sp => sp.GetRequiredService<NpgsqlDataSource>(),
+            name: "postgres");
     }
 }

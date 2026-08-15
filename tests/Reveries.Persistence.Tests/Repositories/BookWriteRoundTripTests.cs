@@ -7,10 +7,10 @@ using Reveries.Persistence.Tests.Fixtures;
 namespace Reveries.Persistence.Tests.Repositories;
 
 /// <summary>
-/// Writes a book aggregate through a real UnitOfWork transaction (the same
-/// repository sequence the application's SaveBookAsync uses) and reads it back
-/// through the view, proving the write path and its transaction against real
-/// Postgres. Each test runs on an empty database reset by the fixture.
+/// Writes a book aggregate through a real transaction (the same repository
+/// sequence the application's SaveBookAsync uses) and reads it back through the
+/// view, proving the write path and its transaction against real Postgres. Each
+/// test runs on an empty database reset by the fixture.
 /// </summary>
 [Collection(DatabaseCollection.Name)]
 public class BookWriteRoundTripTests : IAsyncLifetime
@@ -24,15 +24,14 @@ public class BookWriteRoundTripTests : IAsyncLifetime
     public Task DisposeAsync() => Task.CompletedTask;
 
     [Fact]
-    public async Task Saving_a_book_through_the_unit_of_work_round_trips_through_the_view()
+    public async Task Saving_a_book_through_a_transaction_round_trips_through_the_view()
     {
         // Arrange
         var book = NewBook();
         await using var writeContext = _fixture.NewDbContext();
-        var unitOfWork = NewUnitOfWork(writeContext);
 
         // Act
-        await PersistAsync(unitOfWork, book, CancellationToken.None);
+        await PersistAsync(writeContext, book, CancellationToken.None);
 
         // Assert — read back over a fresh connection to prove it committed
         await using var readContext = _fixture.NewDbContext();
@@ -66,42 +65,40 @@ public class BookWriteRoundTripTests : IAsyncLifetime
     /// reference entities are resolved via GetOrCreate, the book is inserted, then
     /// the join rows — all inside one committed transaction.
     /// </summary>
-    private static async Task PersistAsync(UnitOfWork unitOfWork, Book book, CancellationToken ct)
+    private static async Task PersistAsync(PostgresDbContext db, Book book, CancellationToken ct)
     {
-        await using var transaction = await unitOfWork.BeginTransactionAsync(ct);
+        var transactionManager = new TransactionManager(db);
+        var books = new BookRepository(db);
+        var publishers = new PublisherRepository(db);
+        var series = new SeriesRepository(db);
+        var authors = new AuthorRepository(db);
+        var bookAuthors = new BookAuthorsRepository(db);
+        var genres = new GenreRepository(db);
+        var bookGenres = new BookGenresRepository(db);
+        var deweyDecimals = new DeweyDecimalsRepository(db);
+        var bookDeweyDecimals = new BookDeweyDecimalsRepository(db);
 
-        var publisher = await unitOfWork.Publishers.GetOrCreateAsync(book.Publisher, ct);
+        await using var transaction = await transactionManager.BeginTransactionAsync(ct);
+
+        var publisher = await publishers.GetOrCreateAsync(book.Publisher, ct);
         book.SetPublisher(publisher);
 
-        var series = await unitOfWork.Series.GetOrCreateAsync(book.Series, ct);
-        book.SetSeries(series);
+        var createdSeries = await series.GetOrCreateAsync(book.Series, ct);
+        book.SetSeries(createdSeries);
 
-        await unitOfWork.Books.InsertBookAsync(book, ct);
+        await books.InsertBookAsync(book, ct);
 
-        var authorIds = await unitOfWork.Authors.GetOrCreateAuthorsAsync(book.Authors, ct);
-        await unitOfWork.BookAuthors.InsertBookAuthorsAsync(book.Id.Value, authorIds, ct);
+        var authorIds = await authors.GetOrCreateAuthorsAsync(book.Authors, ct);
+        await bookAuthors.InsertBookAuthorsAsync(book.Id.Value, authorIds, ct);
 
-        var genreIds = await unitOfWork.Genres.GetOrCreateGenresAsync(book.Genres, ct);
-        await unitOfWork.BookGenres.InsertBookGenresAsync(book.Id.Value, genreIds, ct);
+        var genreIds = await genres.GetOrCreateGenresAsync(book.Genres, ct);
+        await bookGenres.InsertBookGenresAsync(book.Id.Value, genreIds, ct);
 
-        var deweyIds = await unitOfWork.DeweyDecimals.GetOrCreateDeweyDecimalsAsync(book.DeweyDecimals, ct);
-        await unitOfWork.BookDeweyDecimals.InsertBookDeweyDecimalsAsync(book.Id.Value, deweyIds, ct);
+        var deweyIds = await deweyDecimals.GetOrCreateDeweyDecimalsAsync(book.DeweyDecimals, ct);
+        await bookDeweyDecimals.InsertBookDeweyDecimalsAsync(book.Id.Value, deweyIds, ct);
 
         await transaction.CommitAsync(ct);
     }
-
-    private static UnitOfWork NewUnitOfWork(PostgresDbContext db) =>
-        new(
-            db,
-            new BookRepository(db),
-            new AuthorRepository(db),
-            new SeriesRepository(db),
-            new PublisherRepository(db),
-            new BookAuthorsRepository(db),
-            new BookGenresRepository(db),
-            new DeweyDecimalsRepository(db),
-            new GenreRepository(db),
-            new BookDeweyDecimalsRepository(db));
 
     private static Book NewBook() => Book.Create(
         isbn13: "9780451524935",

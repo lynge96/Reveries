@@ -1,6 +1,7 @@
 using Dapper;
 using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
+using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
@@ -34,11 +35,7 @@ public class PublisherRepository : IPublisherRepository
         var connection = await _dbContext.GetConnectionAsync(ct);
         var publisherEntity = publisher.ToEntity();
 
-        var command = new CommandDefinition(
-            commandText: sql,
-            parameters: publisherEntity,
-            cancellationToken: ct
-        );
+        var command = _dbContext.CreateCommand(sql, publisherEntity, ct);
 
         var result = await connection.QuerySingleAsync<PublisherEntity>(command);
 
@@ -59,11 +56,8 @@ public class PublisherRepository : IPublisherRepository
 
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var command = new CommandDefinition(
-            commandText: sql,
-            parameters: new { Name = $"%{publisher.Name}%" }
-        );
-        
+        var command = _dbContext.CreateCommand(sql, new { Name = $"%{publisher.Name}%" }, ct);
+
         var rows = await connection.QueryAsync<PublisherEntity>(command);
         
         return rows.Select(r => r.ToDomain()).ToList();

@@ -1,6 +1,7 @@
 using Dapper;
 using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
+using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
@@ -33,13 +34,9 @@ public class SeriesRepository : ISeriesRepository
     
         var connection = await _dbContext.GetConnectionAsync(ct);
         var seriesEntity = series.ToEntity();
-    
-        var command = new CommandDefinition(
-            commandText: sql,
-            parameters: new { seriesEntity.Id, seriesEntity.Name },
-            cancellationToken: ct
-        );
-    
+
+        var command = _dbContext.CreateCommand(sql, new { seriesEntity.Id, seriesEntity.Name }, ct);
+
         var result = await connection.QuerySingleAsync<SeriesEntity>(command);
     
         return result.ToDomain();
@@ -58,8 +55,10 @@ public class SeriesRepository : ISeriesRepository
                            """;
     
         var connection = await _dbContext.GetConnectionAsync(ct);
-    
-        var row = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(sql, new { series.Name });
+
+        var command = _dbContext.CreateCommand(sql, new { series.Name }, ct);
+
+        var row = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(command);
 
         return row?.ToDomain();
     }
@@ -76,8 +75,10 @@ public class SeriesRepository : ISeriesRepository
         
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var rows = await connection.QueryAsync<SeriesEntity>(sql);
-        
+        var command = _dbContext.CreateCommand(sql, ct: ct);
+
+        var rows = await connection.QueryAsync<SeriesEntity>(command);
+
         return rows.Select(r => r.ToDomain()).ToList();
     }
 }

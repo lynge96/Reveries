@@ -3,6 +3,7 @@ using Dapper;
 using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
 using Reveries.Domain.ValueObjects;
+using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
@@ -31,7 +32,7 @@ public class BookRepository : IBookRepository
                            VALUES (
                                @Id, @Isbn13, @Isbn10, @Title, @PageCount, @IsRead, @PublisherId,
                                @Language, @PublicationDate, @Synopsis,
-                               @CoverImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnailUrl, @SeriesId, @SeriesNumber,
+                               @ImageUrl, @Msrp, @Binding, @Edition, @ImageThumbnail, @SeriesId, @SeriesNumber,
                                @HeightCm, @WidthCm, @ThicknessCm, @WeightG
                            )
                            """;
@@ -39,10 +40,7 @@ public class BookRepository : IBookRepository
         var connection = await _dbContext.GetConnectionAsync(ct);
         var bookEntity = book.ToEntity();
 
-        var command = new CommandDefinition(
-            commandText: sql,
-            parameters: bookEntity,
-            cancellationToken: ct);
+        var command = _dbContext.CreateCommand(sql, bookEntity, ct);
 
         await connection.ExecuteAsync(command);
     }
@@ -60,12 +58,12 @@ public class BookRepository : IBookRepository
     
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var row = await connection.QueryFirstOrDefaultAsync<BookEntity>(
-            new CommandDefinition(
-                sql, 
-                new { Isbn13 = isbn13?.Value, Isbn10 = isbn10?.Value }, 
-                cancellationToken: ct)
-        );
+        var command = _dbContext.CreateCommand(
+            sql,
+            new { Isbn13 = isbn13?.Value, Isbn10 = isbn10?.Value },
+            ct);
+
+        var row = await connection.QueryFirstOrDefaultAsync<BookEntity>(command);
 
         return row?.ToDomain();
     }
@@ -74,13 +72,10 @@ public class BookRepository : IBookRepository
     {
         const string sql = "SELECT EXISTS (SELECT 1 FROM library.books WHERE isbn13 = @Isbn OR isbn10 = @Isbn)";
         var connection = await _dbContext.GetConnectionAsync(ct);
-        
-        return await connection.QuerySingleAsync<bool>(
-            new CommandDefinition(
-                sql, 
-                new { Isbn = isbn.Value }, 
-                cancellationToken: ct)
-        );
+
+        var command = _dbContext.CreateCommand(sql, new { Isbn = isbn.Value }, ct);
+
+        return await connection.QuerySingleAsync<bool>(command);
     }
 
     public async Task UpdateBookSeriesAsync(Book book, Guid seriesId, CancellationToken ct)
@@ -94,12 +89,12 @@ public class BookRepository : IBookRepository
 
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                sql, 
-                new { book.Id, SeriesId = seriesId, book.SeriesNumber }, 
-                cancellationToken: ct)
-        );
+        var command = _dbContext.CreateCommand(
+            sql,
+            new { book.Id, SeriesId = seriesId, book.SeriesNumber },
+            ct);
+
+        await connection.ExecuteAsync(command);
     }
 
     public async Task UpdateBookReadStatusAsync(Book book, CancellationToken ct)
@@ -112,11 +107,9 @@ public class BookRepository : IBookRepository
 
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql, 
-            new { book.IsRead, book.Id },
-            cancellationToken: ct)
-        );
+        var command = _dbContext.CreateCommand(sql, new { book.IsRead, book.Id }, ct);
+
+        await connection.ExecuteAsync(command);
     }
 
     public async Task<List<Book>> GetBooksByAuthorAsync(Author author, CancellationToken ct)
@@ -221,8 +214,8 @@ public class BookRepository : IBookRepository
     private async Task<List<BookAggregateEntity>> GetBookAggregatesAsync(string sql, object? parameters = null, CancellationToken ct = default)
     {
         var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = new CommandDefinition(sql, parameters, cancellationToken: ct);
-        
+        var command = _dbContext.CreateCommand(sql, parameters, ct);
+
         var rows = await connection.QueryAsync<BooksView>(command);
         
         var result = new List<BookAggregateEntity>();
@@ -249,8 +242,8 @@ public class BookRepository : IBookRepository
                     Language = row.Language,
                     Edition = row.Edition,
                     Binding = row.Binding,
-                    CoverImageUrl = row.CoverImageUrl,
-                    ImageThumbnailUrl = row.ImageThumbnailUrl,
+                    ImageUrl = row.CoverImageUrl,
+                    ImageThumbnail = row.ImageThumbnailUrl,
                     Msrp = row.Msrp,
                     IsRead = row.IsRead,
                     SeriesNumber = row.SeriesNumber,

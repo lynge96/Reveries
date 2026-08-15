@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
-using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
 using Reveries.Domain.ValueObjects;
 
@@ -10,7 +10,7 @@ namespace Reveries.Application.Books.Services;
 
 public class BookLookupService : IBookLookupService
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IBookRepository _books;
     private readonly IBookMergerService _bookMergerService;
     private readonly IBookCacheService _bookCacheService;
     private readonly ILogger<BookLookupService> _logger;
@@ -18,16 +18,16 @@ public class BookLookupService : IBookLookupService
     private readonly IGoogleBookSearch _googleBooksClient;
 
     public BookLookupService(
-        IIsbndbBookSearch isbnDbClient, 
+        IIsbndbBookSearch isbnDbClient,
         IGoogleBookSearch googleBooksClient,
-        IUnitOfWork unitOfWork, 
-        IBookMergerService bookMergerService, 
-        IBookCacheService bookCacheService, 
+        IBookRepository books,
+        IBookMergerService bookMergerService,
+        IBookCacheService bookCacheService,
         ILogger<BookLookupService> logger)
     {
         _isbnDbClient = isbnDbClient;
         _googleBooksClient = googleBooksClient;
-        _unitOfWork = unitOfWork;
+        _books = books;
         _bookMergerService = bookMergerService;
         _bookCacheService = bookCacheService;
         _logger = logger;
@@ -132,7 +132,7 @@ public class BookLookupService : IBookLookupService
     
     public async Task<List<Book>> GetAllBooksAsync(CancellationToken ct)
     {
-        var databaseBooks = await _unitOfWork.Books.GetAllBooksAsync(ct);
+        var databaseBooks = await _books.GetAllBooksAsync(ct);
         if (databaseBooks.Count == 0)
             return [];
         
@@ -144,7 +144,7 @@ public class BookLookupService : IBookLookupService
     
     public async Task<Book?> FindBookById(Guid id, CancellationToken ct)
     {
-        var databaseBook = await _unitOfWork.Books.GetBookByIdAsync(id, ct);
+        var databaseBook = await _books.GetBookByIdAsync(id, ct);
         
         _logger.LogInformation("Book lookup by Id completed. Id: {BookId}.", id);
         return databaseBook;
@@ -152,7 +152,7 @@ public class BookLookupService : IBookLookupService
 
     public async Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct)
     {
-        return await _unitOfWork.Books.BookExistsAsync(isbn, ct);
+        return await _books.BookExistsAsync(isbn, ct);
     }
     
     private async Task<IReadOnlyList<Book>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)

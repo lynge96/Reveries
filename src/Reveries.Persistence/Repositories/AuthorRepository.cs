@@ -1,6 +1,7 @@
 using Dapper;
 using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Models;
+using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
@@ -24,114 +25,139 @@ public class AuthorRepository : IAuthorRepository
             return [];
         
         var authorNames = authors.Select(a => a.NormalizedName).Distinct().ToList();
-        
-        var existingAuthors = await GetByNamesAsync(authorNames, ct);
-        var existingByName = existingAuthors.ToDictionary(a => a.NormalizedName);
-        
+
+        var byName = await GetByNamesAsync(authorNames, ct);
+
         var authorsToCreate = authors
-            .Where(a => !existingByName.ContainsKey(a.NormalizedName))
+            .Where(a => !byName.ContainsKey(a.NormalizedName))
             .DistinctBy(a => a.NormalizedName)
             .ToList();
-        
+
         if (authorsToCreate.Count > 0)
         {
-            foreach (var author in authorsToCreate)
-            {
-                await InsertAuthorAsync(author, ct);
-            }
+            var created = await InsertAuthorsAsync(authorsToCreate, ct);
+            foreach (var author in created)
+                byName[author.NormalizedName] = author;
         }
-        
-        var result = new List<Author>();
-        foreach (var author in authors)
-        {
-            if (existingByName.TryGetValue(author.NormalizedName, out var existing))
-            {
-                result.Add(existing);
-            }
-            else
-            {
-                var created = authorsToCreate.First(a => a.NormalizedName == author.NormalizedName);
-                result.Add(created);
-            }
-        }
-    
-        return result.Select(a => a.Id.Value).ToList();
+
+        return authors
+            .Select(a => byName[a.NormalizedName].Id.Value)
+            .Distinct()
+            .ToList();
     }
 
-    private async Task InsertAuthorAsync(Author author, CancellationToken ct)
+    private async Task<List<Author>> InsertAuthorsAsync(IReadOnlyList<Author> authors, CancellationToken ct)
     {
         const string authorSql = """
                                  INSERT INTO library.authors (id, normalized_name, first_name, last_name)
-                                 VALUES (@Id, @NormalizedName, @FirstName, @LastName)
+                                 SELECT * FROM unnest(
+                                     @Ids::uuid[],
+                                     @NormalizedNames::text[],
+                                     @FirstNames::text[],
+                                     @LastNames::text[])
                                  ON CONFLICT (normalized_name) DO UPDATE
                                  SET normalized_name = EXCLUDED.normalized_name
-                                 RETURNING id
+                                 RETURNING id, normalized_name, first_name, last_name, date_created
                                  """;
+
+        var entities = authors.Select(a => a.ToEntity()).ToList();
+
+        var connection = await _dbContext.GetConnectionAsync(ct);
+
+        var command = _dbContext.CreateCommand(authorSql, new
+        {
+            Ids = entities.Select(e => e.Id).ToArray(),
+            NormalizedNames = entities.Select(e => e.NormalizedName).ToArray(),
+            FirstNames = entities.Select(e => e.FirstName).ToArray(),
+            LastNames = entities.Select(e => e.LastName).ToArray()
+        }, ct);
+
+        var inserted = (await connection.QueryAsync<AuthorEntity>(command)).ToList();
+
+        await InsertAuthorNameVariantsAsync(entities, inserted, ct);
+
+        return inserted.Select(e => e.ToDomain()).ToList();
+    }
+
+    private async Task InsertAuthorNameVariantsAsync(
+        IReadOnlyList<AuthorEntity> requested,
+        IReadOnlyList<AuthorEntity> inserted,
+        CancellationToken ct)
+    {
+        var idByName = inserted.ToDictionary(e => e.NormalizedName, e => e.Id);
+
+        var variants = requested
+            .Where(r => r.AuthorNameVariants is { Count: > 0 })
+            .SelectMany(r => r.AuthorNameVariants!.Select(v => new
+            {
+                AuthorId = idByName[r.NormalizedName],
+                v.NameVariant,
+                v.IsPrimary
+            }))
+            .ToList();
+
+        if (variants.Count == 0)
+            return;
 
         const string variantSql = """
                                   INSERT INTO library.author_name_variants (author_id, name_variant, is_primary)
-                                  VALUES (@AuthorId, @NameVariant, @IsPrimary)
+                                  SELECT * FROM unnest(
+                                      @AuthorIds::uuid[],
+                                      @NameVariants::text[],
+                                      @IsPrimaries::bool[])
                                   ON CONFLICT DO NOTHING
                                   """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
-        var authorEntity = author.ToEntity();
-        
-        var command = new CommandDefinition(
-            commandText: authorSql,
-            parameters: authorEntity,
-            cancellationToken: ct
-        );
-        
-        // Insert the author first
-        var authorId = await connection.QuerySingleAsync<Guid>(command);
-        authorEntity.AuthorNameVariants?.ForEach(v => v.AuthorId = authorId);
-        
-        // If there are name variants, insert them
-        if (authorEntity.AuthorNameVariants is { Count: > 0 })
+
+        var command = _dbContext.CreateCommand(variantSql, new
         {
-            var variantCommand = new CommandDefinition(
-                commandText: variantSql,
-                parameters: authorEntity.AuthorNameVariants,
-                cancellationToken: ct
-            );
-            
-            await connection.ExecuteAsync(variantCommand);
-        }
+            AuthorIds = variants.Select(v => v.AuthorId).ToArray(),
+            NameVariants = variants.Select(v => v.NameVariant).ToArray(),
+            IsPrimaries = variants.Select(v => v.IsPrimary).ToArray()
+        }, ct);
+
+        await connection.ExecuteAsync(command);
     }
 
-    private async Task<List<Author>> GetByNamesAsync(List<string> names, CancellationToken ct)
+    private async Task<Dictionary<string, Author>> GetByNamesAsync(List<string> names, CancellationToken ct)
     {
         if (names.Count == 0)
-            return [];
-        
+            return new Dictionary<string, Author>();
+
         const string sql = """
-                           SELECT DISTINCT 
-                                  a.id,
+                           SELECT a.id,
                                   a.normalized_name,
                                   a.first_name,
                                   a.last_name,
-                                  a.date_created
-                           FROM library.authors a
-                           WHERE a.normalized_name = ANY(@Names)
-                              OR EXISTS (
-                                  SELECT 1 
-                                  FROM library.author_name_variants anv
-                                  WHERE anv.author_id = a.id 
-                                    AND anv.name_variant = ANY(@Names)
-                              )
+                                  a.date_created,
+                                  n.name AS matched_name
+                           FROM unnest(@Names::text[]) AS n(name)
+                           JOIN library.authors a
+                             ON a.normalized_name = n.name
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM library.author_name_variants anv
+                                    WHERE anv.author_id = a.id
+                                      AND anv.name_variant = n.name)
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
-        
-        var command = new CommandDefinition(
-            commandText: sql, 
-            parameters: new { Names = names.ToArray() }, 
-            cancellationToken: ct);
-        
-        var authorEntities = await connection.QueryAsync<AuthorEntity>(command);
 
-        return authorEntities.Select(a => a.ToDomain()).ToList();
+        var command = _dbContext.CreateCommand(sql, new { Names = names.ToArray() }, ct);
+
+        var byRequestedName = new Dictionary<string, Author>();
+
+        await connection.QueryAsync<AuthorEntity, string, AuthorEntity>(
+            command,
+            (author, matchedName) =>
+            {
+                byRequestedName[matchedName] = author.ToDomain();
+                return author;
+            },
+            splitOn: "matched_name");
+
+        return byRequestedName;
     }
 
     public async Task<List<Author>> GetAuthorsByNameAsync(Author author, CancellationToken ct)
@@ -150,7 +176,9 @@ public class AuthorRepository : IAuthorRepository
 
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var authorDtos = await connection.QueryAsync<AuthorEntity>(sql, new { Pattern = $"%{author.NormalizedName}%" });
+        var command = _dbContext.CreateCommand(sql, new { Pattern = $"%{author.NormalizedName}%" }, ct);
+
+        var authorDtos = await connection.QueryAsync<AuthorEntity>(command);
 
         return authorDtos.Select(a => a.ToDomain()).ToList();
     }
