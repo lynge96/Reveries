@@ -1,3 +1,4 @@
+using Dapper;
 using Reveries.Domain.Models;
 using Reveries.Domain.ValueObjects;
 using Reveries.Persistence.Repositories;
@@ -84,5 +85,36 @@ public class GetOrCreateBatchTests : IAsyncLifetime
 
         // Assert
         Assert.Equal(2, ids.Distinct().Count());
+    }
+
+    [Fact]
+    public async Task GetOrCreateAuthors_matches_an_existing_author_through_a_name_variant_without_duplicating()
+    {
+        // Arrange — an author stored under one normalized name, with the requested
+        // name held only as a variant (so it matches through the variant, not the
+        // author's own normalized_name)
+        var requested = Author.Create("George Orwell");
+        var existingId = Guid.NewGuid();
+
+        await using (var seed = await _fixture.DataSource.OpenConnectionAsync())
+        {
+            await seed.ExecuteAsync(
+                "INSERT INTO library.authors (id, normalized_name, first_name, last_name) VALUES (@Id, @Normalized, @First, @Last)",
+                new { Id = existingId, Normalized = "eric blair", First = "Eric", Last = "Blair" });
+            await seed.ExecuteAsync(
+                "INSERT INTO library.author_name_variants (author_id, name_variant, is_primary) VALUES (@Id, @Variant, false)",
+                new { Id = existingId, Variant = requested.NormalizedName });
+        }
+
+        // Act
+        await using var db = _fixture.NewDbContext();
+        var ids = await new AuthorRepository(db).GetOrCreateAuthorsAsync([requested], CancellationToken.None);
+
+        // Assert — resolved to the existing author via its variant, no duplicate row inserted
+        Assert.Equal([existingId], ids);
+
+        await using var check = await _fixture.DataSource.OpenConnectionAsync();
+        var authorCount = await check.ExecuteScalarAsync<long>("SELECT COUNT(*) FROM library.authors");
+        Assert.Equal(1L, authorCount);
     }
 }

@@ -25,9 +25,8 @@ public class AuthorRepository : IAuthorRepository
             return [];
         
         var authorNames = authors.Select(a => a.NormalizedName).Distinct().ToList();
-        
-        var existingAuthors = await GetByNamesAsync(authorNames, ct);
-        var byName = existingAuthors.ToDictionary(a => a.NormalizedName);
+
+        var byName = await GetByNamesAsync(authorNames, ct);
 
         var authorsToCreate = authors
             .Where(a => !byName.ContainsKey(a.NormalizedName))
@@ -121,35 +120,44 @@ public class AuthorRepository : IAuthorRepository
         await connection.ExecuteAsync(command);
     }
 
-    private async Task<List<Author>> GetByNamesAsync(List<string> names, CancellationToken ct)
+    private async Task<Dictionary<string, Author>> GetByNamesAsync(List<string> names, CancellationToken ct)
     {
         if (names.Count == 0)
-            return [];
-        
+            return new Dictionary<string, Author>();
+
         const string sql = """
-                           SELECT DISTINCT 
-                                  a.id,
+                           SELECT a.id,
                                   a.normalized_name,
                                   a.first_name,
                                   a.last_name,
-                                  a.date_created
-                           FROM library.authors a
-                           WHERE a.normalized_name = ANY(@Names)
-                              OR EXISTS (
-                                  SELECT 1 
-                                  FROM library.author_name_variants anv
-                                  WHERE anv.author_id = a.id 
-                                    AND anv.name_variant = ANY(@Names)
-                              )
+                                  a.date_created,
+                                  n.name AS matched_name
+                           FROM unnest(@Names::text[]) AS n(name)
+                           JOIN library.authors a
+                             ON a.normalized_name = n.name
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM library.author_name_variants anv
+                                    WHERE anv.author_id = a.id
+                                      AND anv.name_variant = n.name)
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
 
         var command = _dbContext.CreateCommand(sql, new { Names = names.ToArray() }, ct);
 
-        var authorEntities = await connection.QueryAsync<AuthorEntity>(command);
+        var byRequestedName = new Dictionary<string, Author>();
 
-        return authorEntities.Select(a => a.ToDomain()).ToList();
+        await connection.QueryAsync<AuthorEntity, string, AuthorEntity>(
+            command,
+            (author, matchedName) =>
+            {
+                byRequestedName[matchedName] = author.ToDomain();
+                return author;
+            },
+            splitOn: "matched_name");
+
+        return byRequestedName;
     }
 
     public async Task<List<Author>> GetAuthorsByNameAsync(Author author, CancellationToken ct)
