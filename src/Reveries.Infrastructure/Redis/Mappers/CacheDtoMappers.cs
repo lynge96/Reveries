@@ -1,4 +1,9 @@
-using Reveries.Domain;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.BookSeries;
+using Reveries.Domain.Shared;
 using Reveries.Infrastructure.Redis.Models;
 
 namespace Reveries.Infrastructure.Redis.Mappers;
@@ -26,7 +31,7 @@ public static class CacheDtoMappers
             dto.LastName
         );
     }
-    
+
     // -------------------------
     // Series
     // -------------------------
@@ -46,7 +51,7 @@ public static class CacheDtoMappers
             dto.Name
         );
     }
-    
+
     // -------------------------
     // Publisher
     // -------------------------
@@ -66,7 +71,7 @@ public static class CacheDtoMappers
             dto.Name
         );
     }
-    
+
     // -------------------------
     // Book
     // -------------------------
@@ -99,7 +104,7 @@ public static class CacheDtoMappers
             Genres = book.Genres.Select(g => g.Value).ToList()
         };
     }
-    
+
     public static Book ToDomain(this BookCacheDto dto)
     {
         var series = dto.Series?.ToDomain();
@@ -141,7 +146,7 @@ public static class CacheDtoMappers
             Genres: genres,
             DeweyDecimals: deweyDecimals
         );
-        
+
         return Book.Reconstitute(bookData);
     }
 }

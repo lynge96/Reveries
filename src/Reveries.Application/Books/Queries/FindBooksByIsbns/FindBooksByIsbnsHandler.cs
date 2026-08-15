@@ -4,7 +4,9 @@ using Reveries.Application.Books.Extensions;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Shared;
 
 namespace Reveries.Application.Books.Queries.FindBooksByIsbns;
 
@@ -26,44 +28,44 @@ public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuer
         _lookupService = lookupService;
         _logger = logger;
     }
-    
+
     public async ValueTask<List<Book>> Handle(FindBooksByIsbnsQuery query, CancellationToken ct)
     {
         var isbns = query.Isbns;
-        
+
         // Cache
         var cacheResult = await GetFromCacheAsync(isbns, ct);
-        
+
         // Database
         var dbResult = await GetFromDatabaseAsync(cacheResult.NotFound, ct);
-        
+
         // External API
         var apiResult = await _lookupService.LookupByIsbnsAsync(dbResult.NotFound, ct);
-        
+
         if (apiResult.NoResults && dbResult.NoResults)
             throw new NotFoundException($"Books with ISBNs '{isbns}' were not found.");
-        
+
         var booksToCache = dbResult.Found.Concat(apiResult.Found).ToList();
         if (booksToCache.Count != 0)
         {
             await _cacheService.SetBooksByIsbnsAsync(booksToCache, ct);
         }
-        
+
         var allBooks = cacheResult.Found
             .Concat(dbResult.Found)
             .Concat(apiResult.Found)
             .ToList();
-        
+
         _logger.LogInformation(
             "Book lookup: Requested {Requested}, Cache {Cache}, DB {Db}, API {Api}",
             isbns.Count,
             cacheResult.Found.Count,
             dbResult.Found.Count,
             apiResult.Found.Count);
-        
+
         return allBooks;
     }
-    
+
     private async Task<BookLookupResult<Isbn>> GetFromCacheAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         var books = await _cacheService.GetBooksByIsbnsAsync(isbns, ct);
@@ -79,7 +81,7 @@ public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuer
 
         return new BookLookupResult<Isbn>(books, missingIsbns);
     }
-    
+
     private async Task<BookLookupResult<Isbn>> GetFromDatabaseAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)

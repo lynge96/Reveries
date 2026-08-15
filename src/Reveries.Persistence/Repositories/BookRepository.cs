@@ -1,6 +1,10 @@
 using System.Text.Json;
 using Dapper;
-using Reveries.Domain;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Books;
+using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.Shared;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
@@ -12,7 +16,7 @@ namespace Reveries.Persistence.Repositories;
 public class BookRepository : IBookRepository
 {
     private readonly IDbContext _dbContext;
-    
+
     public BookRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -34,7 +38,7 @@ public class BookRepository : IBookRepository
                                @HeightCm, @WidthCm, @ThicknessCm, @WeightG
                            )
                            """;
-        
+
         var connection = await _dbContext.GetConnectionAsync(ct);
         var bookEntity = book.ToEntity();
 
@@ -42,7 +46,7 @@ public class BookRepository : IBookRepository
 
         await connection.ExecuteAsync(command);
     }
-    
+
     public async Task<Book?> GetBookByIsbnAsync(Isbn? isbn13, Isbn? isbn10, CancellationToken ct)
     {
         const string sql = """
@@ -53,7 +57,7 @@ public class BookRepository : IBookRepository
                               OR (@Isbn10 IS NOT NULL AND (isbn13 = @Isbn10 OR isbn10 = @Isbn10))
                            LIMIT 1
                            """;
-    
+
         var connection = await _dbContext.GetConnectionAsync(ct);
 
         var command = _dbContext.CreateCommand(
@@ -99,10 +103,10 @@ public class BookRepository : IBookRepository
     {
         if (string.IsNullOrWhiteSpace(author.NormalizedName))
             return [];
-        
+
         return await GetBooksByAuthorsAsync([author], ct);
     }
-    
+
     public async Task<List<Book>> GetBooksByAuthorsAsync(IEnumerable<Author> authors, CancellationToken ct)
     {
         const string sql = """
@@ -150,7 +154,7 @@ public class BookRepository : IBookRepository
 
         return await QueryBooksAsync(sql, new { Patterns = patterns }, ct: ct);
     }
-    
+
     public async Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
     {
         const string sql = """
@@ -161,7 +165,7 @@ public class BookRepository : IBookRepository
                            """;
 
         var isbnList = isbns.Select(i => i.Value).ToList();
-        
+
         return await QueryBooksAsync(sql, new { Isbns = isbnList }, ct: ct);
     }
 
@@ -172,9 +176,9 @@ public class BookRepository : IBookRepository
                            FROM library.books_view
                            WHERE id = @Id
                            """;
-        
+
         var bookList = await QueryBooksAsync(sql, new { Id = id }, ct: ct);
-        
+
         return bookList.FirstOrDefault();
     }
 
@@ -184,23 +188,23 @@ public class BookRepository : IBookRepository
                            SELECT *
                            FROM library.books_view
                            """;
-        
+
         return await QueryBooksAsync(sql, ct: ct);
     }
-    
+
     private async Task<List<Book>> QueryBooksAsync(string sql, object? parameters = null, CancellationToken ct = default)
     {
         var bookAggregateList = await GetBookAggregatesAsync(sql, parameters, ct);
         return bookAggregateList.Select(BookAggregateMapperExtensions.ToDomainAggregate).ToList();
     }
-    
+
     private async Task<List<BookAggregateEntity>> GetBookAggregatesAsync(string sql, object? parameters = null, CancellationToken ct = default)
     {
         var connection = await _dbContext.GetConnectionAsync(ct);
         var command = _dbContext.CreateCommand(sql, parameters, ct);
 
         var rows = await connection.QueryAsync<BooksView>(command);
-        
+
         var result = new List<BookAggregateEntity>();
 
         foreach (var row in rows)
@@ -210,7 +214,7 @@ public class BookRepository : IBookRepository
             var deweyDecimals = row.DeweyCodes
                 .Select(code => new DeweyDecimalEntity { Code = code })
                 .ToList();
-            
+
             var aggregate = new BookAggregateEntity
             {
                 Book = new BookEntity
@@ -258,10 +262,10 @@ public class BookRepository : IBookRepository
                 Genres = genres,
                 DeweyDecimals = deweyDecimals
             };
-            
+
             result.Add(aggregate);
         }
-        
+
         return result;
     }
 

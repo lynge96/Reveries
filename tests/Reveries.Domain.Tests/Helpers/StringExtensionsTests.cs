@@ -1,4 +1,4 @@
-using Reveries.Domain;
+using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.Tests.Helpers;
 
@@ -11,7 +11,7 @@ public class StringExtensionsTests
 
         Assert.Equal("Unknown", result);
     }
-    
+
     [Theory]
     [InlineData("en", "English")]
     [InlineData("da", "Danish")]
@@ -24,7 +24,7 @@ public class StringExtensionsTests
 
         Assert.Equal(expectedLanguageName, result);
     }
-    
+
     [Theory]
     [InlineData("EN")]
     [InlineData("En")]
@@ -35,6 +35,6 @@ public class StringExtensionsTests
 
         Assert.Equal("English", result);
     }
-    
-    
+
+
 }

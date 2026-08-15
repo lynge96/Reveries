@@ -1,5 +1,9 @@
+using Reveries.Domain.Authors;
+using Reveries.Domain.Books;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.Shared;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Interfaces.IRepository;
 
 public interface IBookRepository
 {
@@ -15,5 +19,5 @@ public interface IBookRepository
     Task<List<Book>> GetDetailedBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct = default);
     Task<Book?> GetBookByIdAsync(Guid id, CancellationToken ct = default);
     Task<List<Book>> GetAllBooksAsync(CancellationToken ct = default);
-    
+
 }

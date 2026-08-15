@@ -15,22 +15,22 @@ public static class RedisServiceCollectionExtensions
         services.AddOptions<RedisSettings>()
             .Bind(config.GetSection("Redis"))
             .ValidateOnStart();
-        
+
         services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
         {
             var settings = serviceProvider.GetRequiredService<IOptions<RedisSettings>>().Value;
             var connectionString = settings.GetConnectionString();
-            
+
             var options = ConfigurationOptions.Parse(connectionString);
             options.AbortOnConnectFail = false;
             options.ConnectTimeout = 5000;
-            
+
             return ConnectionMultiplexer.Connect(options);
         });
-        
+
         services.AddScoped<IRedisCacheService, RedisCacheService>();
         services.AddScoped<IBookCacheService, BookCacheService>();
-        
+
         return services;
     }
 

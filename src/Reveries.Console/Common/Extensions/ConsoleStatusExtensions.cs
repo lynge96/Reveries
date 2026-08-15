@@ -14,7 +14,7 @@ public static class ConsoleStatusExtensions
 
                 var timer = System.Diagnostics.Stopwatch.StartNew();
                 var result = await action();
-                
+
                 return (result, timer.ElapsedMilliseconds);
             });
     }

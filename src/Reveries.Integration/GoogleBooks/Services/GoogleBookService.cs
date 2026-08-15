@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Shared;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
 using Reveries.Integration.GoogleBooks.Mappers;
@@ -11,7 +13,7 @@ public class GoogleBookService : IGoogleBookSearch
 {
     private readonly IGoogleBooksClient _googleBooksClient;
     private readonly ILogger<GoogleBookService> _logger;
-    
+
     public GoogleBookService(IGoogleBooksClient googleBooksClient, ILogger<GoogleBookService> logger)
     {
         _googleBooksClient = googleBooksClient;
@@ -37,7 +39,7 @@ public class GoogleBookService : IGoogleBookSearch
         _logger.LogDebug("GoogleBooks ISBN lookup completed. Requested {RequestedCount} ISBNs, found {FoundCount} books.", isbns.Count, books.Count);
         return books;
     }
-    
+
     public async Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, CancellationToken ct)
     {
         if (titles.Count == 0)
@@ -100,27 +102,27 @@ public class GoogleBookService : IGoogleBookSearch
         var mergedTitle = !string.IsNullOrWhiteSpace(book.Title.Value)
             ? book.Title
             : volume?.Title ?? throw new InvalidOperationException($"Book title is missing from both sources, for book with ISBN '{book.Isbn13?.Value ?? volume?.Isbn13?.Value}'.");
-    
+
         var mergedAuthors = book.Authors.Count > 0
             ? book.Authors
             : volume?.Authors;
-    
+
         var mergedSubjects = volume?.Genres.Count != 0
             ? volume?.Genres
             : book.Genres;
-    
+
         var mergedDeweyDecimals = volume?.DeweyDecimals.Count != 0
             ? volume?.DeweyDecimals
             : book.DeweyDecimals;
-    
+
         var mergedSynopsis = (volume?.Synopsis?.Length ?? 0) > (book.Synopsis?.Length ?? 0)
             ? volume?.Synopsis
             : book.Synopsis;
-    
+
         var mergedPages = book.Pages > 0
             ? book.Pages
             : volume?.Pages > 0 ? volume.Pages : null;
-    
+
         var dimensions = volume?.Dimensions ?? book.Dimensions;
 
         var bookData = new BookReconstitutionData
@@ -152,7 +154,7 @@ public class GoogleBookService : IGoogleBookSearch
             Genres: mergedSubjects,
             DeweyDecimals: mergedDeweyDecimals
         );
-        
+
         return Book.Reconstitute(bookData);
     }
 }

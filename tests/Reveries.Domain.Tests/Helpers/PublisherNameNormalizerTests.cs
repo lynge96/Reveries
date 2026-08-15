@@ -1,4 +1,4 @@
-using Reveries.Domain;
+using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.Tests.Helpers;
 
@@ -11,7 +11,7 @@ public class PublisherNameNormalizerTests
 
         Assert.Equal(string.Empty, result);
     }
-    
+
     [Theory]
     [InlineData("Penguin Books (2020)", "Penguin Books")]
     [InlineData("Harper & Row (U.S.A)", "Harper & Row")]
@@ -23,7 +23,7 @@ public class PublisherNameNormalizerTests
 
         Assert.Equal(expected, result);
     }
-    
+
     [Fact]
     public void Normalize_WithParenthesesAtStart_RemovesContent()
     {
@@ -44,6 +44,6 @@ public class PublisherNameNormalizerTests
 
         Assert.Equal(expected, result);
     }
-    
-    
+
+
 }

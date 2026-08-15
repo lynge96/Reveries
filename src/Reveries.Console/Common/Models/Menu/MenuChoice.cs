@@ -12,7 +12,7 @@ public enum MenuChoice
     // Database operations
     BooksInDatabase,
     BookSeries,
-    
+
     Exit,
     Back
 }

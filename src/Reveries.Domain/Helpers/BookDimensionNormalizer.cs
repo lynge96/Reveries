@@ -1,4 +1,4 @@
-namespace Reveries.Domain;
+namespace Reveries.Domain.Helpers;
 
 public static class BookDimensionNormalizer
 {
@@ -23,7 +23,7 @@ public static class BookDimensionNormalizer
 
         return (normalizedHeight, normalizedWidth, normalizedThickness);
     }
-    
+
     /// <summary>
     /// Converts millimeters to centimeters if value exceeds 100.
     /// Assumes values > 100 are in millimeters.
@@ -31,7 +31,7 @@ public static class BookDimensionNormalizer
     private static decimal NormalizeUnit(decimal value)
     {
         var normalized = value;
-        
+
         while (normalized >= MaxCentimeters)
             normalized /= 10;
 

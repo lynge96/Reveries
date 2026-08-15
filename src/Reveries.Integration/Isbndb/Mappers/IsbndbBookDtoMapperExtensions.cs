@@ -1,5 +1,6 @@
-﻿using Reveries.Domain;
-using Reveries.Domain;
+﻿using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Helpers;
 using Reveries.Integration.Isbndb.DTOs.Books;
 
 namespace Reveries.Integration.Isbndb.Mappers;
@@ -11,9 +12,9 @@ public static class IsbndbBookDtoMapperExtensions
         var thickness = isbndbBookDto.DimensionsStructured?.Length.ConvertDimension();
         var height = isbndbBookDto.DimensionsStructured?.Height.ConvertDimension();
         var width = isbndbBookDto.DimensionsStructured?.Width.ConvertDimension();
-        
+
         var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
-        
+
         return Book.Create(
             isbn13: isbndbBookDto.Isbn13,
             isbn10: isbndbBookDto.Isbn10,
@@ -42,10 +43,10 @@ public static class IsbndbBookDtoMapperExtensions
     private static decimal? ConvertDimension(this DimensionDto? dimension)
     {
         if (dimension is null) return null;
-        
+
         var unit = dimension.Unit!.ToLowerInvariant();
         var value = dimension.Value;
-        
+
         const double inchToCentimeterConversion = 2.54;
         const double poundToGramConversion = 453.59;
 

@@ -1,5 +1,7 @@
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Shared;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Authors;
 
 public class Author : BaseEntity
 {
@@ -24,7 +26,7 @@ public class Author : BaseEntity
     {
         var (firstName, lastName) = AuthorNameNormalizer.Parse(name);
         var authorId = AuthorId.New();
-        
+
         return new Author(authorId, firstName, lastName);
     }
 
@@ -35,7 +37,7 @@ public class Author : BaseEntity
             DateCreated = dateCreated
         };
     }
-    
+
     public void AddNameVariant(string variant, bool makePrimary)
     {
         if (string.IsNullOrWhiteSpace(variant))
@@ -45,7 +47,7 @@ public class Author : BaseEntity
 
         if (_nameVariants.Any(v => v.NameVariant.Equals(nameVariant.NameVariant, StringComparison.InvariantCultureIgnoreCase)))
             return;
-        
+
         _nameVariants.Add(nameVariant);
 
         if (makePrimary)
@@ -56,7 +58,7 @@ public class Author : BaseEntity
     {
         if (!_nameVariants.Contains(variant))
             throw new InvalidOperationException("Variant does not belong to this author.");
-        
+
         foreach (var v in _nameVariants)
             v.UnmarkPrimary();
 

@@ -1,4 +1,5 @@
-using Reveries.Domain;
+using Reveries.Domain.Exceptions;
+using Reveries.Domain.Shared;
 
 namespace Reveries.Domain.Tests.ValueObjects;
 
@@ -16,7 +17,7 @@ public class IsbnTests
         Assert.Equal(expected, isbn.Value);
         Assert.Equal(expected, isbn.ToString());
     }
-    
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -28,7 +29,7 @@ public class IsbnTests
 
         Assert.Contains("ISBN cannot be null or empty", ex.Message);
     }
-    
+
     [Theory]
     [InlineData("123")]
     [InlineData("123456789012")]
@@ -39,5 +40,5 @@ public class IsbnTests
         Assert.Throws<InvalidIsbnException>(
             () => Isbn.Create(input));
     }
-    
+
 }

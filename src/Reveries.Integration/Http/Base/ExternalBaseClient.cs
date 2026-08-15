@@ -12,19 +12,19 @@ public abstract class ExternalBaseClient<TClient> where TClient : class
     protected readonly HttpClient HttpClient;
     private readonly ILogger<TClient> _logger;
     protected abstract string DependencyName { get; }
-    
+
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         Converters = { new DecimalConverter() }
     };
-    
+
     protected ExternalBaseClient(HttpClient httpClient, ILogger<TClient> logger)
     {
         HttpClient = httpClient;
         _logger = logger;
     }
-    
+
     protected async Task<T?> HandleResponseAsync<T>(
         HttpResponseMessage response,
         string context,
@@ -37,7 +37,7 @@ public abstract class ExternalBaseClient<TClient> where TClient : class
                 _logger.LogWarning("{Dependency} key is invalid or expired", DependencyName);
                 return null;
             case HttpStatusCode.NotFound:
-                _logger.LogInformation("{Dependency} returned 404 for '{Context}'", DependencyName ,context);
+                _logger.LogInformation("{Dependency} returned 404 for '{Context}'", DependencyName, context);
                 return null;
             case HttpStatusCode.TooManyRequests:
                 _logger.LogWarning("{Dependency} rate limit exceeded for '{Context}'", DependencyName, context);
@@ -58,7 +58,7 @@ public abstract class ExternalBaseClient<TClient> where TClient : class
 
             if (validate is not null && !validate(result))
             {
-                _logger.LogWarning("{Dependency} returned empty response for {Context}", 
+                _logger.LogWarning("{Dependency} returned empty response for {Context}",
                     DependencyName, context);
                 return null;
             }

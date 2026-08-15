@@ -1,4 +1,6 @@
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Shared;
 using Reveries.Persistence.Entities;
 
 namespace Reveries.Persistence.Mappers;
@@ -6,7 +8,7 @@ namespace Reveries.Persistence.Mappers;
 public static class BookAggregateMapperExtensions
 {
     public static Book ToDomainAggregate(this BookAggregateEntity entity)
-    { 
+    {
         var data = new BookReconstitutionData
         (
             Id: entity.Book.Id,
@@ -34,7 +36,7 @@ public static class BookAggregateMapperExtensions
             DeweyDecimals: entity.DeweyDecimals?
                 .Select(dd => dd.ToDomain())
         );
-        
+
         return Book.Reconstitute(data);
     }
 

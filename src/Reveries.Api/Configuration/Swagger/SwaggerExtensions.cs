@@ -6,9 +6,9 @@ public static class SwaggerExtensions
 {
     public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
     {
-        var swaggerConfig = configuration.GetSection("Swagger").Get<SwaggerConfiguration>() 
+        var swaggerConfig = configuration.GetSection("Swagger").Get<SwaggerConfiguration>()
                             ?? new SwaggerConfiguration();
-        
+
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         {
@@ -18,7 +18,7 @@ public static class SwaggerExtensions
                 Version = swaggerConfig.Version,
                 Description = swaggerConfig.Description
             });
-            
+
             options.EnableAnnotations();
         });
 
@@ -27,9 +27,9 @@ public static class SwaggerExtensions
 
     public static IApplicationBuilder UseSwaggerDocumentation(this IApplicationBuilder app, IConfiguration configuration)
     {
-        var swaggerConfig = configuration.GetSection("Swagger").Get<SwaggerConfiguration>() 
+        var swaggerConfig = configuration.GetSection("Swagger").Get<SwaggerConfiguration>()
                             ?? new SwaggerConfiguration();
-        
+
         app.UseSwagger(c =>
         {
             c.PreSerializeFilters.Add((swagger, httpReq) =>
@@ -47,10 +47,10 @@ public static class SwaggerExtensions
         app.UseSwaggerUI(options =>
         {
             options.DocumentTitle = swaggerConfig.Title;
-            options.SwaggerEndpoint($"/swagger/{swaggerConfig.Version}/swagger.json", 
+            options.SwaggerEndpoint($"/swagger/{swaggerConfig.Version}/swagger.json",
                 $"{swaggerConfig.Title} {swaggerConfig.Version}");
             options.RoutePrefix = string.Empty;
-            
+
             options.DisplayRequestDuration();
             options.EnableDeepLinking();
         });

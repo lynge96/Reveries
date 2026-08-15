@@ -1,4 +1,4 @@
-using Reveries.Domain;
+using Reveries.Domain.Helpers;
 
 namespace Reveries.Infrastructure.Redis.Configuration;
 

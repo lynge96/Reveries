@@ -41,7 +41,7 @@ public class BooksController : ControllerBase
 
         return Ok(books.ToResponse());
     }
-    
+
     [HttpGet("isbn/{isbn}")]
     [SwaggerOperation(
         Summary = "Get book by ISBN",
@@ -67,7 +67,7 @@ public class BooksController : ControllerBase
     {
         var query = new GetBookExistsQuery(isbn);
         var exists = await _mediator.Send(query, ct);
-        
+
         return Ok(exists);
     }
 
@@ -98,7 +98,7 @@ public class BooksController : ControllerBase
 
         return Ok(book.ToDto());
     }
-    
+
     [HttpPost]
     [SwaggerOperation(
         Summary = "Add book",
@@ -109,10 +109,10 @@ public class BooksController : ControllerBase
     {
         var command = request.ToCommand();
         var bookId = await _mediator.Send(command, ct);
-        
+
         return new CreateBookResponse(bookId.Value);
     }
-    
+
     [HttpPatch("{isbn}/series")]
     [SwaggerOperation(
         Summary = "Set series",

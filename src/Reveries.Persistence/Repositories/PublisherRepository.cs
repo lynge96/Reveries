@@ -1,5 +1,6 @@
 using Dapper;
-using Reveries.Domain;
+using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Publishers;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
@@ -10,7 +11,7 @@ namespace Reveries.Persistence.Repositories;
 public class PublisherRepository : IPublisherRepository
 {
     private readonly IDbContext _dbContext;
-    
+
     public PublisherRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -22,7 +23,7 @@ public class PublisherRepository : IPublisherRepository
     {
         if (publisher is null)
             return null;
-    
+
         const string sql = """
                            INSERT INTO library.publishers (id, name)
                            VALUES (@Id, @Name)
@@ -30,7 +31,7 @@ public class PublisherRepository : IPublisherRepository
                            SET name = EXCLUDED.name
                            RETURNING id, name, date_created
                            """;
-    
+
         var connection = await _dbContext.GetConnectionAsync(ct);
         var publisherEntity = publisher.ToEntity();
 
@@ -58,7 +59,7 @@ public class PublisherRepository : IPublisherRepository
         var command = _dbContext.CreateCommand(sql, new { Name = $"%{publisher.Name}%" }, ct);
 
         var rows = await connection.QueryAsync<PublisherEntity>(command);
-        
+
         return rows.Select(r => r.ToDomain()).ToList();
     }
 }

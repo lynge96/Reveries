@@ -9,20 +9,20 @@ public class PostgresDbContext : IDbContext
 {
     private readonly NpgsqlDataSource _dataSource;
     private readonly ILogger<PostgresDbContext> _logger;
-    
+
     private NpgsqlConnection? _connection;
     private NpgsqlTransaction? _transaction;
     private bool _disposed;
-    
+
     public PostgresDbContext(NpgsqlDataSource dataSource, ILogger<PostgresDbContext> logger)
     {
         _dataSource = dataSource;
         _logger = logger;
     }
-    
+
     public bool HasActiveTransaction => _transaction != null;
     public IDbTransaction? CurrentTransaction => _transaction;
-    
+
     public async Task<IDbConnection> GetConnectionAsync(CancellationToken ct = default)
     {
         if (_disposed) throw new ObjectDisposedException(nameof(PostgresDbContext));
@@ -57,7 +57,7 @@ public class PostgresDbContext : IDbContext
     public async Task CommitTransactionAsync(CancellationToken ct = default)
     {
         if (_transaction == null) return;
-        
+
         await _transaction.CommitAsync(ct);
         await _transaction.DisposeAsync();
         _transaction = null;
@@ -66,7 +66,7 @@ public class PostgresDbContext : IDbContext
     public async Task RollbackTransactionAsync(CancellationToken ct = default)
     {
         if (_transaction is null) return;
-        
+
         await _transaction.RollbackAsync(ct);
         await _transaction.DisposeAsync();
         _transaction = null;

@@ -1,4 +1,4 @@
-using Reveries.Domain;
+using Reveries.Domain.Shared;
 
 namespace Reveries.Domain.Tests.ValueObjects;
 
@@ -14,7 +14,7 @@ public class DeweyDecimalsTests
     public void Create_NormalizesValidCodes(string input, string expected)
     {
         var dewey = DeweyDecimal.Create(input);
-        
+
         Assert.NotNull(dewey);
         Assert.Equal(expected, dewey.Code);
     }

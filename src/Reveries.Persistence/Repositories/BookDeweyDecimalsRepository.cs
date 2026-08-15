@@ -1,5 +1,5 @@
 using Dapper;
-using Reveries.Domain;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 
@@ -8,12 +8,12 @@ namespace Reveries.Persistence.Repositories;
 public class BookDeweyDecimalsRepository : IBookDeweyDecimalsRepository
 {
     private readonly IDbContext _dbContext;
-    
+
     public BookDeweyDecimalsRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }
-    
+
     public async Task InsertBookDeweyDecimalsAsync(
         Guid bookId,
         IEnumerable<int> deweyDecimalsIds,

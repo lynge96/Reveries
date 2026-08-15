@@ -1,4 +1,10 @@
-namespace Reveries.Domain;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Exceptions;
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.Shared;
+using Reveries.Domain.Works;
+namespace Reveries.Domain.Editions;
 
 public class Edition : BaseEntity
 {
@@ -39,7 +45,8 @@ public class Edition : BaseEntity
         decimal? weight,
         DataSource dataSource)
     {
-        // TODO(human): decide and enforce the ISBN invariant for a new Edition.
+        if (isbn13 == null && isbn10 == null)
+            throw new MissingIsbnException();
 
         var edition = new Edition
         {

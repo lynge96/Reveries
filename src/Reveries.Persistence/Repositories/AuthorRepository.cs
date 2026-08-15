@@ -1,5 +1,6 @@
 using Dapper;
-using Reveries.Domain;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
@@ -10,7 +11,7 @@ namespace Reveries.Persistence.Repositories;
 public class AuthorRepository : IAuthorRepository
 {
     private readonly IDbContext _dbContext;
-    
+
     public AuthorRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -22,7 +23,7 @@ public class AuthorRepository : IAuthorRepository
     {
         if (authors.Count == 0)
             return [];
-        
+
         var authorNames = authors.Select(a => a.NormalizedName).Distinct().ToList();
 
         var byName = await GetByNamesAsync(authorNames, ct);

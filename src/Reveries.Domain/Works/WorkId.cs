@@ -1,4 +1,4 @@
-namespace Reveries.Domain;
+namespace Reveries.Domain.Works;
 
 public readonly record struct WorkId(Guid Value)
 {

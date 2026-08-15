@@ -1,6 +1,7 @@
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Utilities;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;
@@ -12,13 +13,13 @@ public class BookSelectionService
         var booksToPrompt = books.Where(b => b.DataSource != DataSource.Database && b.DataSource != DataSource.Cache).ToList();
         if (booksToPrompt.Count == 0)
             return new List<Book>();
-        
+
         var sortedBooks = booksToPrompt
             .OrderByDescending(b => b.DataSource.HasFlag(DataSource.Database))
             .ThenBy(b => b.Title)
             .ThenBy(b => b.DataSource.HasFlag(DataSource.CombinedBookApi))
             .ToList();
-        
+
         var selectedBooks = ConsolePromptUtility.ShowMultiSelectionPrompt("Select books to save:", sortedBooks);
 
         if (selectedBooks.Count == 0)
@@ -26,7 +27,7 @@ public class BookSelectionService
             AnsiConsole.MarkupLine("No books selected.".AsWarning());
             return new List<Book>();
         }
-        
+
         return selectedBooks;
     }
 
@@ -44,9 +45,9 @@ public class BookSelectionService
             return booksList;
 
         var selectedLanguages = ConsolePromptUtility.ShowMultiSelectionPrompt("Select languages to filter by:", availableLanguages);
-        
-        return selectedLanguages.Count == 0 
-            ? booksList 
+
+        return selectedLanguages.Count == 0
+            ? booksList
             : booksList.Where(b => selectedLanguages.Contains(b.Language!)).ToList();
     }
 }

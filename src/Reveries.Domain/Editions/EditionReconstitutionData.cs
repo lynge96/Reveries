@@ -1,5 +1,8 @@
+using Reveries.Domain.Enums;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.Shared;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Editions;
 
 public sealed record EditionReconstitutionData(
     Guid Id,

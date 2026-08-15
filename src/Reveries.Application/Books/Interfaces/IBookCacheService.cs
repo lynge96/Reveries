@@ -1,4 +1,5 @@
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Shared;
 
 namespace Reveries.Application.Books.Interfaces;
 
@@ -10,7 +11,7 @@ public interface IBookCacheService
     Task RemoveBookByIsbnAsync(Isbn? isbn, CancellationToken ct = default);
     Task<IReadOnlyList<Book>> GetBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct = default);
     Task SetBooksByIsbnsAsync(IEnumerable<Book> books, CancellationToken ct = default);
-    
+
     // title
     Task<IReadOnlyList<Book>> GetBooksByTitlesAsync(IEnumerable<Title> titles, CancellationToken ct = default);
     Task SetIsbnsByTitleAsync(Dictionary<string, List<string>> titleIsbnMap, CancellationToken ct = default);

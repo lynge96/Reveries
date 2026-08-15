@@ -2,7 +2,8 @@ using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.BookSeries.Services;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.BookSeries;
 
 namespace Reveries.Application.Books.Commands.SetBookSeries;
 
@@ -11,9 +12,9 @@ public sealed class SetBookSeriesHandler : IQueryHandler<SetBookSeriesCommand, B
     private readonly BookSeriesService _bookSeriesService;
     private readonly IBookCacheService _cache;
     private readonly ILogger<SetBookSeriesHandler> _logger;
-    
+
     public SetBookSeriesHandler(
-        BookSeriesService bookSeriesService, 
+        BookSeriesService bookSeriesService,
         IBookCacheService cache,
         ILogger<SetBookSeriesHandler> logger)
     {
@@ -21,21 +22,21 @@ public sealed class SetBookSeriesHandler : IQueryHandler<SetBookSeriesCommand, B
         _cache = cache;
         _logger = logger;
     }
-    
+
     public async ValueTask<BookId> Handle(SetBookSeriesCommand command, CancellationToken ct)
     {
         var series = Series.Create(command.SeriesName);
 
         var bookId = await _bookSeriesService.SetSeriesAsync(command.Isbn, series, command.NumberInSeries, ct);
-        
+
         await _cache.RemoveBookByIsbnAsync(command.Isbn, ct);
-        
+
         _logger.LogDebug(
             "Setting series '{SeriesName}' #{NumberInSeries}, for book with ISBN '{Isbn}'",
             series.Name,
             command.NumberInSeries,
             command.Isbn?.Value);
-        
+
         return bookId;
     }
 }

@@ -1,7 +1,6 @@
 using Reveries.Application.Books.Commands.CreateBook;
-using Reveries.Contracts.Books;
 using Reveries.Contracts.Books.Requests;
-using Reveries.Domain;
+using Reveries.Domain.Shared;
 
 namespace Reveries.Api.Mappers;
 

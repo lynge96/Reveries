@@ -1,4 +1,6 @@
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.Tests.Helpers;
 
@@ -63,7 +65,7 @@ public class BookMergerTests
         configure?.Invoke(book);
         return book;
     }
-    
+
     [Fact]
     public void MergeBooks_BothNull_ReturnsNull()
     {
@@ -71,7 +73,7 @@ public class BookMergerTests
 
         Assert.Null(result);
     }
-    
+
     [Fact]
     public void MergeBooks_OnlyGoogle_ReturnsGoogleBook()
     {
@@ -81,7 +83,7 @@ public class BookMergerTests
 
         Assert.Same(google, result);
     }
-    
+
     [Fact]
     public void MergeBooks_OnlyIsbndb_ReturnsIsbndbBook()
     {
@@ -91,7 +93,7 @@ public class BookMergerTests
 
         Assert.Same(isbndb, result);
     }
-    
+
     [Fact]
     public void MergeBooks_PrefersGoogleTitle_OverIsbndb()
     {

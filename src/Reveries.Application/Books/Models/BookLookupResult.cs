@@ -1,4 +1,4 @@
-using Reveries.Domain;
+using Reveries.Domain.Books;
 
 namespace Reveries.Application.Books.Models;
 
@@ -9,6 +9,6 @@ public sealed record BookLookupResult<TKey>(
     public bool HasResults => Found.Count > 0;
     public bool HasMissing => NotFound.Count > 0;
     public bool NoResults => !HasResults;
-    
+
     public static BookLookupResult<TKey> Empty => new([], []);
 }

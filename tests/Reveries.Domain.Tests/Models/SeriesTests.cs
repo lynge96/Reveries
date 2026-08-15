@@ -1,4 +1,4 @@
-using Reveries.Domain;
+using Reveries.Domain.BookSeries;
 
 namespace Reveries.Domain.Tests.Models;
 
@@ -8,11 +8,11 @@ public class SeriesTests
     public void Create_WithValidName_NormalizesAndHasNoId()
     {
         var series = Series.Create("the wheel of time");
-        
+
         Assert.NotNull(series);
         Assert.Equal("The Wheel Of Time", series.Name);
     }
-    
+
     [Fact]
     public void Reconstitute_CreatesFullyHydratedEntity()
     {
@@ -20,11 +20,11 @@ public class SeriesTests
         var seriesId = SeriesId.New();
 
         var series = Series.Reconstitute(seriesId, "Stormlight Archive", dateCreated);
-        
+
         Assert.Equal(seriesId, series.Id);
         Assert.Equal("Stormlight Archive", series.Name);
         Assert.Equal(dateCreated, series.DateCreated);
     }
-    
-    
+
+
 }

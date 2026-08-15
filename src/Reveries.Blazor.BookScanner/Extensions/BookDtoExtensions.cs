@@ -1,5 +1,4 @@
 using System.Globalization;
-using Reveries.Contracts.Books;
 using Reveries.Contracts.Books.Dtos;
 
 namespace Reveries.Blazor.BookScanner.Extensions;
@@ -9,10 +8,10 @@ public static class BookDtoExtensions
     public static string FormattedDate(this BookDetailsDto? bookDto)
     {
         var raw = bookDto?.PublicationDate?.Trim();
-        
+
         if (string.IsNullOrWhiteSpace(raw))
             return "Unknown";
-        
+
         // Full date (e.g. 2021-01-01)
         if (DateTime.TryParse(raw, out var fullDate))
         {

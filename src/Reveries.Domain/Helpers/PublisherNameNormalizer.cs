@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Helpers;
 
 public static partial class PublisherNameNormalizer
 {
@@ -8,17 +8,17 @@ public static partial class PublisherNameNormalizer
     {
         [GeneratedRegex(@"[\(\[].*?[\)\]]|@.*")]
         public static partial Regex ParenthesesAndAtPattern();
-    
+
         [GeneratedRegex(@"^[A-Za-z]+\s*:")]
         public static partial Regex PrefixPattern();
-    
+
         [GeneratedRegex(@"[^A-Za-z0-9\s,&']")]
         public static partial Regex SpecialCharsPattern();
-    
+
         [GeneratedRegex(@"\s+")]
         public static partial Regex MultipleSpacesPattern();
     }
-    
+
     /// <summary>
     /// Normalizes the publisher name by removing noise, special characters, and standardizing format.
     /// Preserves commas and ampersands (&) in publisher names (e.g., "Smith, Anderson & Co.").
@@ -29,7 +29,7 @@ public static partial class PublisherNameNormalizer
 
         // 1. Remove parenthetical content and everything after @
         normalized = RegexPatterns.ParenthesesAndAtPattern().Replace(normalized, "");
-        
+
         // 2. Remove prefixes like "London :"
         normalized = RegexPatterns.PrefixPattern().Replace(normalized, "");
 

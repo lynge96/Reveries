@@ -1,5 +1,6 @@
+using Reveries.Domain.Shared;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Interfaces.IRepository;
 
 public interface IDeweyDecimalsRepository
 {

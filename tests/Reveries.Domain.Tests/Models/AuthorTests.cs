@@ -1,4 +1,4 @@
-using Reveries.Domain;
+using Reveries.Domain.Authors;
 
 namespace Reveries.Domain.Tests.Models;
 
@@ -17,7 +17,7 @@ public class AuthorTests
         Assert.Equal("Austen", author.LastName);
         Assert.Empty(author.NameVariants);
     }
-    
+
     [Fact]
     public void AddNameVariant_WithNewVariant_AddsVariant()
     {
@@ -72,7 +72,7 @@ public class AuthorTests
         Assert.Equal("Austen", author.LastName);
         Assert.Equal(date, author.DateCreated);
     }
-    
+
     [Fact]
     public void AddNameVariant_WhenNewPrimary_IsAdded_RemovesPreviousPrimary()
     {
@@ -80,7 +80,7 @@ public class AuthorTests
 
         author.AddNameVariant("J. Austen", true);
         author.AddNameVariant("Jane A.", true);
-        
+
         Assert.Equal(2, author.NameVariants.Count);
 
         var primaryVariants = author.NameVariants.Where(v => v.IsPrimary).ToList();
@@ -88,7 +88,7 @@ public class AuthorTests
         Assert.Single(primaryVariants);
         Assert.Equal("Jane A.", primaryVariants[0].NameVariant);
     }
-    
+
     [Fact]
     public void AddNameVariant_WhenNewVariantIsNotPrimary_DoesNotChangeExistingPrimary()
     {
@@ -101,7 +101,7 @@ public class AuthorTests
 
         Assert.Equal("J. Austen", primary.NameVariant);
     }
-    
-    
-    
+
+
+
 }

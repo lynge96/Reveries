@@ -1,11 +1,11 @@
 using System.Net;
-using Reveries.Domain;
+using Reveries.Domain.Shared;
 
 namespace Reveries.Application.Common.Exceptions;
 
 public class BookAlreadyExistsException : ApplicationException
 {
-    public BookAlreadyExistsException(Isbn isbn) 
-        : base($"Book with ISBN '{isbn.Value}' already exists.", HttpStatusCode.Conflict) 
+    public BookAlreadyExistsException(Isbn isbn)
+        : base($"Book with ISBN '{isbn.Value}' already exists.", HttpStatusCode.Conflict)
     { }
 }

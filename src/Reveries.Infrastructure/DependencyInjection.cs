@@ -11,7 +11,7 @@ public static class DependencyInjection
     {
         services.AddPostgres(config);
         services.AddRedisCache(config);
-        
+
         return services;
     }
 }

@@ -1,5 +1,6 @@
 using Mediator;
-using Reveries.Domain;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Books;
 
 namespace Reveries.Application.Books.Queries.FindBooksByAuthor;
 

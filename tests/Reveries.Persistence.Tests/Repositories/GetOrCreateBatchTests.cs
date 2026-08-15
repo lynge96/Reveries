@@ -1,5 +1,6 @@
 using Dapper;
-using Reveries.Domain;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Shared;
 using Reveries.Persistence.Repositories;
 using Reveries.Persistence.Tests.Fixtures;
 

@@ -1,5 +1,5 @@
 using Dapper;
-using Reveries.Domain;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 
@@ -8,7 +8,7 @@ namespace Reveries.Persistence.Repositories;
 public class BookAuthorsRepository : IBookAuthorsRepository
 {
     private readonly IDbContext _dbContext;
-    
+
     public BookAuthorsRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;

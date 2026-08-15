@@ -1,4 +1,4 @@
-using Reveries.Domain;
+using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.Tests.Helpers;
 
@@ -12,7 +12,7 @@ public class AuthorNameParserTests
         Assert.Equal(string.Empty, result.FirstName);
         Assert.Equal(string.Empty, result.LastName);
     }
-    
+
     [Fact]
     public void Parse_WithCommaFormat_ParsesCorrectly()
     {
@@ -21,7 +21,7 @@ public class AuthorNameParserTests
         Assert.Equal("John", result.FirstName);
         Assert.Equal("Smith", result.LastName);
     }
-    
+
     [Fact]
     public void Parse_WithTwoNames_FirstAndLast()
     {
@@ -30,7 +30,7 @@ public class AuthorNameParserTests
         Assert.Equal("Stephen", result.FirstName);
         Assert.Equal("King", result.LastName);
     }
-    
+
     [Fact]
     public void Parse_WithCommaFormatAndMiddleName_IncludesMiddleNameInFirstName()
     {
@@ -39,7 +39,7 @@ public class AuthorNameParserTests
         Assert.Equal("John Ronald Reuel", result.FirstName);
         Assert.Equal("Tolkien", result.LastName);
     }
-    
+
     [Fact]
     public void Parse_WithThreeNames_FirstMiddleLast()
     {
@@ -48,7 +48,7 @@ public class AuthorNameParserTests
         Assert.Equal("George Raymond Richard", result.FirstName);
         Assert.Equal("Martin", result.LastName);
     }
-    
+
     [Fact]
     public void Parse_WithCommaAndExtraSpaces_TrimsCorrectly()
     {
@@ -57,7 +57,7 @@ public class AuthorNameParserTests
         Assert.Equal("John", result.FirstName);
         Assert.Equal("Smith", result.LastName);
     }
-    
+
     [Theory]
     [InlineData("J.R.R. Tolkien", "J.R.R.", "Tolkien")]
     [InlineData("J. R. R. Martin", "J. R. R.", "Martin")]
@@ -67,11 +67,11 @@ public class AuthorNameParserTests
     public void Parse_WithInitials_ParsesCorrectly(string input, string expectedFirst, string expectedLast)
     {
         var result = AuthorNameNormalizer.Parse(input);
-    
+
         Assert.Equal(expectedFirst, result.FirstName);
         Assert.Equal(expectedLast, result.LastName);
     }
-    
+
     [Fact]
     public void Parse_WithHyphenatedName_TreatsAsOneWord()
     {
@@ -80,5 +80,5 @@ public class AuthorNameParserTests
         Assert.Equal("Mary-Jane", result.FirstName);
         Assert.Equal("Watson", result.LastName);
     }
-    
+
 }

@@ -3,7 +3,8 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Extensions;
 using Reveries.Application.Books.Interfaces;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Shared;
 using Reveries.Infrastructure.Redis.Configuration;
 using Reveries.Infrastructure.Redis.Interfaces;
 using Reveries.Infrastructure.Redis.Mappers;
@@ -16,15 +17,15 @@ public class BookCacheService : IBookCacheService
 {
     private readonly IRedisCacheService _cache;
     private readonly ILogger<BookCacheService> _logger;
-    
+
     private readonly StringComparer _titleComparer = StringComparer.OrdinalIgnoreCase;
-    
+
     public BookCacheService(IRedisCacheService cacheService, ILogger<BookCacheService> logger)
     {
         _cache = cacheService;
         _logger = logger;
     }
-    
+
     public async Task<Book?> GetBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         var key = CacheKeys.BookByIsbn(isbn.Value);
@@ -37,10 +38,10 @@ public class BookCacheService : IBookCacheService
     public async Task SetBookByIsbnAsync(Book book, CancellationToken ct)
     {
         if (book.Isbn13 == null && book.Isbn10 == null) return;
-        
+
         var key = CacheKeys.BookByIsbn(book.Isbn13?.Value ?? book.Isbn10?.Value!);
         var dto = book.ToCacheDto();
-        
+
         await _cache.SetAsync(key, dto, CacheDefaults.DefaultExpiration, ct);
     }
 
@@ -49,15 +50,15 @@ public class BookCacheService : IBookCacheService
         if (isbn != null)
         {
             var key = CacheKeys.BookByIsbn(isbn.Value);
-        
+
             await _cache.RemoveAsync(key, ct);
         }
     }
-    
+
     public async Task<IReadOnlyList<Book>> GetBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
     {
         var distinctIsbns = isbns.Distinct().ToList();
-        
+
         if (distinctIsbns.Count == 0)
             return ImmutableList<Book>.Empty;
 
@@ -107,9 +108,9 @@ public class BookCacheService : IBookCacheService
                 foundBooks.Add(book);
         }
 
-        _logger.LogDebug("Cache ISBN lookup completed. Requested {IsbnCount} Isbns, found {BooksCount} books in cache.", 
+        _logger.LogDebug("Cache ISBN lookup completed. Requested {IsbnCount} Isbns, found {BooksCount} books in cache.",
             distinctIsbns.Count, foundBooks.Count);
-    
+
         return foundBooks.ToImmutableList();
     }
 
@@ -125,7 +126,7 @@ public class BookCacheService : IBookCacheService
             .Where(t => !string.IsNullOrWhiteSpace(t.Value))
             .Distinct()
             .ToList();
-        
+
         var batch = _cache.CreateBatch();
         var titleTasks = distinctTitles.ToDictionary(
             title => title,
@@ -133,7 +134,7 @@ public class BookCacheService : IBookCacheService
         );
         batch.Execute();
         await Task.WhenAll(titleTasks.Values);
-        
+
         var isbnResults = new Dictionary<Title, List<Isbn>>();
         foreach (var (title, task) in titleTasks)
         {
@@ -151,18 +152,18 @@ public class BookCacheService : IBookCacheService
                 isbnResults[title] = isbns;
             }
         }
-        
+
         var allIsbns = isbnResults.Values.SelectMany(x => x).Distinct().ToList();
-        
+
         if (allIsbns.Count == 0)
             return new List<Book>();
-        
+
         var books = await GetBooksByIsbnsAsync(allIsbns, ct);
-        
-        _logger.LogDebug("Cache title lookup completed. Requested {TitleCount} titles, found {BooksCount} books in cache.", 
-            distinctTitles.Count, 
+
+        _logger.LogDebug("Cache title lookup completed. Requested {TitleCount} titles, found {BooksCount} books in cache.",
+            distinctTitles.Count,
             books.Count);
-        
+
         return books.ToList();
     }
 

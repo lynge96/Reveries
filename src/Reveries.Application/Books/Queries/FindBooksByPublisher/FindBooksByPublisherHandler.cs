@@ -3,7 +3,8 @@ using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Extensions;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Application.Publishers.Interfaces;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Interfaces.IRepository;
 
 namespace Reveries.Application.Books.Queries.FindBooksByPublisher;
 
@@ -30,12 +31,12 @@ public sealed class FindBooksByPublisherHandler : IQueryHandler<FindBooksByPubli
         var databaseBooks = await _books.GetBooksByPublisherAsync(publisher, ct);
         if (databaseBooks.Count > 0)
             return databaseBooks.ArrangeBooks().ToList();
-        
+
         var apiBooks = await _publisherSearch.GetBooksByPublisherAsync(publisher, ct);
-        
+
         if (apiBooks is null)
             throw new NotFoundException($"Books with publisher '{publisher}' were not found.");
-        
+
         _logger.LogInformation(
             "Book lookup by publisher completed. Requested '{PublisherName}'. DB: {DbCount}, API: {ApiCount}. Final: {Total}.",
             publisher,
@@ -43,7 +44,7 @@ public sealed class FindBooksByPublisherHandler : IQueryHandler<FindBooksByPubli
             apiBooks.Count,
             databaseBooks.Count + apiBooks.Count
         );
-        
+
         return apiBooks;
     }
 }

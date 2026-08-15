@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
         {
             options.ServiceLifetime = ServiceLifetime.Scoped;
         });
-        
+
         // Services
         // Books
         services.AddScoped<IBookPersistenceService, BookPersistenceService>();
@@ -28,14 +28,14 @@ public static class ServiceCollectionExtensions
         // Authors
         services.AddScoped<IAuthorEnrichmentService, AuthorEnrichmentService>();
         services.AddScoped<IAuthorLookupService, AuthorLookupService>();
-        
+
         // Publishers
         services.AddScoped<IPublisherLookupService, PublisherLookupService>();
-        
+
         // Series
         services.AddScoped<ICreateSeriesService, CreateSeriesService>();
         services.AddScoped<IBookSeriesService, BookSeriesService>();
-        
+
         return services;
     }
 }

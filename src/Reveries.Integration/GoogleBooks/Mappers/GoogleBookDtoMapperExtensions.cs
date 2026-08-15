@@ -1,5 +1,7 @@
 using System.Globalization;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Helpers;
 using Reveries.Integration.GoogleBooks.DTOs;
 
 namespace Reveries.Integration.GoogleBooks.Mappers;
@@ -11,7 +13,7 @@ public static class GoogleBookDtoMapperExtensions
         var thickness = googleBookDto.Dimensions?.Thickness.ParseDimension();
         var height = googleBookDto.Dimensions?.Height.ParseDimension();
         var width = googleBookDto.Dimensions?.Width.ParseDimension();
-        
+
         var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
 
         return Book.Create(

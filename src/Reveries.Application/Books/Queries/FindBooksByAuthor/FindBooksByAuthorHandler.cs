@@ -2,7 +2,8 @@ using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Authors.Interfaces;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Interfaces.IRepository;
 
 namespace Reveries.Application.Books.Queries.FindBooksByAuthor;
 
@@ -29,12 +30,12 @@ public sealed class FindBooksByAuthorHandler : IQueryHandler<FindBooksByAuthorQu
         var databaseBooks = await _books.GetBooksByAuthorAsync(author, ct);
         if (databaseBooks.Count > 0)
             return databaseBooks;
-        
+
         var apiBooks = await _authorSearch.GetBooksByAuthorAsync(author, ct);
 
         if (apiBooks is null)
             throw new NotFoundException($"Books with author '{author}' were not found.");
-        
+
         _logger.LogInformation(
             "Book lookup by Author completed. Requested '{Author}'. DB: {DbCount}, API: {ApiCount}. Final: {Total}.",
             author.NormalizedName,
@@ -42,7 +43,7 @@ public sealed class FindBooksByAuthorHandler : IQueryHandler<FindBooksByAuthorQu
             apiBooks.Count,
             databaseBooks.Count + apiBooks.Count
         );
-        
+
         return apiBooks;
     }
 }

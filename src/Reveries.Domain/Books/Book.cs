@@ -1,13 +1,19 @@
-﻿using Reveries.Domain;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Exceptions;
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.BookSeries;
+using Reveries.Domain.Shared;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Books;
 
 public class Book : BaseEntity
 {
     private readonly List<Author> _authors = [];
     private readonly List<Genre> _genres = [];
     private readonly List<DeweyDecimal> _deweyDecimals = [];
-    
+
     public BookId Id { get; private init; }
     public Isbn? Isbn13 { get; private init; }
     public Isbn? Isbn10 { get; private init; }
@@ -31,7 +37,7 @@ public class Book : BaseEntity
     public DataSource DataSource { get; private set; }
 
     private Book() { }
-    
+
     public override string ToString()
     {
         var title = string.IsNullOrEmpty(Title.Value) ? "Unknown Title" : Title.Value;
@@ -39,15 +45,15 @@ public class Book : BaseEntity
             .Select(a => a.ToString())
             .Where(a => !string.IsNullOrWhiteSpace(a))
             .DefaultIfEmpty("Unknown Author");
-    
+
         return $"{title} by {string.Join(", ", authors)}";
     }
-    
+
     public string GetAuthorNames()
     {
         return string.Join(", ", Authors.Select(a => a.ToString()));
     }
-    
+
     /// <summary>
     /// Factory method for creating a new <see cref="Book"/> from external or user-provided data.
     ///
@@ -89,7 +95,7 @@ public class Book : BaseEntity
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new MissingTitleException(title);
-        
+
         var book = new Book
         {
             Id = BookId.New(),
@@ -110,28 +116,28 @@ public class Book : BaseEntity
         };
 
         book.SetPages(pages);
-        
+
         foreach (var authorName in authors ?? [])
         {
             var author = Author.Create(authorName);
             book.AddAuthor(author);
         }
-        
+
         foreach (var subject in subjects ?? [])
         {
             var genre = Genre.Create(subject);
             book.AddGenre(genre);
         }
-        
+
         foreach (var code in deweyDecimals ?? [])
         {
             var dewey = DeweyDecimal.Create(code);
             book.AddDeweyDecimal(dewey);
         }
-        
+
         return book;
     }
-    
+
     /// <summary>
     /// Recreates a <see cref="Book"/> from already persisted data.
     ///
@@ -189,14 +195,14 @@ public class Book : BaseEntity
 
         return book;
     }
-    
+
     public void UpdateDataSource(DataSource newDataSource)
     {
         if (DataSource == newDataSource) return;
-        
+
         DataSource = newDataSource;
     }
-    
+
     private void SetPages(int? pages)
     {
         switch (pages)
@@ -210,17 +216,17 @@ public class Book : BaseEntity
                 break;
         }
     }
-    
+
     public void SetPublisher(Publisher? publisher)
     {
         Publisher = publisher;
     }
-    
+
     public void SetSeries(Series? series, int? numberInSeries = null)
     {
         if (numberInSeries <= 0)
             throw new InvalidSeriesNumberException(numberInSeries);
-            
+
         Series = series;
         SeriesNumber = numberInSeries;
     }
@@ -230,7 +236,7 @@ public class Book : BaseEntity
         if (_authors.Any(a => a.NormalizedName == author?.NormalizedName) || author is null) return;
         _authors.Add(author);
     }
-    
+
     public void AddGenre(Genre? genre)
     {
         if (_genres.Any(s => s.Value == genre?.Value) || genre is null) return;

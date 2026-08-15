@@ -1,4 +1,8 @@
-using Reveries.Domain;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Books;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.BookSeries;
+using Reveries.Domain.Shared;
 using Reveries.Persistence.Entities;
 
 namespace Reveries.Persistence.Mappers;
@@ -28,12 +32,12 @@ public static class EntityMappingExtensions
             ThicknessCm = book.Dimensions?.ThicknessCm,
             WeightG = book.Dimensions?.WeightG,
             DateCreated = book.DateCreated,
-            
+
             PublisherId = book.Publisher?.Id.Value,
             SeriesId = book.Series?.Id.Value,
         };
     }
-    
+
     public static PublisherEntity ToEntity(this Publisher publisher)
     {
         return new PublisherEntity
@@ -78,7 +82,7 @@ public static class EntityMappingExtensions
             NameVariant = variant.NameVariant
         };
     }
-    
+
     public static GenreEntity ToEntity(this Genre genre)
     {
         return new GenreEntity

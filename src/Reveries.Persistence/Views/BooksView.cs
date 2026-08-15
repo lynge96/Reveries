@@ -22,7 +22,7 @@ public sealed class BooksView
     public decimal? ThicknessCm { get; init; }
     public decimal? WeightG { get; init; }
     public DateTimeOffset? DateCreatedBook { get; init; }
-    
+
     // Publisher (null when the book has no publisher — LEFT JOIN)
     public Guid? PublisherId { get; init; }
     public string? PublisherName { get; init; }

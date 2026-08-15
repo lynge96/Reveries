@@ -14,10 +14,10 @@ public static class GoogleBooksServiceCollectionExtensions
             .Validate(s => !string.IsNullOrWhiteSpace(s.ApiUrl), "GoogleBooks: ApiUrl missing")
             .Validate(s => !string.IsNullOrWhiteSpace(s.ApiKey), "GoogleBooks: ApiKey missing")
             .ValidateOnStart();
-        
+
         services.AddGoogleBooksClients();
         services.AddScoped<IGoogleBookSearch, GoogleBookService>();
-        
+
         return services;
     }
 }

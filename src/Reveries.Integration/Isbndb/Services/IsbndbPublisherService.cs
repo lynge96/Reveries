@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Publishers.Interfaces;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Publishers;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
 
@@ -52,8 +53,8 @@ public class IsbndbPublisherService : IPublisherSearch
             .Select(g => g.First())
             .ToList();
 
-        _logger.LogDebug("Search for '{Name}' returned {Count} distinct publishers.", 
-            publisher.Name, 
+        _logger.LogDebug("Search for '{Name}' returned {Count} distinct publishers.",
+            publisher.Name,
             uniquePublishers.Count);
         return uniquePublishers;
     }

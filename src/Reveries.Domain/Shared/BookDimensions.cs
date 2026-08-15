@@ -1,4 +1,4 @@
-namespace Reveries.Domain;
+namespace Reveries.Domain.Shared;
 
 public sealed record BookDimensions
 {
@@ -6,7 +6,7 @@ public sealed record BookDimensions
     public decimal? WidthCm { get; private init; }
     public decimal? ThicknessCm { get; private init; }
     public decimal? WeightG { get; private init; }
-    
+
     private const int CmDecimals = 1;
     private const int GramDecimals = 0;
 

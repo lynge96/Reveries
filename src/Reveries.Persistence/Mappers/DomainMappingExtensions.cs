@@ -1,4 +1,9 @@
-using Reveries.Domain;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.BookSeries;
+using Reveries.Domain.Shared;
 using Reveries.Persistence.Entities;
 
 namespace Reveries.Persistence.Mappers;
@@ -27,10 +32,10 @@ public static class DomainMappingExtensions
             DataSource: DataSource.Database,
             DateCreated: bookEntity.DateCreated
         );
-        
+
         return Book.Reconstitute(bookData);
     }
-    
+
     public static Publisher ToDomain(this PublisherEntity publisherEntity)
     {
         return Publisher.Reconstitute(
@@ -43,8 +48,8 @@ public static class DomainMappingExtensions
     public static Series ToDomain(this SeriesEntity seriesEntity)
     {
         return Series.Reconstitute(
-            new SeriesId(seriesEntity.Id), 
-            seriesEntity.Name, 
+            new SeriesId(seriesEntity.Id),
+            seriesEntity.Name,
             seriesEntity.DateCreated
         );
     }
@@ -52,9 +57,9 @@ public static class DomainMappingExtensions
     public static Author ToDomain(this AuthorEntity authorEntity)
     {
         return Author.Reconstitute(
-            new AuthorId(authorEntity.Id), 
-            authorEntity.FirstName, 
-            authorEntity.LastName, 
+            new AuthorId(authorEntity.Id),
+            authorEntity.FirstName,
+            authorEntity.LastName,
             authorEntity.DateCreated
         );
     }

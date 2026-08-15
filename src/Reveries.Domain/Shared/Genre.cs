@@ -1,5 +1,6 @@
+using Reveries.Domain.Helpers;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Shared;
 
 public sealed record Genre
 {
@@ -9,10 +10,10 @@ public sealed record Genre
     {
         Value = genre;
     }
-    
+
     public override string ToString() => Value;
-    
+
     public static Genre Create(string genre) => new(genre.ToTitleCase());
-    
+
 }
 

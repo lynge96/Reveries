@@ -1,4 +1,4 @@
-using Reveries.Domain;
+using Reveries.Domain.Books;
 
 namespace Reveries.Application.Books.Interfaces;
 

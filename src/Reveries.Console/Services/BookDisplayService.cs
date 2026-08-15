@@ -1,5 +1,7 @@
 using Reveries.Console.Common.Extensions;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Helpers;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;
@@ -9,13 +11,13 @@ public class BookDisplayService
     public void DisplayBooksTree(List<Book> books)
     {
         var root = new Tree($"Success! Found {books.Count.Bold().AsWarning()} book{(books.Count != 1 ? "s" : "")}:".AsSuccess().Underline());
-        
+
         if (books.Count == 0)
         {
             root.AddNode("No books found".AsWarning());
             return;
         }
-        
+
         foreach (var book in books)
         {
             var sourceLabel = book.DataSource switch
@@ -30,10 +32,10 @@ public class BookDisplayService
             var bookNode = root.AddNode("📖 " + Markup.Escape(book.Title.Value).Bold().AsPrimary() + sourceLabel.AsInfo());
             AddBookDetails(bookNode, book);
         }
-        
+
         AnsiConsole.Write(root);
     }
-    
+
     public void DisplayBooksTable(List<Book> books)
     {
         if (books.Count == 0)
@@ -41,7 +43,7 @@ public class BookDisplayService
             AnsiConsole.MarkupLine("No books found.".AsWarning());
             return;
         }
-        
+
         var table = new Table()
             .Border(TableBorder.SimpleHeavy)
             .BorderColor(Color.Yellow);
@@ -72,16 +74,16 @@ public class BookDisplayService
                 book.DataSource.ToString().AsInfo()
             );
         }
-        
+
         var totalPages = books.Sum(b => b.Pages ?? 0);
         var avgPages = books.Count > 0 ? totalPages / books.Count : 0;
-        
+
         table.Columns[4].Footer($"Pages: {totalPages}".Bold().AsSecondary());
         table.Columns[5].Footer($"Avg. pages: {avgPages:N0}".Bold().AsSecondary());
 
         AnsiConsole.Write(table);
     }
-    
+
     private static void AddBookDetails(TreeNode bookNode, Book book)
     {
         var details = new Dictionary<string, string>

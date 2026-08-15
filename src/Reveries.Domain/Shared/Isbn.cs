@@ -1,12 +1,13 @@
+using Reveries.Domain.Exceptions;
 using System.Text.RegularExpressions;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Shared;
 
 public sealed partial record Isbn
 {
     [GeneratedRegex(@"[\s-]")]
     private static partial Regex MatchHyphens();
-    
+
     public string Value { get; }
 
     internal Isbn(string value)
@@ -41,7 +42,7 @@ public sealed partial record Isbn
 
         throw new InvalidIsbnException("ISBN must be either 10 or 13 characters long.");
     }
-    
+
     private static string Normalize(string raw)
     {
         return MatchHyphens().Replace(raw, "").ToUpperInvariant();

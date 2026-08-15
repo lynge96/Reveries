@@ -1,4 +1,4 @@
-namespace Reveries.Domain;
+namespace Reveries.Domain.Authors;
 
 public readonly record struct AuthorId(Guid Value)
 {

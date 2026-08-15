@@ -6,7 +6,7 @@ using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services;
-using Reveries.Domain;
+using Reveries.Domain.Books;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;
@@ -14,7 +14,7 @@ namespace Reveries.Console.Handlers;
 public class DatabaseTableHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.BooksInDatabase;
-    
+
     private readonly BookLookupService _bookLookupService;
     private readonly CreateSeriesService _createSeriesService;
     private readonly SetBookSeriesHandler _setBookSeriesCommandHandler;
@@ -31,17 +31,17 @@ public class DatabaseTableHandler : BaseHandler
         _setBookSeriesCommandHandler = setBookSeriesCommandHandler;
         _bookDisplayService = bookDisplayService;
     }
-    
+
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         var (booksInDb, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(() => _bookLookupService.GetAllBooksAsync(ct));
         var sortedBooks = booksInDb.ArrangeBooks();
-        
+
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
 
         _bookDisplayService.DisplayBooksTable(sortedBooks);
-        
+
         var menu = new Dictionary<string, Func<CancellationToken, Task>>
         {
             ["Add books to existing series"] = token => UpdateSelectedBooksWithSeriesAsync(sortedBooks, token),
@@ -60,7 +60,7 @@ public class DatabaseTableHandler : BaseHandler
             AnsiConsole.MarkupLine("No series found in database.".AsWarning());
             return;
         }
-        
+
         var series = ConsolePromptUtility.ShowSelectionPrompt(
             "Select the series you want to add books to:", seriesInDb);
 
@@ -70,14 +70,14 @@ public class DatabaseTableHandler : BaseHandler
             AnsiConsole.MarkupLine("No books selected.".AsWarning());
             return;
         }
-        
+
         foreach (var book in selectedBooks)
         {
             book.SetSeries(series);
 
             var numberInSeries = ConsolePromptUtility.GetUserInput(
                 $"What number is {book.Title.Value.AsSecondary()} in the series?");
-            
+
             if (int.TryParse(numberInSeries, out var num))
                 book.SetSeries(series, num);
 
@@ -86,7 +86,7 @@ public class DatabaseTableHandler : BaseHandler
         }
 
         AnsiConsole.MarkupLine("\nThe following books have been updated:".AsSuccess());
-        
+
         _bookDisplayService.DisplayBooksTable(selectedBooks);
     }
 }

@@ -1,4 +1,5 @@
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
 
 namespace Reveries.Application.Books.Extensions;
 
@@ -15,7 +16,7 @@ public static class BookExtensions
             .ThenBy(b => b.Title)
             .ToList();
     }
-    
+
     public static string? GetIsbnKey(Book book)
     {
         if (!string.IsNullOrWhiteSpace(book.Isbn13?.Value))

@@ -1,4 +1,5 @@
-using Reveries.Domain;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.Tests.Helpers;
 
@@ -13,7 +14,7 @@ public class BookBindingNormalizerTests
 
         Assert.Equal(nameof(BindingType.Unknown), result);
     }
-    
+
     [Theory]
     [InlineData("Paperback")]
     [InlineData("PAPERBACK")]
@@ -29,7 +30,7 @@ public class BookBindingNormalizerTests
 
         Assert.Equal(nameof(BindingType.Paperback), result);
     }
-    
+
     [Theory]
     [InlineData("Hardcover")]
     [InlineData("HARDCOVER")]
@@ -42,7 +43,7 @@ public class BookBindingNormalizerTests
 
         Assert.Equal(nameof(BindingType.Hardback), result);
     }
-    
+
     [Fact]
     public void GetStandardBinding_ReturnsString()
     {
@@ -50,7 +51,7 @@ public class BookBindingNormalizerTests
 
         Assert.IsType<string>(result);
     }
-    
+
     [Fact]
     public void GetStandardBinding_ReturnsNonNullString()
     {
@@ -58,5 +59,5 @@ public class BookBindingNormalizerTests
 
         Assert.NotNull(result);
     }
-    
+
 }

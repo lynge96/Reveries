@@ -1,5 +1,11 @@
+using Reveries.Domain.Authors;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.BookSeries;
+using Reveries.Domain.Shared;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Helpers;
 
 public static class BookMerger
 {
@@ -39,12 +45,12 @@ public static class BookMerger
 
         return Book.Reconstitute(reconstitutionData);
     }
-    
+
     private static string? Prefer(params string?[] values)
     {
         return values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
     }
-    
+
     private static string? MergeIsbn13(Book isbndb, Book google)
     {
         return isbndb.Isbn13?.Value ?? google.Isbn13?.Value ?? null;
@@ -54,13 +60,13 @@ public static class BookMerger
     {
         return isbndb.Isbn10?.Value ?? google.Isbn10?.Value ?? null;
     }
-    
+
     private static string? MergeTitle(Book isbndb, Book google)
         => Prefer(google.Title.Value, isbndb.Title.Value);
-    
+
     private static int? MergePages(Book isbndb, Book google)
         => isbndb.Pages > 0 ? isbndb.Pages : google.Pages;
-    
+
     private static string? MergeLanguage(Book isbndb, Book google)
         => Prefer(isbndb.Language, google.Language);
 
@@ -69,7 +75,7 @@ public static class BookMerger
 
     private static string? MergeSynopsis(Book isbndb, Book google)
         => google.Synopsis ?? isbndb.Synopsis;
-    
+
     private static string? MergeImageThumbnail(Book isbndb, Book google)
         => google.ImageThumbnailUrl ?? isbndb.ImageThumbnailUrl ?? google.ImageThumbnailUrl;
 
@@ -104,7 +110,7 @@ public static class BookMerger
 
     private static IReadOnlyList<Author> MergeAuthors(Book isbndb, Book google)
         => google.Authors.Count != 0 ? google.Authors : isbndb.Authors;
-    
+
     private static Publisher? MergePublisher(Book isbndb, Book google)
         => isbndb.Publisher ?? google.Publisher;
 

@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Authors;
 
 public sealed record AuthorNameVariant
 {
@@ -9,7 +9,7 @@ public sealed record AuthorNameVariant
 
     internal void MarkAsPrimary() => IsPrimary = true;
     internal void UnmarkPrimary() => IsPrimary = false;
-    
+
     public static AuthorNameVariant Create(string variant)
     {
         if (string.IsNullOrWhiteSpace(variant))
@@ -20,7 +20,7 @@ public sealed record AuthorNameVariant
             NameVariant = Normalize(variant)
         };
     }
-    
+
     private static string Normalize(string variant)
     {
         if (string.IsNullOrWhiteSpace(variant))

@@ -43,7 +43,7 @@ public class BookApiClient
         if (response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<CreateBookResponse>();
-            
+
             return result ?? throw new ApiException("API returned null response.", response.StatusCode);
         }
 

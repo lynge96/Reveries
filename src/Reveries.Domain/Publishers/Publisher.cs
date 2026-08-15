@@ -1,5 +1,7 @@
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Shared;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Publishers;
 
 public class Publisher : BaseEntity
 {
@@ -25,7 +27,7 @@ public class Publisher : BaseEntity
 
         return new Publisher(publisherId, normalizedName);
     }
-    
+
     /// <summary>
     /// Reconstitute a Publisher from a persisted state (e.g., database).
     /// </summary>
@@ -36,5 +38,5 @@ public class Publisher : BaseEntity
             DateCreated = dateCreated
         };
     }
-    
+
 }

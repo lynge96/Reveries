@@ -1,8 +1,8 @@
-namespace Reveries.Domain;
+namespace Reveries.Domain.Exceptions;
 
 public class InvalidIsbnException : DomainException
 {
-    public InvalidIsbnException(string message) : 
-        base(message) 
+    public InvalidIsbnException(string message) :
+        base(message)
     { }
 }

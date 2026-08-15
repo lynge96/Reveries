@@ -2,7 +2,8 @@ using Reveries.Application.Books.Services;
 using Reveries.Application.BookSeries.Services;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Console.Common.Extensions;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.BookSeries;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;
@@ -13,7 +14,7 @@ public class SaveEntityService
     private readonly CreateSeriesService _createSeriesService;
 
     public SaveEntityService(
-        BookPersistenceService bookPersistenceService, 
+        BookPersistenceService bookPersistenceService,
         CreateSeriesService createSeriesService)
     {
         _bookPersistenceService = bookPersistenceService;
@@ -23,7 +24,7 @@ public class SaveEntityService
     public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken ct = default)
     {
         var booksList = books.ToList();
-    
+
         if (booksList.Count == 0)
         {
             AnsiConsole.MarkupLine("No books were selected to save.".AsWarning());
@@ -72,7 +73,7 @@ public class SaveEntityService
         try
         {
             var createdSeries = await _createSeriesService.CreateSeriesAsync(series, ct);
-            
+
             AnsiConsole.MarkupLine($"""
                                     ✅ Successfully saved to database:
                                        Name: {createdSeries.Name}

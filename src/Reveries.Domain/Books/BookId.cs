@@ -1,4 +1,4 @@
-namespace Reveries.Domain;
+namespace Reveries.Domain.Books;
 
 public readonly record struct BookId(Guid Value)
 {

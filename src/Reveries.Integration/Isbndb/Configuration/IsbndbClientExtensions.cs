@@ -13,10 +13,10 @@ public static class IsbndbClientExtensions
         services.AddHttpClient<IIsbndbBookClient, IsbndbBookClient>(ConfigureIsbndb);
         services.AddHttpClient<IIsbndbAuthorClient, IsbndbAuthorClient>(ConfigureIsbndb);
         services.AddHttpClient<IIsbndbPublisherClient, IsbndbPublisherClient>(ConfigureIsbndb);
-        
+
         return services;
     }
-    
+
     private static void ConfigureIsbndb(IServiceProvider serviceProvider, HttpClient client)
     {
         var settings = serviceProvider.GetRequiredService<IOptions<IsbndbSettings>>().Value;

@@ -5,7 +5,7 @@ using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services;
-using Reveries.Domain;
+using Reveries.Domain.Publishers;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;
@@ -19,8 +19,8 @@ public class SearchPublisherHandler : BaseHandler
     private readonly FindBooksByPublisherHandler _findBooksByPublisherHandler;
 
     public SearchPublisherHandler(
-        BookSelectionService bookSelectionService, 
-        BookDisplayService bookDisplayService, 
+        BookSelectionService bookSelectionService,
+        BookDisplayService bookDisplayService,
         PublisherLookupService publisherLookupService,
         FindBooksByPublisherHandler booksByPublisherHandler)
     {
@@ -29,25 +29,25 @@ public class SearchPublisherHandler : BaseHandler
         _publisherLookupService = publisherLookupService;
         _findBooksByPublisherHandler = booksByPublisherHandler;
     }
-    
+
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         var publisherInput = ConsolePromptUtility.GetUserInput("Enter publisher name:");
         var publisher = Publisher.Create(publisherInput);
-        
+
         var (publishers, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(() => _publisherLookupService.FindPublishersByNameAsync(publisher, ct));
 
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedMs} ms".Italic().AsInfo());
-        
+
         var selectedPublisher = ConsolePromptUtility.ShowSelectionPrompt("Select a publisher to see their books:", publishers);
-        
+
         var publisherQuery = new FindBooksByPublisherQuery(selectedPublisher);
         var (bookResults, bookSearchElapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(async () => await _findBooksByPublisherHandler.Handle(publisherQuery, ct));
-        
+
         AnsiConsole.MarkupLine($"Elapsed book search time: {bookSearchElapsedMs} ms".Italic().AsInfo());
-        
+
         if (bookResults.Count == 0)
         {
             AnsiConsole.MarkupLine(
@@ -56,7 +56,7 @@ public class SearchPublisherHandler : BaseHandler
         }
 
         var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
-        
+
         _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
     }
 }

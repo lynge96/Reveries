@@ -1,4 +1,4 @@
-using Reveries.Domain;
+using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.Tests.Helpers;
 
@@ -13,7 +13,7 @@ public class BookDimensionNormalizerTests
         Assert.Null(result.Width);
         Assert.Null(result.Thickness);
     }
-    
+
     [Fact]
     public void OrderDimensionsBySize_WithThreeValues_OrdersDescending()
     {
@@ -23,7 +23,7 @@ public class BookDimensionNormalizerTests
         Assert.Equal(10, result.Width);
         Assert.Equal(5, result.Thickness);
     }
-    
+
     [Fact]
     public void OrderDimensionsBySize_WithMillimeters_ConvertsToCentimeters()
     {
@@ -33,5 +33,5 @@ public class BookDimensionNormalizerTests
         Assert.Equal(15, result.Width);
         Assert.Equal(10, result.Thickness);
     }
-    
+
 }

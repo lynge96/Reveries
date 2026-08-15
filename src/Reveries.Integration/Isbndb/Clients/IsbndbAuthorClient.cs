@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Reveries.Domain;
+using Reveries.Domain.Authors;
 using Reveries.Integration.Http.Base;
 using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.DTOs.Authors;
@@ -18,7 +18,7 @@ public class IsbndbAuthorClient : ExternalBaseClient<IsbndbAuthorClient>, IIsbnd
     {
         var context = $"author search '{author}'";
         var response = await HttpClient.GetAsync($"authors/{Uri.EscapeDataString(author.NormalizedName)}", ct);
-        
+
         return await HandleResponseAsync<AuthorSearchResponseDto>(
             response,
             context,
@@ -30,7 +30,7 @@ public class IsbndbAuthorClient : ExternalBaseClient<IsbndbAuthorClient>, IIsbnd
     {
         var context = $"books by author '{author}'";
         var response = await HttpClient.GetAsync($"author/{Uri.EscapeDataString(author.NormalizedName)}", ct);
-        
+
         return await HandleResponseAsync<AuthorBooksResponseDto>(
             response,
             context,

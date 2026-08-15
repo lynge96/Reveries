@@ -10,8 +10,8 @@ public class ExternalDependencyException : Exception
     public HttpStatusCode? StatusCode { get; }
 
     public ExternalDependencyException(
-        string dependency, 
-        string message, 
+        string dependency,
+        string message,
         int? upstreamStatus = null,
         HttpStatusCode statusCode = HttpStatusCode.BadGateway)
         : base(message)

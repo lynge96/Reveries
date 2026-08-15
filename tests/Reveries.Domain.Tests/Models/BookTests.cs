@@ -1,4 +1,10 @@
-using Reveries.Domain;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
+using Reveries.Domain.Exceptions;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.BookSeries;
+using Reveries.Domain.Shared;
 
 namespace Reveries.Domain.Tests.Models;
 
@@ -30,7 +36,7 @@ public class BookTests
             dataSource: DataSource.GoogleBooksApi
         );
     }
-    
+
     [Fact]
     public void Create_WithEmptyTitle_Throws()
     {
@@ -53,7 +59,7 @@ public class BookTests
         var book = CreateValidBook(pages: null);
         Assert.Null(book.Pages);
     }
-    
+
     [Fact]
     public void Create_WithValidPages_SetsPages()
     {
@@ -61,7 +67,7 @@ public class BookTests
 
         Assert.Equal(300, book.Pages);
     }
-    
+
     [Fact]
     public void Create_NormalizesIsbn()
     {
@@ -70,7 +76,7 @@ public class BookTests
         Assert.Equal("9781402894626", book.Isbn13?.Value);
         Assert.Equal("1402894627", book.Isbn10?.Value);
     }
-    
+
     [Fact]
     public void Create_WithNullAuthors_DoesNotThrow()
     {
@@ -78,7 +84,7 @@ public class BookTests
 
         Assert.Empty(book.Authors);
     }
-    
+
     [Fact]
     public void UpdateDataSource_ChangesDataSource()
     {
@@ -88,7 +94,7 @@ public class BookTests
 
         Assert.Equal(DataSource.IsbndbApi, book.DataSource);
     }
-    
+
     [Fact]
     public void SetPublisher_AssignsPublisher()
     {
@@ -99,7 +105,7 @@ public class BookTests
 
         Assert.Equal(publisher, book.Publisher);
     }
-    
+
     [Fact]
     public void SetSeries_AssignsSeriesAndNumber()
     {
@@ -111,7 +117,7 @@ public class BookTests
         Assert.Equal(series, book.Series);
         Assert.Equal(3, book.SeriesNumber);
     }
-    
+
     [Fact]
     public void SetSeries_AssignsSeriesAndNumber_MissingNumber()
     {
@@ -132,7 +138,7 @@ public class BookTests
 
         Assert.Throws<InvalidSeriesNumberException>(() => book.SetSeries(series, -1));
     }
-    
+
     [Fact]
     public void AddAuthor_AddsAuthor()
     {
@@ -166,7 +172,7 @@ public class BookTests
 
         Assert.Empty(book.Authors);
     }
-    
+
     [Fact]
     public void AddSubject_AddsSubject()
     {
@@ -200,7 +206,7 @@ public class BookTests
 
         Assert.Empty(book.Genres);
     }
-    
+
     [Fact]
     public void AddDeweyDecimal_AddsCode()
     {

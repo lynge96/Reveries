@@ -1,5 +1,6 @@
+using Reveries.Domain.Authors;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Interfaces.IRepository;
 
 public interface IAuthorRepository
 {

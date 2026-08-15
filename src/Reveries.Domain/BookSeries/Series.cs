@@ -1,5 +1,7 @@
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Shared;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.BookSeries;
 
 public class Series : BaseEntity
 {
@@ -13,12 +15,12 @@ public class Series : BaseEntity
     }
 
     public override string ToString() => Name;
-    
+
     public static Series Create(string name)
     {
         var seriesId = SeriesId.New();
         name = name.ToTitleCase();
-        
+
         return new Series(seriesId, name);
     }
 

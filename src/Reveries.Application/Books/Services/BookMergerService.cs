@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Helpers;
+using Reveries.Domain.Shared;
 using BookExtensions = Reveries.Application.Books.Extensions.BookExtensions;
 
 namespace Reveries.Application.Books.Services;
@@ -13,7 +15,7 @@ public class BookMergerService : IBookMergerService
     {
         _logger = logger;
     }
-    
+
     public List<Book> AggregateBooksByIsbnsAsync(
         IReadOnlyList<Isbn> isbns,
         IReadOnlyList<Book>? isbndbBooks,
@@ -21,7 +23,7 @@ public class BookMergerService : IBookMergerService
     {
         if (isbns.Count == 0 || isbndbBooks is null && googleBooks is null)
             return [];
-        
+
         var googleDict = BuildIsbnDictionary(googleBooks ?? []);
         var isbndbDict = BuildIsbnDictionary(isbndbBooks ?? []);
 
@@ -35,20 +37,20 @@ public class BookMergerService : IBookMergerService
             })
             .OfType<Book>()
             .ToList();
-        
+
         _logger.LogDebug("Aggregated {MergedCount} books from {IsbnCount} ISBNs.", mergedBooks.Count, isbns.Count);
         return mergedBooks;
     }
-    
+
     public List<Book> AggregateBooksByTitlesAsync(IReadOnlyList<Title> titles,
         IReadOnlyList<Book>? isbndbBooks,
         IReadOnlyList<Book>? googleBooks)
     {
         if (titles.Count == 0)
             return [];
-        
+
         var mergedByIsbn = MergeBookDictionaries(googleBooks ?? [], isbndbBooks ?? []);
-        
+
         var mergedBooks = mergedByIsbn.Values
             .Where(b =>
                 !string.IsNullOrWhiteSpace(b.Isbn13?.Value) ||
@@ -58,7 +60,7 @@ public class BookMergerService : IBookMergerService
         _logger.LogDebug("Aggregated {MergedCount} books from {TitleCount} titles.", mergedBooks.Count, titles.Count);
         return mergedBooks;
     }
-    
+
     private static Dictionary<string, Book> BuildIsbnDictionary(IEnumerable<Book> books)
     {
         return books
@@ -71,7 +73,7 @@ public class BookMergerService : IBookMergerService
             .GroupBy(x => x.isbn!)
             .ToDictionary(g => g.Key, g => g.First().book);
     }
-    
+
     private static Dictionary<string, Book> MergeBookDictionaries(IEnumerable<Book> primary, IEnumerable<Book> secondary)
     {
         var secondaryDict = secondary

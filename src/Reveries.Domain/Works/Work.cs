@@ -1,5 +1,9 @@
+using Reveries.Domain.Authors;
+using Reveries.Domain.Exceptions;
+using Reveries.Domain.BookSeries;
+using Reveries.Domain.Shared;
 
-namespace Reveries.Domain;
+namespace Reveries.Domain.Works;
 
 public class Work : BaseEntity
 {

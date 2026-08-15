@@ -1,4 +1,5 @@
-using Reveries.Domain;
+using Reveries.Domain.Books;
+using Reveries.Domain.Enums;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Repositories;
 using Reveries.Persistence.Tests.Fixtures;

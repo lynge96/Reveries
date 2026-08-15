@@ -16,7 +16,7 @@ public class DecimalConverter : JsonConverter<decimal>
         {
             return reader.GetDecimal();
         }
-        
+
         return 0;
     }
 

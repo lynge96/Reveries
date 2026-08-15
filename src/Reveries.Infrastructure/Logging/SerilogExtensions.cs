@@ -22,7 +22,7 @@ public static class SerilogConfigurationExtensions
         app.UseSerilogRequestLogging(options =>
         {
             options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
-            
+
             options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
             {
                 diagnosticContext.Set("ClientIP", httpContext.Connection.RemoteIpAddress?.ToString());
@@ -33,15 +33,15 @@ public static class SerilogConfigurationExtensions
 
             options.GetLevel = (httpContext, elapsed, ex) =>
             {
-                if (ex != null || httpContext.Response.StatusCode >= 500) 
+                if (ex != null || httpContext.Response.StatusCode >= 500)
                     return LogEventLevel.Error;
-                
-                if (httpContext.Request.Path.StartsWithSegments("/healthz")) 
+
+                if (httpContext.Request.Path.StartsWithSegments("/healthz"))
                     return LogEventLevel.Verbose;
-                
-                if (elapsed > 1500) 
+
+                if (elapsed > 1500)
                     return LogEventLevel.Warning;
-                
+
                 return LogEventLevel.Information;
             };
         });
@@ -53,7 +53,7 @@ public static class SerilogConfigurationExtensions
         var lokiSettings = builder.Configuration
             .GetSection(LokiSettings.SectionName)
             .Get<LokiSettings>() ?? new LokiSettings();
-        
+
         var level = builder.Environment.IsDevelopment()
             ? LogEventLevel.Debug
             : LogEventLevel.Information;
@@ -66,7 +66,7 @@ public static class SerilogConfigurationExtensions
         {
             config = config.WriteTo.LokiSink(lokiSettings, env, level);
         }
-        
+
         return config.CreateLogger();
     }
 }

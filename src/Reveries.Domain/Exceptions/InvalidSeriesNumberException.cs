@@ -1,4 +1,4 @@
-namespace Reveries.Domain;
+namespace Reveries.Domain.Exceptions;
 
 public sealed class InvalidSeriesNumberException : DomainException
 {
