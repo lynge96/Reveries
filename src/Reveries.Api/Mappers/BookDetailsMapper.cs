@@ -1,51 +1,50 @@
+using Reveries.Application.Books.Models;
 using Reveries.Contracts.Books.Dtos;
 using Reveries.Contracts.Books.Responses;
-using Reveries.Domain.Books;
 
 namespace Reveries.Api.Mappers;
 
 public static class BookDetailsMapper
 {
-    public static BookDetailsDto ToDto(this Book book)
+    public static BookDetailsDto ToDto(this EditionWithWork item)
     {
+        var edition = item.Edition;
+        var work = item.Work;
+
         return new BookDetailsDto
         {
-            BookId = book.Id.Value,
-            Isbn10 = book.Isbn10?.Value,
-            Isbn13 = book.Isbn13?.Value,
-            Title = book.Title.Value,
-            Series = book.Series?.Name,
-            NumberInSeries = book.SeriesNumber,
-            Authors = book.Authors.Select(a => a.NormalizedName).ToList(),
-            Publisher = book.Publisher?.Name,
-            Language = book.Language,
-            Pages = book.Pages,
-            PublicationDate = book.PublicationDate,
-            Synopsis = book.Synopsis,
-            Binding = book.Binding,
-            Edition = book.Edition,
-            CoverImageUrl = book.CoverImageUrl,
-            ImageThumbnailUrl = book.ImageThumbnailUrl,
-            Msrp = book.Msrp,
-            HeightCm = book.Dimensions?.HeightCm,
-            WidthCm = book.Dimensions?.WidthCm,
-            ThicknessCm = book.Dimensions?.ThicknessCm,
-            WeightG = book.Dimensions?.WeightG,
-            DeweyDecimals = book.DeweyDecimals.Select(dd => dd.Code).ToList(),
-            Genres = book.Genres.Select(g => g.Value).ToList(),
-            DataSource = book.DataSource.ToString()
+            BookId = edition.Id.Value,
+            Isbn10 = edition.Isbn10?.Value,
+            Isbn13 = edition.Isbn13?.Value,
+            Title = work.Title.Value,
+            Series = work.Series?.Name,
+            NumberInSeries = work.SeriesNumber,
+            Authors = work.Authors.Select(a => a.NormalizedName).ToList(),
+            Publisher = edition.Publisher?.Name,
+            Language = edition.Language,
+            Pages = edition.Pages,
+            PublicationDate = edition.PublicationDate,
+            Synopsis = work.Synopsis,
+            Binding = edition.Binding,
+            Edition = edition.EditionStatement,
+            CoverImageUrl = edition.CoverImageUrl,
+            ImageThumbnailUrl = edition.ImageThumbnailUrl,
+            Msrp = edition.Msrp,
+            HeightCm = edition.Dimensions?.HeightCm,
+            WidthCm = edition.Dimensions?.WidthCm,
+            ThicknessCm = edition.Dimensions?.ThicknessCm,
+            WeightG = edition.Dimensions?.WeightG,
+            DeweyDecimals = work.DeweyDecimals.Select(dd => dd.Code).ToList(),
+            Genres = work.Genres.Select(g => g.Value).ToList(),
+            DataSource = edition.DataSource.ToString()
         };
     }
 
-    public static BooksResponse ToResponse(this IEnumerable<Book> books)
+    public static BooksResponse ToResponse(this IEnumerable<EditionWithWork> items)
     {
-        var items = books
-            .Select(b => b.ToDto())
-            .ToList();
-
         return new BooksResponse
         {
-            Items = items,
+            Items = items.Select(i => i.ToDto()).ToList()
         };
     }
 }

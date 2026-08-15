@@ -1,10 +1,10 @@
 using Mediator;
-using Reveries.Domain.Books;
+using Reveries.Application.Books.Models;
 using Reveries.Domain.Shared;
 
 namespace Reveries.Application.Books.Queries.FindBookByTitle;
 
-public sealed record FindBookByTitleQuery : IQuery<Book>
+public sealed record FindBookByTitleQuery : IQuery<EditionWithWork>
 {
     public Title Title { get; }
 

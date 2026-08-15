@@ -1,9 +1,9 @@
 using Mediator;
-using Reveries.Domain.Books;
+using Reveries.Application.Books.Models;
 
 namespace Reveries.Application.Books.Queries.GetBookById;
 
-public sealed record GetBookByIdQuery : IQuery<Book>
+public sealed record GetBookByIdQuery : IQuery<EditionWithWork>
 {
     public Guid BookId { get; }
 

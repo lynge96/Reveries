@@ -1,10 +1,10 @@
 using Mediator;
-using Reveries.Domain.Books;
+using Reveries.Application.Books.Models;
 using Reveries.Domain.Shared;
 
 namespace Reveries.Application.Books.Queries.FindBookByIsbn;
 
-public sealed record FindBookByIsbnQuery : IQuery<Book>
+public sealed record FindBookByIsbnQuery : IQuery<EditionWithWork>
 {
     public Isbn Isbn { get; }
 

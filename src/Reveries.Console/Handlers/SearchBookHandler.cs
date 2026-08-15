@@ -68,14 +68,14 @@ public class SearchBookHandler : BaseHandler
             var query = new FindBooksByIsbnsQuery(isbnTokens);
             var books = await _booksByIsbnsHandler.Handle(query, ct);
 
-            results.AddRange(books);
+            results.AddRange(books.ToBooks());
         }
         if (titleTokens.Count != 0)
         {
             var query = new FindBooksByTitlesQuery(titleTokens);
             var books = await _booksByTitlesHandler.Handle(query, ct);
 
-            results.AddRange(books);
+            results.AddRange(books.ToBooks());
         }
 
         return results;

@@ -1,6 +1,6 @@
 using Mediator;
-using Reveries.Domain.Books;
+using Reveries.Application.Books.Models;
 
 namespace Reveries.Application.Books.Queries.GetAllBooks;
 
-public sealed record GetAllBooksQuery : IQuery<List<Book>>;
+public sealed record GetAllBooksQuery : IQuery<List<EditionWithWork>>;

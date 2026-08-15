@@ -1,36 +1,35 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Mappers;
-using Reveries.Application.Books.Services;
-using Reveries.Domain.Books;
+using Reveries.Domain.Editions;
 
 namespace Reveries.Application.Books.Commands.CreateBook;
 
-public sealed class CreateBookHandler : IQueryHandler<CreateBookCommand, BookId>
+public sealed class CreateBookHandler : IQueryHandler<CreateBookCommand, EditionId>
 {
-    private readonly BookPersistenceService _bookPersistenceService;
+    private readonly IWorkPersistenceService _workPersistenceService;
     private readonly ILogger<CreateBookHandler> _logger;
 
     public CreateBookHandler(
-        BookPersistenceService bookPersistenceService,
+        IWorkPersistenceService workPersistenceService,
         ILogger<CreateBookHandler> logger)
     {
-        _bookPersistenceService = bookPersistenceService;
+        _workPersistenceService = workPersistenceService;
         _logger = logger;
     }
 
-    public async ValueTask<BookId> Handle(CreateBookCommand command, CancellationToken ct)
+    public async ValueTask<EditionId> Handle(CreateBookCommand command, CancellationToken ct)
     {
-        var book = command.ToDomain();
+        var (work, edition) = command.ToWorkAndEdition();
 
         _logger.LogDebug(
-            "Creating book '{Title}' with ISBN {Isbn}",
-            book.Title,
-            book.Isbn13?.Value ?? book.Isbn10?.Value);
+            "Creating work '{Title}' with edition ISBN {Isbn}",
+            work.Title,
+            edition.Isbn13?.Value ?? edition.Isbn10?.Value);
 
-        var bookDbId = await _bookPersistenceService.SaveBookWithRelationsAsync(book, ct);
+        var editionId = await _workPersistenceService.SaveWorkWithEditionAsync(work, edition, ct);
 
-        return bookDbId;
+        return editionId;
     }
-
 }

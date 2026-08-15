@@ -55,7 +55,7 @@ public class SearchPublisherHandler : BaseHandler
             return;
         }
 
-        var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
+        var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults.ToBooks());
 
         _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
     }

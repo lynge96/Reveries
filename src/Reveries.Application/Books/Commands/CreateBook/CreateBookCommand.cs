@@ -1,10 +1,10 @@
 using Mediator;
-using Reveries.Domain.Books;
+using Reveries.Domain.Editions;
 using Reveries.Domain.Shared;
 
 namespace Reveries.Application.Books.Commands.CreateBook;
 
-public sealed record CreateBookCommand : IQuery<BookId>
+public sealed record CreateBookCommand : IQuery<EditionId>
 {
     public Isbn? Isbn10 { get; init; }
     public Isbn? Isbn13 { get; init; }

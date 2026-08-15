@@ -39,6 +39,8 @@ public static class PostgresServiceCollectionExtensions
 
         // Entity tabeller
         services.AddScoped<IBookRepository, BookRepository>();
+        services.AddScoped<IWorkRepository, WorkRepository>();
+        services.AddScoped<IEditionRepository, EditionRepository>();
         services.AddScoped<IPublisherRepository, PublisherRepository>();
         services.AddScoped<IAuthorRepository, AuthorRepository>();
         services.AddScoped<IGenreRepository, GenreRepository>();
@@ -49,6 +51,9 @@ public static class PostgresServiceCollectionExtensions
         services.AddScoped<IBookDeweyDecimalsRepository, BookDeweyDecimalsRepository>();
         services.AddScoped<IBookGenresRepository, BookGenresRepository>();
         services.AddScoped<IBookAuthorsRepository, BookAuthorsRepository>();
+        services.AddScoped<IWorkDeweyDecimalsRepository, WorkDeweyDecimalsRepository>();
+        services.AddScoped<IWorkGenresRepository, WorkGenresRepository>();
+        services.AddScoped<IWorkAuthorsRepository, WorkAuthorsRepository>();
 
         // DbContext
         services.AddScoped<IDbContext, PostgresDbContext>();

@@ -36,7 +36,7 @@ public class DatabaseTableHandler : BaseHandler
     {
         var (booksInDb, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(() => _bookLookupService.GetAllBooksAsync(ct));
-        var sortedBooks = booksInDb.ArrangeBooks();
+        var sortedBooks = booksInDb.ToBooks().ArrangeBooks();
 
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
 

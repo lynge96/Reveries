@@ -1,9 +1,7 @@
-using Reveries.Domain.Books;
-
 namespace Reveries.Application.Books.Models;
 
 public sealed record BookLookupResult<TKey>(
-    IReadOnlyList<Book> Found,
+    IReadOnlyList<EditionWithWork> Found,
     IReadOnlyList<TKey> NotFound)
 {
     public bool HasResults => Found.Count > 0;

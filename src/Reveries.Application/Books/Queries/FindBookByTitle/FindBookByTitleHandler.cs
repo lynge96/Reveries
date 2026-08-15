@@ -1,12 +1,12 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
+using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain.Books;
 
 namespace Reveries.Application.Books.Queries.FindBookByTitle;
 
-public sealed class FindBookByTitleHandler : IQueryHandler<FindBookByTitleQuery, Book>
+public sealed class FindBookByTitleHandler : IQueryHandler<FindBookByTitleQuery, EditionWithWork>
 {
     private readonly IBookLookupService _bookLookupService;
     private readonly ILogger<FindBookByTitleHandler> _logger;
@@ -19,7 +19,7 @@ public sealed class FindBookByTitleHandler : IQueryHandler<FindBookByTitleQuery,
         _logger = logger;
     }
 
-    public async ValueTask<Book> Handle(FindBookByTitleQuery query, CancellationToken ct)
+    public async ValueTask<EditionWithWork> Handle(FindBookByTitleQuery query, CancellationToken ct)
     {
         var title = query.Title;
         var bookLookupResult = await _bookLookupService.LookupByTitleAsync(title, ct);
@@ -27,10 +27,10 @@ public sealed class FindBookByTitleHandler : IQueryHandler<FindBookByTitleQuery,
         if (bookLookupResult.NoResults)
             throw new NotFoundException($"Book with title '{title}' was not found.");
 
-        var book = bookLookupResult.Found[0];
+        var result = bookLookupResult.Found[0];
 
-        _logger.LogInformation("Successfully retrieved book '{Title}' with ISBN {Isbn}", book.Title, book.Isbn13);
+        _logger.LogInformation("Successfully retrieved book '{Title}'", result.Work.Title);
 
-        return book;
+        return result;
     }
 }
