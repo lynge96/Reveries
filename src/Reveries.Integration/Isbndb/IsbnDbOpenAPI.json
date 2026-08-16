@@ -1,0 +1,1864 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ISBNdb API Documentation v2",
+        "description": "Welcome to the ISBNdb API documentation. Our REST API allows you to retrieve\ninformation about millions of books.\n\n## Authentication\n\nInclude your API key in the HTTP headers of every request:\n\n```http\nGET /book/9780134093413 HTTP/1.1\nHost: api2.isbndb.com\nAuthorization: YOUR_REST_KEY\nAccept: */*\n```\n\nPassing your API key via query parameters is **not** supported and will result\nin an error:\n\n```text\nhttps://api2.isbndb.com/book/9780134093413?Authorization=YOUR_REST_KEY\n```\n\n## Error responses\n\n**400 Bad Request** \u2014 the request is invalid or fails validation, for example\nan incorrect ISBN format.\n\n**401 Unauthorized** \u2014 your API key is missing or invalid, or your subscription\nis inactive:\n\n```json\n{\"message\": \"Full authentication is required to access this resource.\"}\n```\n\n**404 Not Found** \u2014 the requested ISBN is not in our database:\n\n```json\n{\"message\": \"Not Found\"}\n```\n\n**429 Too Many Requests** \u2014 the per minute or the daily limit of your plan is\nreached:\n\n```json\n{\"message\": \"Per minute quota exceeded, please try again later\"}\n```\n\n```json\n{\"message\": \"Daily quota exceeded, please try again later\"}\n```\n\n***Note on 404 errors: a 404 response indicates that the book information is not\nyet available in our database. However, due to frequent updates, there is a high\nprobability that the data will be added shortly, often within a minute or up to\n24 hours. We recommend trying your request again after a while, as the\ninformation may soon become accessible.***\n\n## Rate limits\n\nYou can programmatically monitor your usage and limits by inspecting the\nstandard `ratelimit-policy` and `ratelimit` headers we send with every response:\n\n**`ratelimit-policy`** defines the limit rules of your subscription plan, where\n`q` is the quota (maximum allowed requests) and `w` is the window (timeframe in\nseconds):\n\n```text\nratelimit-policy: \"rate\";q=300;w=60\nratelimit-policy: \"daily\";q=50000;w=86400\n```\n\n**`ratelimit`** displays your current real-time usage status, where `r` is the\nremaining requests in the current window and `t` is the time until the limit\nresets (in seconds):\n\n```text\nratelimit: \"rate\";r=297;t=1\nratelimit: \"daily\";r=48999;t=56312\n```\n\nAll daily limits reset at **00:00 UTC** every day.\n",
+        "version": "2.7.1"
+    },
+    "servers": [
+        {
+            "url": "https://api2.isbndb.com",
+            "description": "API Endpoint"
+        }
+    ],
+    "paths": {
+        "/author/{name}": {
+            "get": {
+                "tags": [
+                    "Author"
+                ],
+                "summary": "Gets author details",
+                "description": "Returns the name and a list of books by the author.",
+                "operationId": "get_app_api_author_authordetails__invoke",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "The author name. **Max length: 150 characters**.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": ".+"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                        "required": false,
+                        "schema": {
+                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "maxLength": 50
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                        "required": false,
+                        "schema": {
+                            "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "required": false,
+                        "schema": {
+                            "description": "How many items should be returned per page, maximum of 1,000",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true,
+                            "default": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the book details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthorDetailsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/authors/{query}": {
+            "get": {
+                "tags": [
+                    "Author"
+                ],
+                "summary": "Search authors",
+                "description": "This returns a list of authors whos name matches the given query",
+                "operationId": "get_app_api_author_searchauthors__invoke",
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "path",
+                        "description": "The search query string. **Max length: 150 characters**.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": ".+"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                        "required": false,
+                        "schema": {
+                            "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "required": false,
+                        "schema": {
+                            "description": "How many items should be returned per page, maximum of 1,000",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The query string found results in the author's database",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchAuthorsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/book/{isbn}": {
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Get book details by isbn.",
+                "description": "Returns the book details. \n        \n**A 404 Not Found response for an ISBN lookup typically indicates that the book information is not yet available\nin our database. However, due to frequent updates, there is a high probability that the data will be added shortly,\noften within a minute or up to 24 hours. We recommend trying your request again after a while, as the information\nmay soon become accessible.**",
+                "operationId": "get_app_api_book_book__invoke",
+                "parameters": [
+                    {
+                        "name": "with_prices",
+                        "in": "query",
+                        "description": "Whether to include prices in the response. \n\n***Available starting from Pro plan***\n\n***Performance Impact:*** Enabling this will increase response time, as current prices are fetched from vendors in real-time.",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "isbn",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the book details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetBookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/books": {
+            "post": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Search books",
+                "description": "\nRetrieves a list of books matching the provided array of ISBNs. This endpoint is available on all plans and does not use pagination.\n\n**Request Limits per Plan:**\n* **Academic:** Up to 10 ISBNs per request.\n* **Basic:** Up to 100 ISBNs per request.\n* **Pro, Premium, and higher:** Up to 1,000 ISBNs per request.\n\n**Quota Usage (Important):** Each requested ISBN counts as a separate API call against your daily limit. For example, a single request containing 100 ISBNs will deduct 100 calls from your daily quota.\n\n**Response Behavior:**\n* The response will only include books that successfully match an ISBN in our database. \n* Any submitted ISBNs that are not found will be silently ignored and excluded from the response.\n* **Note:** Pricing information is not returned by this endpoint.\n",
+                "operationId": "post_app_api_book_bookmultiple__invoke",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GetBooksMultipleRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GetBooksMultipleRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns books details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetBooksMultipleResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/books/{query}": {
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Search books",
+                "description": "This returns a list of books that match the query.\n\n**This endpoint does not return pricing information.**",
+                "operationId": "get_app_api_book_searchbook__invoke",
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "path",
+                        "description": "The search query string. **Max length: 150 characters**.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": ".+"
+                        }
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Filter books by year of publication",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books by year of publication",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "edition",
+                        "in": "query",
+                        "description": "Filter books by edition",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books by edition",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "shouldMatchAll",
+                        "in": "query",
+                        "description": "If set to `1` or `true`, the API will return books where the title \n        or author exactly contains all the words entered by the user.",
+                        "required": false,
+                        "schema": {
+                            "description": "If set to `1` or `true`, the API will return books where the title \n        or author exactly contains all the words entered by the user.",
+                            "type": "boolean",
+                            "nullable": true,
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "column",
+                        "in": "query",
+                        "description": "Search limited to this column:\n* `` - Empty value search in every column\n* `title` - Only searches in Books Title\n* `author` - Only searches books by the given Author\n* `date_published` - Only searches books in a given year, e.g. 1998\n* `subjects` - Only searches books by the given subject, e.g. physics",
+                        "required": false,
+                        "schema": {
+                            "description": "Search limited to this column:\n* `` - Empty value search in every column\n* `title` - Only searches in Books Title\n* `author` - Only searches books by the given Author\n* `date_published` - Only searches books in a given year, e.g. 1998\n* `subjects` - Only searches books by the given subject, e.g. physics",
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "enum": [
+                                "title",
+                                "author",
+                                "date_published",
+                                "subjects"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                        "required": false,
+                        "schema": {
+                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "maxLength": 50
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                        "required": false,
+                        "schema": {
+                            "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "required": false,
+                        "schema": {
+                            "description": "How many items should be returned per page, maximum of 1,000",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true,
+                            "default": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the book details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetBooksMultipleResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/feeds/books/updates": {
+            "get": {
+                "tags": [
+                    "Feed"
+                ],
+                "summary": "Get recently updated book ISBNs",
+                "description": "Retrieves a list of book ISBNs that have been added or modified. This endpoint is designed for frequent incremental synchronization.\n\n**Important Notes:**\n* **Plan limits:** Available exclusively for **Premium** plans and higher.\n* **History limit:** The update history is strictly limited to the last **7 days**.\n* **Quota:** Calling this endpoint does not count towards your daily API limits.\n* **Pagination:** The response does not include a total field. To fetch all updates, continue requesting subsequent pages (incrementing the page parameter) until the data array in the response is empty.",
+                "operationId": "get_app_api_feed_updatedbooks__invoke",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The number of page to retrieve",
+                        "required": false,
+                        "schema": {
+                            "description": "The number of page to retrieve",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "required": false,
+                        "schema": {
+                            "description": "How many items should be returned per page, maximum of 1,000",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 100,
+                            "maximum": 1000,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "lastUpdated",
+                        "in": "query",
+                        "description": "Filter by last updated date (Format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter by last updated date (Format: YYYY-MM-DD)",
+                            "type": "string",
+                            "nullable": true,
+                            "default": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of recently updated book ISBNs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdatedBooksResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/key": {
+            "get": {
+                "operationId": "get_app_api_key__invoke",
+                "responses": {
+                    "200": {
+                        "description": "Returns key details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/KeyResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/publisher/{name}": {
+            "get": {
+                "tags": [
+                    "Publisher"
+                ],
+                "summary": "Gets publisher details",
+                "description": "Returns the name and a list of books by the publisher.",
+                "operationId": "get_app_api_publisher_publisherdetails__invoke",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "The publisher name. **Max length: 150 characters**.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": ".+"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                        "required": false,
+                        "schema": {
+                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "maxLength": 50
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                        "required": false,
+                        "schema": {
+                            "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "required": false,
+                        "schema": {
+                            "description": "How many items should be returned per page, maximum of 1,000",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true,
+                            "default": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the book details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DetailsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/publishers/{query}": {
+            "get": {
+                "tags": [
+                    "Publisher"
+                ],
+                "summary": "Search publishers",
+                "description": "This returns a list of publishers whose name matches the given query",
+                "operationId": "get_app_api_publisher_searchpublishers__invoke",
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "path",
+                        "description": "The search query string. **Max length: 150 characters**.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": ".+"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                        "required": false,
+                        "schema": {
+                            "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "required": false,
+                        "schema": {
+                            "description": "How many items should be returned per page, maximum of 1,000",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The query string found results in the author's database",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchPublishersResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/search/books": {
+            "get": {
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Search all ISBNDB databases",
+                "description": "Uses a determined index and query string to search in any of the ISBNDB's databases",
+                "operationId": "get_app_api_search_searchbooks__invoke",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                        "required": false,
+                        "schema": {
+                            "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "required": false,
+                        "schema": {
+                            "description": "How many items should be returned per page, maximum of 1,000",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "isbn",
+                        "in": "query",
+                        "description": "an ISBN 10 in the Books database",
+                        "required": false,
+                        "schema": {
+                            "description": "an ISBN 10 in the Books database",
+                            "type": "string",
+                            "nullable": true,
+                            "maxLength": 20
+                        }
+                    },
+                    {
+                        "name": "isbn13",
+                        "in": "query",
+                        "description": "an ISBN 13 in the Books database",
+                        "required": false,
+                        "schema": {
+                            "description": "an ISBN 13 in the Books database",
+                            "type": "string",
+                            "nullable": true,
+                            "maxLength": 20
+                        }
+                    },
+                    {
+                        "name": "author",
+                        "in": "query",
+                        "description": "The name of an author in the Author's database",
+                        "required": false,
+                        "schema": {
+                            "description": "The name of an author in the Author's database",
+                            "type": "string",
+                            "nullable": true,
+                            "maxLength": 150
+                        }
+                    },
+                    {
+                        "name": "text",
+                        "in": "query",
+                        "description": "A string to search for determinated index database",
+                        "required": false,
+                        "schema": {
+                            "description": "A string to search for determinated index database",
+                            "type": "string",
+                            "nullable": true,
+                            "maxLength": 150
+                        }
+                    },
+                    {
+                        "name": "subject",
+                        "in": "query",
+                        "description": "A subject in the Subject's database",
+                        "required": false,
+                        "schema": {
+                            "description": "A subject in the Subject's database",
+                            "type": "string",
+                            "nullable": true,
+                            "maxLength": 150
+                        }
+                    },
+                    {
+                        "name": "publisher",
+                        "in": "query",
+                        "description": "The name of a publisher in the Publisher's database",
+                        "required": false,
+                        "schema": {
+                            "description": "The name of a publisher in the Publisher's database",
+                            "type": "string",
+                            "nullable": true,
+                            "maxLength": 150
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true,
+                            "default": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The query string found results in the books's database",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchBookResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/stats": {
+            "get": {
+                "operationId": "get_app_api_stats_getstats__invoke",
+                "responses": {
+                    "200": {
+                        "description": "Returns books details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BaseStatsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/subjects/{query}": {
+            "get": {
+                "tags": [
+                    "Subject"
+                ],
+                "summary": "Search subjects",
+                "description": "This returns a list of subjects that match the given query",
+                "operationId": "get_app_api_subject_searchsubjects__invoke",
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "path",
+                        "description": "The search query string. **Max length: 150 characters**.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": ".+"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                        "required": false,
+                        "schema": {
+                            "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "required": false,
+                        "schema": {
+                            "description": "How many items should be returned per page, maximum of 1,000",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The query string found results in the author's database",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchSubjectResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/subject/{name}": {
+            "get": {
+                "tags": [
+                    "Subject"
+                ],
+                "summary": "Gets subject details",
+                "description": "Returns the name and a list of books by the subject.",
+                "operationId": "get_app_api_subject_subjectsdetails__invoke",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "The subject name. **Max length: 150 characters**.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": ".+"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                        "required": false,
+                        "schema": {
+                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                            "type": "string",
+                            "nullable": true,
+                            "default": null,
+                            "maxLength": 50
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                        "required": false,
+                        "schema": {
+                            "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "required": false,
+                        "schema": {
+                            "description": "How many items should be returned per page, maximum of 1,000",
+                            "type": "integer",
+                            "nullable": true,
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true,
+                            "default": null
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the book details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectDetailsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "LanguageFilters": {
+                "properties": {
+                    "language": {
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    }
+                },
+                "type": "object"
+            },
+            "PaginationFilters": {
+                "properties": {
+                    "page": {
+                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": 1
+                    },
+                    "pageSize": {
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": 20
+                    }
+                },
+                "type": "object"
+            },
+            "DateRangeFilters": {
+                "properties": {
+                    "publishedFrom": {
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "type": "string",
+                        "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "publishedTo": {
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "type": "string",
+                        "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "GetBooksMultipleRequest": {
+                "required": [
+                    "isbns"
+                ],
+                "properties": {
+                    "isbns": {
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "oneOf": [
+                                        {
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "SearchBookFilters": {
+                "properties": {
+                    "year": {
+                        "description": "Filter books by year of publication",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "edition": {
+                        "description": "Filter books by edition",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "shouldMatchAll": {
+                        "description": "If set to `1` or `true`, the API will return books where the title \n        or author exactly contains all the words entered by the user.",
+                        "type": "boolean",
+                        "nullable": true,
+                        "default": false
+                    },
+                    "column": {
+                        "description": "Search limited to this column:\n* `` - Empty value search in every column\n* `title` - Only searches in Books Title\n* `author` - Only searches books by the given Author\n* `date_published` - Only searches books in a given year, e.g. 1998\n* `subjects` - Only searches books by the given subject, e.g. physics",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "enum": [
+                            "title",
+                            "author",
+                            "date_published",
+                            "subjects"
+                        ]
+                    },
+                    "language": {
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    }
+                },
+                "type": "object"
+            },
+            "UnlimitedPaginationFilter": {
+                "properties": {
+                    "page": {
+                        "description": "The number of page to retrieve",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": 1,
+                        "minimum": 1
+                    },
+                    "pageSize": {
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": 100,
+                        "maximum": 1000,
+                        "minimum": 1
+                    }
+                },
+                "type": "object"
+            },
+            "LastUpdatedFilter": {
+                "properties": {
+                    "lastUpdated": {
+                        "description": "Filter by last updated date (Format: YYYY-MM-DD)",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "SearchBookFilters2": {
+                "properties": {
+                    "isbn": {
+                        "description": "an ISBN 10 in the Books database",
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 20
+                    },
+                    "isbn13": {
+                        "description": "an ISBN 13 in the Books database",
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 20
+                    },
+                    "author": {
+                        "description": "The name of an author in the Author's database",
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 150
+                    },
+                    "text": {
+                        "description": "A string to search for determinated index database",
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 150
+                    },
+                    "subject": {
+                        "description": "A subject in the Subject's database",
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 150
+                    },
+                    "publisher": {
+                        "description": "The name of a publisher in the Publisher's database",
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 150
+                    }
+                },
+                "type": "object"
+            },
+            "Point": {
+                "required": [
+                    "x",
+                    "y"
+                ],
+                "properties": {
+                    "x": {
+                        "type": "string"
+                    },
+                    "y": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Price": {
+                "required": [
+                    "condition",
+                    "merchant",
+                    "merchant_logo",
+                    "merchant_logo_offset",
+                    "shipping",
+                    "price",
+                    "total",
+                    "link"
+                ],
+                "properties": {
+                    "condition": {
+                        "description": "Condition of the book offered at this price (e.g. new, used, digital)",
+                        "type": "string"
+                    },
+                    "merchant": {
+                        "description": "Name of the merchant offering this price",
+                        "type": "string"
+                    },
+                    "merchant_logo": {
+                        "description": "URL of the merchant logo image",
+                        "type": "string"
+                    },
+                    "merchant_logo_offset": {
+                        "$ref": "#/components/schemas/Point"
+                    },
+                    "shipping": {
+                        "description": "Shipping cost for this offer",
+                        "type": "string"
+                    },
+                    "price": {
+                        "description": "Item price excluding shipping",
+                        "type": "string"
+                    },
+                    "total": {
+                        "description": "Total price including shipping",
+                        "type": "string"
+                    },
+                    "link": {
+                        "description": "URL to purchase the book from this merchant",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "RelatedIsbn": {
+                "required": [
+                    "isbn",
+                    "binding"
+                ],
+                "properties": {
+                    "isbn": {
+                        "description": "ISBN-13 of the related edition",
+                        "type": "string"
+                    },
+                    "binding": {
+                        "description": "Binding type of the related edition (e.g. Hardcover, Paperback)",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Book": {
+                "required": [
+                    "title",
+                    "isbn13",
+                    "date_published"
+                ],
+                "properties": {
+                    "title": {
+                        "description": "Title",
+                        "type": "string"
+                    },
+                    "isbn13": {
+                        "description": "ISBN-13",
+                        "type": "string"
+                    },
+                    "isbn10": {
+                        "description": "Book ISBN-10, if available",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "binding": {
+                        "description": "Book binding type (e.g. Hardcover, Paperback, eBook)",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "publisher": {
+                        "description": "Name of the publisher",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "language": {
+                        "description": "Language of the book (ISO 639-1 code or full name)",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "date_published": {
+                        "description": "A publication date in YYYY-MM-DD, YYYY-MM, or YYYY format.",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2023-10-26"
+                    },
+                    "edition": {
+                        "description": "Edition of the book (e.g. 3rd, Revised)",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "pages": {
+                        "description": "Number of pages in the book",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "dimensions_structured": {
+                        "description": "Structured physical dimensions of the book (height, width, weight, etc.)",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "nullable": true
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "nullable": true
+                                }
+                            }
+                        ]
+                    },
+                    "image": {
+                        "description": "Image link. Maximum height is 500px.",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "image_original": {
+                        "description": "Original image link. Note: This URL is temporary and will expire 2 hours after the API response is generated.",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "msrp": {
+                        "description": "Manufacturer's suggested retail price",
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "excerpt": {
+                        "description": "Short excerpt from the book",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "synopsis": {
+                        "description": "Full synopsis or summary of the book",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "authors": {
+                        "description": "List of authors of the book",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "subjects": {
+                        "description": "List of subjects or categories the book belongs to",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "prices": {
+                        "description": "Available prices from various merchants",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Price"
+                        },
+                        "nullable": true
+                    },
+                    "other_isbns": {
+                        "description": "Other ISBNs associated with this book (e.g. different formats or editions)",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RelatedIsbn"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "AuthorDetailsResponse": {
+                "required": [
+                    "author",
+                    "name",
+                    "books",
+                    "total",
+                    "page",
+                    "page_size"
+                ],
+                "properties": {
+                    "author": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "books": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Book"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "page_size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SearchAuthorsResponse": {
+                "required": [
+                    "name",
+                    "authors",
+                    "total",
+                    "page",
+                    "page_size"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "authors": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "page_size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "GetBookResponse": {
+                "required": [
+                    "book"
+                ],
+                "properties": {
+                    "book": {
+                        "$ref": "#/components/schemas/Book"
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "required": [
+                    "error_message"
+                ],
+                "properties": {
+                    "error_message": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "GetBooksMultipleResponse": {
+                "required": [
+                    "total",
+                    "data"
+                ],
+                "properties": {
+                    "total": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Book"
+                        }
+                    },
+                    "requested": {
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "UpdatedBook": {
+                "required": [
+                    "isbn13",
+                    "updated_at"
+                ],
+                "properties": {
+                    "isbn13": {
+                        "description": "ISBN-13",
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "description": "Timestamp when the book was last updated",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdatedBooksResponse": {
+                "required": [
+                    "data",
+                    "page",
+                    "page_size"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UpdatedBook"
+                        }
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "page_size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "PlanLimit": {
+                "required": [
+                    "total",
+                    "spent",
+                    "left"
+                ],
+                "properties": {
+                    "total": {
+                        "type": "integer"
+                    },
+                    "spent": {
+                        "type": "integer"
+                    },
+                    "left": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "KeyResponse": {
+                "required": [
+                    "api_host",
+                    "plan_limit",
+                    "plan_name"
+                ],
+                "properties": {
+                    "api_host": {
+                        "type": "string"
+                    },
+                    "plan_limit": {
+                        "$ref": "#/components/schemas/PlanLimit"
+                    },
+                    "plan_name": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "DetailsResponse": {
+                "required": [
+                    "name",
+                    "books",
+                    "total",
+                    "page",
+                    "page_size"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "books": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Book"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "page_size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SearchPublishersResponse": {
+                "required": [
+                    "name",
+                    "publishers",
+                    "total",
+                    "page",
+                    "page_size"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "publishers": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "page_size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SearchBaseResponse": {
+                "required": [
+                    "name",
+                    "data",
+                    "total",
+                    "page",
+                    "page_size"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "page_size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SearchBookResponse": {
+                "required": [
+                    "data",
+                    "total",
+                    "page",
+                    "page_size"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Book"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "page_size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "BaseStatsResponse": {
+                "required": [
+                    "books",
+                    "authors",
+                    "publishers",
+                    "subjects"
+                ],
+                "properties": {
+                    "books": {
+                        "type": "integer"
+                    },
+                    "authors": {
+                        "type": "integer"
+                    },
+                    "publishers": {
+                        "type": "integer"
+                    },
+                    "subjects": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SearchSubjectResponse": {
+                "required": [
+                    "name",
+                    "subjects",
+                    "total",
+                    "page",
+                    "page_size"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "subjects": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "page_size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "SubjectDetailsResponse": {
+                "required": [
+                    "subject",
+                    "name",
+                    "books",
+                    "total",
+                    "page",
+                    "page_size"
+                ],
+                "properties": {
+                    "subject": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "books": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Book"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "page_size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Author",
+            "description": "Author"
+        },
+        {
+            "name": "Books",
+            "description": "Books"
+        },
+        {
+            "name": "Feed",
+            "description": "Feed"
+        },
+        {
+            "name": "Publisher",
+            "description": "Publisher"
+        },
+        {
+            "name": "Search",
+            "description": "Search"
+        },
+        {
+            "name": "Subject",
+            "description": "Subject"
+        }
+    ]
+}
