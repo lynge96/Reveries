@@ -1,6 +1,4 @@
 using Reveries.Domain.Authors;
-using Reveries.Domain.Books;
-using Reveries.Domain.Enums;
 using Reveries.Domain.Publishers;
 using Reveries.Domain.BookSeries;
 using Reveries.Domain.Shared;
@@ -10,32 +8,6 @@ namespace Reveries.Persistence.Mappers;
 
 public static class DomainMappingExtensions
 {
-    public static Book ToDomain(this BookEntity bookEntity)
-    {
-        var bookData = new BookReconstitutionData
-        (
-            Id: bookEntity.Id,
-            Title: bookEntity.Title,
-            Isbn13: bookEntity.Isbn13,
-            Isbn10: bookEntity.Isbn10,
-            Pages: bookEntity.PageCount,
-            PublicationDate: bookEntity.PublicationDate,
-            Language: bookEntity.Language,
-            Synopsis: bookEntity.Synopsis,
-            ImageThumbnailUrl: bookEntity.ImageThumbnail,
-            CoverImageUrl: bookEntity.ImageUrl,
-            Msrp: bookEntity.Msrp,
-            Binding: bookEntity.Binding,
-            Edition: bookEntity.Edition,
-            SeriesNumber: bookEntity.SeriesNumber,
-            Dimensions: BookDimensions.Create(bookEntity.HeightCm, bookEntity.WidthCm, bookEntity.ThicknessCm, bookEntity.WeightG),
-            DataSource: DataSource.Database,
-            DateCreated: bookEntity.DateCreated
-        );
-
-        return Book.Reconstitute(bookData);
-    }
-
     public static Publisher ToDomain(this PublisherEntity publisherEntity)
     {
         return Publisher.Reconstitute(

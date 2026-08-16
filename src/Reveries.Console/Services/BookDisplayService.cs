@@ -1,5 +1,5 @@
+using Reveries.Application.Books.Models;
 using Reveries.Console.Common.Extensions;
-using Reveries.Domain.Books;
 using Reveries.Domain.Enums;
 using Reveries.Domain.Helpers;
 using Spectre.Console;
@@ -8,7 +8,7 @@ namespace Reveries.Console.Services;
 
 public class BookDisplayService
 {
-    public void DisplayBooksTree(List<Book> books)
+    public void DisplayBooksTree(List<EditionWithWork> books)
     {
         var root = new Tree($"Success! Found {books.Count.Bold().AsWarning()} book{(books.Count != 1 ? "s" : "")}:".AsSuccess().Underline());
 
@@ -20,7 +20,7 @@ public class BookDisplayService
 
         foreach (var book in books)
         {
-            var sourceLabel = book.DataSource switch
+            var sourceLabel = book.Edition.DataSource switch
             {
                 DataSource.Database => " (Database)",
                 DataSource.GoogleBooksApi => " (GoogleBooks API)",
@@ -29,14 +29,14 @@ public class BookDisplayService
                 DataSource.Cache => " (Cache)",
                 _ => ""
             };
-            var bookNode = root.AddNode("📖 " + Markup.Escape(book.Title.Value).Bold().AsPrimary() + sourceLabel.AsInfo());
+            var bookNode = root.AddNode("📖 " + Markup.Escape(book.Work.Title.Value).Bold().AsPrimary() + sourceLabel.AsInfo());
             AddBookDetails(bookNode, book);
         }
 
         AnsiConsole.Write(root);
     }
 
-    public void DisplayBooksTable(List<Book> books)
+    public void DisplayBooksTable(List<EditionWithWork> books)
     {
         if (books.Count == 0)
         {
@@ -58,24 +58,27 @@ public class BookDisplayService
         for (var i = 0; i < books.Count; i++)
         {
             var book = books[i];
+            var edition = book.Edition;
+            var work = book.Work;
+
             table.AddRow(
                 (i + 1).ToString().AsInfo(),
-                book.Isbn13?.ToString() ?? book.Isbn10?.ToString() ?? "",
-                Markup.Escape(book.Title.Value).Bold().AsSecondary(),
-                Markup.Escape(book.GetAuthorNames()),
-                book.Pages?.ToString() ?? "",
-                book.PublicationDate ?? "Unknown date",
-                Markup.Escape(book.Publisher?.Name ?? ""),
-                book.SeriesNumber?.ToString() ?? "",
-                book.Series != null
-                    ? $"{Markup.Escape(book.Series.Name)} {Markup.Escape(book.Series.Id.ToString()).AsInfo()}"
+                edition.Isbn13?.ToString() ?? edition.Isbn10?.ToString() ?? "",
+                Markup.Escape(work.Title.Value).Bold().AsSecondary(),
+                Markup.Escape(GetAuthorNames(book)),
+                edition.Pages?.ToString() ?? "",
+                edition.PublicationDate ?? "Unknown date",
+                Markup.Escape(edition.Publisher?.Name ?? ""),
+                work.SeriesNumber?.ToString() ?? "",
+                work.Series != null
+                    ? $"{Markup.Escape(work.Series.Name)} {Markup.Escape(work.Series.Id.ToString()).AsInfo()}"
                     : "",
-                Markup.Escape(book.Binding ?? ""),
-                book.DataSource.ToString().AsInfo()
+                Markup.Escape(edition.Binding ?? ""),
+                edition.DataSource.ToString().AsInfo()
             );
         }
 
-        var totalPages = books.Sum(b => b.Pages ?? 0);
+        var totalPages = books.Sum(b => b.Edition.Pages ?? 0);
         var avgPages = books.Count > 0 ? totalPages / books.Count : 0;
 
         table.Columns[4].Footer($"Pages: {totalPages}".Bold().AsSecondary());
@@ -84,19 +87,25 @@ public class BookDisplayService
         AnsiConsole.Write(table);
     }
 
-    private static void AddBookDetails(TreeNode bookNode, Book book)
+    private static string GetAuthorNames(EditionWithWork book)
+        => string.Join(", ", book.Work.Authors.Select(a => a.ToString()));
+
+    private static void AddBookDetails(TreeNode bookNode, EditionWithWork book)
     {
+        var edition = book.Edition;
+        var work = book.Work;
+
         var details = new Dictionary<string, string>
         {
-            { "Author", string.Join(", ", book.Authors.Select(author => author.NormalizedName.ToTitleCase())) },
-            { "Pages", book.Pages?.ToString() ?? "Unknown" },
-            { "ISBN-10", book.Isbn10?.ToString() ?? "N/A"},
-            { "ISBN-13", book.Isbn13?.ToString() ?? "N/A" },
-            { "Publisher", book.Publisher?.Name ?? "Unknown" },
-            { "Language", book.Language ?? "Unknown language" },
-            { "Published", book.PublicationDate ?? "Unknown date" },
-            { "MSRP", book.Msrp?.ToString() ?? "Unknown" },
-            { "Binding", book.Binding ?? "Unknown" }
+            { "Author", string.Join(", ", work.Authors.Select(author => author.NormalizedName.ToTitleCase())) },
+            { "Pages", edition.Pages?.ToString() ?? "Unknown" },
+            { "ISBN-10", edition.Isbn10?.ToString() ?? "N/A"},
+            { "ISBN-13", edition.Isbn13?.ToString() ?? "N/A" },
+            { "Publisher", edition.Publisher?.Name ?? "Unknown" },
+            { "Language", edition.Language ?? "Unknown language" },
+            { "Published", edition.PublicationDate ?? "Unknown date" },
+            { "MSRP", edition.Msrp?.ToString() ?? "Unknown" },
+            { "Binding", edition.Binding ?? "Unknown" }
         };
 
         foreach (var (property, value) in details)

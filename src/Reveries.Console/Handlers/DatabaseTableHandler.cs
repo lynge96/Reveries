@@ -1,12 +1,11 @@
 using Reveries.Application.Books.Commands.SetBookSeries;
-using Reveries.Application.Books.Extensions;
+using Reveries.Application.Books.Models;
 using Reveries.Application.Books.Services;
 using Reveries.Application.BookSeries.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services;
-using Reveries.Domain.Books;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;
@@ -36,7 +35,7 @@ public class DatabaseTableHandler : BaseHandler
     {
         var (booksInDb, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(() => _bookLookupService.GetAllBooksAsync(ct));
-        var sortedBooks = booksInDb.ToBooks().ArrangeBooks();
+        var sortedBooks = booksInDb.Arrange();
 
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
 
@@ -52,7 +51,7 @@ public class DatabaseTableHandler : BaseHandler
         await menu[selection](ct);
     }
 
-    private async Task UpdateSelectedBooksWithSeriesAsync(List<Book> books, CancellationToken ct)
+    private async Task UpdateSelectedBooksWithSeriesAsync(List<EditionWithWork> books, CancellationToken ct)
     {
         var seriesInDb = await _createSeriesService.GetSeriesAsync(ct);
         if (seriesInDb.Count == 0)
@@ -73,15 +72,15 @@ public class DatabaseTableHandler : BaseHandler
 
         foreach (var book in selectedBooks)
         {
-            book.SetSeries(series);
+            book.Work.SetSeries(series);
 
             var numberInSeries = ConsolePromptUtility.GetUserInput(
-                $"What number is {book.Title.Value.AsSecondary()} in the series?");
+                $"What number is {book.Work.Title.Value.AsSecondary()} in the series?");
 
             if (int.TryParse(numberInSeries, out var num))
-                book.SetSeries(series, num);
+                book.Work.SetSeries(series, num);
 
-            var bookSeriesCommand = new SetBookSeriesCommand(book.Isbn13?.Value ?? book.Isbn10!.Value, series.Name, num);
+            var bookSeriesCommand = new SetBookSeriesCommand(book.Edition.Isbn13?.Value ?? book.Edition.Isbn10!.Value, series.Name, num);
             await _setBookSeriesCommandHandler.Handle(bookSeriesCommand, ct);
         }
 

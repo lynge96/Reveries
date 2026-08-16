@@ -1,5 +1,4 @@
 using Reveries.Application.Authors.Services;
-using Reveries.Application.Books.Extensions;
 using Reveries.Application.Books.Queries.FindBooksByAuthor;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -63,8 +62,8 @@ public class SearchAuthorHandler : BaseHandler
             return;
         }
 
-        var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults.ToBooks());
+        var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
 
-        _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
+        _bookDisplayService.DisplayBooksTable(filteredBooks.Arrange());
     }
 }

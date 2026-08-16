@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Books.Interfaces;
-using Reveries.Domain.Books;
+using Reveries.Application.Books.Models;
 using Reveries.Domain.Exceptions;
 using Reveries.Domain.Shared;
 using Reveries.Integration.Isbndb.Configuration;
@@ -23,7 +23,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         _logger = logger;
     }
 
-    public async Task<List<Book>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    public async Task<List<EditionWithWork>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
@@ -53,7 +53,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         return books;
     }
 
-    public async Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode,
+    public async Task<List<EditionWithWork>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode,
         CancellationToken ct)
     {
         if (titles.Count == 0)
@@ -64,7 +64,8 @@ public class IsbndbBookService : IIsbndbBookSearch
             var response = await _bookClient.SearchBooksAsync(title.Value, languageCode, shouldMatchAll: true, ct: ct);
 
             var mapped = response?.Books
-                .Select(b => b.ToBook())
+                .Select(b => b.ToEditionWithWork())
+                .OfType<EditionWithWork>()
                 .ToList();
 
             return mapped;
@@ -84,24 +85,22 @@ public class IsbndbBookService : IIsbndbBookSearch
         return allBooks;
     }
 
-    private async Task<Book?> GetSingleBookAsync(Isbn isbn, CancellationToken ct)
+    private async Task<EditionWithWork?> GetSingleBookAsync(Isbn isbn, CancellationToken ct)
     {
         var dto = await _bookClient.FetchBookByIsbnAsync(isbn, ct);
 
-        var book = dto?.Book.ToBook();
-
-        return book;
+        return dto?.Book.ToEditionWithWork();
     }
 
-    private async Task<List<Book>?> GetMultipleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    private async Task<List<EditionWithWork>?> GetMultipleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, ct);
 
         var books = response?.Data
-            .Select(b => b.ToBook())
+            .Select(b => b.ToEditionWithWork())
+            .OfType<EditionWithWork>()
             .ToList();
 
         return books;
     }
-
 }

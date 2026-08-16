@@ -1,6 +1,5 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Application.Publishers.Interfaces;
@@ -34,6 +33,6 @@ public sealed class FindBooksByPublisherHandler : IQueryHandler<FindBooksByPubli
             publisher,
             apiBooks.Count);
 
-        return apiBooks.Select(b => b.ToEditionWithWork()).ToList();
+        return apiBooks;
     }
 }

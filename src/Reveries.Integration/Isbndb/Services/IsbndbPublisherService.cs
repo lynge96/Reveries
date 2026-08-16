@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Books.Models;
 using Reveries.Application.Publishers.Interfaces;
-using Reveries.Domain.Books;
 using Reveries.Domain.Publishers;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
@@ -18,7 +18,7 @@ public class IsbndbPublisherService : IPublisherSearch
         _logger = logger;
     }
 
-    public async Task<List<Book>?> GetBooksByPublisherAsync(Publisher publisher, CancellationToken ct)
+    public async Task<List<EditionWithWork>?> GetBooksByPublisherAsync(Publisher publisher, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(publisher.Name))
             return [];
@@ -29,7 +29,8 @@ public class IsbndbPublisherService : IPublisherSearch
             return null;
 
         var books = (response.Books ?? [])
-            .Select(dto => dto.ToBook())
+            .Select(dto => dto.ToEditionWithWork())
+            .OfType<EditionWithWork>()
             .ToList();
 
         _logger.LogDebug("Publisher '{Publisher}' returned {Count} books.", publisher, books.Count);

@@ -1,11 +1,10 @@
-using Reveries.Application.Books.Extensions;
+using Reveries.Application.Books.Models;
 using Reveries.Application.Books.Queries.FindBooksByIsbns;
 using Reveries.Application.Books.Queries.FindBooksByTitles;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services;
-using Reveries.Domain.Books;
 using Spectre.Console;
 
 namespace Reveries.Console.Handlers;
@@ -44,7 +43,7 @@ public class SearchBookHandler : BaseHandler
 
         var filteredBooks = _bookSelectionService.FilterBooksByLanguage(bookResults);
 
-        _bookDisplayService.DisplayBooksTable(filteredBooks.ArrangeBooks());
+        _bookDisplayService.DisplayBooksTable(filteredBooks.Arrange());
 
         var booksToSave = _bookSelectionService.SelectBooksToSave(filteredBooks);
 
@@ -52,7 +51,7 @@ public class SearchBookHandler : BaseHandler
             await _saveEntityService.SaveBooksAsync(booksToSave, ct);
     }
 
-    private async Task<List<Book>> SearchBooksAsync(string searchInput, CancellationToken ct)
+    private async Task<List<EditionWithWork>> SearchBooksAsync(string searchInput, CancellationToken ct)
     {
         var tokens = searchInput
             .Split([','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -61,21 +60,21 @@ public class SearchBookHandler : BaseHandler
         var isbnTokens = tokens.Where(IsIsbnFormat).ToList();
         var titleTokens = tokens.Except(isbnTokens).ToList();
 
-        var results = new List<Book>();
+        var results = new List<EditionWithWork>();
 
         if (isbnTokens.Count != 0)
         {
             var query = new FindBooksByIsbnsQuery(isbnTokens);
             var books = await _booksByIsbnsHandler.Handle(query, ct);
 
-            results.AddRange(books.ToBooks());
+            results.AddRange(books);
         }
         if (titleTokens.Count != 0)
         {
             var query = new FindBooksByTitlesQuery(titleTokens);
             var books = await _booksByTitlesHandler.Handle(query, ct);
 
-            results.AddRange(books.ToBooks());
+            results.AddRange(books);
         }
 
         return results;

@@ -1,8 +1,8 @@
-using Reveries.Application.Books.Services;
+using Reveries.Application.Books.Interfaces;
+using Reveries.Application.Books.Models;
 using Reveries.Application.BookSeries.Services;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Console.Common.Extensions;
-using Reveries.Domain.Books;
 using Reveries.Domain.BookSeries;
 using Spectre.Console;
 
@@ -10,18 +10,18 @@ namespace Reveries.Console.Services;
 
 public class SaveEntityService
 {
-    private readonly BookPersistenceService _bookPersistenceService;
+    private readonly IWorkPersistenceService _workPersistenceService;
     private readonly CreateSeriesService _createSeriesService;
 
     public SaveEntityService(
-        BookPersistenceService bookPersistenceService,
+        IWorkPersistenceService workPersistenceService,
         CreateSeriesService createSeriesService)
     {
-        _bookPersistenceService = bookPersistenceService;
+        _workPersistenceService = workPersistenceService;
         _createSeriesService = createSeriesService;
     }
 
-    public async Task SaveBooksAsync(IEnumerable<Book> books, CancellationToken ct = default)
+    public async Task SaveBooksAsync(IEnumerable<EditionWithWork> books, CancellationToken ct = default)
     {
         var booksList = books.ToList();
 
@@ -35,22 +35,25 @@ public class SaveEntityService
 
         foreach (var book in booksList)
         {
+            var edition = book.Edition;
+            var work = book.Work;
+
             try
             {
-                var bookId = await _bookPersistenceService.SaveBookWithRelationsAsync(book, ct);
+                var editionId = await _workPersistenceService.SaveWorkWithEditionAsync(work, edition, ct);
 
                 AnsiConsole.MarkupLine($"""
                                         ✅ Successfully saved to database:
-                                           Title: {book.Title}
-                                           ID: {bookId}
-                                           ISBN: {book.Isbn13?.Value ?? book.Isbn10?.Value ?? "N/A"}
+                                           Title: {work.Title}
+                                           ID: {editionId}
+                                           ISBN: {edition.Isbn13?.Value ?? edition.Isbn10?.Value ?? "N/A"}
                                         """.AsPrimary());
             }
             catch (BookAlreadyExistsException ex)
             {
                 AnsiConsole.MarkupLine($"""
                                         ⚠️ Book already exists:
-                                           Title: {book.Title}
+                                           Title: {work.Title}
                                            Error: {ex.Message}
                                         """.AsWarning());
             }
@@ -58,7 +61,7 @@ public class SaveEntityService
             {
                 AnsiConsole.MarkupLine($"""
                                         ❌ Transaction failed:
-                                           Title: {book.Title}
+                                           Title: {work.Title}
                                            Error: {ex.Message}
                                            Details: Transaction was rolled back
                                         """.AsError());

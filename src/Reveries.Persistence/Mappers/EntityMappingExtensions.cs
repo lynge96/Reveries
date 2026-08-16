@@ -1,5 +1,4 @@
 using Reveries.Domain.Authors;
-using Reveries.Domain.Books;
 using Reveries.Domain.Publishers;
 using Reveries.Domain.BookSeries;
 using Reveries.Domain.Shared;
@@ -9,35 +8,6 @@ namespace Reveries.Persistence.Mappers;
 
 public static class EntityMappingExtensions
 {
-    public static BookEntity ToEntity(this Book book)
-    {
-        return new BookEntity
-        {
-            Id = book.Id.Value,
-            Title = book.Title.ToString(),
-            Isbn13 = book.Isbn13?.ToString(),
-            Isbn10 = book.Isbn10?.ToString(),
-            PageCount = book.Pages,
-            PublicationDate = book.PublicationDate,
-            Synopsis = book.Synopsis,
-            Language = book.Language,
-            Edition = book.Edition,
-            Binding = book.Binding,
-            ImageUrl = book.CoverImageUrl,
-            ImageThumbnail = book.ImageThumbnailUrl,
-            Msrp = book.Msrp,
-            SeriesNumber = book.SeriesNumber,
-            HeightCm = book.Dimensions?.HeightCm,
-            WidthCm = book.Dimensions?.WidthCm,
-            ThicknessCm = book.Dimensions?.ThicknessCm,
-            WeightG = book.Dimensions?.WeightG,
-            DateCreated = book.DateCreated,
-
-            PublisherId = book.Publisher?.Id.Value,
-            SeriesId = book.Series?.Id.Value,
-        };
-    }
-
     public static PublisherEntity ToEntity(this Publisher publisher)
     {
         return new PublisherEntity

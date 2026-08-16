@@ -3,7 +3,6 @@ using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain.Books;
 using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Shared;
 
@@ -60,11 +59,10 @@ public class BookLookupService : IBookLookupService
             return new BookLookupResult<Isbn>([], isbns.ToList());
         }
 
-        var mergedBooks = _bookMergerService.AggregateBooksByIsbnsAsync(isbns, isbndbBooks, googleBooks);
-        var found = mergedBooks.Select(b => b.ToEditionWithWork()).ToList();
+        var found = _bookMergerService.AggregateBooksByIsbnsAsync(isbns, isbndbBooks, googleBooks);
 
-        var foundIsbnKeys = mergedBooks
-            .Select(b => b.Isbn13?.Value ?? b.Isbn10?.Value)
+        var foundIsbnKeys = found
+            .Select(b => b.Edition.Isbn13?.Value ?? b.Edition.Isbn10?.Value)
             .Where(k => k is not null)
             .ToHashSet();
 
@@ -109,11 +107,10 @@ public class BookLookupService : IBookLookupService
             return new BookLookupResult<Title>([], titles);
         }
 
-        var mergedBooks = _bookMergerService.AggregateBooksByTitlesAsync(titles, isbndbBooks, googleBooks);
-        var found = mergedBooks.Select(b => b.ToEditionWithWork()).ToList();
+        var found = _bookMergerService.AggregateBooksByTitlesAsync(titles, isbndbBooks, googleBooks);
 
-        var foundTitles = mergedBooks
-            .Select(b => b.Title)
+        var foundTitles = found
+            .Select(b => b.Work.Title)
             .ToHashSet();
 
         var missingTitles = titles
@@ -168,7 +165,7 @@ public class BookLookupService : IBookLookupService
         return await _editions.EditionExistsAsync(isbn, ct);
     }
 
-    private async Task<IReadOnlyList<Book>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    private async Task<IReadOnlyList<EditionWithWork>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         try
         {
@@ -181,7 +178,7 @@ public class BookLookupService : IBookLookupService
         }
     }
 
-    private async Task<IReadOnlyList<Book>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Title> titles,
+    private async Task<IReadOnlyList<EditionWithWork>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Title> titles,
         CancellationToken ct)
     {
         try
@@ -195,7 +192,7 @@ public class BookLookupService : IBookLookupService
         }
     }
 
-    private async Task<IReadOnlyList<Book>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    private async Task<IReadOnlyList<EditionWithWork>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         try
         {
@@ -208,7 +205,7 @@ public class BookLookupService : IBookLookupService
         }
     }
 
-    private async Task<IReadOnlyList<Book>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Title> titles,
+    private async Task<IReadOnlyList<EditionWithWork>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Title> titles,
         CancellationToken ct)
     {
         try

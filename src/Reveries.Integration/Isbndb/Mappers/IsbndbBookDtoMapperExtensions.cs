@@ -1,43 +1,52 @@
-﻿using Reveries.Domain.Books;
+using Reveries.Application.Books.Models;
+using Reveries.Domain.Editions;
 using Reveries.Domain.Enums;
 using Reveries.Domain.Helpers;
+using Reveries.Domain.Works;
 using Reveries.Integration.Isbndb.DTOs.Books;
 
 namespace Reveries.Integration.Isbndb.Mappers;
 
 public static class IsbndbBookDtoMapperExtensions
 {
-    public static Book ToBook(this IsbndbBookDto isbndbBookDto)
+    public static EditionWithWork? ToEditionWithWork(this IsbndbBookDto isbndbBookDto)
     {
+        if (string.IsNullOrWhiteSpace(isbndbBookDto.Isbn13) && string.IsNullOrWhiteSpace(isbndbBookDto.Isbn10))
+            return null;
+
         var thickness = isbndbBookDto.DimensionsStructured?.Length.ConvertDimension();
         var height = isbndbBookDto.DimensionsStructured?.Height.ConvertDimension();
         var width = isbndbBookDto.DimensionsStructured?.Width.ConvertDimension();
 
         var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
 
-        return Book.Create(
-            isbn13: isbndbBookDto.Isbn13,
-            isbn10: isbndbBookDto.Isbn10,
+        var work = Work.Create(
             title: isbndbBookDto.Title,
             authors: isbndbBookDto.Authors,
+            subjects: isbndbBookDto.Subjects,
+            deweyDecimals: isbndbBookDto.DeweyDecimals,
+            synopsis: isbndbBookDto.Synopsis);
+
+        var edition = Edition.Create(
+            workId: work.Id,
+            isbn13: isbndbBookDto.Isbn13,
+            isbn10: isbndbBookDto.Isbn10,
+            publisher: isbndbBookDto.Publisher,
             pages: isbndbBookDto.Pages,
             publishDate: isbndbBookDto.DatePublished,
-            publisher: isbndbBookDto.Publisher,
             languageIso639: isbndbBookDto.Language,
-            synopsis: isbndbBookDto.Synopsis,
+            binding: isbndbBookDto.Binding,
+            editionStatement: isbndbBookDto.Edition,
             imageThumbnail: isbndbBookDto.Image,
             imageUrl: isbndbBookDto.ImageOriginal,
             msrp: isbndbBookDto.Msrp,
-            binding: isbndbBookDto.Binding,
-            edition: isbndbBookDto.Edition,
-            weight: isbndbBookDto.DimensionsStructured?.Weight.ConvertDimension(),
-            thickness: normalizedThickness,
             height: normalizedHeight,
             width: normalizedWidth,
-            subjects: isbndbBookDto.Subjects,
-            deweyDecimals: isbndbBookDto.DeweyDecimals,
-            dataSource: DataSource.IsbndbApi
-            );
+            thickness: normalizedThickness,
+            weight: isbndbBookDto.DimensionsStructured?.Weight.ConvertDimension(),
+            dataSource: DataSource.IsbndbApi);
+
+        return new EditionWithWork(edition, work);
     }
 
     private static decimal? ConvertDimension(this DimensionDto? dimension)

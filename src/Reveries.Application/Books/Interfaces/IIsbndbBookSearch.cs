@@ -1,28 +1,13 @@
-﻿using Reveries.Domain.Books;
+using Reveries.Application.Books.Models;
 using Reveries.Domain.Shared;
 
 namespace Reveries.Application.Books.Interfaces;
 
 /// <summary>
-/// Provides methods to retrieve and transform book data from the ISBNdb API into domain <see cref="Book"/> entities.
-/// This service returns fully mapped books ready for use within the application.
+/// Retrieves and transforms book data from the ISBNdb API into the <see cref="EditionWithWork"/> read-model.
 /// </summary>
 public interface IIsbndbBookSearch
 {
-    /// <summary>
-    /// Retrieves books that match the given list of ISBNs.
-    /// </summary>
-    /// <param name="isbns">A list of 10- or 13-digit ISBNs to search for.</param>
-    /// <param name="ct">A token to cancel the operation if needed.</param>
-    /// <returns>A list of <see cref="Book"/> entities that match the provided ISBNs. Returns an empty list if none are found.</returns>
-    Task<List<Book>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct = default);
-
-    /// <summary>
-    /// Searches for books by title and optionally filters by language and book format.
-    /// </summary>
-    /// <param name="titles">A list of book titles to search for.</param>
-    /// <param name="languageCode">Optional language code to filter results, e.g., 'en' or 'da'.</param>
-    /// <param name="ct">A token to cancel the operation if needed.</param>
-    /// <returns>A list of <see cref="Book"/> entities that match the search criteria. Returns an empty list if no matches are found.</returns>
-    Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode, CancellationToken ct = default);
+    Task<List<EditionWithWork>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct = default);
+    Task<List<EditionWithWork>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode, CancellationToken ct = default);
 }

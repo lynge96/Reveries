@@ -7,4 +7,17 @@ namespace Reveries.Application.Books.Models;
 /// Read-model that composes a physical <see cref="Edition"/> with the <see cref="Work"/>
 /// it belongs to — the "one book" view the outward-facing API and clients present.
 /// </summary>
-public sealed record EditionWithWork(Edition Edition, Work Work);
+public sealed record EditionWithWork(Edition Edition, Work Work)
+{
+    public override string ToString()
+    {
+        var title = string.IsNullOrWhiteSpace(Work.Title.Value) ? "Unknown Title" : Work.Title.Value;
+
+        var authors = Work.Authors
+            .Select(a => a.ToString())
+            .Where(a => !string.IsNullOrWhiteSpace(a))
+            .DefaultIfEmpty("Unknown Author");
+
+        return $"{title} by {string.Join(", ", authors)}";
+    }
+}

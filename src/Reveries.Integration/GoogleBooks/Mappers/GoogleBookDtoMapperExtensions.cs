@@ -1,46 +1,56 @@
 using System.Globalization;
-using Reveries.Domain.Books;
+using Reveries.Application.Books.Models;
+using Reveries.Domain.Editions;
 using Reveries.Domain.Enums;
 using Reveries.Domain.Helpers;
+using Reveries.Domain.Works;
 using Reveries.Integration.GoogleBooks.DTOs;
 
 namespace Reveries.Integration.GoogleBooks.Mappers;
 
 public static class GoogleBookDtoMapperExtensions
 {
-    public static Book ToBook(this GoogleVolumeInfoDto googleBookDto)
+    public static EditionWithWork? ToEditionWithWork(this GoogleVolumeInfoDto googleBookDto)
     {
+        var isbn13 = googleBookDto.IndustryIdentifiers?.FirstOrDefault(i => i.Type == "ISBN_13")?.Identifier;
+        var isbn10 = googleBookDto.IndustryIdentifiers?.FirstOrDefault(i => i.Type == "ISBN_10")?.Identifier;
+
+        if (string.IsNullOrWhiteSpace(isbn13) && string.IsNullOrWhiteSpace(isbn10))
+            return null;
+
         var thickness = googleBookDto.Dimensions?.Thickness.ParseDimension();
         var height = googleBookDto.Dimensions?.Height.ParseDimension();
         var width = googleBookDto.Dimensions?.Width.ParseDimension();
 
         var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
 
-        return Book.Create(
-            isbn13: googleBookDto.IndustryIdentifiers?
-                .FirstOrDefault(i => i.Type == "ISBN_13")?.Identifier,
-            isbn10: googleBookDto.IndustryIdentifiers?
-                .FirstOrDefault(i => i.Type == "ISBN_10")?.Identifier,
+        var work = Work.Create(
             title: googleBookDto.Title,
             authors: googleBookDto.Authors,
+            subjects: googleBookDto.Categories.ExtractUniqueSubjects(),
+            deweyDecimals: null,
+            synopsis: googleBookDto.Description);
+
+        var edition = Edition.Create(
+            workId: work.Id,
+            isbn13: isbn13,
+            isbn10: isbn10,
+            publisher: googleBookDto.Publisher,
             pages: googleBookDto.PageCount,
             publishDate: googleBookDto.PublishedDate,
-            publisher: googleBookDto.Publisher,
             languageIso639: googleBookDto.Language,
-            synopsis: googleBookDto.Description,
+            binding: googleBookDto.PrintType,
+            editionStatement: googleBookDto.Subtitle,
             imageThumbnail: googleBookDto.ImageLinks?.Thumbnail,
             imageUrl: googleBookDto.ImageLinks?.Thumbnail,
             msrp: null,
-            binding: googleBookDto.PrintType,
-            edition: googleBookDto.Subtitle,
-            weight: null,
-            thickness: normalizedThickness,
             height: normalizedHeight,
             width: normalizedWidth,
-            subjects: googleBookDto.Categories.ExtractUniqueSubjects(),
-            deweyDecimals: null,
-            dataSource: DataSource.GoogleBooksApi
-        );
+            thickness: normalizedThickness,
+            weight: null,
+            dataSource: DataSource.GoogleBooksApi);
+
+        return new EditionWithWork(edition, work);
     }
 
     private static List<string> ExtractUniqueSubjects(this IEnumerable<string>? categories)

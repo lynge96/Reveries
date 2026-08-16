@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Authors.Interfaces;
+using Reveries.Application.Books.Models;
 using Reveries.Domain.Authors;
-using Reveries.Domain.Books;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
 
@@ -41,7 +41,7 @@ public class IsbndbAuthorService : IAuthorSearch
         return distinctAuthors;
     }
 
-    public async Task<List<Book>?> GetBooksByAuthorAsync(Author author, CancellationToken ct)
+    public async Task<List<EditionWithWork>?> GetBooksByAuthorAsync(Author author, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(author.NormalizedName))
             return [];
@@ -52,7 +52,8 @@ public class IsbndbAuthorService : IAuthorSearch
             return null;
 
         var books = (response.Books ?? [])
-            .Select(b => b.ToBook())
+            .Select(b => b.ToEditionWithWork())
+            .OfType<EditionWithWork>()
             .ToList();
 
         _logger.LogDebug("Found {Count} books for author '{AuthorName}'.",

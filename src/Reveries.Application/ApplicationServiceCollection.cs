@@ -21,7 +21,6 @@ public static class ServiceCollectionExtensions
 
         // Services
         // Books
-        services.AddScoped<IBookPersistenceService, BookPersistenceService>();
         services.AddScoped<IWorkPersistenceService, WorkPersistenceService>();
         services.AddScoped<IBookMergerService, BookMergerService>();
         services.AddScoped<IBookLookupService, BookLookupService>();

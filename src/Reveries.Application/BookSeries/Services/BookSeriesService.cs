@@ -1,53 +1,60 @@
 using Reveries.Application.BookSeries.Interfaces;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain.Books;
-using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.BookSeries;
+using Reveries.Domain.Interfaces.IRepository;
 using Reveries.Domain.Shared;
+using Reveries.Domain.Works;
 
 namespace Reveries.Application.BookSeries.Services;
 
 public class BookSeriesService : IBookSeriesService
 {
     private readonly ITransactionManager _transactionManager;
-    private readonly IBookRepository _books;
+    private readonly IEditionRepository _editions;
+    private readonly IWorkRepository _works;
     private readonly ISeriesRepository _series;
 
     public BookSeriesService(
         ITransactionManager transactionManager,
-        IBookRepository books,
+        IEditionRepository editions,
+        IWorkRepository works,
         ISeriesRepository series)
     {
         _transactionManager = transactionManager;
-        _books = books;
+        _editions = editions;
+        _works = works;
         _series = series;
     }
 
-    public async Task<BookId> SetSeriesAsync(Isbn? isbn, Series series, int? numberInSeries, CancellationToken ct)
+    public async Task<WorkId> SetSeriesAsync(Isbn? isbn, Series series, int? numberInSeries, CancellationToken ct)
     {
         await using var tx = await _transactionManager.BeginTransactionAsync(ct);
 
-        var existingBook = await _books.GetBookByIsbnAsync(isbn, ct: ct);
-        if (existingBook == null)
-            throw new NotFoundException($"Book with ISBN '{isbn}' was not found.");
+        var edition = await _editions.GetEditionByIsbnAsync(isbn, ct: ct);
+        if (edition is null)
+            throw new NotFoundException($"Edition with ISBN '{isbn}' was not found.");
+
+        var work = await _works.GetWorkByIdAsync(edition.WorkId.Value, ct);
+        if (work is null)
+            throw new NotFoundException($"Work for ISBN '{isbn}' was not found.");
 
         var existingSeries = await _series.GetByNameAsync(series, ct);
 
         if (existingSeries != null)
         {
-            existingBook.SetSeries(existingSeries, numberInSeries);
-            await _books.UpdateBookSeriesAsync(existingBook, existingSeries.Id.Value, ct);
+            work.SetSeries(existingSeries, numberInSeries);
+            await _works.UpdateWorkSeriesAsync(work, existingSeries.Id.Value, ct);
         }
         else
         {
-            existingBook.SetSeries(series, numberInSeries);
+            work.SetSeries(series, numberInSeries);
             var createdSeries = await _series.GetOrCreateAsync(series, ct: ct);
-            await _books.UpdateBookSeriesAsync(existingBook, createdSeries!.Id.Value, ct);
+            await _works.UpdateWorkSeriesAsync(work, createdSeries!.Id.Value, ct);
         }
 
         await tx.CommitAsync(ct);
 
-        return existingBook.Id;
+        return work.Id;
     }
 }
