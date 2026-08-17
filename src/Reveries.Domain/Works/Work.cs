@@ -13,14 +13,18 @@ public class Work : BaseEntity
 
     public WorkId Id { get; private init; }
     public required Title Title { get; init; }
-    public string? Synopsis { get; private init; }
-    public IReadOnlyList<Author> Authors => _authors;
-    public IReadOnlyList<Genre> Genres => _genres;
-    public IReadOnlyList<DeweyDecimal> DeweyDecimals => _deweyDecimals;
-    public int? SeriesNumber { get; private set; }
-    public Series? Series { get; private set; }
+    public Synopsis? Synopsis { get; private init; }
+    public IReadOnlyList<Author> Authors { get; }
+    public IReadOnlyList<Genre> Genres { get; }
+    public IReadOnlyList<DeweyDecimal> DeweyDecimals { get; }
+    public SeriesPlacement? SeriesPlacement { get; private set; }
 
-    private Work() { }
+    private Work()
+    {
+        Authors = _authors.AsReadOnly();
+        Genres = _genres.AsReadOnly();
+        DeweyDecimals = _deweyDecimals.AsReadOnly();
+    }
 
     public static Work Create(
         string title,
@@ -36,7 +40,7 @@ public class Work : BaseEntity
         {
             Id = WorkId.New(),
             Title = Title.Create(title),
-            Synopsis = synopsis
+            Synopsis = string.IsNullOrWhiteSpace(synopsis) ? null : Synopsis.Create(synopsis)
         };
 
         foreach (var authorName in authors ?? [])
@@ -57,9 +61,8 @@ public class Work : BaseEntity
         {
             Id = new WorkId(data.Id),
             Title = new Title(data.Title),
-            Synopsis = data.Synopsis,
-            SeriesNumber = data.SeriesNumber,
-            Series = data.Series,
+            Synopsis = data.Synopsis is null ? null : new Synopsis(data.Synopsis),
+            SeriesPlacement = data.Series is null ? null : new SeriesPlacement(data.Series, data.SeriesNumber),
             DateCreated = data.DateCreated
         };
 
@@ -75,30 +78,32 @@ public class Work : BaseEntity
         return work;
     }
 
-    public void SetSeries(Series? series, int? numberInSeries = null)
+    public void SetSeries(Series series, int? numberInSeries = null)
     {
-        if (numberInSeries <= 0)
-            throw new InvalidSeriesNumberException(numberInSeries);
-
-        Series = series;
-        SeriesNumber = numberInSeries;
+        SeriesPlacement = SeriesPlacement.Create(series, numberInSeries);
     }
 
-    public void AddAuthor(Author? author)
+    public void AddAuthor(Author author)
     {
-        if (author is null || _authors.Any(a => a.NormalizedName == author.NormalizedName)) return;
+        ArgumentNullException.ThrowIfNull(author);
+
+        if (_authors.Any(a => a.NormalizedName == author.NormalizedName)) return;
         _authors.Add(author);
     }
 
-    public void AddGenre(Genre? genre)
+    public void AddGenre(Genre genre)
     {
-        if (genre is null || _genres.Any(g => g.Value == genre.Value)) return;
+        ArgumentNullException.ThrowIfNull(genre);
+
+        if (_genres.Any(g => g.Value == genre.Value)) return;
         _genres.Add(genre);
     }
 
-    public void AddDeweyDecimal(DeweyDecimal? deweyDecimal)
+    public void AddDeweyDecimal(DeweyDecimal deweyDecimal)
     {
-        if (deweyDecimal is null || _deweyDecimals.Any(d => d.Code == deweyDecimal.Code)) return;
+        ArgumentNullException.ThrowIfNull(deweyDecimal);
+
+        if (_deweyDecimals.Any(d => d.Code == deweyDecimal.Code)) return;
         _deweyDecimals.Add(deweyDecimal);
     }
 }

@@ -1,6 +1,6 @@
 using Mediator;
 using Reveries.Application.Books.Models;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Editions;
 
 namespace Reveries.Application.Books.Queries.FindBookByIsbn;
 

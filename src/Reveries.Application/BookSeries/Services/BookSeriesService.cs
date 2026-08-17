@@ -3,7 +3,7 @@ using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Domain.BookSeries;
 using Reveries.Domain.Interfaces.IRepository;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Editions;
 using Reveries.Domain.Works;
 
 namespace Reveries.Application.BookSeries.Services;

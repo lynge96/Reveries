@@ -1,4 +1,4 @@
-namespace Reveries.Domain.Shared;
+namespace Reveries.Domain.Works;
 
 public sealed record Title
 {

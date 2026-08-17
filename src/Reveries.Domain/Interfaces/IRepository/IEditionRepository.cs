@@ -1,5 +1,4 @@
 using Reveries.Domain.Editions;
-using Reveries.Domain.Shared;
 
 namespace Reveries.Domain.Interfaces.IRepository;
 

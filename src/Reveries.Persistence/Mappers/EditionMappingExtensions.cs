@@ -1,7 +1,6 @@
 using Reveries.Domain.Editions;
 using Reveries.Domain.Enums;
 using Reveries.Domain.Publishers;
-using Reveries.Domain.Shared;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Views;
 

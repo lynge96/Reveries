@@ -1,6 +1,6 @@
 using Reveries.Domain.Publishers;
 
-namespace Reveries.Domain.Tests.Models;
+namespace Reveries.Domain.Tests.Publishers;
 
 public class PublisherTests
 {

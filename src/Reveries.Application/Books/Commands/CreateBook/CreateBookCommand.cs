@@ -1,6 +1,6 @@
 using Mediator;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Commands.CreateBook;
 

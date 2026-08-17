@@ -1,5 +1,5 @@
 using Mediator;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Editions;
 
 namespace Reveries.Application.Books.Queries.GetBookExists;
 

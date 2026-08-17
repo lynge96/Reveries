@@ -3,7 +3,6 @@ using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Enums;
-using Reveries.Domain.Shared;
 using Reveries.Domain.Works;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
@@ -114,9 +113,9 @@ public class GoogleBookService : IGoogleBookSearch
         var work = Work.Reconstitute(new WorkReconstitutionData(
             Id: pw.Id.Value,
             Title: Prefer(pw.Title.Value, vw.Title.Value) ?? string.Empty,
-            Synopsis: Longest(vw.Synopsis, pw.Synopsis),
-            SeriesNumber: pw.SeriesNumber,
-            Series: pw.Series,
+            Synopsis: Longest(vw.Synopsis?.Value, pw.Synopsis?.Value),
+            SeriesNumber: pw.SeriesPlacement?.Number,
+            Series: pw.SeriesPlacement?.Series,
             Authors: pw.Authors.Count != 0 ? pw.Authors : vw.Authors,
             Genres: vw.Genres.Count != 0 ? vw.Genres : pw.Genres,
             DeweyDecimals: vw.DeweyDecimals.Count != 0 ? vw.DeweyDecimals : pw.DeweyDecimals));

@@ -1,5 +1,6 @@
 using Reveries.Application.Books.Models;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Editions;
+using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Interfaces;
 

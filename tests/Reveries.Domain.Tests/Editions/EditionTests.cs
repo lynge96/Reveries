@@ -4,7 +4,7 @@ using Reveries.Domain.Exceptions;
 using Reveries.Domain.Publishers;
 using Reveries.Domain.Works;
 
-namespace Reveries.Domain.Tests.Models;
+namespace Reveries.Domain.Tests.Editions;
 
 public class EditionTests
 {

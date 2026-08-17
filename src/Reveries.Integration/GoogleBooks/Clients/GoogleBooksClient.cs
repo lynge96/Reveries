@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Editions;
+using Reveries.Domain.Works;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;

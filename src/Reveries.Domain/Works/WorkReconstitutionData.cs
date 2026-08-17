@@ -1,6 +1,5 @@
 using Reveries.Domain.Authors;
 using Reveries.Domain.BookSeries;
-using Reveries.Domain.Shared;
 
 namespace Reveries.Domain.Works;
 

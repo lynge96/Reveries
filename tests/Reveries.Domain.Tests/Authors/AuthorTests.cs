@@ -1,6 +1,6 @@
 using Reveries.Domain.Authors;
 
-namespace Reveries.Domain.Tests.Models;
+namespace Reveries.Domain.Tests.Authors;
 
 public class AuthorTests
 {

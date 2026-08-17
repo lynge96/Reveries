@@ -1,6 +1,6 @@
-using Reveries.Domain.Shared;
+using Reveries.Domain.Works;
 
-namespace Reveries.Domain.Tests.ValueObjects;
+namespace Reveries.Domain.Tests.Works;
 
 public class DeweyDecimalsTests
 {

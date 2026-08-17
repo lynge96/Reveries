@@ -69,9 +69,9 @@ public class BookDisplayService
                 edition.Pages?.ToString() ?? "",
                 edition.PublicationDate ?? "Unknown date",
                 Markup.Escape(edition.Publisher?.Name ?? ""),
-                work.SeriesNumber?.ToString() ?? "",
-                work.Series != null
-                    ? $"{Markup.Escape(work.Series.Name)} {Markup.Escape(work.Series.Id.ToString()).AsInfo()}"
+                work.SeriesPlacement?.Number?.ToString() ?? "",
+                work.SeriesPlacement != null
+                    ? $"{Markup.Escape(work.SeriesPlacement.Series.Name)} {Markup.Escape(work.SeriesPlacement.Series.Id.ToString()).AsInfo()}"
                     : "",
                 Markup.Escape(edition.Binding ?? ""),
                 edition.DataSource.ToString().AsInfo()

@@ -1,5 +1,5 @@
 using System.Net;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Editions;
 
 namespace Reveries.Application.Common.Exceptions;
 

@@ -1,6 +1,6 @@
 using Reveries.Domain.BookSeries;
 
-namespace Reveries.Domain.Tests.Models;
+namespace Reveries.Domain.Tests.BookSeries;
 
 public class SeriesTests
 {

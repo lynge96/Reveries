@@ -1,7 +1,6 @@
 using Dapper;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Interfaces.IRepository;
-using Reveries.Domain.Shared;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;

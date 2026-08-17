@@ -1,5 +1,5 @@
 using Mediator;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Editions;
 using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Commands.SetBookSeries;

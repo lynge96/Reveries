@@ -4,7 +4,8 @@ using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Domain.Interfaces.IRepository;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Editions;
+using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Services;
 

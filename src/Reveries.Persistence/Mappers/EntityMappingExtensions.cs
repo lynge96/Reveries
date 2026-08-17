@@ -1,7 +1,7 @@
 using Reveries.Domain.Authors;
 using Reveries.Domain.Publishers;
 using Reveries.Domain.BookSeries;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Works;
 using Reveries.Persistence.Entities;
 
 namespace Reveries.Persistence.Mappers;

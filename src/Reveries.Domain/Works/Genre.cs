@@ -1,6 +1,6 @@
 using Reveries.Domain.Helpers;
 
-namespace Reveries.Domain.Shared;
+namespace Reveries.Domain.Works;
 
 public sealed record Genre
 {
@@ -16,4 +16,3 @@ public sealed record Genre
     public static Genre Create(string genre) => new(genre.ToTitleCase());
 
 }
-

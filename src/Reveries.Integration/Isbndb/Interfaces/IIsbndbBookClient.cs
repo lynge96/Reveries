@@ -1,4 +1,4 @@
-﻿using Reveries.Domain.Shared;
+using Reveries.Domain.Editions;
 
 using Reveries.Integration.Isbndb.DTOs.Books;
 

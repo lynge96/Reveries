@@ -1,7 +1,7 @@
 using Reveries.Domain.Exceptions;
 using System.Text.RegularExpressions;
 
-namespace Reveries.Domain.Shared;
+namespace Reveries.Domain.Editions;
 
 public sealed partial record Isbn
 {
@@ -90,7 +90,7 @@ public sealed partial record Isbn
     /// Validates an ISBN-13 string using the standardized check digit algorithm.
     /// </summary>
     /// <param name="isbn">A normalized ISBN-13 string (13 digits, no spaces/hyphens)</param>
-    /// <returns>True if the ISBN-13 is valid, false otherwise</returns> 
+    /// <returns>True if the ISBN-13 is valid, false otherwise</returns>
     /// <remarks>
     /// <para>
     /// </para>
@@ -99,7 +99,7 @@ public sealed partial record Isbn
     /// 2. Sum the products
     /// 3. Calculate check digit: (10 - (sum mod 10)) mod 10
     /// 4. Compare calculated check digit with last digit of ISBN
-    /// Example: 978-0-7475-3269-9  
+    /// Example: 978-0-7475-3269-9
     /// (1×9 + 3×7 + 1×8 + 3×0 + 1×7 + 3×4 + 1×7 + 3×5 + 1×3 + 3×2 + 1×6 + 3×9) = 128
     /// Check digits = (10 - (128 mod 10)) mod 10 = 9
     /// </remarks>

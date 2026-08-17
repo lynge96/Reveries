@@ -66,7 +66,7 @@ public class WorkRepository : IWorkRepository
 
         var command = _dbContext.CreateCommand(
             sql,
-            new { Id = work.Id.Value, SeriesId = seriesId, work.SeriesNumber },
+            new { Id = work.Id.Value, SeriesId = seriesId, SeriesNumber = work.SeriesPlacement?.Number },
             ct);
 
         await connection.ExecuteAsync(command);

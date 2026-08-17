@@ -1,7 +1,7 @@
 using Reveries.Domain.Exceptions;
-using Reveries.Domain.Shared;
+using Reveries.Domain.Editions;
 
-namespace Reveries.Domain.Tests.ValueObjects;
+namespace Reveries.Domain.Tests.Editions;
 
 public class IsbnTests
 {

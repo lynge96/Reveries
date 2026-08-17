@@ -1,10 +1,9 @@
 using Reveries.Domain.Authors;
 using Reveries.Domain.BookSeries;
 using Reveries.Domain.Exceptions;
-using Reveries.Domain.Shared;
 using Reveries.Domain.Works;
 
-namespace Reveries.Domain.Tests.Models;
+namespace Reveries.Domain.Tests.Works;
 
 public class WorkTests
 {
@@ -30,7 +29,7 @@ public class WorkTests
         var work = CreateValidWork(title: "Dune", synopsis: "Life on a desert planet.");
 
         Assert.Equal("Dune", work.Title.Value);
-        Assert.Equal("Life on a desert planet.", work.Synopsis);
+        Assert.Equal("Life on a desert planet.", work.Synopsis?.Value);
     }
 
     [Fact]
@@ -76,13 +75,11 @@ public class WorkTests
     }
 
     [Fact]
-    public void AddAuthor_WithNull_DoesNothing()
+    public void AddAuthor_WithNull_Throws()
     {
         var work = CreateValidWork();
 
-        work.AddAuthor(null);
-
-        Assert.Empty(work.Authors);
+        Assert.Throws<ArgumentNullException>(() => work.AddAuthor(null!));
     }
 
     [Fact]
@@ -115,8 +112,8 @@ public class WorkTests
 
         work.SetSeries(series, 3);
 
-        Assert.Equal(series, work.Series);
-        Assert.Equal(3, work.SeriesNumber);
+        Assert.Equal(series, work.SeriesPlacement?.Series);
+        Assert.Equal(3, work.SeriesPlacement?.Number);
     }
 
     [Fact]
@@ -127,8 +124,8 @@ public class WorkTests
 
         work.SetSeries(series);
 
-        Assert.Equal(series, work.Series);
-        Assert.Null(work.SeriesNumber);
+        Assert.Equal(series, work.SeriesPlacement?.Series);
+        Assert.Null(work.SeriesPlacement?.Number);
     }
 
     [Fact]
@@ -160,8 +157,8 @@ public class WorkTests
 
         Assert.Equal(id, work.Id.Value);
         Assert.Equal("Dune", work.Title.Value);
-        Assert.Equal("Life on a desert planet.", work.Synopsis);
-        Assert.Equal(1, work.SeriesNumber);
+        Assert.Equal("Life on a desert planet.", work.Synopsis?.Value);
+        Assert.Equal(1, work.SeriesPlacement?.Number);
         Assert.Single(work.Authors);
         Assert.Single(work.Genres);
         Assert.Single(work.DeweyDecimals);

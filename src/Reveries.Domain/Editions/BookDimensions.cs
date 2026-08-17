@@ -1,4 +1,4 @@
-namespace Reveries.Domain.Shared;
+namespace Reveries.Domain.Editions;
 
 public sealed record BookDimensions
 {
