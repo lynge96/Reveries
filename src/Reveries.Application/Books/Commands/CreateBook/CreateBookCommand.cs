@@ -27,6 +27,7 @@ public sealed record CreateBookCommand : IQuery<EditionId>
     public decimal? ThicknessCm { get; init; }
     public decimal? WeightG { get; init; }
     public List<string>? DeweyDecimals { get; init; }
-    public List<string>? Genres { get; init; }
+    public List<string>? PrimaryGenres { get; init; }
+    public List<string>? SecondaryGenres { get; init; }
     public string? DataSource { get; set; }
 }

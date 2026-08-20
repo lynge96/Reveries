@@ -28,7 +28,7 @@ public class GetOrCreateBatchTests : IAsyncLifetime
     public async Task GetOrCreateGenres_deduplicates_within_a_single_batch()
     {
         // Arrange — the same genre twice in one call would break a naive single-statement upsert
-        var genres = new[] { Genre.Create("Dystopia"), Genre.Create("Dystopia"), Genre.Create("Fantasy") };
+        var genres = new[] { Genre.TryCreate("Dystopia")!, Genre.TryCreate("Dystopia")!, Genre.TryCreate("Fantasy")! };
 
         // Act
         await using var db = _fixture.NewDbContext();
@@ -42,7 +42,7 @@ public class GetOrCreateBatchTests : IAsyncLifetime
     public async Task GetOrCreateGenres_is_idempotent_across_calls()
     {
         // Arrange
-        var genres = new[] { Genre.Create("Dystopia") };
+        var genres = new[] { Genre.TryCreate("Dystopia")! };
         await using var db = _fixture.NewDbContext();
         var repository = new GenreRepository(db);
 

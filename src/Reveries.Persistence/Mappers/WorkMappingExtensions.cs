@@ -28,7 +28,8 @@ public static class WorkMappingExtensions
             SeriesNumber: entity.Work.SeriesNumber,
             Series: entity.Series?.ToDomain(),
             Authors: entity.Authors?.Select(a => a.ToDomain()),
-            Genres: entity.Genres?.Select(g => g.ToDomain()),
+            PrimaryGenres: entity.PrimaryGenres?.Select(g => Genre.TryCreate(g.Name)).OfType<Genre>(),
+            SecondaryGenres: entity.SecondaryGenres?.Select(g => Genre.TryCreate(g.Name)).OfType<Genre>(),
             DeweyDecimals: entity.DeweyDecimals?
                 .Select(dd => DeweyDecimal.TryCreate(dd.Code))
                 .OfType<DeweyDecimal>(),

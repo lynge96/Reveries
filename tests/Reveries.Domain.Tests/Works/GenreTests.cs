@@ -5,12 +5,20 @@ namespace Reveries.Domain.Tests.Works;
 public class GenreTests
 {
     [Fact]
-    public void Create_WithValidGenre_NormalizesAndHasNoId()
+    public void TryCreate_WithValidName_TitleCasesAndTrims()
     {
-        var genre = Genre.Create("science fiction");
+        var genre = Genre.TryCreate("  science fiction  ");
 
         Assert.NotNull(genre);
-        Assert.Equal("Science Fiction", genre.Value);
+        Assert.Equal("Science Fiction", genre!.Name);
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void TryCreate_WithEmptyName_ReturnsNull(string? name)
+    {
+        Assert.Null(Genre.TryCreate(name));
+    }
 }

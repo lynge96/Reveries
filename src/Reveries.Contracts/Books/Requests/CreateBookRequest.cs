@@ -23,6 +23,7 @@ public record CreateBookRequest
     public decimal? ThicknessCm { get; init; }
     public decimal? WeightG { get; init; }
     public List<string>? DeweyDecimals { get; set; }
-    public List<string>? Genres { get; set; }
+    public List<string>? PrimaryGenres { get; set; }
+    public List<string>? SecondaryGenres { get; set; }
     public string? DataSource { get; set; }
 }

@@ -74,12 +74,16 @@ else
                         </div>
 
                         <!-- Genres -->
-                        @if (_book.Genres?.Any() == true)
+                        @if (_book.PrimaryGenres?.Any() == true || _book.SecondaryGenres?.Any() == true)
                         {
                             <div class="genre-badges">
-                                @foreach (var genre in _book.Genres)
+                                @foreach (var genre in _book.PrimaryGenres ?? [])
                                 {
                                     <span class="genre-badge">@genre</span>
+                                }
+                                @foreach (var genre in _book.SecondaryGenres ?? [])
+                                {
+                                    <span class="genre-badge genre-badge-secondary">@genre</span>
                                 }
                             </div>
                         }

@@ -8,28 +8,27 @@ namespace Reveries.Domain.Works;
 public class Work : BaseEntity
 {
     private readonly List<Author> _authors = [];
-    private readonly List<Genre> _genres = [];
     private readonly List<DeweyDecimal> _deweyDecimals = [];
 
     public WorkId Id { get; private init; }
     public required Title Title { get; init; }
     public Synopsis? Synopsis { get; private init; }
     public IReadOnlyList<Author> Authors { get; }
-    public IReadOnlyList<Genre> Genres { get; }
+    public GenreClassification Genres { get; private init; } = GenreClassification.Empty;
     public IReadOnlyList<DeweyDecimal> DeweyDecimals { get; }
     public SeriesPlacement? SeriesPlacement { get; private set; }
 
     private Work()
     {
         Authors = _authors.AsReadOnly();
-        Genres = _genres.AsReadOnly();
         DeweyDecimals = _deweyDecimals.AsReadOnly();
     }
 
     public static Work Create(
         string title,
         IEnumerable<string>? authors,
-        IEnumerable<string>? genres,
+        IEnumerable<string>? primaryGenres,
+        IEnumerable<string>? secondaryGenres,
         IEnumerable<string>? deweyDecimals,
         string? synopsis)
     {
@@ -40,14 +39,12 @@ public class Work : BaseEntity
         {
             Id = WorkId.New(),
             Title = Title.Create(title),
-            Synopsis = string.IsNullOrWhiteSpace(synopsis) ? null : Synopsis.Create(synopsis)
+            Synopsis = string.IsNullOrWhiteSpace(synopsis) ? null : Synopsis.Create(synopsis),
+            Genres = GenreClassification.Create(primaryGenres, secondaryGenres)
         };
 
         foreach (var authorName in authors ?? [])
             work.AddAuthor(Author.Create(authorName));
-
-        foreach (var genre in genres ?? [])
-            work.AddGenre(Genre.Create(genre));
 
         foreach (var code in deweyDecimals ?? [])
         {
@@ -67,14 +64,12 @@ public class Work : BaseEntity
             Title = new Title(data.Title),
             Synopsis = data.Synopsis is null ? null : new Synopsis(data.Synopsis),
             SeriesPlacement = data.Series is null ? null : new SeriesPlacement(data.Series, data.SeriesNumber),
+            Genres = GenreClassification.Reconstitute(data.PrimaryGenres, data.SecondaryGenres),
             DateCreated = data.DateCreated
         };
 
         if (data.Authors != null)
             work._authors.AddRange(data.Authors);
-
-        if (data.Genres != null)
-            work._genres.AddRange(data.Genres);
 
         if (data.DeweyDecimals != null)
             work._deweyDecimals.AddRange(data.DeweyDecimals);
@@ -93,14 +88,6 @@ public class Work : BaseEntity
 
         if (_authors.Any(a => a.NormalizedName == author.NormalizedName)) return;
         _authors.Add(author);
-    }
-
-    public void AddGenre(Genre genre)
-    {
-        ArgumentNullException.ThrowIfNull(genre);
-
-        if (_genres.Any(g => g.Value == genre.Value)) return;
-        _genres.Add(genre);
     }
 
     public void AddDeweyDecimal(DeweyDecimal deweyDecimal)

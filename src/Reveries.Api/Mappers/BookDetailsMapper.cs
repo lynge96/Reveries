@@ -35,7 +35,8 @@ public static class BookDetailsMapper
             ThicknessCm = edition.Dimensions?.ThicknessCm,
             WeightG = edition.Dimensions?.WeightG,
             DeweyDecimals = work.DeweyDecimals.Select(dd => dd.Code).ToList(),
-            Genres = work.Genres.Select(g => g.Value).ToList(),
+            PrimaryGenres = work.Genres.Primary.Select(g => g.Name).ToList(),
+            SecondaryGenres = work.Genres.Secondary.Select(g => g.Name).ToList(),
             DataSource = edition.DataSource.ToString()
         };
     }

@@ -57,7 +57,7 @@ public static class EntityMappingExtensions
     {
         return new GenreEntity
         {
-            Name = genre.Value
+            Name = genre.Name
         };
     }
 

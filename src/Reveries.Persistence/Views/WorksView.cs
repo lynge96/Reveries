@@ -15,7 +15,8 @@ public sealed class WorksView
     public DateTimeOffset? DateCreatedSeries { get; init; }
 
     // JSON fields
-    public string Genres { get; init; } = "[]";
+    public string PrimaryGenres { get; init; } = "[]";
+    public string SecondaryGenres { get; init; } = "[]";
     public string Authors { get; init; } = "[]";
 
     // text[]

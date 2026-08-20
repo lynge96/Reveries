@@ -24,10 +24,13 @@ public static class GoogleBookDtoMapperExtensions
 
         var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
 
+        var (primaryGenres, secondaryGenres) = googleBookDto.Categories.SplitGenres();
+
         var work = Work.Create(
             title: googleBookDto.Title,
             authors: googleBookDto.Authors,
-            genres: googleBookDto.Categories.ExtractUniqueSubjects(),
+            primaryGenres: primaryGenres,
+            secondaryGenres: secondaryGenres,
             deweyDecimals: null,
             synopsis: googleBookDto.Description);
 
@@ -53,17 +56,25 @@ public static class GoogleBookDtoMapperExtensions
         return new EditionWithWork(edition, work);
     }
 
-    private static List<string> ExtractUniqueSubjects(this IEnumerable<string>? categories)
+    private static (List<string> Primary, List<string> Secondary) SplitGenres(this IEnumerable<string>? categories)
     {
-        if (categories == null)
-            return new List<string>();
+        var primary = new List<string>();
+        var secondary = new List<string>();
 
-        return categories
-            .Where(c => !string.IsNullOrWhiteSpace(c))
-            .SelectMany(c => c.Split('/', StringSplitOptions.TrimEntries))
-            .Select(c => c.ToTitleCase())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        foreach (var category in categories ?? [])
+        {
+            if (string.IsNullOrWhiteSpace(category))
+                continue;
+
+            var segments = category.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length == 0)
+                continue;
+
+            primary.Add(segments[0]);
+            secondary.AddRange(segments.Skip(1));
+        }
+
+        return (primary, secondary);
     }
 
     private static decimal? ParseDimension(this string? value)

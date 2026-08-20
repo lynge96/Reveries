@@ -10,11 +10,12 @@ public class WorkTests
     private static Work CreateValidWork(
         string title = "Test Work",
         IEnumerable<string>? authors = null,
-        IEnumerable<string>? subjects = null,
+        IEnumerable<string>? primaryGenres = null,
+        IEnumerable<string>? secondaryGenres = null,
         IEnumerable<string>? deweyDecimals = null,
         string? synopsis = "A synopsis")
     {
-        return Work.Create(title, authors, subjects, deweyDecimals, synopsis);
+        return Work.Create(title, authors, primaryGenres, secondaryGenres, deweyDecimals, synopsis);
     }
 
     [Fact]
@@ -35,10 +36,10 @@ public class WorkTests
     [Fact]
     public void Create_WithNullCollections_DoesNotThrow()
     {
-        var work = CreateValidWork(authors: null, subjects: null, deweyDecimals: null);
+        var work = CreateValidWork(authors: null, primaryGenres: null, secondaryGenres: null, deweyDecimals: null);
 
         Assert.Empty(work.Authors);
-        Assert.Empty(work.Genres);
+        Assert.Empty(work.Genres.All);
         Assert.Empty(work.DeweyDecimals);
     }
 
@@ -47,11 +48,11 @@ public class WorkTests
     {
         var work = CreateValidWork(
             authors: ["Frank Herbert"],
-            subjects: ["Science Fiction"],
+            primaryGenres: ["Science Fiction"],
             deweyDecimals: ["813.54"]);
 
         Assert.Single(work.Authors);
-        Assert.Single(work.Genres);
+        Assert.Single(work.Genres.Primary);
         Assert.Single(work.DeweyDecimals);
     }
 
@@ -83,14 +84,20 @@ public class WorkTests
     }
 
     [Fact]
-    public void AddGenre_DoesNotAddDuplicate_ByValue()
+    public void Create_DeduplicatesGenres_ByName()
     {
-        var work = CreateValidWork();
+        var work = CreateValidWork(primaryGenres: ["Science Fiction", "science fiction"]);
 
-        work.AddGenre(Genre.Create("Science Fiction"));
-        work.AddGenre(Genre.Create("science fiction"));
+        Assert.Single(work.Genres.Primary);
+    }
 
-        Assert.Single(work.Genres);
+    [Fact]
+    public void Create_ExcludesGenreFromSecondary_WhenAlsoPrimary()
+    {
+        var work = CreateValidWork(primaryGenres: ["Fiction"], secondaryGenres: ["Fiction", "Fantasy"]);
+
+        Assert.Equal(["Fiction"], work.Genres.Primary.Select(g => g.Name));
+        Assert.Equal(["Fantasy"], work.Genres.Secondary.Select(g => g.Name));
     }
 
     [Fact]
@@ -159,7 +166,7 @@ public class WorkTests
             SeriesNumber: 1,
             Series: Series.Create("Dune Chronicles"),
             Authors: [Author.Create("Frank Herbert")],
-            Genres: [Genre.Create("Science Fiction")],
+            PrimaryGenres: [Genre.TryCreate("Science Fiction")!],
             DeweyDecimals: [DeweyDecimal.TryCreate("813.54")!],
             DateCreated: created);
 
@@ -170,7 +177,7 @@ public class WorkTests
         Assert.Equal("Life on a desert planet.", work.Synopsis?.Value);
         Assert.Equal(1, work.SeriesPlacement?.Number);
         Assert.Single(work.Authors);
-        Assert.Single(work.Genres);
+        Assert.Single(work.Genres.Primary);
         Assert.Single(work.DeweyDecimals);
         Assert.Equal(created, work.DateCreated);
     }

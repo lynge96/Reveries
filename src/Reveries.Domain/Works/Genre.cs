@@ -4,15 +4,20 @@ namespace Reveries.Domain.Works;
 
 public sealed record Genre
 {
-    public string Value { get; }
+    public string Name { get; }
 
-    private Genre(string genre)
+    private Genre(string name)
     {
-        Value = genre;
+        Name = name;
     }
 
-    public override string ToString() => Value;
+    public override string ToString() => Name;
 
-    public static Genre Create(string genre) => new(genre.ToTitleCase());
+    public static Genre? TryCreate(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
 
+        return new Genre(name.Trim().ToTitleCase());
+    }
 }

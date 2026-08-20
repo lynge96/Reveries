@@ -49,8 +49,11 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
             work.Authors.Select(a => a.NormalizedName).OrderBy(n => n),
             persistedWork.Authors.Select(a => a.NormalizedName).OrderBy(n => n));
         Assert.Equal(
-            work.Genres.Select(g => g.Value).OrderBy(v => v),
-            persistedWork.Genres.Select(g => g.Value).OrderBy(v => v));
+            work.Genres.Primary.Select(g => g.Name).OrderBy(v => v),
+            persistedWork.Genres.Primary.Select(g => g.Name).OrderBy(v => v));
+        Assert.Equal(
+            work.Genres.Secondary.Select(g => g.Name).OrderBy(v => v),
+            persistedWork.Genres.Secondary.Select(g => g.Name).OrderBy(v => v));
         Assert.Equal(
             work.DeweyDecimals.Select(d => d.Code).OrderBy(c => c),
             persistedWork.DeweyDecimals.Select(d => d.Code).OrderBy(c => c));
@@ -95,8 +98,11 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         var authorIds = await authors.GetOrCreateAuthorsAsync(work.Authors, ct);
         await workAuthors.InsertWorkAuthorsAsync(work.Id.Value, authorIds, ct);
 
-        var genreIds = await genres.GetOrCreateGenresAsync(work.Genres, ct);
-        await workGenres.InsertWorkGenresAsync(work.Id.Value, genreIds, ct);
+        var genreIds = await genres.GetOrCreateGenresAsync(work.Genres.All, ct);
+        var primaryIds = work.Genres.Primary.Select(g => genreIds[g.Name]);
+        var secondaryIds = work.Genres.Secondary.Select(g => genreIds[g.Name]);
+        await workGenres.InsertWorkGenresAsync(work.Id.Value, primaryIds, isPrimary: true, ct);
+        await workGenres.InsertWorkGenresAsync(work.Id.Value, secondaryIds, isPrimary: false, ct);
 
         var deweyIds = await deweyDecimals.GetOrCreateDeweyDecimalsAsync(work.DeweyDecimals, ct);
         await workDeweyDecimals.InsertWorkDeweyDecimalsAsync(work.Id.Value, deweyIds, ct);
@@ -107,7 +113,8 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
     private static Work NewWork() => Work.Create(
         title: "Nineteen Eighty-Four",
         authors: ["George Orwell", "Aldous Huxley"],
-        genres: ["Dystopia", "Fantasy"],
+        primaryGenres: ["Dystopia"],
+        secondaryGenres: ["Fantasy"],
         deweyDecimals: ["823"],
         synopsis: "A dystopian novel.");
 

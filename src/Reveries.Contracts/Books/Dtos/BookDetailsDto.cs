@@ -24,6 +24,7 @@ public sealed record BookDetailsDto
     public decimal? WidthCm { get; init; }
     public decimal? ThicknessCm { get; init; }
     public List<string>? DeweyDecimals { get; init; }
-    public List<string>? Genres { get; init; }
+    public List<string>? PrimaryGenres { get; init; }
+    public List<string>? SecondaryGenres { get; init; }
     public string? DataSource { get; init; }
 }

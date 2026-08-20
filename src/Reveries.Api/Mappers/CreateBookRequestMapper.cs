@@ -39,7 +39,8 @@ public static class CreateBookRequestMapper
             WeightG = request.WeightG,
 
             DeweyDecimals = request.DeweyDecimals?.ToList(),
-            Genres = request.Genres?.ToList(),
+            PrimaryGenres = request.PrimaryGenres?.ToList(),
+            SecondaryGenres = request.SecondaryGenres?.ToList(),
 
             DataSource = request.DataSource
         };

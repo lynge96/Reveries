@@ -32,7 +32,8 @@ public static class EditionWithWorkMerger
             SeriesNumber: iw.SeriesPlacement?.Number,
             Series: iw.SeriesPlacement?.Series,
             Authors: gw.Authors.Count != 0 ? gw.Authors : iw.Authors,
-            Genres: gw.Genres.Count != 0 ? gw.Genres : iw.Genres,
+            PrimaryGenres: gw.Genres.Primary.Count != 0 ? gw.Genres.Primary : iw.Genres.Primary,
+            SecondaryGenres: gw.Genres.Secondary.Count != 0 ? gw.Genres.Secondary : iw.Genres.Secondary,
             DeweyDecimals: iw.DeweyDecimals));
 
         var edition = Edition.Reconstitute(new EditionReconstitutionData(

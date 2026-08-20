@@ -163,7 +163,8 @@ CREATE TABLE library.works_dewey_decimals (
 
 CREATE TABLE library.works_genres (
     genre_id integer NOT NULL,
-    work_id uuid NOT NULL
+    work_id uuid NOT NULL,
+    is_primary boolean DEFAULT false NOT NULL
 );
 
 
@@ -224,12 +225,14 @@ CREATE VIEW library.works_view AS
     se.id AS "seriesId",
     se.name AS "seriesName",
     se.date_created AS "dateCreatedSeries",
-    COALESCE(g.genres_json, '[]'::jsonb) AS genres,
+    COALESCE(g.primary_genres_json, '[]'::jsonb) AS "primaryGenres",
+    COALESCE(g.secondary_genres_json, '[]'::jsonb) AS "secondaryGenres",
     COALESCE(a.authors_json, '[]'::jsonb) AS authors,
     COALESCE(dd.dewey_codes, (ARRAY[]::text[])::character varying[]) AS "deweyCodes"
    FROM ((((library.works w
      LEFT JOIN library.series se ON ((w.series_id = se.id)))
-     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('Id', g_1.id, 'Name', g_1.name, 'DateCreated', g_1.date_created) ORDER BY g_1.name) AS genres_json
+     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('Id', g_1.id, 'Name', g_1.name, 'DateCreated', g_1.date_created) ORDER BY g_1.name) FILTER (WHERE wg.is_primary) AS primary_genres_json,
+            jsonb_agg(jsonb_build_object('Id', g_1.id, 'Name', g_1.name, 'DateCreated', g_1.date_created) ORDER BY g_1.name) FILTER (WHERE (NOT wg.is_primary)) AS secondary_genres_json
            FROM (library.works_genres wg
              JOIN library.genres g_1 ON ((wg.genre_id = g_1.id)))
           WHERE (wg.work_id = w.id)) g ON (true))

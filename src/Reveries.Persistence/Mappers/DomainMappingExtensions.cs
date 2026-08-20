@@ -35,9 +35,4 @@ public static class DomainMappingExtensions
             authorEntity.DateCreated
         );
     }
-
-    public static Genre ToDomain(this GenreEntity genreEntity)
-    {
-        return Genre.Create(genreEntity.Name);
-    }
 }

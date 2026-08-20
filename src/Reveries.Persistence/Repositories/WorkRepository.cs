@@ -136,7 +136,8 @@ public class WorkRepository : IWorkRepository
         foreach (var row in rows)
         {
             var authors = JsonSerializer.Deserialize<List<AuthorEntity>>(row.Authors) ?? [];
-            var genres = JsonSerializer.Deserialize<List<GenreEntity>>(row.Genres) ?? [];
+            var primaryGenres = JsonSerializer.Deserialize<List<GenreEntity>>(row.PrimaryGenres) ?? [];
+            var secondaryGenres = JsonSerializer.Deserialize<List<GenreEntity>>(row.SecondaryGenres) ?? [];
             var deweyDecimals = row.DeweyCodes
                 .Select(code => new DeweyDecimalEntity { Code = code })
                 .ToList();
@@ -163,7 +164,8 @@ public class WorkRepository : IWorkRepository
                     : null,
 
                 Authors = authors,
-                Genres = genres,
+                PrimaryGenres = primaryGenres,
+                SecondaryGenres = secondaryGenres,
                 DeweyDecimals = deweyDecimals
             };
 

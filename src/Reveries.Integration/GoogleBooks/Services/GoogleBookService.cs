@@ -117,7 +117,8 @@ public class GoogleBookService : IGoogleBookSearch
             SeriesNumber: pw.SeriesPlacement?.Number,
             Series: pw.SeriesPlacement?.Series,
             Authors: pw.Authors.Count != 0 ? pw.Authors : vw.Authors,
-            Genres: vw.Genres.Count != 0 ? vw.Genres : pw.Genres,
+            PrimaryGenres: vw.Genres.Primary.Count != 0 ? vw.Genres.Primary : pw.Genres.Primary,
+            SecondaryGenres: vw.Genres.Secondary.Count != 0 ? vw.Genres.Secondary : pw.Genres.Secondary,
             DeweyDecimals: vw.DeweyDecimals.Count != 0 ? vw.DeweyDecimals : pw.DeweyDecimals));
 
         var edition = Edition.Reconstitute(new EditionReconstitutionData(

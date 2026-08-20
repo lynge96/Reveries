@@ -17,6 +17,7 @@ public class WorkGenresRepository : IWorkGenresRepository
     public async Task InsertWorkGenresAsync(
         Guid workId,
         IEnumerable<int> genreIds,
+        bool isPrimary,
         CancellationToken ct)
     {
         var ids = genreIds.Distinct().ToArray();
@@ -24,15 +25,15 @@ public class WorkGenresRepository : IWorkGenresRepository
             return;
 
         const string sql = """
-                           INSERT INTO library.works_genres (work_id, genre_id)
-                           SELECT @WorkId, genre_id
+                           INSERT INTO library.works_genres (work_id, genre_id, is_primary)
+                           SELECT @WorkId, genre_id, @IsPrimary
                            FROM unnest(@GenreIds::int[]) AS genre_id
                            ON CONFLICT (work_id, genre_id) DO NOTHING
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var command = _dbContext.CreateCommand(sql, new { WorkId = workId, GenreIds = ids }, ct);
+        var command = _dbContext.CreateCommand(sql, new { WorkId = workId, GenreIds = ids, IsPrimary = isPrimary }, ct);
 
         await connection.ExecuteAsync(command);
     }

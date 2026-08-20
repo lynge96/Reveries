@@ -92,8 +92,11 @@ public class WorkPersistenceService : IWorkPersistenceService
         await _workAuthors.InsertWorkAuthorsAsync(work.Id.Value, authorIds, ct);
 
         // Handle Genres and relations
-        var genreIds = await _genres.GetOrCreateGenresAsync(work.Genres, ct);
-        await _workGenres.InsertWorkGenresAsync(work.Id.Value, genreIds, ct);
+        var genreIds = await _genres.GetOrCreateGenresAsync(work.Genres.All, ct);
+        var primaryIds = work.Genres.Primary.Select(g => genreIds[g.Name]);
+        var secondaryIds = work.Genres.Secondary.Select(g => genreIds[g.Name]);
+        await _workGenres.InsertWorkGenresAsync(work.Id.Value, primaryIds, isPrimary: true, ct);
+        await _workGenres.InsertWorkGenresAsync(work.Id.Value, secondaryIds, isPrimary: false, ct);
 
         // Handle Dewey Decimals and relations
         var deweyDecimalIds = await _deweyDecimals.GetOrCreateDeweyDecimalsAsync(work.DeweyDecimals, ct);
