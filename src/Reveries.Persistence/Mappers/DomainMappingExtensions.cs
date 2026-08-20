@@ -40,9 +40,4 @@ public static class DomainMappingExtensions
     {
         return Genre.Create(genreEntity.Name);
     }
-
-    public static DeweyDecimal ToDomain(this DeweyDecimalEntity deweyDecimalEntity)
-    {
-        return DeweyDecimal.Create(deweyDecimalEntity.Code);
-    }
 }

@@ -98,10 +98,20 @@ public class WorkTests
     {
         var work = CreateValidWork();
 
-        work.AddDeweyDecimal(DeweyDecimal.Create("813.54"));
-        work.AddDeweyDecimal(DeweyDecimal.Create("813.54"));
+        work.AddDeweyDecimal(DeweyDecimal.TryCreate("813.54")!);
+        work.AddDeweyDecimal(DeweyDecimal.TryCreate("813.54")!);
 
         Assert.Single(work.DeweyDecimals);
+    }
+
+    [Fact]
+    public void Create_SkipsInvalidDeweyCodes_KeepsValid()
+    {
+        var work = CreateValidWork(deweyDecimals: ["813.54", "Fic", "005"]);
+
+        Assert.Equal(2, work.DeweyDecimals.Count);
+        Assert.Contains(work.DeweyDecimals, d => d.Code == "813.54");
+        Assert.Contains(work.DeweyDecimals, d => d.Code == "005");
     }
 
     [Fact]
@@ -150,7 +160,7 @@ public class WorkTests
             Series: Series.Create("Dune Chronicles"),
             Authors: [Author.Create("Frank Herbert")],
             Genres: [Genre.Create("Science Fiction")],
-            DeweyDecimals: [DeweyDecimal.Create("813.54")],
+            DeweyDecimals: [DeweyDecimal.TryCreate("813.54")!],
             DateCreated: created);
 
         var work = Work.Reconstitute(data);

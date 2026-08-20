@@ -1,40 +1,58 @@
+using System.Text.RegularExpressions;
+using Reveries.Domain.Enums;
+
 namespace Reveries.Domain.Works;
 
-public sealed record DeweyDecimal
+public sealed partial record DeweyDecimal
 {
     public string Code { get; }
+    public DeweyClass MainCategory => (DeweyClass)int.Parse(Code[..1]);
+    public string MainCategoryName => MainCategory switch
+    {
+        DeweyClass.General => "Computer science, information & general works",
+        DeweyClass.Philosophy => "Philosophy & psychology",
+        DeweyClass.Religion => "Religion",
+        DeweyClass.SocialSciences => "Social sciences",
+        DeweyClass.Language => "Language",
+        DeweyClass.Science => "Science",
+        DeweyClass.Technology => "Technology",
+        DeweyClass.Arts => "Arts & recreation",
+        DeweyClass.Literature => "Literature",
+        DeweyClass.History => "History & geography",
+        _ => throw new ArgumentOutOfRangeException(nameof(MainCategory), MainCategory, null)
+    };
 
     private DeweyDecimal(string code)
     {
         Code = code;
     }
 
-    public static DeweyDecimal Create(string rawCode)
+    public static DeweyDecimal? TryCreate(string? rawCode)
     {
+        if (string.IsNullOrWhiteSpace(rawCode))
+            return null;
+
         var normalized = Normalize(rawCode);
+
+        if (!DeweyPattern().IsMatch(normalized))
+            return null;
 
         return new DeweyDecimal(normalized);
     }
 
+    public override string ToString() => Code;
+
     private static string Normalize(string code)
     {
-        var normalized = code.Trim();
-
-        if (normalized.Contains("/."))
-            normalized = normalized.Replace("/.", ".");
+        var normalized = code.Trim().Replace("/.", ".");
 
         var slashIndex = normalized.IndexOf('/');
         if (slashIndex > 0)
-        {
-            var afterSlash = normalized[(slashIndex + 1)..];
-            if (afterSlash.Length > 0 && char.IsDigit(afterSlash[0]))
-            {
-                normalized = normalized[..slashIndex];
-            }
-        }
+            normalized = normalized[..slashIndex];
 
-        normalized = normalized.TrimEnd('.');
-
-        return normalized;
+        return normalized.TrimEnd('.');
     }
+
+    [GeneratedRegex(@"^\d{1,3}(?:\.\d+)?$")]
+    private static partial Regex DeweyPattern();
 }

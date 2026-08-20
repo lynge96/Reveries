@@ -12,7 +12,7 @@ public static class BookMapper
         var work = Work.Create(
             title: cmd.Title,
             authors: cmd.Authors,
-            subjects: cmd.Genres,
+            genres: cmd.Genres,
             deweyDecimals: cmd.DeweyDecimals,
             synopsis: cmd.Synopsis
         );

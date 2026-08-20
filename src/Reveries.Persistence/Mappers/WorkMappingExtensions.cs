@@ -29,7 +29,9 @@ public static class WorkMappingExtensions
             Series: entity.Series?.ToDomain(),
             Authors: entity.Authors?.Select(a => a.ToDomain()),
             Genres: entity.Genres?.Select(g => g.ToDomain()),
-            DeweyDecimals: entity.DeweyDecimals?.Select(dd => dd.ToDomain()),
+            DeweyDecimals: entity.DeweyDecimals?
+                .Select(dd => DeweyDecimal.TryCreate(dd.Code))
+                .OfType<DeweyDecimal>(),
             DateCreated: entity.Work.DateCreated
         );
 

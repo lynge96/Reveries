@@ -107,7 +107,7 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
     private static Work NewWork() => Work.Create(
         title: "Nineteen Eighty-Four",
         authors: ["George Orwell", "Aldous Huxley"],
-        subjects: ["Dystopia", "Fantasy"],
+        genres: ["Dystopia", "Fantasy"],
         deweyDecimals: ["823"],
         synopsis: "A dystopian novel.");
 

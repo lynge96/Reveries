@@ -29,7 +29,7 @@ public class Work : BaseEntity
     public static Work Create(
         string title,
         IEnumerable<string>? authors,
-        IEnumerable<string>? subjects,
+        IEnumerable<string>? genres,
         IEnumerable<string>? deweyDecimals,
         string? synopsis)
     {
@@ -46,11 +46,15 @@ public class Work : BaseEntity
         foreach (var authorName in authors ?? [])
             work.AddAuthor(Author.Create(authorName));
 
-        foreach (var subject in subjects ?? [])
-            work.AddGenre(Genre.Create(subject));
+        foreach (var genre in genres ?? [])
+            work.AddGenre(Genre.Create(genre));
 
         foreach (var code in deweyDecimals ?? [])
-            work.AddDeweyDecimal(DeweyDecimal.Create(code));
+        {
+            var dewey = DeweyDecimal.TryCreate(code);
+            if (dewey is not null)
+                work.AddDeweyDecimal(dewey);
+        }
 
         return work;
     }

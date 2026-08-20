@@ -23,7 +23,7 @@ public static class IsbndbBookDtoMapperExtensions
         var work = Work.Create(
             title: isbndbBookDto.Title,
             authors: isbndbBookDto.Authors,
-            subjects: isbndbBookDto.Subjects,
+            genres: isbndbBookDto.Subjects,
             deweyDecimals: isbndbBookDto.DeweyDecimals,
             synopsis: isbndbBookDto.Synopsis);
 

@@ -58,7 +58,7 @@ public class GetOrCreateBatchTests : IAsyncLifetime
     public async Task GetOrCreateDeweyDecimals_deduplicates_within_a_single_batch()
     {
         // Arrange
-        var codes = new[] { DeweyDecimal.Create("823"), DeweyDecimal.Create("823"), DeweyDecimal.Create("813") };
+        var codes = new[] { DeweyDecimal.TryCreate("823")!, DeweyDecimal.TryCreate("823")!, DeweyDecimal.TryCreate("813")! };
 
         // Act
         await using var db = _fixture.NewDbContext();

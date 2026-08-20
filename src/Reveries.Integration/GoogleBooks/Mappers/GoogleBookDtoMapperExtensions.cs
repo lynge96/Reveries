@@ -27,7 +27,7 @@ public static class GoogleBookDtoMapperExtensions
         var work = Work.Create(
             title: googleBookDto.Title,
             authors: googleBookDto.Authors,
-            subjects: googleBookDto.Categories.ExtractUniqueSubjects(),
+            genres: googleBookDto.Categories.ExtractUniqueSubjects(),
             deweyDecimals: null,
             synopsis: googleBookDto.Description);
 
