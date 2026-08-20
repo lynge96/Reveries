@@ -1,18 +1,22 @@
+using Reveries.Domain.Helpers;
+
 namespace Reveries.Domain.Works;
 
 public sealed record Synopsis
 {
-    public string Value { get; }
+    public string Text { get; }
 
-    internal Synopsis(string value) => Value = value;
+    internal Synopsis(string value) => Text = value;
 
-    public static Synopsis Create(string value)
+    public static Synopsis? TryCreate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Synopsis cannot be empty.", nameof(value));
+            return null;
 
-        return new Synopsis(value.Trim());
+        var plainText = value.HtmlToPlainText();
+
+        return string.IsNullOrWhiteSpace(plainText) ? null : new Synopsis(plainText);
     }
 
-    public override string ToString() => Value;
+    public override string ToString() => Text;
 }

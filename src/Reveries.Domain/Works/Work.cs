@@ -39,7 +39,7 @@ public class Work : BaseEntity
         {
             Id = WorkId.New(),
             Title = Title.Create(title),
-            Synopsis = string.IsNullOrWhiteSpace(synopsis) ? null : Synopsis.Create(synopsis),
+            Synopsis = Synopsis.TryCreate(synopsis),
             Genres = GenreClassification.Create(primaryGenres, secondaryGenres)
         };
 

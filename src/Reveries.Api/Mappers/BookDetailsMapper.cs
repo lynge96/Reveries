@@ -24,7 +24,7 @@ public static class BookDetailsMapper
             Language = edition.Language,
             Pages = edition.Pages,
             PublicationDate = edition.PublicationDate,
-            Synopsis = work.Synopsis?.Value,
+            Synopsis = work.Synopsis?.Text,
             Binding = edition.Binding,
             Edition = edition.EditionStatement,
             CoverImageUrl = edition.CoverImageUrl,

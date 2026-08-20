@@ -11,7 +11,7 @@ public static class WorkMappingExtensions
         {
             Id = work.Id.Value,
             Title = work.Title.ToString(),
-            Synopsis = work.Synopsis?.Value,
+            Synopsis = work.Synopsis?.Text,
             SeriesNumber = work.SeriesPlacement?.Number,
             SeriesId = work.SeriesPlacement?.Series.Id.Value,
             DateCreated = work.DateCreated

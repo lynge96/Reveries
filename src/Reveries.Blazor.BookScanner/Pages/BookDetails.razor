@@ -222,8 +222,8 @@ else
                             <div class="synopsis-title mb-2">Synopsis</div>
 
                             <div class="synopsis">
-                                <p class="synopsis-text mb-1">
-                                    @GetSynopsisMarkup()
+                                <p class="synopsis-text mb-1" style="white-space: pre-wrap;">
+                                    @GetSynopsisText()
                                 </p>
 
                                 @if (_book.Synopsis.Length > MaxSynopsisLength)
@@ -342,18 +342,16 @@ else
         </div>
     </div>;
     
-    private MarkupString GetSynopsisMarkup()
+    private string GetSynopsisText()
     {
         if (string.IsNullOrEmpty(_book?.Synopsis))
-            return new MarkupString(string.Empty);
+            return string.Empty;
 
-        var synopsisText = _showFullSynopsis
+        return _showFullSynopsis
             ? _book.Synopsis
             : _book.Synopsis.Length > MaxSynopsisLength
                 ? _book.Synopsis.Substring(0, MaxSynopsisLength) + "..."
                 : _book.Synopsis;
-        
-        return new MarkupString(synopsisText);
     }
 
 }

@@ -113,7 +113,7 @@ public class GoogleBookService : IGoogleBookSearch
         var work = Work.Reconstitute(new WorkReconstitutionData(
             Id: pw.Id.Value,
             Title: Prefer(pw.Title.Value, vw.Title.Value) ?? string.Empty,
-            Synopsis: Longest(vw.Synopsis?.Value, pw.Synopsis?.Value),
+            Synopsis: Prefer(pw.Synopsis?.Text, vw.Synopsis?.Text),
             SeriesNumber: pw.SeriesPlacement?.Number,
             Series: pw.SeriesPlacement?.Series,
             Authors: pw.Authors.Count != 0 ? pw.Authors : vw.Authors,
@@ -143,7 +143,4 @@ public class GoogleBookService : IGoogleBookSearch
 
     private static string? Prefer(params string?[] values)
         => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
-
-    private static string? Longest(string? a, string? b)
-        => (a?.Length ?? 0) >= (b?.Length ?? 0) ? a : b;
 }
