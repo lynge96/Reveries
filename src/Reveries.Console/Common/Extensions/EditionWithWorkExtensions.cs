@@ -13,7 +13,7 @@ public static class EditionWithWorkExtensions
             .ThenBy(x => x.Edition.DataSource == DataSource.CombinedBookApi)
             .ThenBy(x => x.Work.Authors.FirstOrDefault()?.FirstName)
             .ThenBy(x => x.Work.SeriesPlacement?.Number)
-            .ThenBy(x => x.Work.Title.Value)
+            .ThenBy(x => x.Work.Title.Text)
             .ToList();
     }
 }

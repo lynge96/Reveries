@@ -75,7 +75,7 @@ public class DatabaseTableHandler : BaseHandler
             book.Work.SetSeries(series);
 
             var numberInSeries = ConsolePromptUtility.GetUserInput(
-                $"What number is {book.Work.Title.Value.AsSecondary()} in the series?");
+                $"What number is {book.Work.Title.Text.AsSecondary()} in the series?");
 
             if (int.TryParse(numberInSeries, out var num))
                 book.Work.SetSeries(series, num);

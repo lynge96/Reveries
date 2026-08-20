@@ -1,25 +1,27 @@
+using Reveries.Domain.Exceptions;
+
 namespace Reveries.Domain.Works;
 
 public sealed record Title
 {
-    public string Value { get; }
+    public string Text { get; }
 
-    private const int MaxLength = 500;
+    private const int MaxLength = 100;
 
-    internal Title(string title) => Value = title;
+    internal Title(string title) => Text = title;
 
     public static Title Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Title cannot be empty.", nameof(value));
+            throw new MissingTitleException(value);
 
         var trimmed = value.Trim();
 
         if (trimmed.Length > MaxLength)
-            throw new ArgumentException($"Title cannot exceed {MaxLength} characters.", nameof(value));
+            throw new TitleTooLongException(trimmed.Length, MaxLength);
 
         return new Title(trimmed);
     }
 
-    public override string ToString() => Value;
+    public override string ToString() => Text;
 }

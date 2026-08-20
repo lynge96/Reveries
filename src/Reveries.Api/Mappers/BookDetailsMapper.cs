@@ -16,7 +16,7 @@ public static class BookDetailsMapper
             BookId = edition.Id.Value,
             Isbn10 = edition.Isbn10?.Value,
             Isbn13 = edition.Isbn13?.Value,
-            Title = work.Title.Value,
+            Title = work.Title.Text,
             Series = work.SeriesPlacement?.Series.Name,
             NumberInSeries = work.SeriesPlacement?.Number,
             Authors = work.Authors.Select(a => a.NormalizedName).ToList(),

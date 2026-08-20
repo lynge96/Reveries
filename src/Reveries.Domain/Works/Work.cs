@@ -1,5 +1,4 @@
 using Reveries.Domain.Authors;
-using Reveries.Domain.Exceptions;
 using Reveries.Domain.BookSeries;
 using Reveries.Domain.Shared;
 
@@ -32,9 +31,6 @@ public class Work : BaseEntity
         IEnumerable<string>? deweyDecimals,
         string? synopsis)
     {
-        if (string.IsNullOrWhiteSpace(title))
-            throw new MissingTitleException(title);
-
         var work = new Work
         {
             Id = WorkId.New(),

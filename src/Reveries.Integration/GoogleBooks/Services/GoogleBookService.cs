@@ -112,7 +112,7 @@ public class GoogleBookService : IGoogleBookSearch
 
         var work = Work.Reconstitute(new WorkReconstitutionData(
             Id: pw.Id.Value,
-            Title: Prefer(pw.Title.Value, vw.Title.Value) ?? string.Empty,
+            Title: Prefer(pw.Title.Text, vw.Title.Text) ?? string.Empty,
             Synopsis: Prefer(pw.Synopsis?.Text, vw.Synopsis?.Text),
             SeriesNumber: pw.SeriesPlacement?.Number,
             Series: pw.SeriesPlacement?.Series,

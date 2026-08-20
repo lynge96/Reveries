@@ -29,7 +29,7 @@ public class WorkTests
     {
         var work = CreateValidWork(title: "Dune", synopsis: "Life on a desert planet.");
 
-        Assert.Equal("Dune", work.Title.Value);
+        Assert.Equal("Dune", work.Title.Text);
         Assert.Equal("Life on a desert planet.", work.Synopsis?.Text);
     }
 
@@ -173,7 +173,7 @@ public class WorkTests
         var work = Work.Reconstitute(data);
 
         Assert.Equal(id, work.Id.Value);
-        Assert.Equal("Dune", work.Title.Value);
+        Assert.Equal("Dune", work.Title.Text);
         Assert.Equal("Life on a desert planet.", work.Synopsis?.Text);
         Assert.Equal(1, work.SeriesPlacement?.Number);
         Assert.Single(work.Authors);

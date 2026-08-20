@@ -18,7 +18,7 @@ public class BookSelectionService
 
         var sortedBooks = booksToPrompt
             .OrderByDescending(b => b.Edition.DataSource.HasFlag(DataSource.Database))
-            .ThenBy(b => b.Work.Title.Value)
+            .ThenBy(b => b.Work.Title.Text)
             .ThenBy(b => b.Edition.DataSource.HasFlag(DataSource.CombinedBookApi))
             .ToList();
 

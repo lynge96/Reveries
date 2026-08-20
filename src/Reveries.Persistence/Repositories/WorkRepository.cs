@@ -100,8 +100,8 @@ public class WorkRepository : IWorkRepository
                            """;
 
         var patterns = titles
-            .Where(t => !string.IsNullOrWhiteSpace(t.Value))
-            .Select(t => $"%{t.Value.Trim()}%")
+            .Where(t => !string.IsNullOrWhiteSpace(t.Text))
+            .Select(t => $"%{t.Text.Trim()}%")
             .ToList();
 
         return await QueryWorksAsync(sql, new { Patterns = patterns }, ct);

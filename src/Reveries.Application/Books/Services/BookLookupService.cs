@@ -104,7 +104,7 @@ public class BookLookupService : IBookLookupService
         {
             _logger.LogWarning(
                 "All external sources failed for titles: {Titles}",
-                string.Join(", ", titles.Select(t => t.Value)));
+                string.Join(", ", titles.Select(t => t.Text)));
             return new BookLookupResult<Title>([], titles);
         }
 

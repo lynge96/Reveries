@@ -43,7 +43,7 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
 
         var persistedWork = await new WorkRepository(readContext).GetWorkByIdAsync(work.Id.Value, CancellationToken.None);
         Assert.NotNull(persistedWork);
-        Assert.Equal(work.Title.Value, persistedWork!.Title.Value);
+        Assert.Equal(work.Title.Text, persistedWork!.Title.Text);
         Assert.Equal(work.Synopsis, persistedWork.Synopsis);
         Assert.Equal(
             work.Authors.Select(a => a.NormalizedName).OrderBy(n => n),

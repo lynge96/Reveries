@@ -62,7 +62,7 @@ public class IsbndbBookService : IIsbndbBookSearch
 
         var tasks = titles.Select(async title =>
         {
-            var response = await _bookClient.SearchBooksAsync(title.Value, languageCode, shouldMatchAll: true, ct: ct);
+            var response = await _bookClient.SearchBooksAsync(title.Text, languageCode, shouldMatchAll: true, ct: ct);
 
             var mapped = response?.Books
                 .Select(b => b.ToEditionWithWork())

@@ -11,7 +11,7 @@ public sealed record EditionWithWork(Edition Edition, Work Work)
 {
     public override string ToString()
     {
-        var title = string.IsNullOrWhiteSpace(Work.Title.Value) ? "Unknown Title" : Work.Title.Value;
+        var title = string.IsNullOrWhiteSpace(Work.Title.Text) ? "Unknown Title" : Work.Title.Text;
 
         var authors = Work.Authors
             .Select(a => a.ToString())
