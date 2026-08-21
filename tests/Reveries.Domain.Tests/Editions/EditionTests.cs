@@ -118,7 +118,7 @@ public class EditionTests
     {
         var edition = CreateValidEdition(binding: "Hardcover");
 
-        Assert.Equal("Hardback", edition.Binding);
+        Assert.Equal(BookFormat.Hardback, edition.Binding);
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class EditionTests
             PublicationDate: "1965",
             Language: "English",
             EditionStatement: "1st",
-            Binding: "Hardback",
+            Binding: BookFormat.Hardback,
             ImageThumbnailUrl: null,
             CoverImageUrl: null,
             Msrp: 199.95m,

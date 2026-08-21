@@ -8,11 +8,10 @@ public class BookBindingNormalizerTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public void GetStandardBinding_WithNullAndEmptyInput_ReturnsUnknown(string? input)
+    [InlineData("some obscure format")]
+    public void GetStandardBinding_WithNullEmptyOrUnrecognized_ReturnsUnknown(string? input)
     {
-        var result = input.GetStandardBinding();
-
-        Assert.Equal(nameof(BindingType.Unknown), result);
+        Assert.Equal(BookFormat.Unknown, input.GetStandardBinding());
     }
 
     [Theory]
@@ -24,11 +23,10 @@ public class BookBindingNormalizerTests
     [InlineData("PB")]
     [InlineData("Mass Market Paperback")]
     [InlineData("TPB")]
+    [InlineData("Perfect Paperback")]
     public void GetStandardBinding_WithPaperbackVariants_ReturnsPaperback(string input)
     {
-        var result = input.GetStandardBinding();
-
-        Assert.Equal(nameof(BindingType.Paperback), result);
+        Assert.Equal(BookFormat.Paperback, input.GetStandardBinding());
     }
 
     [Theory]
@@ -39,25 +37,27 @@ public class BookBindingNormalizerTests
     [InlineData("HB")]
     public void GetStandardBinding_WithHardbackVariants_ReturnsHardback(string input)
     {
-        var result = input.GetStandardBinding();
-
-        Assert.Equal(nameof(BindingType.Hardback), result);
+        Assert.Equal(BookFormat.Hardback, input.GetStandardBinding());
     }
 
-    [Fact]
-    public void GetStandardBinding_ReturnsString()
+    [Theory]
+    [InlineData("Ebook")]
+    [InlineData("e-book")]
+    [InlineData("Kindle")]
+    [InlineData("Kindle Edition")]
+    [InlineData("ePub")]
+    public void GetStandardBinding_WithEbookVariants_ReturnsEbook(string input)
     {
-        var result = "paperback".GetStandardBinding();
-
-        Assert.IsType<string>(result);
+        Assert.Equal(BookFormat.Ebook, input.GetStandardBinding());
     }
 
-    [Fact]
-    public void GetStandardBinding_ReturnsNonNullString()
+    [Theory]
+    [InlineData("Audiobook")]
+    [InlineData("Audio Book")]
+    [InlineData("Audio CD")]
+    [InlineData("Audible")]
+    public void GetStandardBinding_WithAudiobookVariants_ReturnsAudiobook(string input)
     {
-        var result = "unknown-format".GetStandardBinding();
-
-        Assert.NotNull(result);
+        Assert.Equal(BookFormat.Audiobook, input.GetStandardBinding());
     }
-
 }

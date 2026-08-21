@@ -25,7 +25,7 @@ public static class BookDetailsMapper
             Pages = edition.Pages,
             PublicationDate = edition.PublicationDate,
             Synopsis = work.Synopsis?.Text,
-            Binding = edition.Binding,
+            Binding = edition.Binding.ToString(),
             Edition = edition.EditionStatement,
             CoverImageUrl = edition.CoverImageUrl,
             ImageThumbnailUrl = edition.ImageThumbnailUrl,

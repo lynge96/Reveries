@@ -130,7 +130,7 @@ public class GoogleBookService : IGoogleBookSearch
             PublicationDate: pe.PublicationDate ?? ve.PublicationDate,
             Language: pe.Language ?? ve.Language,
             EditionStatement: pe.EditionStatement ?? ve.EditionStatement,
-            Binding: pe.Binding ?? ve.Binding,
+            Binding: PreferBinding(pe.Binding, ve.Binding),
             ImageThumbnailUrl: pe.ImageThumbnailUrl ?? ve.ImageThumbnailUrl,
             CoverImageUrl: pe.CoverImageUrl ?? ve.CoverImageUrl,
             Msrp: pe.Msrp ?? ve.Msrp,
@@ -143,4 +143,7 @@ public class GoogleBookService : IGoogleBookSearch
 
     private static string? Prefer(params string?[] values)
         => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+
+    private static BookFormat PreferBinding(BookFormat first, BookFormat second)
+        => first != BookFormat.Unknown ? first : second;
 }

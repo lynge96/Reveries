@@ -12,7 +12,7 @@ public sealed record EditionReconstitutionData(
     string? PublicationDate,
     string? Language,
     string? EditionStatement,
-    string? Binding,
+    BookFormat Binding,
     string? ImageThumbnailUrl,
     string? CoverImageUrl,
     decimal? Msrp,

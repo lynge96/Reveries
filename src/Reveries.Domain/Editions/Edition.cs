@@ -16,7 +16,7 @@ public class Edition
     public string? Language { get; private init; }
     public string? PublicationDate { get; private init; }
     public string? EditionStatement { get; private init; }
-    public string? Binding { get; private init; }
+    public BookFormat Binding { get; private init; }
     public string? ImageThumbnailUrl { get; private init; }
     public string? CoverImageUrl { get; private init; }
     public decimal? Msrp { get; private init; }
@@ -57,7 +57,7 @@ public class Edition
             Language = languageIso639.GetLanguageName(),
             PublicationDate = publishDate,
             EditionStatement = editionStatement,
-            Binding = binding?.GetStandardBinding(),
+            Binding = binding.GetStandardBinding(),
             ImageThumbnailUrl = imageThumbnail,
             CoverImageUrl = imageUrl,
             Msrp = msrp,

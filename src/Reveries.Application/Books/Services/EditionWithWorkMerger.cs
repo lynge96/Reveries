@@ -45,7 +45,7 @@ public static class EditionWithWorkMerger
             PublicationDate: ge.PublicationDate ?? ie.PublicationDate,
             Language: Prefer(ie.Language, ge.Language),
             EditionStatement: Prefer(ge.EditionStatement, ie.EditionStatement),
-            Binding: Prefer(ie.Binding, ge.Binding),
+            Binding: PreferBinding(ie.Binding, ge.Binding),
             ImageThumbnailUrl: ge.ImageThumbnailUrl ?? ie.ImageThumbnailUrl,
             CoverImageUrl: ie.ImageThumbnailUrl ?? ie.CoverImageUrl ?? ge.CoverImageUrl,
             Msrp: ie.Msrp,
@@ -67,6 +67,9 @@ public static class EditionWithWorkMerger
 
     private static string? Prefer(params string?[] values)
         => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+
+    private static BookFormat PreferBinding(BookFormat first, BookFormat second)
+        => first != BookFormat.Unknown ? first : second;
 
     private static BookDimensions? MergeDimensions(BookDimensions? isbndb, BookDimensions? google)
     {

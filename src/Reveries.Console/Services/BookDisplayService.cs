@@ -73,7 +73,7 @@ public class BookDisplayService
                 work.SeriesPlacement != null
                     ? $"{Markup.Escape(work.SeriesPlacement.Series.Name)} {Markup.Escape(work.SeriesPlacement.Series.Id.ToString()).AsInfo()}"
                     : "",
-                Markup.Escape(edition.Binding ?? ""),
+                Markup.Escape(edition.Binding.ToString()),
                 edition.DataSource.ToString().AsInfo()
             );
         }
@@ -105,7 +105,7 @@ public class BookDisplayService
             { "Language", edition.Language ?? "Unknown language" },
             { "Published", edition.PublicationDate ?? "Unknown date" },
             { "MSRP", edition.Msrp?.ToString() ?? "Unknown" },
-            { "Binding", edition.Binding ?? "Unknown" }
+            { "Binding", edition.Binding.ToString() }
         };
 
         foreach (var (property, value) in details)

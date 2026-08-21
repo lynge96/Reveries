@@ -20,7 +20,6 @@ public static class EditionMappingExtensions
             PublicationDate = edition.PublicationDate,
             Language = edition.Language,
             EditionStatement = edition.EditionStatement,
-            Binding = edition.Binding,
             ImageUrl = edition.CoverImageUrl,
             ImageThumbnail = edition.ImageThumbnailUrl,
             Msrp = edition.Msrp,
@@ -29,6 +28,7 @@ public static class EditionMappingExtensions
             ThicknessCm = edition.Dimensions?.ThicknessCm,
             WeightG = edition.Dimensions?.WeightG,
             DataSource = edition.DataSource.ToString(),
+            Binding = edition.Binding.ToString(),
             PublisherId = edition.Publisher?.Id.Value
         };
     }
@@ -45,7 +45,7 @@ public static class EditionMappingExtensions
             PublicationDate: view.PublicationDate,
             Language: view.Language,
             EditionStatement: view.EditionStatement,
-            Binding: view.Binding,
+            Binding: ParseBinding(view.Binding),
             ImageThumbnailUrl: view.ImageThumbnailUrl,
             CoverImageUrl: view.CoverImageUrl,
             Msrp: view.Msrp,
@@ -64,5 +64,12 @@ public static class EditionMappingExtensions
         return Enum.TryParse<DataSource>(value, out var dataSource)
             ? dataSource
             : DataSource.Database;
+    }
+
+    private static BookFormat ParseBinding(string? value)
+    {
+        return Enum.TryParse<BookFormat>(value, out var binding)
+            ? binding
+            : BookFormat.Unknown;
     }
 }
