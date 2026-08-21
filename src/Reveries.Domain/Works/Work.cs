@@ -1,10 +1,9 @@
 using Reveries.Domain.Authors;
 using Reveries.Domain.BookSeries;
-using Reveries.Domain.Shared;
 
 namespace Reveries.Domain.Works;
 
-public class Work : BaseEntity
+public class Work
 {
     private readonly List<Author> _authors = [];
     private readonly List<DeweyDecimal> _deweyDecimals = [];
@@ -64,8 +63,7 @@ public class Work : BaseEntity
             Title = new Title(data.Title),
             Synopsis = data.Synopsis is null ? null : new Synopsis(data.Synopsis),
             SeriesPlacement = data.Series is null ? null : new SeriesPlacement(data.Series, data.SeriesNumber),
-            Genres = GenreClassification.Reconstitute(data.PrimaryGenres, data.SecondaryGenres),
-            DateCreated = data.DateCreated
+            Genres = GenreClassification.Reconstitute(data.PrimaryGenres, data.SecondaryGenres)
         };
 
         if (data.Authors != null)

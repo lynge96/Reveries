@@ -13,8 +13,7 @@ public static class WorkMappingExtensions
             Title = work.Title.ToString(),
             Synopsis = work.Synopsis?.Text,
             SeriesNumber = work.SeriesPlacement?.Number,
-            SeriesId = work.SeriesPlacement?.Series.Id.Value,
-            DateCreated = work.DateCreated
+            SeriesId = work.SeriesPlacement?.Series.Id.Value
         };
     }
 
@@ -32,8 +31,7 @@ public static class WorkMappingExtensions
             SecondaryGenres: entity.SecondaryGenres?.Select(g => Genre.TryCreate(g.Name)).OfType<Genre>(),
             DeweyDecimals: entity.DeweyDecimals?
                 .Select(dd => DeweyDecimal.TryCreate(dd.Code))
-                .OfType<DeweyDecimal>(),
-            DateCreated: entity.Work.DateCreated
+                .OfType<DeweyDecimal>()
         );
 
         return Work.Reconstitute(data);

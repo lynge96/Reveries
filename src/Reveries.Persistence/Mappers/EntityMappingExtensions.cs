@@ -13,8 +13,7 @@ public static class EntityMappingExtensions
         return new PublisherEntity
         {
             Id = publisher.Id.Value,
-            Name = publisher.Name,
-            DateCreated = publisher.DateCreated
+            Name = publisher.Name
         };
     }
 
@@ -23,8 +22,7 @@ public static class EntityMappingExtensions
         return new SeriesEntity
         {
             Id = series.Id.Value,
-            Name = series.Name,
-            DateCreated = series.DateCreated
+            Name = series.Name
         };
     }
 
@@ -34,8 +32,7 @@ public static class EntityMappingExtensions
         {
             Id = author.Id.Value,
             Name = author.Name,
-            NormalizedName = author.NormalizedName,
-            DateCreated = author.DateCreated
+            NormalizedName = author.NormalizedName
         };
     }
 

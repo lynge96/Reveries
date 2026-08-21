@@ -1,9 +1,8 @@
 using Reveries.Domain.Helpers;
-using Reveries.Domain.Shared;
 
 namespace Reveries.Domain.Publishers;
 
-public class Publisher : BaseEntity
+public class Publisher
 {
     public PublisherId Id { get; private init; }
     public string Name { get; }
@@ -31,12 +30,9 @@ public class Publisher : BaseEntity
     /// <summary>
     /// Reconstitute a Publisher from a persisted state (e.g., database).
     /// </summary>
-    public static Publisher Reconstitute(PublisherId id, string name, DateTimeOffset? dateCreated = null)
+    public static Publisher Reconstitute(PublisherId id, string name)
     {
-        return new Publisher(id, name)
-        {
-            DateCreated = dateCreated
-        };
+        return new Publisher(id, name);
     }
 
 }

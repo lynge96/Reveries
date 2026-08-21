@@ -12,8 +12,7 @@ public static class DomainMappingExtensions
     {
         return Publisher.Reconstitute(
             new PublisherId(publisherEntity.Id),
-            publisherEntity.Name,
-            publisherEntity.DateCreated
+            publisherEntity.Name
         );
     }
 
@@ -21,8 +20,7 @@ public static class DomainMappingExtensions
     {
         return Series.Reconstitute(
             new SeriesId(seriesEntity.Id),
-            seriesEntity.Name,
-            seriesEntity.DateCreated
+            seriesEntity.Name
         );
     }
 
@@ -30,8 +28,7 @@ public static class DomainMappingExtensions
     {
         return Author.Reconstitute(
             new AuthorId(authorEntity.Id),
-            authorEntity.Name,
-            authorEntity.DateCreated
+            authorEntity.Name
         );
     }
 }

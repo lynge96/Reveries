@@ -26,18 +26,15 @@ public class AuthorTests
     [Fact]
     public void Reconstitute_RestoresAuthorState()
     {
-        var date = DateTimeOffset.UtcNow;
         var authorId = AuthorId.New();
 
         var author = Author.Reconstitute(
             id: authorId,
-            name: "Jane Austen",
-            dateCreated: date
+            name: "Jane Austen"
         );
 
         Assert.Equal(authorId, author.Id);
         Assert.Equal("Jane Austen", author.Name);
         Assert.Equal("jane austen", author.NormalizedName);
-        Assert.Equal(date, author.DateCreated);
     }
 }

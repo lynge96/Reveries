@@ -2,7 +2,6 @@ using System.Text.Json;
 using Dapper;
 using Reveries.Domain.Authors;
 using Reveries.Domain.Interfaces.IRepository;
-using Reveries.Domain.Shared;
 using Reveries.Domain.Works;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;

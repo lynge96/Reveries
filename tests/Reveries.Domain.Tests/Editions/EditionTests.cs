@@ -147,7 +147,6 @@ public class EditionTests
     {
         var id = Guid.NewGuid();
         var workId = Guid.NewGuid();
-        var created = DateTimeOffset.UtcNow;
         var data = new EditionReconstitutionData(
             Id: id,
             WorkId: workId,
@@ -163,8 +162,7 @@ public class EditionTests
             Msrp: 199.95m,
             Dimensions: null,
             DataSource: DataSource.IsbndbApi,
-            Publisher: Publisher.Create("Chilton Books"),
-            DateCreated: created);
+            Publisher: Publisher.Create("Chilton Books"));
 
         var edition = Edition.Reconstitute(data);
 
@@ -174,7 +172,6 @@ public class EditionTests
         Assert.Equal(412, edition.Pages);
         Assert.Equal("English", edition.Language);
         Assert.Equal("Chilton Books", edition.Publisher?.Name);
-        Assert.Equal(created, edition.DateCreated);
     }
 
     [Fact]

@@ -16,14 +16,12 @@ public class SeriesTests
     [Fact]
     public void Reconstitute_CreatesFullyHydratedEntity()
     {
-        var dateCreated = DateTimeOffset.UtcNow;
         var seriesId = SeriesId.New();
 
-        var series = Series.Reconstitute(seriesId, "Stormlight Archive", dateCreated);
+        var series = Series.Reconstitute(seriesId, "Stormlight Archive");
 
         Assert.Equal(seriesId, series.Id);
         Assert.Equal("Stormlight Archive", series.Name);
-        Assert.Equal(dateCreated, series.DateCreated);
     }
 
 

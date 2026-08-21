@@ -158,7 +158,6 @@ public class WorkTests
     public void Reconstitute_PreservesData()
     {
         var id = Guid.NewGuid();
-        var created = DateTimeOffset.UtcNow;
         var data = new WorkReconstitutionData(
             Id: id,
             Title: "Dune",
@@ -167,8 +166,7 @@ public class WorkTests
             Series: Series.Create("Dune Chronicles"),
             Authors: [Author.TryCreate("Frank Herbert")!],
             PrimaryGenres: [Genre.TryCreate("Science Fiction")!],
-            DeweyDecimals: [DeweyDecimal.TryCreate("813.54")!],
-            DateCreated: created);
+            DeweyDecimals: [DeweyDecimal.TryCreate("813.54")!]);
 
         var work = Work.Reconstitute(data);
 
@@ -179,6 +177,5 @@ public class WorkTests
         Assert.Single(work.Authors);
         Assert.Single(work.Genres.Primary);
         Assert.Single(work.DeweyDecimals);
-        Assert.Equal(created, work.DateCreated);
     }
 }

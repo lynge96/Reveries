@@ -16,14 +16,12 @@ public class PublisherTests
     [Fact]
     public void Reconstitute_RestoresStateCorrectly()
     {
-        var date = DateTimeOffset.UtcNow;
         var publisherId = PublisherId.New();
 
-        var publisher = Publisher.Reconstitute(publisherId, "Penguin Books", date);
+        var publisher = Publisher.Reconstitute(publisherId, "Penguin Books");
 
         Assert.Equal(publisherId, publisher.Id);
         Assert.Equal("Penguin Books", publisher.Name);
-        Assert.Equal(date, publisher.DateCreated);
     }
 
     [Fact]

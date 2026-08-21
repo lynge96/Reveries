@@ -12,6 +12,5 @@ public sealed record WorkReconstitutionData(
     IEnumerable<Author>? Authors = null,
     IEnumerable<Genre>? PrimaryGenres = null,
     IEnumerable<Genre>? SecondaryGenres = null,
-    IEnumerable<DeweyDecimal>? DeweyDecimals = null,
-    DateTimeOffset? DateCreated = null
+    IEnumerable<DeweyDecimal>? DeweyDecimals = null
 );

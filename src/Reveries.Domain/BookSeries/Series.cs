@@ -1,9 +1,8 @@
 using Reveries.Domain.Helpers;
-using Reveries.Domain.Shared;
 
 namespace Reveries.Domain.BookSeries;
 
-public class Series : BaseEntity
+public class Series
 {
     public SeriesId Id { get; private init; }
     public string Name { get; }
@@ -24,12 +23,9 @@ public class Series : BaseEntity
         return new Series(seriesId, name);
     }
 
-    public static Series Reconstitute(SeriesId id, string name, DateTimeOffset? dateCreated = null)
+    public static Series Reconstitute(SeriesId id, string name)
     {
-        return new Series(id, name)
-        {
-            DateCreated = dateCreated
-        };
+        return new Series(id, name);
     }
 
 }

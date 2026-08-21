@@ -2,11 +2,10 @@ using Reveries.Domain.Enums;
 using Reveries.Domain.Exceptions;
 using Reveries.Domain.Helpers;
 using Reveries.Domain.Publishers;
-using Reveries.Domain.Shared;
 using Reveries.Domain.Works;
 namespace Reveries.Domain.Editions;
 
-public class Edition : BaseEntity
+public class Edition
 {
     public EditionId Id { get; private init; }
     public WorkId WorkId { get; private init; }
@@ -89,8 +88,7 @@ public class Edition : BaseEntity
             Msrp = data.Msrp,
             Dimensions = data.Dimensions,
             Publisher = data.Publisher,
-            DataSource = data.DataSource,
-            DateCreated = data.DateCreated
+            DataSource = data.DataSource
         };
     }
 

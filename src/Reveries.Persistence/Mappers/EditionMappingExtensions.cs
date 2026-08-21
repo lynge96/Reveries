@@ -29,8 +29,7 @@ public static class EditionMappingExtensions
             ThicknessCm = edition.Dimensions?.ThicknessCm,
             WeightG = edition.Dimensions?.WeightG,
             DataSource = edition.DataSource.ToString(),
-            PublisherId = edition.Publisher?.Id.Value,
-            DateCreated = edition.DateCreated
+            PublisherId = edition.Publisher?.Id.Value
         };
     }
 
@@ -53,9 +52,8 @@ public static class EditionMappingExtensions
             Dimensions: BookDimensions.Create(view.HeightCm, view.WidthCm, view.ThicknessCm, view.WeightG),
             DataSource: ParseDataSource(view.DataSource),
             Publisher: view.PublisherId is { } publisherId
-                ? Publisher.Reconstitute(new PublisherId(publisherId), view.PublisherName!, view.DateCreatedPublisher)
-                : null,
-            DateCreated: view.DateCreatedEdition
+                ? Publisher.Reconstitute(new PublisherId(publisherId), view.PublisherName!)
+                : null
         );
 
         return Edition.Reconstitute(data);

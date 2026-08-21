@@ -18,6 +18,5 @@ public sealed record EditionReconstitutionData(
     decimal? Msrp,
     BookDimensions? Dimensions,
     DataSource DataSource,
-    Publisher? Publisher = null,
-    DateTimeOffset? DateCreated = null
+    Publisher? Publisher = null
 );
