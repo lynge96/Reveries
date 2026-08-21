@@ -8,10 +8,5 @@ public sealed record FindBooksByPublisherQuery : IQuery<List<EditionWithWork>>
 {
     public Publisher Publisher { get; }
 
-    public FindBooksByPublisherQuery(string publisherName)
-    {
-        Publisher = Publisher.Create(publisherName);
-    }
-
     public FindBooksByPublisherQuery(Publisher publisher) => Publisher = publisher;
 }

@@ -5,12 +5,22 @@ namespace Reveries.Domain.Tests.Publishers;
 public class PublisherTests
 {
     [Fact]
-    public void Create_WithValidName_NormalizesName()
+    public void TryCreate_WithValidName_NormalizesName()
     {
-        var publisher = Publisher.Create("harper & row (U.S.A)");
+        var publisher = Publisher.TryCreate("harper & row (U.S.A)");
 
         Assert.NotNull(publisher);
-        Assert.Equal("Harper & Row", publisher.Name);
+        Assert.Equal("Harper & Row", publisher!.Name);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("(unknown)")]
+    public void TryCreate_WithEmptyOrNoiseName_ReturnsNull(string? name)
+    {
+        Assert.Null(Publisher.TryCreate(name));
     }
 
     [Fact]
@@ -25,12 +35,10 @@ public class PublisherTests
     }
 
     [Fact]
-    public void ToString_ReturnsTitleCaseName()
+    public void ToString_ReturnsName()
     {
-        var publisher = Publisher.Create("harper & row");
+        var publisher = Publisher.TryCreate("harper & row");
 
-        var str = publisher.ToString();
-
-        Assert.Equal("Harper & Row", str);
+        Assert.Equal("Harper & Row", publisher!.ToString());
     }
 }

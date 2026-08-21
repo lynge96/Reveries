@@ -13,26 +13,22 @@ public class Publisher
         Name = name;
     }
 
-    public override string? ToString() => Name?.ToTitleCase();
+    public override string ToString() => Name;
 
-    /// <summary>
-    /// Factory method to create a Publisher with a normalized name.
-    /// Returns null if the input name is null/empty.
-    /// </summary>
-    public static Publisher Create(string name)
+    public static Publisher? TryCreate(string? name)
     {
-        var normalizedName = name.StandardizePublisherName();
-        var publisherId = PublisherId.New();
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
 
-        return new Publisher(publisherId, normalizedName);
+        var normalizedName = name.StandardizePublisherName();
+        if (string.IsNullOrWhiteSpace(normalizedName))
+            return null;
+
+        return new Publisher(PublisherId.New(), normalizedName);
     }
 
-    /// <summary>
-    /// Reconstitute a Publisher from a persisted state (e.g., database).
-    /// </summary>
     public static Publisher Reconstitute(PublisherId id, string name)
     {
         return new Publisher(id, name);
     }
-
 }

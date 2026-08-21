@@ -45,5 +45,25 @@ public class PublisherNameNormalizerTests
         Assert.Equal(expected, result);
     }
 
+    [Theory]
+    [InlineData("Éditions Gallimard", "Éditions Gallimard")]
+    [InlineData("Rowohlt & Möller", "Rowohlt & Möller")]
+    [InlineData("Núñez", "Núñez")]
+    public void Normalize_WithNonAsciiLetters_PreservesThem(string input, string expected)
+    {
+        var result = input.StandardizePublisherName();
 
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData("Penguin, ", "Penguin")]
+    [InlineData("& Sons", "Sons")]
+    [InlineData("'Penguin'", "Penguin")]
+    public void Normalize_WithDanglingSeparators_TrimsThem(string input, string expected)
+    {
+        var result = input.StandardizePublisherName();
+
+        Assert.Equal(expected, result);
+    }
 }

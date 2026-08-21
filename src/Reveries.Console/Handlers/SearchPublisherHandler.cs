@@ -32,7 +32,12 @@ public class SearchPublisherHandler : BaseHandler
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         var publisherInput = ConsolePromptUtility.GetUserInput("Enter publisher name:");
-        var publisher = Publisher.Create(publisherInput);
+        var publisher = Publisher.TryCreate(publisherInput);
+        if (publisher is null)
+        {
+            AnsiConsole.MarkupLine("Please enter a valid publisher name.".AsWarning());
+            return;
+        }
 
         var (publishers, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(() => _publisherLookupService.FindPublishersByNameAsync(publisher, ct));

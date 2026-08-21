@@ -48,8 +48,8 @@ public class IsbndbPublisherService : IPublisherSearch
             return null;
 
         var uniquePublishers = (response.Publishers ?? [])
-            .Select(Publisher.Create)
-            .Where(p => !string.IsNullOrWhiteSpace(p.Name))
+            .Select(Publisher.TryCreate)
+            .OfType<Publisher>()
             .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
             .ToList();

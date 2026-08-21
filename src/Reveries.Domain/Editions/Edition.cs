@@ -53,7 +53,7 @@ public class Edition
             WorkId = workId,
             Isbn13 = isbn13 != null ? Isbn.Create(isbn13) : null,
             Isbn10 = isbn10 != null ? Isbn.Create(isbn10) : null,
-            Publisher = publisher != null ? Publisher.Create(publisher) : null,
+            Publisher = Publisher.TryCreate(publisher),
             Language = languageIso639.GetLanguageName(),
             PublicationDate = publishDate,
             EditionStatement = editionStatement,

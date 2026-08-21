@@ -9,10 +9,10 @@ public static partial class PublisherNameNormalizer
         [GeneratedRegex(@"[\(\[].*?[\)\]]|@.*")]
         public static partial Regex ParenthesesAndAtPattern();
 
-        [GeneratedRegex(@"^[A-Za-z]+\s*:")]
+        [GeneratedRegex(@"^\p{L}+\s*:")]
         public static partial Regex PrefixPattern();
 
-        [GeneratedRegex(@"[^A-Za-z0-9\s,&']")]
+        [GeneratedRegex(@"[^\p{L}\p{N}\s,&']")]
         public static partial Regex SpecialCharsPattern();
 
         [GeneratedRegex(@"\s+")]
@@ -39,7 +39,10 @@ public static partial class PublisherNameNormalizer
         // 4. Remove extra spaces and trim
         normalized = RegexPatterns.MultipleSpacesPattern().Replace(normalized, " ").Trim();
 
-        // 5. Convert to Title Case
+        // 5. Trim dangling separators left at the edges
+        normalized = normalized.Trim(' ', ',', '&', '\'');
+
+        // 6. Convert to Title Case
         return normalized.ToTitleCase();
     }
 

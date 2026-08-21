@@ -135,7 +135,7 @@ public class EditionTests
     public void SetPublisher_AssignsPublisher()
     {
         var edition = CreateValidEdition();
-        var publisher = Publisher.Create("Ace Books");
+        var publisher = Publisher.TryCreate("Ace Books");
 
         edition.SetPublisher(publisher);
 
@@ -162,7 +162,7 @@ public class EditionTests
             Msrp: 199.95m,
             Dimensions: null,
             DataSource: DataSource.IsbndbApi,
-            Publisher: Publisher.Create("Chilton Books"));
+            Publisher: Publisher.TryCreate("Chilton Books"));
 
         var edition = Edition.Reconstitute(data);
 
