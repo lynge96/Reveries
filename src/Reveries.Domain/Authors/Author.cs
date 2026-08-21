@@ -5,64 +5,35 @@ namespace Reveries.Domain.Authors;
 
 public class Author : BaseEntity
 {
-    private readonly List<AuthorNameVariant> _nameVariants = [];
-
     public AuthorId Id { get; private init; }
-    public string? FirstName { get; }
-    public string? LastName { get; }
-    public string NormalizedName => $"{FirstName} {LastName}".Trim().ToLowerInvariant();
-    public IReadOnlyList<AuthorNameVariant> NameVariants => _nameVariants;
+    public string Name { get; }
+    public string NormalizedName => Name.ToLowerInvariant();
 
-    private Author(AuthorId id, string? firstName, string? lastName)
+    private Author(AuthorId id, string name)
     {
         Id = id;
-        FirstName = firstName;
-        LastName = lastName;
+        Name = name;
     }
 
-    public override string ToString() => NormalizedName.ToTitleCase();
+    public override string ToString() => Name;
 
-    public static Author Create(string name)
+    public static Author? TryCreate(string? name)
     {
-        var (firstName, lastName) = AuthorNameNormalizer.Parse(name);
-        var authorId = AuthorId.New();
+        var canonicalName = AuthorNameNormalizer.Canonicalize(name);
+        if (string.IsNullOrWhiteSpace(canonicalName))
+            return null;
 
-        return new Author(authorId, firstName, lastName);
+        return new Author(AuthorId.New(), canonicalName);
     }
 
-    public static Author Reconstitute(AuthorId id, string? firstName, string? lastName, DateTimeOffset? dateCreated = null)
+    public static Author Reconstitute(
+        AuthorId id,
+        string name,
+        DateTimeOffset? dateCreated = null)
     {
-        return new Author(id, firstName, lastName)
+        return new Author(id, name)
         {
             DateCreated = dateCreated
         };
     }
-
-    public void AddNameVariant(string variant, bool makePrimary)
-    {
-        if (string.IsNullOrWhiteSpace(variant))
-            return;
-
-        var nameVariant = AuthorNameVariant.Create(variant);
-
-        if (_nameVariants.Any(v => v.NameVariant.Equals(nameVariant.NameVariant, StringComparison.InvariantCultureIgnoreCase)))
-            return;
-
-        _nameVariants.Add(nameVariant);
-
-        if (makePrimary)
-            SetPrimaryVariant(nameVariant);
-    }
-
-    private void SetPrimaryVariant(AuthorNameVariant variant)
-    {
-        if (!_nameVariants.Contains(variant))
-            throw new InvalidOperationException("Variant does not belong to this author.");
-
-        foreach (var v in _nameVariants)
-            v.UnmarkPrimary();
-
-        variant.MarkAsPrimary();
-    }
-
 }

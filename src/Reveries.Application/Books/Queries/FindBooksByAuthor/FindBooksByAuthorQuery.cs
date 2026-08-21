@@ -10,6 +10,7 @@ public sealed record FindBooksByAuthorQuery : IQuery<List<EditionWithWork>>
 
     public FindBooksByAuthorQuery(string authorName)
     {
-        Author = Author.Create(authorName);
+        Author = Author.TryCreate(authorName)
+            ?? throw new ArgumentException("Author name cannot be empty.", nameof(authorName));
     }
 }

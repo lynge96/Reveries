@@ -11,7 +11,7 @@ public static class EditionWithWorkExtensions
             .OrderBy(x => x.Edition.DataSource == DataSource.Cache)
             .ThenByDescending(x => x.Edition.DataSource == DataSource.Database)
             .ThenBy(x => x.Edition.DataSource == DataSource.CombinedBookApi)
-            .ThenBy(x => x.Work.Authors.FirstOrDefault()?.FirstName)
+            .ThenBy(x => x.Work.Authors.FirstOrDefault()?.Name)
             .ThenBy(x => x.Work.SeriesPlacement?.Number)
             .ThenBy(x => x.Work.Title.Text)
             .ToList();

@@ -57,16 +57,8 @@ erDiagram
     authors {
         uuid id PK
         varchar normalized_name UK
-        varchar first_name
-        varchar last_name
+        varchar name
         timestamp date_created
-    }
-    
-    author_name_variants {
-        int id PK
-        uuid author_id FK
-        varchar name_variant
-        boolean is_primary
     }
     
     books {
@@ -133,7 +125,6 @@ erDiagram
         timestamp date_created
     }
 
-    authors ||--o{ author_name_variants : "has"
     authors ||--o{ books_authors : "writes"
     books ||--o{ books_authors : "written by"
 

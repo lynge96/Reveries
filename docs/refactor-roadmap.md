@@ -130,6 +130,40 @@ current model:
       is legal and enforce it.
 - [ ] Confirm the `Create` vs `Reconstitute` split stays clean: all
       validation/normalisation in `Create`, none in `Reconstitute`.
+- [ ] **Author identity — external stable code (guards same-name authors).**
+      Two different people with the same name currently collapse into one row
+      (`normalized_name` is the identity via `UNIQUE(normalized_name)`), mixing
+      their books. The current model is deliberately name-only (`Name` +
+      derived `NormalizedName`); the disambiguation upgrade is deferred until an
+      author-profile feature actually needs it. When it does: add an optional
+      `AuthorCode` on `Author` (a stable external id, e.g. a Wikidata QID
+      `Q42`) stored resolvable, and split the single `UNIQUE(normalized_name)`
+      into two partial indexes — `UNIQUE(code) WHERE code IS NOT NULL` and
+      `UNIQUE(normalized_name) WHERE code IS NULL` — so dedup resolves by the
+      code when present (`Code ?? normalized_name`). The removed
+      `AuthorNameVariant` subsystem was an earlier, name-based attempt and is not
+      coming back.
+
+      *Wikidata enrichment notes (for when the integration is built):*
+      - **Why Wikidata over OpenLibrary:** OpenLibrary bundles an ISBN → author
+        chain in one place but is slow (`/api/books?jscmd=data` ~10s observed)
+        and often only has sparse import stubs (a book scanned during this design
+        returned an author literally named "322508 MJ"). Wikidata gives richer,
+        more structured author data (birth/death, image, VIAF/ISNI, description)
+        for free — but has no ISBN → author chain, so you must match by name and
+        disambiguate.
+      - **Endpoints:** `wbsearchentities` to resolve a name to a QID, then
+        `https://www.wikidata.org/wiki/Special:EntityData/Q{id}.json` (CDN-cached)
+        for the entity. Useful claims: `P569` birth, `P570` death, `P18` image
+        (→ Commons file), `P214` VIAF, `P213` ISNI, plus the label/description.
+      - **Matching is the hard part:** name lookup is ambiguous (many "John
+        Smith"), so pair it with any signal you have (co-occurring title, birth
+        era) or keep it manual/confirm-on-conflict. The QID becomes the
+        `AuthorCode` and the stable dedup key thereafter.
+      - **Latency / placement:** the lookup must never sit on the scan critical
+        path. Do enrichment async or lazy, cache author entities in Redis with a
+        long TTL (they are highly stable and shared across many books), and use a
+        tight timeout with name-based fallback (`Code ?? normalized_name`).
 - [ ] **Introduce migration tooling here** — the domain changes above are the
       first schema changes, so this is the natural point. Adopt **DbUp**
       (lightweight, plain-SQL, no EF) so schema changes become one versioned

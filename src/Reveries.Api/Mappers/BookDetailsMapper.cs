@@ -19,7 +19,7 @@ public static class BookDetailsMapper
             Title = work.Title.Text,
             Series = work.SeriesPlacement?.Series.Name,
             NumberInSeries = work.SeriesPlacement?.Number,
-            Authors = work.Authors.Select(a => a.NormalizedName).ToList(),
+            Authors = work.Authors.Select(a => a.Name).ToList(),
             Publisher = edition.Publisher?.Name,
             Language = edition.Language,
             Pages = edition.Pages,

@@ -33,23 +33,9 @@ public static class EntityMappingExtensions
         return new AuthorEntity
         {
             Id = author.Id.Value,
-            FirstName = author.FirstName,
-            LastName = author.LastName,
+            Name = author.Name,
             NormalizedName = author.NormalizedName,
-            DateCreated = author.DateCreated,
-            AuthorNameVariants = author.NameVariants
-                .Select(v => v.ToEntity(author.Id.Value))
-                .ToList()
-        };
-    }
-
-    private static AuthorNameVariantEntity ToEntity(this AuthorNameVariant variant, Guid authorId)
-    {
-        return new AuthorNameVariantEntity
-        {
-            AuthorId = authorId,
-            IsPrimary = variant.IsPrimary,
-            NameVariant = variant.NameVariant
+            DateCreated = author.DateCreated
         };
     }
 

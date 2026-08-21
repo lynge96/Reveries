@@ -69,8 +69,8 @@ public class WorkTests
     {
         var work = CreateValidWork();
 
-        work.AddAuthor(Author.Create("Frank Herbert"));
-        work.AddAuthor(Author.Create("frank herbert"));
+        work.AddAuthor(Author.TryCreate("Frank Herbert")!);
+        work.AddAuthor(Author.TryCreate("frank herbert")!);
 
         Assert.Single(work.Authors);
     }
@@ -165,7 +165,7 @@ public class WorkTests
             Synopsis: "Life on a desert planet.",
             SeriesNumber: 1,
             Series: Series.Create("Dune Chronicles"),
-            Authors: [Author.Create("Frank Herbert")],
+            Authors: [Author.TryCreate("Frank Herbert")!],
             PrimaryGenres: [Genre.TryCreate("Science Fiction")!],
             DeweyDecimals: [DeweyDecimal.TryCreate("813.54")!],
             DateCreated: created);

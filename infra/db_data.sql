@@ -23,103 +23,22 @@ SET row_security = off;
 -- Data for Name: authors; Type: TABLE DATA; Schema: library; Owner: -
 --
 
-COPY library.authors (id, normalized_name, first_name, last_name, date_created) FROM stdin;
-4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed	james islington	James	Islington	2026-02-12 17:55:40.690028
-355185c3-90ca-4a93-be79-2b1d3a2d4633	frank herbert	Frank	Herbert	2026-02-12 19:10:55.531748
-ad17b5b5-37e7-42f4-8ead-469087228da2	andrzej sapkowski	Andrzej	Sapkowski	2026-02-12 19:12:10.973471
-fd16400e-97aa-4e1b-98be-45bda89a211e	andy weir	Andy	Weir	2026-02-12 19:13:06.631366
-09657f26-612b-4799-b240-36ec2d0c2a9d	fonda lee	Fonda	Lee	2026-02-12 19:13:21.821302
-03dde1d8-76c8-41c4-aab2-03ea66659272	john gwynne	John	Gwynne	2026-02-12 19:13:29.993659
-7d319db0-e498-4b10-98ca-120378080229	neal shusterman	Neal	Shusterman	2026-02-12 19:13:54.414107
-9f537022-d4bb-46dd-b20f-a0420c6b7086	joe abercrombie	Joe	Abercrombie	2026-02-12 19:14:35.157782
-d992239a-4857-47db-9ae3-cae5d8d6edc4	andreas steno	Andreas	Steno	2026-03-27 12:40:15.29416
-47a5bb2c-f5b0-4aa2-8100-b0dfd0a18191	jesper ravnborg	Jesper	Ravnborg	2026-03-27 12:40:15.29416
-8b2c0400-9a12-42f7-b3e5-5938ecaa5f90	rick rubin	Rick	Rubin	2026-04-27 07:20:01.119895
+COPY library.authors (id, normalized_name, name, date_created) FROM stdin;
+4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed	james islington	James Islington	2026-02-12 17:55:40.690028
+355185c3-90ca-4a93-be79-2b1d3a2d4633	frank herbert	Frank Herbert	2026-02-12 19:10:55.531748
+ad17b5b5-37e7-42f4-8ead-469087228da2	andrzej sapkowski	Andrzej Sapkowski	2026-02-12 19:12:10.973471
+fd16400e-97aa-4e1b-98be-45bda89a211e	andy weir	Andy Weir	2026-02-12 19:13:06.631366
+09657f26-612b-4799-b240-36ec2d0c2a9d	fonda lee	Fonda Lee	2026-02-12 19:13:21.821302
+03dde1d8-76c8-41c4-aab2-03ea66659272	john gwynne	John Gwynne	2026-02-12 19:13:29.993659
+7d319db0-e498-4b10-98ca-120378080229	neal shusterman	Neal Shusterman	2026-02-12 19:13:54.414107
+9f537022-d4bb-46dd-b20f-a0420c6b7086	joe abercrombie	Joe Abercrombie	2026-02-12 19:14:35.157782
+d992239a-4857-47db-9ae3-cae5d8d6edc4	andreas steno	Andreas Steno	2026-03-27 12:40:15.29416
+47a5bb2c-f5b0-4aa2-8100-b0dfd0a18191	jesper ravnborg	Jesper Ravnborg	2026-03-27 12:40:15.29416
+8b2c0400-9a12-42f7-b3e5-5938ecaa5f90	rick rubin	Rick Rubin	2026-04-27 07:20:01.119895
 \.
 
 
 --
--- Data for Name: author_name_variants; Type: TABLE DATA; Schema: library; Owner: -
---
-
-COPY library.author_name_variants (id, name_variant, is_primary, author_id) FROM stdin;
-125	rick rubin	t	8b2c0400-9a12-42f7-b3e5-5938ecaa5f90
-50	jamesislington	t	4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed
-51	islingtonjames	f	4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed
-52	ofislingtonfredericjamespost	f	4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed
-53	fredericjamespostofislington	f	4a3787ed-5dd3-4e6f-9d36-b879ab9d86ed
-54	frank herbert	t	355185c3-90ca-4a93-be79-2b1d3a2d4633
-55	herbertfrank	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-56	frankherbert	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-57	herbert frank	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-58	frank. herbert	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-59	frenk herbert	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-60	frank herbert slade	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-61	herbert frank milne	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-62	frank barnes herbert	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-63	frank herbert sweet	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-64	herbert frank fisher	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-65	frank herbert cunningham	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-66	frank herbert chase	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-67	frank herbert norcross	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-68	frank herbert. lachacz	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-69	frank herbert matthews	f	355185c3-90ca-4a93-be79-2b1d3a2d4633
-70	andrzej sapkowski	t	ad17b5b5-37e7-42f4-8ead-469087228da2
-71	andrzej. sapkowski	f	ad17b5b5-37e7-42f4-8ead-469087228da2
-72	sapkowski andrzej	f	ad17b5b5-37e7-42f4-8ead-469087228da2
-73	sapkowski andrzej bere stanisaw	f	ad17b5b5-37e7-42f4-8ead-469087228da2
-74	david french andrzej sapkowski	f	ad17b5b5-37e7-42f4-8ead-469087228da2
-75	sapkowski andrzej baniewicz artur orbitowski ukasz	f	ad17b5b5-37e7-42f4-8ead-469087228da2
-76	andrzej sapkowski eugeniusz dębski	f	ad17b5b5-37e7-42f4-8ead-469087228da2
-77	andy weir	t	fd16400e-97aa-4e1b-98be-45bda89a211e
-78	weir andy	f	fd16400e-97aa-4e1b-98be-45bda89a211e
-79	andy weir bush	f	fd16400e-97aa-4e1b-98be-45bda89a211e
-80	radoslaw madejski andy weir	f	fd16400e-97aa-4e1b-98be-45bda89a211e
-81	marcin ring andy weir	f	fd16400e-97aa-4e1b-98be-45bda89a211e
-82	эндзі ўір andy weir	f	fd16400e-97aa-4e1b-98be-45bda89a211e
-83	앤디 위어	f	fd16400e-97aa-4e1b-98be-45bda89a211e
-84	安迪威爾	f	fd16400e-97aa-4e1b-98be-45bda89a211e
-85	安迪威爾andy weir	f	fd16400e-97aa-4e1b-98be-45bda89a211e
-86	安迪威爾 andy weir	f	fd16400e-97aa-4e1b-98be-45bda89a211e
-87	drew. goddard	f	fd16400e-97aa-4e1b-98be-45bda89a211e
-88	fonda lee	t	09657f26-612b-4799-b240-36ec2d0c2a9d
-89	fonda. lee	f	09657f26-612b-4799-b240-36ec2d0c2a9d
-90	lee lee fonda shannon	f	09657f26-612b-4799-b240-36ec2d0c2a9d
-91	john gwynne	t	03dde1d8-76c8-41c4-aab2-03ea66659272
-92	john. gwynne	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-93	johnharoldgwynne	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-94	john gwynne brockis	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-95	john gwynnetimothy	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-96	john gwynne evans	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-97	john stelling gwynne	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-98	george john gwynne	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-99	john a. gwynne	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-100	john a. gwynne jr.	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-101	john gwynne prosser ii	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-102	david john gwynnejames	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-103	john fl gwynne	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-104	john r. w. gwynnetimothy	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-105	gwynnetimothy john r. w.	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-106	john hillgwynne pomfrettchristiane hermann	f	03dde1d8-76c8-41c4-aab2-03ea66659272
-107	neal shusterman	t	7d319db0-e498-4b10-98ca-120378080229
-108	shusterman neal	f	7d319db0-e498-4b10-98ca-120378080229
-109	neal. shusterman	f	7d319db0-e498-4b10-98ca-120378080229
-110	neal shusterman jarrod shusterman	f	7d319db0-e498-4b10-98ca-120378080229
-111	jarrod shusterman neal shusterman	f	7d319db0-e498-4b10-98ca-120378080229
-112	neal shusterman e jarrod shusterman	f	7d319db0-e498-4b10-98ca-120378080229
-113	michelle knowlden neal shusterman	f	7d319db0-e498-4b10-98ca-120378080229
-114	닐 셔스터먼	f	7d319db0-e498-4b10-98ca-120378080229
-115	shusterman neal elfman eric	f	7d319db0-e498-4b10-98ca-120378080229
-116	eric elfman neal shusterman	f	7d319db0-e498-4b10-98ca-120378080229
-117	joe abercrombie	t	9f537022-d4bb-46dd-b20f-a0420c6b7086
-118	abercrombie joe abercrombie	f	9f537022-d4bb-46dd-b20f-a0420c6b7086
-119	abercrombie joe	f	9f537022-d4bb-46dd-b20f-a0420c6b7086
-120	joe. abercrombie	f	9f537022-d4bb-46dd-b20f-a0420c6b7086
-121	joe abercrombie ba	f	9f537022-d4bb-46dd-b20f-a0420c6b7086
-122	dave senior joe abercrombie	f	9f537022-d4bb-46dd-b20f-a0420c6b7086
-123	andreas steno	t	d992239a-4857-47db-9ae3-cae5d8d6edc4
-124	jesper ravnborg	t	47a5bb2c-f5b0-4aa2-8100-b0dfd0a18191
-\.
 
 
 --
@@ -370,10 +289,6 @@ COPY library.series (id, name, date_created) FROM stdin;
 
 
 --
--- Name: author_name_variants_id_seq; Type: SEQUENCE SET; Schema: library; Owner: -
---
-
-SELECT pg_catalog.setval('library.author_name_variants_id_seq', 125, true);
 
 
 --

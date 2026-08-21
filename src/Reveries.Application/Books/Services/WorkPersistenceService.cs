@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Authors.Interfaces;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
@@ -13,7 +12,6 @@ public class WorkPersistenceService : IWorkPersistenceService
 {
     private readonly ITransactionManager _transactionManager;
     private readonly ILogger<WorkPersistenceService> _logger;
-    private readonly IAuthorEnrichmentService _authorEnrichmentService;
 
     private readonly IWorkRepository _works;
     private readonly IEditionRepository _editions;
@@ -28,7 +26,6 @@ public class WorkPersistenceService : IWorkPersistenceService
     public WorkPersistenceService(
         ITransactionManager transactionManager,
         ILogger<WorkPersistenceService> logger,
-        IAuthorEnrichmentService authorEnrichmentService,
         IWorkRepository works,
         IEditionRepository editions,
         IPublisherRepository publishers,
@@ -41,7 +38,6 @@ public class WorkPersistenceService : IWorkPersistenceService
     {
         _transactionManager = transactionManager;
         _logger = logger;
-        _authorEnrichmentService = authorEnrichmentService;
         _works = works;
         _editions = editions;
         _publishers = publishers;
@@ -58,8 +54,6 @@ public class WorkPersistenceService : IWorkPersistenceService
         await using var tx = await _transactionManager.BeginTransactionAsync(ct);
 
         await ValidateEditionNotExistsAsync(edition, ct);
-
-        await _authorEnrichmentService.EnrichAsync(work.Authors, ct);
 
         await SaveAsync(work, edition, ct);
 

@@ -29,7 +29,8 @@ public class IsbndbAuthorService : IAuthorSearch
             return null;
 
         var distinctAuthors = response.Authors
-            .Select(Author.Create)
+            .Select(name => Author.TryCreate(name))
+            .OfType<Author>()
             .GroupBy(a => a.NormalizedName)
             .Select(g => g.First())
             .ToList();

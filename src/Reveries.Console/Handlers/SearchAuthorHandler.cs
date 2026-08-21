@@ -33,7 +33,12 @@ public class SearchAuthorHandler : BaseHandler
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         var authorInput = ConsolePromptUtility.GetUserInput("Enter author name:");
-        var author = Author.Create(authorInput);
+        var author = Author.TryCreate(authorInput);
+        if (author is null)
+        {
+            AnsiConsole.MarkupLine("Author name cannot be empty.".AsWarning());
+            return;
+        }
 
         var (authors, elapsedMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
             .RunWithStatusAsync(async () => await _authorLookupService.FindAuthorsByNameAsync(author, ct));
@@ -58,7 +63,7 @@ public class SearchAuthorHandler : BaseHandler
 
         if (bookResults.Count == 0)
         {
-            AnsiConsole.MarkupLine($"No books found for author: {selectedAuthor.NormalizedName.ToTitleCase().AsSecondary()}".AsWarning());
+            AnsiConsole.MarkupLine($"No books found for author: {selectedAuthor.Name.AsSecondary()}".AsWarning());
             return;
         }
 

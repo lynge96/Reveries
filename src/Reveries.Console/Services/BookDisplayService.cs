@@ -97,7 +97,7 @@ public class BookDisplayService
 
         var details = new Dictionary<string, string>
         {
-            { "Author", string.Join(", ", work.Authors.Select(author => author.NormalizedName.ToTitleCase())) },
+            { "Author", string.Join(", ", work.Authors.Select(author => author.Name)) },
             { "Pages", edition.Pages?.ToString() ?? "Unknown" },
             { "ISBN-10", edition.Isbn10?.ToString() ?? "N/A"},
             { "ISBN-13", edition.Isbn13?.ToString() ?? "N/A" },

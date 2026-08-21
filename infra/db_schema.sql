@@ -52,35 +52,6 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: author_name_variants; Type: TABLE; Schema: library; Owner: -
---
-
-CREATE TABLE library.author_name_variants (
-    id integer NOT NULL,
-    name_variant character varying NOT NULL,
-    is_primary boolean DEFAULT false NOT NULL,
-    author_id uuid NOT NULL
-);
-
-
---
--- Name: author_name_variants_id_seq; Type: SEQUENCE; Schema: library; Owner: -
---
-
-CREATE SEQUENCE library.author_name_variants_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: author_name_variants_id_seq; Type: SEQUENCE OWNED BY; Schema: library; Owner: -
---
-
-ALTER SEQUENCE library.author_name_variants_id_seq OWNED BY library.author_name_variants.id;
 
 
 --
@@ -90,8 +61,7 @@ ALTER SEQUENCE library.author_name_variants_id_seq OWNED BY library.author_name_
 CREATE TABLE library.authors (
     id uuid CONSTRAINT authors_domain_id_not_null NOT NULL,
     normalized_name character varying NOT NULL,
-    first_name character varying,
-    last_name character varying,
+    name character varying NOT NULL,
     date_created timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -236,7 +206,7 @@ CREATE VIEW library.works_view AS
            FROM (library.works_genres wg
              JOIN library.genres g_1 ON ((wg.genre_id = g_1.id)))
           WHERE (wg.work_id = w.id)) g ON (true))
-     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('Id', a_1.id, 'NormalizedName', a_1.normalized_name, 'FirstName', a_1.first_name, 'LastName', a_1.last_name, 'DateCreated', a_1.date_created) ORDER BY a_1.normalized_name) AS authors_json
+     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('Id', a_1.id, 'NormalizedName', a_1.normalized_name, 'Name', a_1.name, 'DateCreated', a_1.date_created) ORDER BY a_1.normalized_name) AS authors_json
            FROM (library.works_authors wa
              JOIN library.authors a_1 ON ((wa.author_id = a_1.id)))
           WHERE (wa.work_id = w.id)) a ON (true))
@@ -317,10 +287,6 @@ ALTER SEQUENCE library.genres_id_seq OWNED BY library.genres.id;
 
 
 --
--- Name: author_name_variants id; Type: DEFAULT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.author_name_variants ALTER COLUMN id SET DEFAULT nextval('library.author_name_variants_id_seq'::regclass);
 
 
 --
@@ -338,11 +304,6 @@ ALTER TABLE ONLY library.genres ALTER COLUMN id SET DEFAULT nextval('library.gen
 
 
 --
--- Name: author_name_variants author_name_variants_pkey; Type: CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.author_name_variants
-    ADD CONSTRAINT author_name_variants_pkey PRIMARY KEY (id);
 
 
 --
@@ -482,10 +443,6 @@ ALTER TABLE ONLY library.dewey_decimals
 
 
 --
--- Name: idx_author_name_variants_author_id; Type: INDEX; Schema: library; Owner: -
---
-
-CREATE INDEX idx_author_name_variants_author_id ON library.author_name_variants USING btree (author_id);
 
 
 --
@@ -559,11 +516,6 @@ CREATE INDEX idx_works_title ON library.works USING btree (title);
 
 
 --
--- Name: author_name_variants fk_author_name_variants_author_id; Type: FK CONSTRAINT; Schema: library; Owner: -
---
-
-ALTER TABLE ONLY library.author_name_variants
-    ADD CONSTRAINT fk_author_name_variants_author_id FOREIGN KEY (author_id) REFERENCES library.authors(id) ON DELETE CASCADE;
 
 
 --

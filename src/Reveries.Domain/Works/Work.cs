@@ -40,7 +40,11 @@ public class Work : BaseEntity
         };
 
         foreach (var authorName in authors ?? [])
-            work.AddAuthor(Author.Create(authorName));
+        {
+            var author = Author.TryCreate(authorName);
+            if (author is not null)
+                work.AddAuthor(author);
+        }
 
         foreach (var code in deweyDecimals ?? [])
         {

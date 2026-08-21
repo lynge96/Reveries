@@ -64,7 +64,6 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
                                library.works_authors,
                                library.works_genres,
                                library.works_dewey_decimals,
-                               library.author_name_variants,
                                library.editions,
                                library.works,
                                library.authors,

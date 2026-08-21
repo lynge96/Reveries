@@ -30,8 +30,7 @@ public static class DomainMappingExtensions
     {
         return Author.Reconstitute(
             new AuthorId(authorEntity.Id),
-            authorEntity.FirstName,
-            authorEntity.LastName,
+            authorEntity.Name,
             authorEntity.DateCreated
         );
     }
