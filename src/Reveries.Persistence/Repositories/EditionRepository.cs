@@ -1,6 +1,7 @@
 using Dapper;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.Repositories;
+using Reveries.Domain.Works;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
@@ -77,7 +78,7 @@ public class EditionRepository : IEditionRepository
         return await connection.QuerySingleAsync<bool>(command);
     }
 
-    public async Task<Edition?> GetEditionByIdAsync(Guid id, CancellationToken ct)
+    public async Task<Edition?> GetEditionByIdAsync(EditionId id, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
@@ -86,14 +87,14 @@ public class EditionRepository : IEditionRepository
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Id = id }, ct);
+        var command = _dbContext.CreateCommand(sql, new { Id = id.Value }, ct);
 
         var row = await connection.QueryFirstOrDefaultAsync<EditionsView>(command);
 
         return row?.ToDomain();
     }
 
-    public async Task<List<Edition>> GetEditionsByWorkIdAsync(Guid workId, CancellationToken ct)
+    public async Task<List<Edition>> GetEditionsByWorkIdAsync(WorkId workId, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
@@ -102,7 +103,7 @@ public class EditionRepository : IEditionRepository
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { WorkId = workId }, ct);
+        var command = _dbContext.CreateCommand(sql, new { WorkId = workId.Value }, ct);
 
         var rows = await connection.QueryAsync<EditionsView>(command);
 

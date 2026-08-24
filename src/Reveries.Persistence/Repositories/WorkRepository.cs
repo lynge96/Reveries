@@ -1,7 +1,8 @@
 using System.Text.Json;
 using Dapper;
 using Reveries.Domain.Authors;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.BookSeries;
+using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Works;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
@@ -20,7 +21,7 @@ public class WorkRepository : IWorkRepository
         _dbContext = dbContext;
     }
 
-    public async Task InsertWorkAsync(Work work, CancellationToken ct)
+    public async Task InsertWorkAsync(Work work, WorkRelations relations, CancellationToken ct)
     {
         const string sql = """
                            INSERT INTO library.works (
@@ -34,12 +35,72 @@ public class WorkRepository : IWorkRepository
         var connection = await _dbContext.GetConnectionAsync(ct);
         var workEntity = work.ToEntity();
 
-        var command = _dbContext.CreateCommand(sql, workEntity, ct);
+        await connection.ExecuteAsync(_dbContext.CreateCommand(sql, workEntity, ct));
+
+        await InsertAuthorsAsync(work.Id, relations.AuthorIds, ct);
+        await InsertGenresAsync(work.Id, relations.PrimaryGenreIds, isPrimary: true, ct);
+        await InsertGenresAsync(work.Id, relations.SecondaryGenreIds, isPrimary: false, ct);
+        await InsertDeweyDecimalsAsync(work.Id, relations.DeweyDecimalIds, ct);
+    }
+
+    private async Task InsertAuthorsAsync(WorkId workId, IEnumerable<AuthorId> authorIds, CancellationToken ct)
+    {
+        var ids = authorIds.Select(a => a.Value).Distinct().ToArray();
+        if (ids.Length == 0)
+            return;
+
+        const string sql = """
+                           INSERT INTO library.works_authors (work_id, author_id)
+                           SELECT @WorkId, author_id
+                           FROM unnest(@AuthorIds::uuid[]) AS author_id
+                           ON CONFLICT (work_id, author_id) DO NOTHING
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        var command = _dbContext.CreateCommand(sql, new { WorkId = workId.Value, AuthorIds = ids }, ct);
 
         await connection.ExecuteAsync(command);
     }
 
-    public async Task<Work?> GetWorkByIdAsync(Guid id, CancellationToken ct)
+    private async Task InsertGenresAsync(WorkId workId, IEnumerable<int> genreIds, bool isPrimary, CancellationToken ct)
+    {
+        var ids = genreIds.Distinct().ToArray();
+        if (ids.Length == 0)
+            return;
+
+        const string sql = """
+                           INSERT INTO library.works_genres (work_id, genre_id, is_primary)
+                           SELECT @WorkId, genre_id, @IsPrimary
+                           FROM unnest(@GenreIds::int[]) AS genre_id
+                           ON CONFLICT (work_id, genre_id) DO NOTHING
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        var command = _dbContext.CreateCommand(sql, new { WorkId = workId.Value, GenreIds = ids, IsPrimary = isPrimary }, ct);
+
+        await connection.ExecuteAsync(command);
+    }
+
+    private async Task InsertDeweyDecimalsAsync(WorkId workId, IEnumerable<int> deweyDecimalIds, CancellationToken ct)
+    {
+        var ids = deweyDecimalIds.Distinct().ToArray();
+        if (ids.Length == 0)
+            return;
+
+        const string sql = """
+                           INSERT INTO library.works_dewey_decimals (work_id, dewey_decimal_id)
+                           SELECT @WorkId, dewey_decimal_id
+                           FROM unnest(@DeweyDecimalIds::int[]) AS dewey_decimal_id
+                           ON CONFLICT (work_id, dewey_decimal_id) DO NOTHING
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        var command = _dbContext.CreateCommand(sql, new { WorkId = workId.Value, DeweyDecimalIds = ids }, ct);
+
+        await connection.ExecuteAsync(command);
+    }
+
+    public async Task<Work?> GetWorkByIdAsync(WorkId id, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
@@ -47,12 +108,12 @@ public class WorkRepository : IWorkRepository
                            WHERE id = @Id
                            """;
 
-        var works = await QueryWorksAsync(sql, new { Id = id }, ct);
+        var works = await QueryWorksAsync(sql, new { Id = id.Value }, ct);
 
         return works.FirstOrDefault();
     }
 
-    public async Task UpdateWorkSeriesAsync(Work work, Guid seriesId, CancellationToken ct)
+    public async Task UpdateWorkSeriesAsync(Work work, SeriesId seriesId, CancellationToken ct)
     {
         const string sql = """
                            UPDATE library.works
@@ -65,7 +126,7 @@ public class WorkRepository : IWorkRepository
 
         var command = _dbContext.CreateCommand(
             sql,
-            new { Id = work.Id.Value, SeriesId = seriesId, SeriesNumber = work.SeriesPlacement?.Number },
+            new { Id = work.Id.Value, SeriesId = seriesId.Value, SeriesNumber = work.SeriesPlacement?.Number },
             ct);
 
         await connection.ExecuteAsync(command);

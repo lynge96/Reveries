@@ -1,6 +1,6 @@
 using Dapper;
 using Reveries.Domain.Authors;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
@@ -17,7 +17,7 @@ public class AuthorRepository : IAuthorRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<Guid>> GetOrCreateAuthorsAsync(
+    public async Task<List<AuthorId>> GetOrCreateAuthorsAsync(
         IReadOnlyList<Author> authors,
         CancellationToken ct)
     {
@@ -41,7 +41,7 @@ public class AuthorRepository : IAuthorRepository
         }
 
         return authors
-            .Select(a => byName[a.NormalizedName].Id.Value)
+            .Select(a => byName[a.NormalizedName].Id)
             .Distinct()
             .ToList();
     }

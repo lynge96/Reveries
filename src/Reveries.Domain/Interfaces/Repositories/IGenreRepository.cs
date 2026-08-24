@@ -1,6 +1,6 @@
 using Reveries.Domain.Works;
 
-namespace Reveries.Domain.Interfaces.IRepository;
+namespace Reveries.Domain.Interfaces.Repositories;
 
 public interface IGenreRepository
 {

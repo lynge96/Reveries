@@ -41,9 +41,9 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         // Assert — read back over a fresh connection to prove it committed
         await using var readContext = _fixture.NewDbContext();
 
-        var persistedWork = await new WorkRepository(readContext).GetWorkByIdAsync(work.Id.Value, CancellationToken.None);
+        var persistedWork = await new WorkRepository(readContext).GetWorkByIdAsync(work.Id, CancellationToken.None);
         Assert.NotNull(persistedWork);
-        Assert.Equal(work.Title.Text, persistedWork!.Title.Text);
+        Assert.Equal(work.Title.Text, persistedWork.Title.Text);
         Assert.Equal(work.Synopsis, persistedWork.Synopsis);
         Assert.Equal(
             work.Authors.Select(a => a.NormalizedName).OrderBy(n => n),
@@ -61,7 +61,7 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         var persistedEdition = await new EditionRepository(readContext)
             .GetEditionByIsbnAsync(edition.Isbn13, edition.Isbn10, CancellationToken.None);
         Assert.NotNull(persistedEdition);
-        Assert.Equal(work.Id.Value, persistedEdition!.WorkId.Value);
+        Assert.Equal(work.Id.Value, persistedEdition.WorkId.Value);
         Assert.Equal(Isbn13, persistedEdition.Isbn13!.Value);
         Assert.Equal(Isbn10, persistedEdition.Isbn10!.Value);
         Assert.Equal(edition.Pages, persistedEdition.Pages);
@@ -81,31 +81,26 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         var editions = new EditionRepository(db);
         var publishers = new PublisherRepository(db);
         var authors = new AuthorRepository(db);
-        var workAuthors = new WorkAuthorsRepository(db);
         var genres = new GenreRepository(db);
-        var workGenres = new WorkGenresRepository(db);
         var deweyDecimals = new DeweyDecimalsRepository(db);
-        var workDeweyDecimals = new WorkDeweyDecimalsRepository(db);
 
         await using var transaction = await transactionManager.BeginTransactionAsync(ct);
 
         var publisher = await publishers.GetOrCreateAsync(edition.Publisher, ct);
         edition.SetPublisher(publisher);
 
-        await works.InsertWorkAsync(work, ct);
-        await editions.InsertEditionAsync(edition, ct);
-
         var authorIds = await authors.GetOrCreateAuthorsAsync(work.Authors, ct);
-        await workAuthors.InsertWorkAuthorsAsync(work.Id.Value, authorIds, ct);
 
         var genreIds = await genres.GetOrCreateGenresAsync(work.Genres.All, ct);
-        var primaryIds = work.Genres.Primary.Select(g => genreIds[g.Name]);
-        var secondaryIds = work.Genres.Secondary.Select(g => genreIds[g.Name]);
-        await workGenres.InsertWorkGenresAsync(work.Id.Value, primaryIds, isPrimary: true, ct);
-        await workGenres.InsertWorkGenresAsync(work.Id.Value, secondaryIds, isPrimary: false, ct);
+        var primaryGenreIds = work.Genres.Primary.Select(g => genreIds[g.Name]).ToList();
+        var secondaryGenreIds = work.Genres.Secondary.Select(g => genreIds[g.Name]).ToList();
 
-        var deweyIds = await deweyDecimals.GetOrCreateDeweyDecimalsAsync(work.DeweyDecimals, ct);
-        await workDeweyDecimals.InsertWorkDeweyDecimalsAsync(work.Id.Value, deweyIds, ct);
+        var deweyDecimalIds = await deweyDecimals.GetOrCreateDeweyDecimalsAsync(work.DeweyDecimals, ct);
+
+        var relations = new WorkRelations(authorIds, primaryGenreIds, secondaryGenreIds, deweyDecimalIds);
+
+        await works.InsertWorkAsync(work, relations, ct);
+        await editions.InsertEditionAsync(edition, ct);
 
         await transaction.CommitAsync(ct);
     }

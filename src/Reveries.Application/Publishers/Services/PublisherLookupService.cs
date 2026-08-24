@@ -1,5 +1,5 @@
 using Reveries.Application.Publishers.Interfaces;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Publishers;
 
 namespace Reveries.Application.Publishers.Services;

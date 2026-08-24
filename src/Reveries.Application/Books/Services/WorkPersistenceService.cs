@@ -3,7 +3,7 @@ using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Services;
@@ -17,11 +17,8 @@ public class WorkPersistenceService : IWorkPersistenceService
     private readonly IEditionRepository _editions;
     private readonly IPublisherRepository _publishers;
     private readonly IAuthorRepository _authors;
-    private readonly IWorkAuthorsRepository _workAuthors;
     private readonly IGenreRepository _genres;
-    private readonly IWorkGenresRepository _workGenres;
     private readonly IDeweyDecimalsRepository _deweyDecimals;
-    private readonly IWorkDeweyDecimalsRepository _workDeweyDecimals;
 
     public WorkPersistenceService(
         ITransactionManager transactionManager,
@@ -30,11 +27,8 @@ public class WorkPersistenceService : IWorkPersistenceService
         IEditionRepository editions,
         IPublisherRepository publishers,
         IAuthorRepository authors,
-        IWorkAuthorsRepository workAuthors,
         IGenreRepository genres,
-        IWorkGenresRepository workGenres,
-        IDeweyDecimalsRepository deweyDecimals,
-        IWorkDeweyDecimalsRepository workDeweyDecimals)
+        IDeweyDecimalsRepository deweyDecimals)
     {
         _transactionManager = transactionManager;
         _logger = logger;
@@ -42,11 +36,8 @@ public class WorkPersistenceService : IWorkPersistenceService
         _editions = editions;
         _publishers = publishers;
         _authors = authors;
-        _workAuthors = workAuthors;
         _genres = genres;
-        _workGenres = workGenres;
         _deweyDecimals = deweyDecimals;
-        _workDeweyDecimals = workDeweyDecimals;
     }
 
     public async Task<EditionId> SaveWorkWithEditionAsync(Work work, Edition edition, CancellationToken ct)
@@ -73,27 +64,28 @@ public class WorkPersistenceService : IWorkPersistenceService
 
     private async Task SaveAsync(Work work, Edition edition, CancellationToken ct)
     {
-        // Handle Publisher (lives on the edition)
+        // Publisher lives on the edition
         var publisher = await _publishers.GetOrCreateAsync(edition.Publisher, ct);
         edition.SetPublisher(publisher);
 
-        // Insert the work and its edition
-        await _works.InsertWorkAsync(work, ct);
+        // Resolve the referenced aggregates the work links to
+        var relations = await ResolveRelationsAsync(work, ct);
+
+        // The work owns its link rows; the repository persists them together
+        await _works.InsertWorkAsync(work, relations, ct);
         await _editions.InsertEditionAsync(edition, ct);
+    }
 
-        // Handle Authors and relations (live on the work)
+    private async Task<WorkRelations> ResolveRelationsAsync(Work work, CancellationToken ct)
+    {
         var authorIds = await _authors.GetOrCreateAuthorsAsync(work.Authors, ct);
-        await _workAuthors.InsertWorkAuthorsAsync(work.Id.Value, authorIds, ct);
 
-        // Handle Genres and relations
         var genreIds = await _genres.GetOrCreateGenresAsync(work.Genres.All, ct);
-        var primaryIds = work.Genres.Primary.Select(g => genreIds[g.Name]);
-        var secondaryIds = work.Genres.Secondary.Select(g => genreIds[g.Name]);
-        await _workGenres.InsertWorkGenresAsync(work.Id.Value, primaryIds, isPrimary: true, ct);
-        await _workGenres.InsertWorkGenresAsync(work.Id.Value, secondaryIds, isPrimary: false, ct);
+        var primaryGenreIds = work.Genres.Primary.Select(g => genreIds[g.Name]).ToList();
+        var secondaryGenreIds = work.Genres.Secondary.Select(g => genreIds[g.Name]).ToList();
 
-        // Handle Dewey Decimals and relations
         var deweyDecimalIds = await _deweyDecimals.GetOrCreateDeweyDecimalsAsync(work.DeweyDecimals, ct);
-        await _workDeweyDecimals.InsertWorkDeweyDecimalsAsync(work.Id.Value, deweyDecimalIds, ct);
+
+        return new WorkRelations(authorIds, primaryGenreIds, secondaryGenreIds, deweyDecimalIds);
     }
 }

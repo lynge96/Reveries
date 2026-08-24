@@ -1,6 +1,6 @@
 using Reveries.Application.Authors.Interfaces;
 using Reveries.Domain.Authors;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.Repositories;
 
 namespace Reveries.Application.Authors.Services;
 

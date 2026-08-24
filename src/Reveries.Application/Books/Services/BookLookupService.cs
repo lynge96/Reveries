@@ -3,7 +3,7 @@ using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Works;
 
@@ -149,11 +149,11 @@ public class BookLookupService : IBookLookupService
 
     public async Task<EditionWithWork?> FindBookById(Guid id, CancellationToken ct)
     {
-        var edition = await _editions.GetEditionByIdAsync(id, ct);
+        var edition = await _editions.GetEditionByIdAsync(new EditionId(id), ct);
         if (edition is null)
             return null;
 
-        var work = await _works.GetWorkByIdAsync(edition.WorkId.Value, ct);
+        var work = await _works.GetWorkByIdAsync(edition.WorkId, ct);
         if (work is null)
             return null;
 

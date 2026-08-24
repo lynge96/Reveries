@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using Reveries.Application.Common.Abstractions;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Repositories;
@@ -45,11 +45,6 @@ public static class PostgresServiceCollectionExtensions
         services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IDeweyDecimalsRepository, DeweyDecimalsRepository>();
         services.AddScoped<ISeriesRepository, SeriesRepository>();
-
-        // Bridge tabeller
-        services.AddScoped<IWorkDeweyDecimalsRepository, WorkDeweyDecimalsRepository>();
-        services.AddScoped<IWorkGenresRepository, WorkGenresRepository>();
-        services.AddScoped<IWorkAuthorsRepository, WorkAuthorsRepository>();
 
         // DbContext
         services.AddScoped<IDbContext, PostgresDbContext>();

@@ -2,7 +2,7 @@ using Reveries.Application.BookSeries.Interfaces;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Domain.BookSeries;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Works;
 
@@ -35,7 +35,7 @@ public class BookSeriesService : IBookSeriesService
         if (edition is null)
             throw new NotFoundException($"Edition with ISBN '{isbn}' was not found.");
 
-        var work = await _works.GetWorkByIdAsync(edition.WorkId.Value, ct);
+        var work = await _works.GetWorkByIdAsync(edition.WorkId, ct);
         if (work is null)
             throw new NotFoundException($"Work for ISBN '{isbn}' was not found.");
 
@@ -44,13 +44,13 @@ public class BookSeriesService : IBookSeriesService
         if (existingSeries != null)
         {
             work.SetSeries(existingSeries, numberInSeries);
-            await _works.UpdateWorkSeriesAsync(work, existingSeries.Id.Value, ct);
+            await _works.UpdateWorkSeriesAsync(work, existingSeries.Id, ct);
         }
         else
         {
             work.SetSeries(series, numberInSeries);
             var createdSeries = await _series.GetOrCreateAsync(series, ct: ct);
-            await _works.UpdateWorkSeriesAsync(work, createdSeries!.Id.Value, ct);
+            await _works.UpdateWorkSeriesAsync(work, createdSeries!.Id, ct);
         }
 
         await tx.CommitAsync(ct);

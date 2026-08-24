@@ -1,9 +1,9 @@
 using Reveries.Domain.Authors;
 
-namespace Reveries.Domain.Interfaces.IRepository;
+namespace Reveries.Domain.Interfaces.Repositories;
 
 public interface IAuthorRepository
 {
-    Task<List<Guid>> GetOrCreateAuthorsAsync(IReadOnlyList<Author> authors, CancellationToken ct = default);
+    Task<List<AuthorId>> GetOrCreateAuthorsAsync(IReadOnlyList<Author> authors, CancellationToken ct = default);
     Task<List<Author>> GetAuthorsByNameAsync(Author author, CancellationToken ct = default);
 }
