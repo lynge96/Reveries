@@ -1,3 +1,4 @@
+using Reveries.Domain.Exceptions;
 using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.BookSeries;
@@ -17,6 +18,9 @@ public class Series
 
     public static Series Create(string name)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new MissingSeriesNameException(name);
+
         var seriesId = SeriesId.New();
         name = name.ToTitleCase();
 

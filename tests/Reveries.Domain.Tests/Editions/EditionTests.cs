@@ -90,9 +90,10 @@ public class EditionTests
     }
 
     [Theory]
+    [InlineData(0)]
     [InlineData(-1)]
     [InlineData(-250)]
-    public void Create_WithNegativePages_Throws(int? pageCount)
+    public void Create_WithNonPositivePages_Throws(int? pageCount)
     {
         Assert.Throws<InvalidPageCountException>(() => CreateValidEdition(pages: pageCount));
     }

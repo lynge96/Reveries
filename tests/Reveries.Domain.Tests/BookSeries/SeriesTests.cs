@@ -1,4 +1,5 @@
 using Reveries.Domain.BookSeries;
+using Reveries.Domain.Exceptions;
 
 namespace Reveries.Domain.Tests.BookSeries;
 
@@ -11,6 +12,15 @@ public class SeriesTests
 
         Assert.NotNull(series);
         Assert.Equal("The Wheel Of Time", series.Name);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Create_WithNullOrWhitespaceName_Throws(string? name)
+    {
+        Assert.Throws<MissingSeriesNameException>(() => Series.Create(name!));
     }
 
     [Fact]

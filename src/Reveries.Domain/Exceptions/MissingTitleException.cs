@@ -2,6 +2,11 @@ namespace Reveries.Domain.Exceptions;
 
 public sealed class MissingTitleException : DomainException
 {
-    public MissingTitleException(string? workTitle)
-        : base($"Work title is missing, it cannot be empty: {workTitle}") { }
+    public string? ProvidedTitle { get; }
+
+    public MissingTitleException(string? providedTitle)
+        : base($"Work title is missing, it cannot be empty: {providedTitle}")
+    {
+        ProvidedTitle = providedTitle;
+    }
 }

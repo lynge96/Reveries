@@ -106,7 +106,7 @@ public class Edition
         {
             case null:
                 return;
-            case < 0:
+            case <= 0:
                 throw new InvalidPageCountException(pages);
             default:
                 Pages = pages;

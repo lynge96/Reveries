@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Reveries.Domain.Enums;
 
@@ -19,7 +20,7 @@ public sealed partial record DeweyDecimal
         DeweyClass.Arts => "Arts & recreation",
         DeweyClass.Literature => "Literature",
         DeweyClass.History => "History & geography",
-        _ => throw new ArgumentOutOfRangeException(nameof(MainCategory), MainCategory, null)
+        _ => throw new UnreachableException($"Unmapped Dewey class: {MainCategory}")
     };
 
     private DeweyDecimal(string code)

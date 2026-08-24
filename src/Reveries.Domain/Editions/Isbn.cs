@@ -20,14 +20,14 @@ public sealed partial record Isbn
     public static Isbn Create(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
-            throw new InvalidIsbnException("ISBN cannot be null or empty.");
+            throw InvalidIsbnException.Empty();
 
         var normalized = Normalize(raw);
 
         if (normalized.Length == 10)
         {
             if (!IsValidIsbn10(normalized))
-                throw new InvalidIsbnException("Invalid ISBN-10 checksum.");
+                throw InvalidIsbnException.InvalidChecksum(normalized);
 
             return new Isbn(normalized);
         }
@@ -35,12 +35,12 @@ public sealed partial record Isbn
         if (normalized.Length == 13)
         {
             if (!IsValidIsbn13(normalized))
-                throw new InvalidIsbnException("Invalid ISBN-13 checksum.");
+                throw InvalidIsbnException.InvalidChecksum(normalized);
 
             return new Isbn(normalized);
         }
 
-        throw new InvalidIsbnException("ISBN must be either 10 or 13 characters long.");
+        throw InvalidIsbnException.InvalidLength(normalized);
     }
 
     private static string Normalize(string raw)
