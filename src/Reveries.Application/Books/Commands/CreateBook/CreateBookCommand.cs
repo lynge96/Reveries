@@ -6,8 +6,7 @@ namespace Reveries.Application.Books.Commands.CreateBook;
 
 public sealed record CreateBookCommand : IQuery<EditionId>
 {
-    public Isbn? Isbn10 { get; init; }
-    public Isbn? Isbn13 { get; init; }
+    public Isbn? Isbn { get; init; }
     public required string Title { get; init; }
     public string? Series { get; init; }
     public int? NumberInSeries { get; init; }

@@ -29,7 +29,7 @@ public sealed class SetBookSeriesHandler : IQueryHandler<SetBookSeriesCommand, W
             "Setting series '{SeriesName}' #{NumberInSeries}, for book with ISBN '{Isbn}'",
             series.Name,
             command.NumberInSeries,
-            command.Isbn?.Value);
+            command.Isbn?.Value13);
 
         return workId;
     }

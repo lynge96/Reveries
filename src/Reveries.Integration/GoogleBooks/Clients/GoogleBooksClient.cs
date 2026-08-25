@@ -21,7 +21,7 @@ public class GoogleBooksClient : ExternalBaseClient<GoogleBooksClient>, IGoogleB
 
     public async Task<GoogleBookResponseDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
-        var url = $"volumes?q=isbn:{isbn.Value}&key={_settings.ApiKey}";
+        var url = $"volumes?q=isbn:{isbn.Value13}&key={_settings.ApiKey}";
         var response = await HttpClient.GetAsync(url, ct);
         var context = $"ISBN '{isbn}'";
 

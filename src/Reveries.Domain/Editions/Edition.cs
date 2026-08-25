@@ -9,9 +9,8 @@ public class Edition
 {
     public EditionId Id { get; private init; }
     public WorkId WorkId { get; private init; }
-    public Isbn? Isbn13 { get; private init; }
-    public Isbn? Isbn10 { get; private init; }
-    public int? Pages { get; private set; }
+    public Isbn? Isbn { get; private init; }
+    public int? Pages { get; private init; }
     public Publisher? Publisher { get; private set; }
     public string? Language { get; private init; }
     public string? PublicationDate { get; private init; }
@@ -35,8 +34,8 @@ public class Edition
         {
             Id = EditionId.New(),
             WorkId = data.WorkId,
-            Isbn13 = data.Isbn13 != null ? Isbn.Create(data.Isbn13) : null,
-            Isbn10 = data.Isbn10 != null ? Isbn.Create(data.Isbn10) : null,
+            Isbn = data.Isbn13 != null ? Isbn.Create(data.Isbn13) : Isbn.Create(data.Isbn10!),
+            Pages = data.Pages > 0 ? data.Pages : null,
             Publisher = Publisher.TryCreate(data.Publisher),
             Language = data.LanguageIso639.GetLanguageName(),
             PublicationDate = data.PublishDate,
@@ -50,8 +49,6 @@ public class Edition
             DataSource = data.DataSource
         };
 
-        edition.SetPages(data.Pages);
-
         return edition;
     }
 
@@ -61,8 +58,7 @@ public class Edition
         {
             Id = new EditionId(data.Id),
             WorkId = new WorkId(data.WorkId),
-            Isbn13 = data.Isbn13 != null ? new Isbn(data.Isbn13) : null,
-            Isbn10 = data.Isbn10 != null ? new Isbn(data.Isbn10) : null,
+            Isbn = BuildReconstitutedIsbn(data.Isbn13, data.Isbn10),
             Pages = data.Pages,
             PublicationDate = data.PublicationDate,
             Language = data.Language,
@@ -86,17 +82,11 @@ public class Edition
         DataSource = newDataSource;
     }
 
-    private void SetPages(int? pages)
+    private static Isbn? BuildReconstitutedIsbn(string? value13, string? value10)
     {
-        switch (pages)
-        {
-            case null:
-                return;
-            case <= 0:
-                throw new InvalidPageCountException(pages);
-            default:
-                Pages = pages;
-                break;
-        }
+        if (value13 != null)
+            return Isbn.Reconstitute(value13, value10);
+
+        return value10 != null ? Isbn.Create(value10) : null;
     }
 }

@@ -24,8 +24,8 @@ public static class BookMapper
 
         var edition = Edition.Create(new EditionData(
             WorkId: work.Id,
-            Isbn13: cmd.Isbn13?.Value,
-            Isbn10: cmd.Isbn10?.Value,
+            Isbn13: cmd.Isbn?.Value13,
+            Isbn10: cmd.Isbn?.Value10,
             Publisher: cmd.Publisher,
             Pages: cmd.Pages,
             PublishDate: cmd.PublicationDate,

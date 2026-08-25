@@ -11,8 +11,9 @@ public static class CreateBookRequestMapper
     {
         return new CreateBookCommand
         {
-            Isbn10 = request.Isbn10 != null ? Isbn.Create(request.Isbn10) : null,
-            Isbn13 = request.Isbn13 != null ? Isbn.Create(request.Isbn13) : null,
+            Isbn = request.Isbn13 != null ? Isbn.Create(request.Isbn13)
+                 : request.Isbn10 != null ? Isbn.Create(request.Isbn10)
+                 : null,
             Title = request.Title,
 
             Series = request.Series,

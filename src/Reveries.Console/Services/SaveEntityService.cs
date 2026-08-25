@@ -46,7 +46,7 @@ public class SaveEntityService
                                         ✅ Successfully saved to database:
                                            Title: {work.Title}
                                            ID: {editionId}
-                                           ISBN: {edition.Isbn13?.Value ?? edition.Isbn10?.Value ?? "N/A"}
+                                           ISBN: {edition.Isbn?.Value13 ?? "N/A"}
                                         """.AsPrimary());
             }
             catch (BookAlreadyExistsException ex)

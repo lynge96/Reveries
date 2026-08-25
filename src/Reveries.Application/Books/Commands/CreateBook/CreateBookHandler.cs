@@ -26,7 +26,7 @@ public sealed class CreateBookHandler : IQueryHandler<CreateBookCommand, Edition
         _logger.LogDebug(
             "Creating work '{Title}' with edition ISBN {Isbn}",
             work.Title,
-            edition.Isbn13?.Value ?? edition.Isbn10?.Value);
+            edition.Isbn?.Value13);
 
         var editionId = await _workPersistenceService.SaveWorkWithEditionAsync(work, edition, ct);
 

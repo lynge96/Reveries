@@ -59,11 +59,11 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
             persistedWork.DeweyDecimals.Select(d => d.Code).OrderBy(c => c));
 
         var persistedEdition = await new EditionRepository(readContext)
-            .GetEditionByIsbnAsync(edition.Isbn13, edition.Isbn10, CancellationToken.None);
+            .GetEditionByIsbnAsync(edition.Isbn!, CancellationToken.None);
         Assert.NotNull(persistedEdition);
         Assert.Equal(work.Id.Value, persistedEdition.WorkId.Value);
-        Assert.Equal(Isbn13, persistedEdition.Isbn13!.Value);
-        Assert.Equal(Isbn10, persistedEdition.Isbn10!.Value);
+        Assert.Equal(Isbn13, persistedEdition.Isbn!.Value13);
+        Assert.Equal(Isbn10, persistedEdition.Isbn!.Value10);
         Assert.Equal(edition.Pages, persistedEdition.Pages);
         Assert.Equal(edition.Publisher!.Name, persistedEdition.Publisher!.Name);
         Assert.Equal(DataSource.Database, persistedEdition.DataSource);

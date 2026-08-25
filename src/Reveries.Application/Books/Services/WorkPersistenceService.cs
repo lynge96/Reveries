@@ -55,7 +55,7 @@ public class WorkPersistenceService : IWorkPersistenceService
 
     private async Task ValidateEditionNotExistsAsync(Edition edition, CancellationToken ct)
     {
-        var isbn = edition.Isbn13 ?? edition.Isbn10;
+        var isbn = edition.Isbn;
         if (isbn == null) return;
 
         if (await _editions.EditionExistsAsync(isbn, ct))

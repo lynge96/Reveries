@@ -14,8 +14,8 @@ public static class EditionMappingExtensions
         {
             Id = edition.Id.Value,
             WorkId = edition.WorkId.Value,
-            Isbn13 = edition.Isbn13?.ToString(),
-            Isbn10 = edition.Isbn10?.ToString(),
+            Isbn13 = edition.Isbn?.Value13,
+            Isbn10 = edition.Isbn?.Value10,
             PageCount = edition.Pages,
             PublicationDate = edition.PublicationDate,
             Language = edition.Language,

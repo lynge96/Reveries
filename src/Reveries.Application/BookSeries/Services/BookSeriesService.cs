@@ -31,7 +31,10 @@ public class BookSeriesService : IBookSeriesService
     {
         await using var tx = await _transactionManager.BeginTransactionAsync(ct);
 
-        var edition = await _editions.GetEditionByIsbnAsync(isbn, ct: ct);
+        if (isbn is null)
+            throw new NotFoundException("Edition cannot be looked up without an ISBN.");
+
+        var edition = await _editions.GetEditionByIsbnAsync(isbn, ct);
         if (edition is null)
             throw new NotFoundException($"Edition with ISBN '{isbn}' was not found.");
 

@@ -56,19 +56,19 @@ public class BookLookupService : IBookLookupService
         {
             _logger.LogWarning(
                 "All external sources failed for ISBNs: {Isbns}",
-                string.Join(", ", isbns.Select(i => i.Value)));
+                string.Join(", ", isbns.Select(i => i.Value13)));
             return new BookLookupResult<Isbn>([], isbns.ToList());
         }
 
         var found = _bookMergerService.AggregateBooksByIsbnsAsync(isbns, isbndbBooks, googleBooks);
 
         var foundIsbnKeys = found
-            .Select(b => b.Edition.Isbn13?.Value ?? b.Edition.Isbn10?.Value)
+            .Select(b => b.Edition.Isbn?.Value13 ?? b.Edition.Isbn?.Value10)
             .Where(k => k is not null)
             .ToHashSet();
 
         var missingIsbns = isbns
-            .Where(isbn => !foundIsbnKeys.Contains(isbn.Value))
+            .Where(isbn => !foundIsbnKeys.Contains(isbn.Value13))
             .ToList();
 
         _logger.LogInformation(

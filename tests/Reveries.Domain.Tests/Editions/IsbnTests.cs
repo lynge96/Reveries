@@ -6,16 +6,26 @@ namespace Reveries.Domain.Tests.Editions;
 public class IsbnTests
 {
     [Theory]
-    [InlineData("9780306406157", "9780306406157")]
-    [InlineData("978-0-306-40615-7", "9780306406157")]
-    [InlineData("0-306-40615-2", "0306406152")]
-    [InlineData("059309932X", "059309932X")]
-    public void Create_WithValidIsbn_ReturnsNormalizedIsbn(string input, string expected)
+    [InlineData("9780306406157", "9780306406157", "0306406152")]
+    [InlineData("978-0-306-40615-7", "9780306406157", "0306406152")]
+    [InlineData("0-306-40615-2", "9780306406157", "0306406152")]
+    [InlineData("059309932X", "9780593099322", "059309932X")]
+    public void Create_WithValidIsbn_NormalizesAndDerivesBothForms(string input, string expectedIsbn13, string expectedIsbn10)
     {
         var isbn = Isbn.Create(input);
 
-        Assert.Equal(expected, isbn.Value);
-        Assert.Equal(expected, isbn.ToString());
+        Assert.Equal(expectedIsbn13, isbn.Value13);
+        Assert.Equal(expectedIsbn10, isbn.Value10);
+        Assert.Equal(expectedIsbn13, isbn.ToString());
+    }
+
+    [Fact]
+    public void Create_With979Isbn13_HasNoIsbn10()
+    {
+        var isbn = Isbn.Create("9790123456785");
+
+        Assert.Equal("9790123456785", isbn.Value13);
+        Assert.Null(isbn.Value10);
     }
 
     [Theory]

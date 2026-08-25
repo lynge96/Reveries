@@ -6,16 +6,18 @@ namespace Reveries.Domain.Editions;
 public sealed partial record Isbn
 {
     [GeneratedRegex(@"[\s-]")]
-    private static partial Regex MatchHyphens();
+    private static partial Regex MatchSeparators();
 
-    public string Value { get; }
+    public string Value13 { get; }
+    public string? Value10 { get; }
 
-    internal Isbn(string value)
+    private Isbn(string value13, string? value10)
     {
-        Value = value;
+        Value13 = value13;
+        Value10 = value10;
     }
 
-    public override string ToString() => Value;
+    public override string ToString() => Value13;
 
     public static Isbn Create(string raw)
     {
@@ -24,28 +26,65 @@ public sealed partial record Isbn
 
         var normalized = Normalize(raw);
 
-        if (normalized.Length == 10)
+        return normalized.Length switch
         {
-            if (!IsValidIsbn10(normalized))
-                throw InvalidIsbnException.InvalidChecksum(normalized);
-
-            return new Isbn(normalized);
-        }
-
-        if (normalized.Length == 13)
-        {
-            if (!IsValidIsbn13(normalized))
-                throw InvalidIsbnException.InvalidChecksum(normalized);
-
-            return new Isbn(normalized);
-        }
-
-        throw InvalidIsbnException.InvalidLength(normalized);
+            10 when IsValidIsbn10(normalized) => new Isbn(ToIsbn13(normalized), normalized),
+            13 when IsValidIsbn13(normalized) => new Isbn(normalized, ToIsbn10(normalized)),
+            10 or 13 => throw InvalidIsbnException.InvalidChecksum(normalized),
+            _ => throw InvalidIsbnException.InvalidLength(normalized)
+        };
     }
+
+    internal static Isbn Reconstitute(string value13, string? value10) => new(value13, value10);
 
     private static string Normalize(string raw)
     {
-        return MatchHyphens().Replace(raw, "").ToUpperInvariant();
+        return MatchSeparators().Replace(raw, "").ToUpperInvariant();
+    }
+
+    /// <summary>
+    /// Converts a valid ISBN-10 to its ISBN-13 form by prefixing 978 and recomputing the check digit.
+    /// </summary>
+    private static string ToIsbn13(string isbn10)
+    {
+        var body = "978" + isbn10[..9];
+        return body + ComputeIsbn13CheckDigit(body);
+    }
+
+    /// <summary>
+    /// Converts an ISBN-13 to its ISBN-10 form, or returns null for 979-prefixed ISBNs, which have no ISBN-10.
+    /// </summary>
+    private static string? ToIsbn10(string isbn13)
+    {
+        if (!isbn13.StartsWith("978", StringComparison.Ordinal))
+            return null;
+
+        var body = isbn13.Substring(3, 9);
+        return body + ComputeIsbn10CheckDigit(body);
+    }
+
+    private static char ComputeIsbn13CheckDigit(string body12)
+    {
+        int sum = 0;
+
+        for (int i = 0; i < 12; i++)
+            sum += (body12[i] - '0') * (i % 2 == 0 ? 1 : 3);
+
+        int check = (10 - (sum % 10)) % 10;
+
+        return (char)('0' + check);
+    }
+
+    private static char ComputeIsbn10CheckDigit(string body9)
+    {
+        int sum = 0;
+
+        for (int i = 0; i < 9; i++)
+            sum += (body9[i] - '0') * (10 - i);
+
+        int check = (11 - (sum % 11)) % 11;
+
+        return check == 10 ? 'X' : (char)('0' + check);
     }
 
     /// <summary>
@@ -92,16 +131,11 @@ public sealed partial record Isbn
     /// <param name="isbn">A normalized ISBN-13 string (13 digits, no spaces/hyphens)</param>
     /// <returns>True if the ISBN-13 is valid, false otherwise</returns>
     /// <remarks>
-    /// <para>
-    /// </para>
     /// The ISBN-13 check digit calculation:
     /// 1. Multiply each digit alternately by 1 or 3 (position 1=1, 2=3, 3=1, etc.)
     /// 2. Sum the products
     /// 3. Calculate check digit: (10 - (sum mod 10)) mod 10
     /// 4. Compare calculated check digit with last digit of ISBN
-    /// Example: 978-0-7475-3269-9
-    /// (1×9 + 3×7 + 1×8 + 3×0 + 1×7 + 3×4 + 1×7 + 3×5 + 1×3 + 3×2 + 1×6 + 3×9) = 128
-    /// Check digits = (10 - (128 mod 10)) mod 10 = 9
     /// </remarks>
     private static bool IsValidIsbn13(string isbn)
     {
@@ -120,5 +154,4 @@ public sealed partial record Isbn
 
         return char.IsDigit(isbn[12]) && (isbn[12] - '0') == checksum;
     }
-
 }

@@ -29,8 +29,8 @@ public class BookMergerService : IBookMergerService
         var merged = isbns
             .Select(isbn =>
             {
-                isbndbDict.TryGetValue(isbn.Value, out var isbndbBook);
-                googleDict.TryGetValue(isbn.Value, out var googleBook);
+                isbndbDict.TryGetValue(isbn.Value13, out var isbndbBook);
+                googleDict.TryGetValue(isbn.Value13, out var googleBook);
 
                 return EditionWithWorkMerger.Merge(isbndbBook, googleBook);
             })
@@ -53,8 +53,8 @@ public class BookMergerService : IBookMergerService
 
         var merged = mergedByIsbn.Values
             .Where(x =>
-                !string.IsNullOrWhiteSpace(x.Edition.Isbn13?.Value) ||
-                !string.IsNullOrWhiteSpace(x.Edition.Isbn10?.Value))
+                !string.IsNullOrWhiteSpace(x.Edition.Isbn?.Value13) ||
+                !string.IsNullOrWhiteSpace(x.Edition.Isbn?.Value10))
             .ToList();
 
         _logger.LogDebug("Aggregated {MergedCount} books from {TitleCount} titles.", merged.Count, titles.Count);
@@ -66,8 +66,8 @@ public class BookMergerService : IBookMergerService
         return items
             .SelectMany(x => new[]
             {
-                (isbn: x.Edition.Isbn10?.Value, item: x),
-                (isbn: x.Edition.Isbn13?.Value, item: x)
+                (isbn: x.Edition.Isbn?.Value10, item: x),
+                (isbn: x.Edition.Isbn?.Value13, item: x)
             })
             .Where(t => t.isbn is not null)
             .GroupBy(t => t.isbn!)

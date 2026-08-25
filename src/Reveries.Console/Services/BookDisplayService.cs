@@ -63,7 +63,7 @@ public class BookDisplayService
 
             table.AddRow(
                 (i + 1).ToString().AsInfo(),
-                edition.Isbn13?.ToString() ?? edition.Isbn10?.ToString() ?? "",
+                edition.Isbn?.Value13 ?? "",
                 Markup.Escape(work.Title.Text).Bold().AsSecondary(),
                 Markup.Escape(GetAuthorNames(book)),
                 edition.Pages?.ToString() ?? "",
@@ -99,8 +99,8 @@ public class BookDisplayService
         {
             { "Author", string.Join(", ", work.Authors.Select(author => author.Name)) },
             { "Pages", edition.Pages?.ToString() ?? "Unknown" },
-            { "ISBN-10", edition.Isbn10?.ToString() ?? "N/A"},
-            { "ISBN-13", edition.Isbn13?.ToString() ?? "N/A" },
+            { "ISBN-10", edition.Isbn?.Value10 ?? "N/A"},
+            { "ISBN-13", edition.Isbn?.Value13 ?? "N/A" },
             { "Publisher", edition.Publisher?.Name ?? "Unknown" },
             { "Language", edition.Language ?? "Unknown language" },
             { "Published", edition.PublicationDate ?? "Unknown date" },

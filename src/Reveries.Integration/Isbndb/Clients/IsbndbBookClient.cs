@@ -19,7 +19,7 @@ public class IsbndbBookClient : ExternalBaseClient<IsbndbBookClient>, IIsbndbBoo
 
     public async Task<IsbndbBookDetailsDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
-        var response = await HttpClient.GetAsync($"book/{isbn.Value}", ct);
+        var response = await HttpClient.GetAsync($"book/{isbn.Value13}", ct);
         var context = $"ISBN '{isbn}'";
 
         return await HandleResponseAsync<IsbndbBookDetailsDto>(

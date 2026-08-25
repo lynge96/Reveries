@@ -45,14 +45,13 @@ public class EditionRepository : IEditionRepository
         await connection.ExecuteAsync(command);
     }
 
-    public async Task<Edition?> GetEditionByIsbnAsync(Isbn? isbn13, Isbn? isbn10, CancellationToken ct)
+    public async Task<Edition?> GetEditionByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         const string sql = """
                            SELECT *
                            FROM library.editions_view
-                           WHERE isbn13 = @Isbn13
-                              OR isbn10 = @Isbn13
-                              OR (@Isbn10 IS NOT NULL AND (isbn13 = @Isbn10 OR isbn10 = @Isbn10))
+                           WHERE isbn13 = @Value13
+                              OR (@Value10 IS NOT NULL AND isbn10 = @Value10)
                            LIMIT 1
                            """;
 
@@ -60,7 +59,7 @@ public class EditionRepository : IEditionRepository
 
         var command = _dbContext.CreateCommand(
             sql,
-            new { Isbn13 = isbn13?.Value, Isbn10 = isbn10?.Value },
+            new { isbn.Value13, isbn.Value10 },
             ct);
 
         var row = await connection.QueryFirstOrDefaultAsync<EditionsView>(command);
@@ -70,10 +69,16 @@ public class EditionRepository : IEditionRepository
 
     public async Task<bool> EditionExistsAsync(Isbn isbn, CancellationToken ct)
     {
-        const string sql = "SELECT EXISTS (SELECT 1 FROM library.editions WHERE isbn13 = @Isbn OR isbn10 = @Isbn)";
+        const string sql = """
+                           SELECT EXISTS (
+                               SELECT 1 FROM library.editions
+                               WHERE isbn13 = @Value13
+                                  OR (@Value10 IS NOT NULL AND isbn10 = @Value10)
+                           )
+                           """;
         var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var command = _dbContext.CreateCommand(sql, new { Isbn = isbn.Value }, ct);
+        var command = _dbContext.CreateCommand(sql, new { isbn.Value13, isbn.Value10 }, ct);
 
         return await connection.QuerySingleAsync<bool>(command);
     }
@@ -134,7 +139,10 @@ public class EditionRepository : IEditionRepository
                               OR isbn10 = ANY(@Isbns)
                            """;
 
-        var isbnList = isbns.Select(i => i.Value).ToList();
+        var isbnList = isbns
+            .SelectMany(i => new[] { i.Value13, i.Value10 })
+            .Where(v => v != null)
+            .ToList();
 
         var connection = await _dbContext.GetConnectionAsync(ct);
         var command = _dbContext.CreateCommand(sql, new { Isbns = isbnList }, ct);

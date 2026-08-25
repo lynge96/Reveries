@@ -38,8 +38,8 @@ public class EditionTests
     {
         var edition = CreateValidEdition();
 
-        Assert.Equal("9781402894626", edition.Isbn13?.Value);
-        Assert.Equal("1402894627", edition.Isbn10?.Value);
+        Assert.Equal("9781402894626", edition.Isbn?.Value13);
+        Assert.Equal("1402894627", edition.Isbn?.Value10);
     }
 
     [Fact]
@@ -47,8 +47,8 @@ public class EditionTests
     {
         var edition = CreateValidEdition(isbn10: null);
 
-        Assert.NotNull(edition.Isbn13);
-        Assert.Null(edition.Isbn10);
+        Assert.NotNull(edition.Isbn);
+        Assert.Equal("9781402894626", edition.Isbn?.Value13);
     }
 
     [Fact]
@@ -56,8 +56,8 @@ public class EditionTests
     {
         var edition = CreateValidEdition(isbn13: null);
 
-        Assert.Null(edition.Isbn13);
-        Assert.NotNull(edition.Isbn10);
+        Assert.NotNull(edition.Isbn);
+        Assert.Equal("1402894627", edition.Isbn?.Value10);
     }
 
     [Fact]
@@ -89,9 +89,11 @@ public class EditionTests
     [InlineData(0)]
     [InlineData(-1)]
     [InlineData(-250)]
-    public void Create_WithNonPositivePages_Throws(int? pageCount)
+    public void Create_WithNonPositivePages_LeavesPagesNull(int? pageCount)
     {
-        Assert.Throws<InvalidPageCountException>(() => CreateValidEdition(pages: pageCount));
+        var edition = CreateValidEdition(pages: pageCount);
+
+        Assert.Null(edition.Pages);
     }
 
     [Fact]
@@ -166,7 +168,7 @@ public class EditionTests
 
         Assert.Equal(id, edition.Id.Value);
         Assert.Equal(workId, edition.WorkId.Value);
-        Assert.Equal("9781402894626", edition.Isbn13?.Value);
+        Assert.Equal("9781402894626", edition.Isbn?.Value13);
         Assert.Equal(412, edition.Pages);
         Assert.Equal("English", edition.Language);
         Assert.Equal("Chilton Books", edition.Publisher?.Name);

@@ -124,8 +124,8 @@ public class GoogleBookService : IGoogleBookSearch
         var edition = Edition.Reconstitute(new EditionReconstitutionData(
             Id: pe.Id.Value,
             WorkId: work.Id.Value,
-            Isbn13: pe.Isbn13?.Value ?? ve.Isbn13?.Value,
-            Isbn10: pe.Isbn10?.Value ?? ve.Isbn10?.Value,
+            Isbn13: pe.Isbn?.Value13 ?? ve.Isbn?.Value13,
+            Isbn10: pe.Isbn?.Value10 ?? ve.Isbn?.Value10,
             Pages: pe.Pages > 0 ? pe.Pages : ve.Pages,
             PublicationDate: pe.PublicationDate ?? ve.PublicationDate,
             Language: pe.Language ?? ve.Language,

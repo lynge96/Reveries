@@ -80,7 +80,7 @@ public class DatabaseTableHandler : BaseHandler
             if (int.TryParse(numberInSeries, out var num))
                 book.Work.SetSeries(series, num);
 
-            var bookSeriesCommand = new SetBookSeriesCommand(book.Edition.Isbn13?.Value ?? book.Edition.Isbn10!.Value, series.Name, num);
+            var bookSeriesCommand = new SetBookSeriesCommand(book.Edition.Isbn!.Value13, series.Name, num);
             await _setBookSeriesCommandHandler.Handle(bookSeriesCommand, ct);
         }
 

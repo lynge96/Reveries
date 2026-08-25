@@ -39,8 +39,8 @@ public static class EditionWithWorkMerger
         var edition = Edition.Reconstitute(new EditionReconstitutionData(
             Id: ie.Id.Value,
             WorkId: work.Id.Value,
-            Isbn13: ie.Isbn13?.Value ?? ge.Isbn13?.Value,
-            Isbn10: ie.Isbn10?.Value ?? ge.Isbn10?.Value,
+            Isbn13: ie.Isbn?.Value13 ?? ge.Isbn?.Value13,
+            Isbn10: ie.Isbn?.Value10 ?? ge.Isbn?.Value10,
             Pages: ie.Pages > 0 ? ie.Pages : ge.Pages,
             PublicationDate: ge.PublicationDate ?? ie.PublicationDate,
             Language: Prefer(ie.Language, ge.Language),
@@ -59,10 +59,10 @@ public static class EditionWithWorkMerger
 
     public static string? GetIsbnKey(EditionWithWork item)
     {
-        if (!string.IsNullOrWhiteSpace(item.Edition.Isbn13?.Value))
-            return item.Edition.Isbn13!.Value;
-        if (!string.IsNullOrWhiteSpace(item.Edition.Isbn10?.Value))
-            return item.Edition.Isbn10!.Value;
+        if (!string.IsNullOrWhiteSpace(item.Edition.Isbn?.Value13))
+            return item.Edition.Isbn.Value13;
+        if (!string.IsNullOrWhiteSpace(item.Edition.Isbn?.Value10))
+            return item.Edition.Isbn.Value10;
         return null;
     }
 
