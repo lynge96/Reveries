@@ -28,24 +28,28 @@ public static class IsbndbBookDtoMapperExtensions
             deweyDecimals: isbndbBookDto.DeweyDecimals,
             synopsis: isbndbBookDto.Synopsis);
 
-        var edition = Edition.Create(
-            workId: work.Id,
-            isbn13: isbndbBookDto.Isbn13,
-            isbn10: isbndbBookDto.Isbn10,
-            publisher: isbndbBookDto.Publisher,
-            pages: isbndbBookDto.Pages,
-            publishDate: isbndbBookDto.DatePublished,
-            languageIso639: isbndbBookDto.Language,
-            binding: isbndbBookDto.Binding,
-            editionStatement: isbndbBookDto.Edition,
-            imageThumbnail: isbndbBookDto.Image,
-            imageUrl: isbndbBookDto.ImageOriginal,
-            msrp: isbndbBookDto.Msrp,
-            height: normalizedHeight,
-            width: normalizedWidth,
-            thickness: normalizedThickness,
-            weight: isbndbBookDto.DimensionsStructured?.Weight.ConvertDimension(),
-            dataSource: DataSource.IsbndbApi);
+        var dimensions = BookDimensions.Create(
+            normalizedHeight,
+            normalizedWidth,
+            normalizedThickness,
+            isbndbBookDto.DimensionsStructured?.Weight.ConvertDimension());
+
+        var edition = Edition.Create(new EditionData(
+            WorkId: work.Id,
+            Isbn13: isbndbBookDto.Isbn13,
+            Isbn10: isbndbBookDto.Isbn10,
+            Publisher: isbndbBookDto.Publisher,
+            Pages: isbndbBookDto.Pages,
+            PublishDate: isbndbBookDto.DatePublished,
+            LanguageIso639: isbndbBookDto.Language,
+            Binding: isbndbBookDto.Binding,
+            EditionStatement: isbndbBookDto.Edition,
+            ImageThumbnail: isbndbBookDto.Image,
+            ImageUrl: isbndbBookDto.ImageOriginal,
+            SaxoUrl: null,
+            Msrp: isbndbBookDto.Msrp,
+            Dimensions: dimensions,
+            DataSource: DataSource.IsbndbApi));
 
         return new EditionWithWork(edition, work);
     }

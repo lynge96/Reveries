@@ -19,53 +19,38 @@ public class Edition
     public BookFormat Binding { get; private init; }
     public string? ImageThumbnailUrl { get; private init; }
     public string? CoverImageUrl { get; private init; }
+    public SaxoUrl? SaxoUrl { get; private init; }
     public decimal? Msrp { get; private init; }
     public BookDimensions? Dimensions { get; private init; }
     public DataSource DataSource { get; private set; }
 
     private Edition() { }
 
-    public static Edition Create(
-        WorkId workId,
-        string? isbn13,
-        string? isbn10,
-        string? publisher,
-        int? pages,
-        string? publishDate,
-        string? languageIso639,
-        string? binding,
-        string? editionStatement,
-        string? imageThumbnail,
-        string? imageUrl,
-        decimal? msrp,
-        decimal? height,
-        decimal? width,
-        decimal? thickness,
-        decimal? weight,
-        DataSource dataSource)
+    public static Edition Create(EditionData data)
     {
-        if (isbn13 == null && isbn10 == null)
+        if (data.Isbn13 == null && data.Isbn10 == null)
             throw new MissingIsbnException();
 
         var edition = new Edition
         {
             Id = EditionId.New(),
-            WorkId = workId,
-            Isbn13 = isbn13 != null ? Isbn.Create(isbn13) : null,
-            Isbn10 = isbn10 != null ? Isbn.Create(isbn10) : null,
-            Publisher = Publisher.TryCreate(publisher),
-            Language = languageIso639.GetLanguageName(),
-            PublicationDate = publishDate,
-            EditionStatement = editionStatement,
-            Binding = binding.GetStandardBinding(),
-            ImageThumbnailUrl = imageThumbnail,
-            CoverImageUrl = imageUrl,
-            Msrp = msrp,
-            Dimensions = BookDimensions.Create(height, width, thickness, weight),
-            DataSource = dataSource
+            WorkId = data.WorkId,
+            Isbn13 = data.Isbn13 != null ? Isbn.Create(data.Isbn13) : null,
+            Isbn10 = data.Isbn10 != null ? Isbn.Create(data.Isbn10) : null,
+            Publisher = Publisher.TryCreate(data.Publisher),
+            Language = data.LanguageIso639.GetLanguageName(),
+            PublicationDate = data.PublishDate,
+            EditionStatement = data.EditionStatement,
+            Binding = data.Binding.GetStandardBinding(),
+            ImageThumbnailUrl = data.ImageThumbnail,
+            CoverImageUrl = data.ImageUrl,
+            SaxoUrl = SaxoUrl.TryCreate(data.SaxoUrl),
+            Msrp = data.Msrp,
+            Dimensions = data.Dimensions,
+            DataSource = data.DataSource
         };
 
-        edition.SetPages(pages);
+        edition.SetPages(data.Pages);
 
         return edition;
     }
@@ -85,6 +70,7 @@ public class Edition
             Binding = data.Binding,
             ImageThumbnailUrl = data.ImageThumbnailUrl,
             CoverImageUrl = data.CoverImageUrl,
+            SaxoUrl = data.SaxoUrl != null ? new SaxoUrl(data.SaxoUrl) : null,
             Msrp = data.Msrp,
             Dimensions = data.Dimensions,
             Publisher = data.Publisher,

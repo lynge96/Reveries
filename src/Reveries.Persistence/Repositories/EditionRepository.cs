@@ -24,14 +24,14 @@ public class EditionRepository : IEditionRepository
                            INSERT INTO library.editions (
                                id, work_id, isbn13, isbn10, page_count, language,
                                publication_date, edition_statement, binding,
-                               image_url, image_thumbnail, msrp,
+                               image_url, image_thumbnail, saxo_url, msrp,
                                height_cm, width_cm, thickness_cm, weight_g,
                                data_source, publisher_id
                            )
                            VALUES (
                                @Id, @WorkId, @Isbn13, @Isbn10, @PageCount, @Language,
                                @PublicationDate, @EditionStatement, @Binding,
-                               @ImageUrl, @ImageThumbnail, @Msrp,
+                               @ImageUrl, @ImageThumbnail, @SaxoUrl, @Msrp,
                                @HeightCm, @WidthCm, @ThicknessCm, @WeightG,
                                @DataSource, @PublisherId
                            )

@@ -20,25 +20,24 @@ public static class BookMapper
 
         var dataSourceParsed = Enum.TryParse<DataSource>(cmd.DataSource, true, out var ds);
 
-        var edition = Edition.Create(
-            workId: work.Id,
-            isbn13: cmd.Isbn13?.Value,
-            isbn10: cmd.Isbn10?.Value,
-            publisher: cmd.Publisher,
-            pages: cmd.Pages,
-            publishDate: cmd.PublicationDate,
-            languageIso639: cmd.Language,
-            binding: cmd.Binding,
-            editionStatement: cmd.Edition,
-            imageThumbnail: cmd.ImageThumbnail,
-            imageUrl: cmd.ImageUrl,
-            msrp: cmd.Msrp,
-            height: cmd.HeightCm,
-            width: cmd.WidthCm,
-            thickness: cmd.ThicknessCm,
-            weight: cmd.WeightG,
-            dataSource: dataSourceParsed ? ds : DataSource.Unknown
-        );
+        var dimensions = BookDimensions.Create(cmd.HeightCm, cmd.WidthCm, cmd.ThicknessCm, cmd.WeightG);
+
+        var edition = Edition.Create(new EditionData(
+            WorkId: work.Id,
+            Isbn13: cmd.Isbn13?.Value,
+            Isbn10: cmd.Isbn10?.Value,
+            Publisher: cmd.Publisher,
+            Pages: cmd.Pages,
+            PublishDate: cmd.PublicationDate,
+            LanguageIso639: cmd.Language,
+            Binding: cmd.Binding,
+            EditionStatement: cmd.Edition,
+            ImageThumbnail: cmd.ImageThumbnail,
+            ImageUrl: cmd.ImageUrl,
+            SaxoUrl: null,
+            Msrp: cmd.Msrp,
+            Dimensions: dimensions,
+            DataSource: dataSourceParsed ? ds : DataSource.Unknown));
 
         return (work, edition);
     }

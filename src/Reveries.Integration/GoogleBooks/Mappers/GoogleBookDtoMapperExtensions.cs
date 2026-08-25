@@ -34,24 +34,24 @@ public static class GoogleBookDtoMapperExtensions
             deweyDecimals: null,
             synopsis: googleBookDto.Description);
 
-        var edition = Edition.Create(
-            workId: work.Id,
-            isbn13: isbn13,
-            isbn10: isbn10,
-            publisher: googleBookDto.Publisher,
-            pages: googleBookDto.PageCount,
-            publishDate: googleBookDto.PublishedDate,
-            languageIso639: googleBookDto.Language,
-            binding: googleBookDto.PrintType,
-            editionStatement: googleBookDto.Subtitle,
-            imageThumbnail: googleBookDto.ImageLinks?.Thumbnail,
-            imageUrl: googleBookDto.ImageLinks?.Thumbnail,
-            msrp: null,
-            height: normalizedHeight,
-            width: normalizedWidth,
-            thickness: normalizedThickness,
-            weight: null,
-            dataSource: DataSource.GoogleBooksApi);
+        var dimensions = BookDimensions.Create(normalizedHeight, normalizedWidth, normalizedThickness, null);
+
+        var edition = Edition.Create(new EditionData(
+            WorkId: work.Id,
+            Isbn13: isbn13,
+            Isbn10: isbn10,
+            Publisher: googleBookDto.Publisher,
+            Pages: googleBookDto.PageCount,
+            PublishDate: googleBookDto.PublishedDate,
+            LanguageIso639: googleBookDto.Language,
+            Binding: googleBookDto.PrintType,
+            EditionStatement: googleBookDto.Subtitle,
+            ImageThumbnail: googleBookDto.ImageLinks?.Thumbnail,
+            ImageUrl: googleBookDto.ImageLinks?.Thumbnail,
+            SaxoUrl: null,
+            Msrp: null,
+            Dimensions: dimensions,
+            DataSource: DataSource.GoogleBooksApi));
 
         return new EditionWithWork(edition, work);
     }

@@ -14,6 +14,7 @@ public sealed class EditionsView
     public string? Binding { get; init; }
     public string? CoverImageUrl { get; init; }
     public string? ImageThumbnailUrl { get; init; }
+    public string? SaxoUrl { get; init; }
     public decimal? Msrp { get; init; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }

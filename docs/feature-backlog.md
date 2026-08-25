@@ -29,9 +29,26 @@ publishers and authors — not a third-party personal app — so it is not avail
 this project.
 
 **Where it belongs.** The link is edition-specific (one ISBN = one Saxo product), so
-it sits on `Edition`, next to `CoverImageUrl` and `Msrp`. Because it derives purely
-from the ISBN, it can be a computed value produced at read/mapping time rather than a
-stored column — decide storage vs. derive-on-read when building it.
+it sits on `Edition`, next to `CoverImageUrl` and `Msrp`.
+
+**Status (partly implemented).** `Edition` now carries a stored `SaxoUrl` value object
+(`Reveries.Domain/Editions/SaxoUrl.cs`) that flows through all layers and the
+`editions` table. `SaxoUrl.TryCreate` validates *shape* only — an absolute `https`
+URL on a Saxo host (`saxo.com`/`saxo.dk`) — and returns `null` otherwise, following
+the TryCreate-skip pattern. Nothing populates the field yet: every mapper passes
+`null`. Storage vs. derive-on-read is therefore settled as **stored**.
+
+**The integration seam.** `ISaxoBookSearch`
+(`Reveries.Application/Books/Interfaces`) is the Application contract for populating
+the field: `Isbn → SaxoUrl?`. A future `Reveries.Integration/Saxo/` slice implements
+it — with its own `AddSaxo(configuration)` extension, matching the `GoogleBooks/` and
+`Isbndb/` pattern — and `BookLookupService` enriches each looked-up edition through
+it (`Edition` needs an `AssignSaxoUrl` mutator, mirroring `SetPublisher`). Note the
+existence caveat: a plain `search?query={isbn}` deep link always "resolves" — Saxo
+answers `200` with a results page even for an unknown ISBN — so it does **not** prove
+the specific book exists. A verifying implementation must follow the search through to
+a canonical product URL and treat a no-hit result as `null`, guarding against soft-404
+pages that return `200` for missing products.
 
 **If it grows to more shops.** Should other Danish shops (Bog & idé, William Dam, …)
 be added later, put the link behind an `IStoreLinkProvider` abstraction in a
@@ -41,8 +58,12 @@ matching the existing `GoogleBooks/` and `Isbndb/` integration pattern — so an
 
 **Open questions.**
 
-- Store the URL on `Edition` vs. derive it from the ISBN on read.
 - Use ISBN-13 or fall back to ISBN-10 when only one is present.
+- Deep-link only (cheap, but unverified) vs. resolve-and-verify the canonical product
+  URL behind `ISaxoBookSearch` (proves existence, but needs a network call plus
+  soft-404 handling); if the latter, cache `isbn → SaxoUrl?` in Redis (including
+  negative hits) and keep the enrichment step best-effort so a Saxo failure never
+  blocks saving the book.
 
 ---
 

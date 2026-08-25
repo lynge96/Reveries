@@ -15,24 +15,22 @@ public class EditionTests
         string? languageIso639 = "en",
         string? binding = "Hardcover")
     {
-        return Edition.Create(
-            workId: WorkId.New(),
-            isbn13: isbn13,
-            isbn10: isbn10,
-            publisher: "Chilton Books",
-            pages: pages,
-            publishDate: "1965",
-            languageIso639: languageIso639,
-            binding: binding,
-            editionStatement: "1st",
-            imageThumbnail: null,
-            imageUrl: null,
-            msrp: 199.95m,
-            height: null,
-            width: null,
-            thickness: null,
-            weight: null,
-            dataSource: DataSource.IsbndbApi);
+        return Edition.Create(new EditionData(
+            WorkId: WorkId.New(),
+            Isbn13: isbn13,
+            Isbn10: isbn10,
+            Publisher: "Chilton Books",
+            Pages: pages,
+            PublishDate: "1965",
+            LanguageIso639: languageIso639,
+            Binding: binding,
+            EditionStatement: "1st",
+            ImageThumbnail: null,
+            ImageUrl: null,
+            SaxoUrl: null,
+            Msrp: 199.95m,
+            Dimensions: null,
+            DataSource: DataSource.IsbndbApi));
     }
 
     [Fact]
@@ -67,24 +65,22 @@ public class EditionTests
     {
         var workId = WorkId.New();
 
-        var edition = Edition.Create(
-            workId: workId,
-            isbn13: "9781402894626",
-            isbn10: null,
-            publisher: null,
-            pages: null,
-            publishDate: null,
-            languageIso639: "en",
-            binding: null,
-            editionStatement: null,
-            imageThumbnail: null,
-            imageUrl: null,
-            msrp: null,
-            height: null,
-            width: null,
-            thickness: null,
-            weight: null,
-            dataSource: DataSource.IsbndbApi);
+        var edition = Edition.Create(new EditionData(
+            WorkId: workId,
+            Isbn13: "9781402894626",
+            Isbn10: null,
+            Publisher: null,
+            Pages: null,
+            PublishDate: null,
+            LanguageIso639: "en",
+            Binding: null,
+            EditionStatement: null,
+            ImageThumbnail: null,
+            ImageUrl: null,
+            SaxoUrl: null,
+            Msrp: null,
+            Dimensions: null,
+            DataSource: DataSource.IsbndbApi));
 
         Assert.Equal(workId, edition.WorkId);
     }
@@ -160,6 +156,7 @@ public class EditionTests
             Binding: BookFormat.Hardback,
             ImageThumbnailUrl: null,
             CoverImageUrl: null,
+            SaxoUrl: null,
             Msrp: 199.95m,
             Dimensions: null,
             DataSource: DataSource.IsbndbApi,

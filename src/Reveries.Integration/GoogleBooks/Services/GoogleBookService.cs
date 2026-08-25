@@ -133,6 +133,7 @@ public class GoogleBookService : IGoogleBookSearch
             Binding: PreferBinding(pe.Binding, ve.Binding),
             ImageThumbnailUrl: pe.ImageThumbnailUrl ?? ve.ImageThumbnailUrl,
             CoverImageUrl: pe.CoverImageUrl ?? ve.CoverImageUrl,
+            SaxoUrl: pe.SaxoUrl?.Value ?? ve.SaxoUrl?.Value,
             Msrp: pe.Msrp ?? ve.Msrp,
             Dimensions: ve.Dimensions ?? pe.Dimensions,
             DataSource: DataSource.GoogleBooksApi,

@@ -113,22 +113,20 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         deweyDecimals: ["823"],
         synopsis: "A dystopian novel.");
 
-    private static Edition NewEdition(WorkId workId) => Edition.Create(
-        workId: workId,
-        isbn13: Isbn13,
-        isbn10: Isbn10,
-        publisher: "Signet Classics",
-        pages: 328,
-        publishDate: "1949",
-        languageIso639: "en",
-        binding: null,
-        editionStatement: null,
-        imageThumbnail: null,
-        imageUrl: null,
-        msrp: null,
-        height: null,
-        width: null,
-        thickness: null,
-        weight: null,
-        dataSource: DataSource.Database);
+    private static Edition NewEdition(WorkId workId) => Edition.Create(new EditionData(
+        WorkId: workId,
+        Isbn13: Isbn13,
+        Isbn10: Isbn10,
+        Publisher: "Signet Classics",
+        Pages: 328,
+        PublishDate: "1949",
+        LanguageIso639: "en",
+        Binding: null,
+        EditionStatement: null,
+        ImageThumbnail: null,
+        ImageUrl: null,
+        SaxoUrl: null,
+        Msrp: null,
+        Dimensions: null,
+        DataSource: DataSource.Database));
 }

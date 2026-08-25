@@ -48,6 +48,7 @@ public static class EditionWithWorkMerger
             Binding: PreferBinding(ie.Binding, ge.Binding),
             ImageThumbnailUrl: ge.ImageThumbnailUrl ?? ie.ImageThumbnailUrl,
             CoverImageUrl: ie.ImageThumbnailUrl ?? ie.CoverImageUrl ?? ge.CoverImageUrl,
+            SaxoUrl: ie.SaxoUrl?.Value ?? ge.SaxoUrl?.Value,
             Msrp: ie.Msrp,
             Dimensions: MergeDimensions(ie.Dimensions, ge.Dimensions),
             DataSource: DataSource.CombinedBookApi,

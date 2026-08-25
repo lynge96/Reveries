@@ -15,6 +15,7 @@ public sealed record EditionReconstitutionData(
     BookFormat Binding,
     string? ImageThumbnailUrl,
     string? CoverImageUrl,
+    string? SaxoUrl,
     decimal? Msrp,
     BookDimensions? Dimensions,
     DataSource DataSource,

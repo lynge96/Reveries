@@ -13,6 +13,7 @@ public sealed class EditionEntity
     public string? Binding { get; set; }
     public string? ImageUrl { get; set; }
     public string? ImageThumbnail { get; set; }
+    public string? SaxoUrl { get; set; }
     public decimal? Msrp { get; set; }
     public decimal? HeightCm { get; set; }
     public decimal? WidthCm { get; set; }
