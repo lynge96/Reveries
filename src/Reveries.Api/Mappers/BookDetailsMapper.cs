@@ -23,7 +23,7 @@ public static class BookDetailsMapper
             Publisher = edition.Publisher?.Name,
             Language = edition.Language?.DisplayName,
             Pages = edition.Pages,
-            PublicationDate = edition.PublicationDate,
+            PublicationDate = edition.PublicationDate?.Value,
             Synopsis = work.Synopsis?.Text,
             Binding = edition.Binding.ToString(),
             Edition = edition.EditionStatement,

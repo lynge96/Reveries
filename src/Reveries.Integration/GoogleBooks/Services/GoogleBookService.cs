@@ -127,7 +127,7 @@ public class GoogleBookService : IGoogleBookSearch
             Isbn13: pe.Isbn?.Value13 ?? ve.Isbn?.Value13,
             Isbn10: pe.Isbn?.Value10 ?? ve.Isbn?.Value10,
             Pages: pe.Pages > 0 ? pe.Pages : ve.Pages,
-            PublicationDate: pe.PublicationDate ?? ve.PublicationDate,
+            PublicationDate: (pe.PublicationDate ?? ve.PublicationDate)?.Value,
             Language: pe.Language?.Value ?? ve.Language?.Value,
             EditionStatement: pe.EditionStatement ?? ve.EditionStatement,
             Binding: PreferBinding(pe.Binding, ve.Binding),

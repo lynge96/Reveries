@@ -17,7 +17,7 @@ public static class EditionMappingExtensions
             Isbn13 = edition.Isbn?.Value13,
             Isbn10 = edition.Isbn?.Value10,
             PageCount = edition.Pages,
-            PublicationDate = edition.PublicationDate,
+            PublicationDate = edition.PublicationDate?.Value,
             Language = edition.Language?.Value,
             EditionStatement = edition.EditionStatement,
             ImageUrl = edition.CoverImageUrl,

@@ -67,7 +67,7 @@ public class BookDisplayService
                 Markup.Escape(work.Title.Text).Bold().AsSecondary(),
                 Markup.Escape(GetAuthorNames(book)),
                 edition.Pages?.ToString() ?? "",
-                edition.PublicationDate ?? "Unknown date",
+                edition.PublicationDate?.Value ?? "Unknown date",
                 Markup.Escape(edition.Publisher?.Name ?? ""),
                 work.SeriesPlacement?.Number?.ToString() ?? "",
                 work.SeriesPlacement != null
@@ -103,7 +103,7 @@ public class BookDisplayService
             { "ISBN-13", edition.Isbn?.Value13 ?? "N/A" },
             { "Publisher", edition.Publisher?.Name ?? "Unknown" },
             { "Language", edition.Language?.DisplayName ?? "Unknown language" },
-            { "Published", edition.PublicationDate ?? "Unknown date" },
+            { "Published", edition.PublicationDate?.Value ?? "Unknown date" },
             { "MSRP", edition.Msrp?.ToString() ?? "Unknown" },
             { "Binding", edition.Binding.ToString() }
         };

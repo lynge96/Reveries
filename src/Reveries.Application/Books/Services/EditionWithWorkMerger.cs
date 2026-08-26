@@ -42,7 +42,7 @@ public static class EditionWithWorkMerger
             Isbn13: ie.Isbn?.Value13 ?? ge.Isbn?.Value13,
             Isbn10: ie.Isbn?.Value10 ?? ge.Isbn?.Value10,
             Pages: ie.Pages > 0 ? ie.Pages : ge.Pages,
-            PublicationDate: ge.PublicationDate ?? ie.PublicationDate,
+            PublicationDate: (ge.PublicationDate ?? ie.PublicationDate)?.Value,
             Language: Prefer(ie.Language?.Value, ge.Language?.Value),
             EditionStatement: Prefer(ge.EditionStatement, ie.EditionStatement),
             Binding: PreferBinding(ie.Binding, ge.Binding),

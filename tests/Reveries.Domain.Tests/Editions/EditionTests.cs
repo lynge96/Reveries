@@ -171,6 +171,7 @@ public class EditionTests
         Assert.Equal(workId, edition.WorkId.Value);
         Assert.Equal("9781402894626", edition.Isbn?.Value13);
         Assert.Equal(412, edition.Pages);
+        Assert.Equal("1965", edition.PublicationDate?.Value);
         Assert.Equal("en", edition.Language?.Value);
         Assert.Equal("Chilton Books", edition.Publisher?.Name);
     }

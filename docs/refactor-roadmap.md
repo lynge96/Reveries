@@ -116,14 +116,15 @@ current model:
       `BookCreationData` (or similar) input record so both factories take a
       parameter object.
 - [ ] **Weakly-typed fields → value objects / enums:**
-      - `PublicationDate` is `string?` — model it as a real date (or a
-        `PublicationDate` value object that can hold partial dates like
-        year-only, which external APIs often return).
+      - [x] `PublicationDate` is now a partial-date value object (`Editions/PublicationDate.cs`)
+        holding year + optional month/day with a derived `DatePrecision`; it parses
+        `YYYY` / `YYYY-MM` / `YYYY-MM-DD` best-effort and serializes back to the canonical
+        string stored in the unchanged `publication_date` varchar column.
       - `Binding` is `string?` even though `Enums/BindingType.cs` exists and is
         unused on `Book`. Decide: enum or value object, then use it consistently.
-      - Consider a `Language` value object holding both the ISO-639 code and the
-        display name; today `Create` stores only the display name
-        (`languageIso639.GetLanguageName()`), which is lossy.
+      - [x] `Language` is now a value object (`Editions/Language.cs`) owning the canonical
+        ISO-639-1 code and deriving the display name at the edge; validity is checked against
+        `CultureInfo.GetCultures(NeutralCultures)` rather than the lossy `GetLanguageName()`.
 - [ ] **Review the public setters** (`SetPublisher`, `SetSeries`,
       `UpdateDataSource`) for invariant coverage. `SetSeries` validates the
       number but allows a null series with a number — decide whether that pairing
