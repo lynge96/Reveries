@@ -105,11 +105,12 @@ public class EditionTests
     }
 
     [Fact]
-    public void Create_NormalizesLanguageToEnglishName()
+    public void Create_NormalizesLanguageToIso639Code()
     {
-        var edition = CreateValidEdition(languageIso639: "en");
+        var edition = CreateValidEdition(languageIso639: "en-US");
 
-        Assert.Equal("English", edition.Language);
+        Assert.Equal("en", edition.Language?.Value);
+        Assert.Equal("English", edition.Language?.DisplayName);
     }
 
     [Fact]
@@ -153,7 +154,7 @@ public class EditionTests
             Isbn10: "1402894627",
             Pages: 412,
             PublicationDate: "1965",
-            Language: "English",
+            Language: "en",
             EditionStatement: "1st",
             Binding: BookFormat.Hardback,
             ImageThumbnailUrl: null,
@@ -170,7 +171,7 @@ public class EditionTests
         Assert.Equal(workId, edition.WorkId.Value);
         Assert.Equal("9781402894626", edition.Isbn?.Value13);
         Assert.Equal(412, edition.Pages);
-        Assert.Equal("English", edition.Language);
+        Assert.Equal("en", edition.Language?.Value);
         Assert.Equal("Chilton Books", edition.Publisher?.Name);
     }
 

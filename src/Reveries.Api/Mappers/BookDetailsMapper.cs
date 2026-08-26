@@ -21,7 +21,7 @@ public static class BookDetailsMapper
             NumberInSeries = work.SeriesPlacement?.Number,
             Authors = work.Authors.Select(a => a.Name).ToList(),
             Publisher = edition.Publisher?.Name,
-            Language = edition.Language,
+            Language = edition.Language?.DisplayName,
             Pages = edition.Pages,
             PublicationDate = edition.PublicationDate,
             Synopsis = work.Synopsis?.Text,

@@ -37,8 +37,8 @@ public class BookSelectionService
     {
         var booksList = books.ToList();
         var availableLanguages = booksList
-            .Where(b => !string.IsNullOrWhiteSpace(b.Edition.Language))
-            .Select(b => b.Edition.Language!)
+            .Where(b => b.Edition.Language is not null)
+            .Select(b => b.Edition.Language!.DisplayName)
             .Distinct()
             .OrderBy(l => l)
             .ToList();
@@ -50,6 +50,6 @@ public class BookSelectionService
 
         return selectedLanguages.Count == 0
             ? booksList
-            : booksList.Where(b => selectedLanguages.Contains(b.Edition.Language!)).ToList();
+            : booksList.Where(b => b.Edition.Language is not null && selectedLanguages.Contains(b.Edition.Language.DisplayName)).ToList();
     }
 }

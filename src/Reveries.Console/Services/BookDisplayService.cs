@@ -102,7 +102,7 @@ public class BookDisplayService
             { "ISBN-10", edition.Isbn?.Value10 ?? "N/A"},
             { "ISBN-13", edition.Isbn?.Value13 ?? "N/A" },
             { "Publisher", edition.Publisher?.Name ?? "Unknown" },
-            { "Language", edition.Language ?? "Unknown language" },
+            { "Language", edition.Language?.DisplayName ?? "Unknown language" },
             { "Published", edition.PublicationDate ?? "Unknown date" },
             { "MSRP", edition.Msrp?.ToString() ?? "Unknown" },
             { "Binding", edition.Binding.ToString() }

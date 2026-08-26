@@ -128,7 +128,7 @@ public class GoogleBookService : IGoogleBookSearch
             Isbn10: pe.Isbn?.Value10 ?? ve.Isbn?.Value10,
             Pages: pe.Pages > 0 ? pe.Pages : ve.Pages,
             PublicationDate: pe.PublicationDate ?? ve.PublicationDate,
-            Language: pe.Language ?? ve.Language,
+            Language: pe.Language?.Value ?? ve.Language?.Value,
             EditionStatement: pe.EditionStatement ?? ve.EditionStatement,
             Binding: PreferBinding(pe.Binding, ve.Binding),
             ImageThumbnailUrl: pe.ImageThumbnailUrl ?? ve.ImageThumbnailUrl,

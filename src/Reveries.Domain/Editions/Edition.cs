@@ -12,7 +12,7 @@ public class Edition
     public Isbn? Isbn { get; private init; }
     public int? Pages { get; private init; }
     public Publisher? Publisher { get; private set; }
-    public string? Language { get; private init; }
+    public Language? Language { get; private init; }
     public string? PublicationDate { get; private init; }
     public string? EditionStatement { get; private init; }
     public BookFormat Binding { get; private init; }
@@ -37,7 +37,7 @@ public class Edition
             Isbn = data.Isbn13 != null ? Isbn.Create(data.Isbn13) : Isbn.Create(data.Isbn10!),
             Pages = data.Pages > 0 ? data.Pages : null,
             Publisher = Publisher.TryCreate(data.Publisher),
-            Language = data.LanguageIso639.GetLanguageName(),
+            Language = Language.TryCreate(data.LanguageIso639),
             PublicationDate = data.PublishDate,
             EditionStatement = data.EditionStatement,
             Binding = data.Binding.GetStandardBinding(),
@@ -61,7 +61,7 @@ public class Edition
             Isbn = BuildReconstitutedIsbn(data.Isbn13, data.Isbn10),
             Pages = data.Pages,
             PublicationDate = data.PublicationDate,
-            Language = data.Language,
+            Language = data.Language != null ? Language.Reconstitute(data.Language) : null,
             EditionStatement = data.EditionStatement,
             Binding = data.Binding,
             ImageThumbnailUrl = data.ImageThumbnailUrl,
