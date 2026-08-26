@@ -6,6 +6,7 @@ public class Publisher
 {
     public PublisherId Id { get; private init; }
     public string Name { get; }
+    public string NormalizedName => Name.ToLowerInvariant();
 
     private Publisher(PublisherId id, string name)
     {
@@ -17,10 +18,7 @@ public class Publisher
 
     public static Publisher? TryCreate(string? name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return null;
-
-        var normalizedName = name.StandardizePublisherName();
+        var normalizedName = PublisherNameNormalizer.Normalize(name);
         if (string.IsNullOrWhiteSpace(normalizedName))
             return null;
 

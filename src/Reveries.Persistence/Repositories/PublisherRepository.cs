@@ -25,9 +25,9 @@ public class PublisherRepository : IPublisherRepository
             return null;
 
         const string sql = """
-                           INSERT INTO library.publishers (id, name)
-                           VALUES (@Id, @Name)
-                           ON CONFLICT (name) DO UPDATE 
+                           INSERT INTO library.publishers (id, name, normalized_name)
+                           VALUES (@Id, @Name, @NormalizedName)
+                           ON CONFLICT (normalized_name) DO UPDATE
                            SET name = EXCLUDED.name
                            RETURNING id, name, date_created
                            """;

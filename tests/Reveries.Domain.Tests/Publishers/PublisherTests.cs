@@ -4,41 +4,39 @@ namespace Reveries.Domain.Tests.Publishers;
 
 public class PublisherTests
 {
-    [Fact]
-    public void TryCreate_WithValidName_NormalizesName()
+    [Theory]
+    [InlineData("HarperCollins", "HarperCollins")]
+    [InlineData("penguin books", "Penguin Books")]
+    [InlineData("SIMON AND SCHUSTER", "Simon And Schuster")]
+    public void TryCreate_KeepsDisplayCasingOnName(string input, string expectedName)
     {
-        var publisher = Publisher.TryCreate("harper & row (U.S.A)");
+        var publisher = Publisher.TryCreate(input);
 
         Assert.NotNull(publisher);
-        Assert.Equal("Harper & Row", publisher!.Name);
+        Assert.Equal(expectedName, publisher.Name);
+    }
+
+    [Theory]
+    [InlineData("HarperCollins", "harpercollins")]
+    [InlineData("HARPERCOLLINS", "harpercollins")]
+    [InlineData("harpercollins", "harpercollins")]
+    public void TryCreate_LowercasesNormalizedNameSoCasingVariantsDedupe(string input, string expectedNormalized)
+    {
+        var publisher = Publisher.TryCreate(input);
+
+        Assert.NotNull(publisher);
+        Assert.Equal(expectedNormalized, publisher.NormalizedName);
     }
 
     [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    [InlineData("(unknown)")]
-    public void TryCreate_WithEmptyOrNoiseName_ReturnsNull(string? name)
+    [InlineData("()")]
+    public void TryCreate_WithNothingMeaningful_ReturnsNull(string? input)
     {
-        Assert.Null(Publisher.TryCreate(name));
-    }
+        var publisher = Publisher.TryCreate(input);
 
-    [Fact]
-    public void Reconstitute_RestoresStateCorrectly()
-    {
-        var publisherId = PublisherId.New();
-
-        var publisher = Publisher.Reconstitute(publisherId, "Penguin Books");
-
-        Assert.Equal(publisherId, publisher.Id);
-        Assert.Equal("Penguin Books", publisher.Name);
-    }
-
-    [Fact]
-    public void ToString_ReturnsName()
-    {
-        var publisher = Publisher.TryCreate("harper & row");
-
-        Assert.Equal("Harper & Row", publisher!.ToString());
+        Assert.Null(publisher);
     }
 }

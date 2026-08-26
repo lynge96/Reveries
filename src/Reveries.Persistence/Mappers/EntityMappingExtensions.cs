@@ -13,7 +13,8 @@ public static class EntityMappingExtensions
         return new PublisherEntity
         {
             Id = publisher.Id.Value,
-            Name = publisher.Name
+            Name = publisher.Name,
+            NormalizedName = publisher.NormalizedName
         };
     }
 

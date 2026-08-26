@@ -168,6 +168,7 @@ CREATE TABLE library.genres (
 CREATE TABLE library.publishers (
     id uuid CONSTRAINT publishers_domain_id_not_null NOT NULL,
     name character varying NOT NULL,
+    normalized_name character varying NOT NULL,
     date_created timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -405,11 +406,11 @@ ALTER TABLE ONLY library.authors
 
 
 --
--- Name: publishers publishers_name_key; Type: CONSTRAINT; Schema: library; Owner: -
+-- Name: publishers publishers_normalized_name_key; Type: CONSTRAINT; Schema: library; Owner: -
 --
 
 ALTER TABLE ONLY library.publishers
-    ADD CONSTRAINT publishers_name_key UNIQUE (name);
+    ADD CONSTRAINT publishers_normalized_name_key UNIQUE (normalized_name);
 
 
 --
