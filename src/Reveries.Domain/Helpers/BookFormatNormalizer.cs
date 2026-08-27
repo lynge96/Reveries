@@ -2,9 +2,9 @@ using Reveries.Domain.Enums;
 
 namespace Reveries.Domain.Helpers;
 
-public static class BookBindingNormalizer
+public static class BookFormatNormalizer
 {
-    private static readonly Dictionary<string, BookFormat> BindingMap = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, BookFormat> FormatMap = new(StringComparer.OrdinalIgnoreCase)
     {
         // Paperback variants
         { "paperback", BookFormat.Paperback },
@@ -37,15 +37,15 @@ public static class BookBindingNormalizer
         { "mp3 cd", BookFormat.Audiobook }
     };
 
-    public static BookFormat GetStandardBinding(this string? rawBinding)
+    public static BookFormat GetStandardFormat(this string? rawFormat)
     {
-        if (string.IsNullOrWhiteSpace(rawBinding))
+        if (string.IsNullOrWhiteSpace(rawFormat))
             return BookFormat.Unknown;
 
-        var normalized = rawBinding.Trim();
+        var normalized = rawFormat.Trim();
 
-        if (BindingMap.TryGetValue(normalized, out var bindingType))
-            return bindingType;
+        if (FormatMap.TryGetValue(normalized, out var format))
+            return format;
 
         return normalized switch
         {

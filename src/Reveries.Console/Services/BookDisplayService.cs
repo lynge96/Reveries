@@ -51,7 +51,7 @@ public class BookDisplayService
         var columnNames = new[]
         {
             "#", "ISBN", "Title", "Author", "Pages", "Published",
-            "Publisher", "#", "Series", "Binding", "Data source"
+            "Publisher", "#", "Series", "Format", "Data source"
         };
         table.AddColumns(columnNames.Select(c => c.Bold().AsPrimary()).ToArray());
 
@@ -73,7 +73,7 @@ public class BookDisplayService
                 work.SeriesPlacement != null
                     ? $"{Markup.Escape(work.SeriesPlacement.Series.Name)} {Markup.Escape(work.SeriesPlacement.Series.Id.ToString()).AsInfo()}"
                     : "",
-                Markup.Escape(edition.Binding.ToString()),
+                Markup.Escape(edition.Format.ToString()),
                 edition.DataSource.ToString().AsInfo()
             );
         }
@@ -105,7 +105,7 @@ public class BookDisplayService
             { "Language", edition.Language?.DisplayName ?? "Unknown language" },
             { "Published", edition.PublicationDate?.Value ?? "Unknown date" },
             { "MSRP", edition.Msrp?.ToString() ?? "Unknown" },
-            { "Binding", edition.Binding.ToString() }
+            { "Format", edition.Format.ToString() }
         };
 
         foreach (var (property, value) in details)

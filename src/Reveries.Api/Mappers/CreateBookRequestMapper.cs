@@ -27,7 +27,7 @@ public static class CreateBookRequestMapper
             PublicationDate = request.PublicationDate,
             Synopsis = request.Synopsis,
 
-            Binding = request.Binding,
+            Format = request.Format,
             Edition = request.Edition,
 
             ImageThumbnail = request.ImageThumbnail,

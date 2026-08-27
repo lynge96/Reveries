@@ -10,7 +10,7 @@ public sealed class EditionEntity
     public int? PageCount { get; set; }
     public string? Language { get; set; }
     public string? EditionStatement { get; set; }
-    public string? Binding { get; set; }
+    public string? Format { get; set; }
     public string? ImageUrl { get; set; }
     public string? ImageThumbnail { get; set; }
     public string? SaxoUrl { get; set; }

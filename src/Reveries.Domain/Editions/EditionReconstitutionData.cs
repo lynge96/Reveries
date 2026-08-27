@@ -12,7 +12,7 @@ public sealed record EditionReconstitutionData(
     string? PublicationDate,
     string? Language,
     string? EditionStatement,
-    BookFormat Binding,
+    BookFormat Format,
     string? ImageThumbnailUrl,
     string? CoverImageUrl,
     string? SaxoUrl,

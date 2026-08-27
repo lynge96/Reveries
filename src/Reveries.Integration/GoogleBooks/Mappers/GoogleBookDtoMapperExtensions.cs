@@ -44,7 +44,7 @@ public static class GoogleBookDtoMapperExtensions
             Pages: googleBookDto.PageCount,
             PublishDate: googleBookDto.PublishedDate,
             LanguageIso639: googleBookDto.Language,
-            Binding: googleBookDto.PrintType,
+            Format: googleBookDto.PrintType,
             EditionStatement: googleBookDto.Subtitle,
             ImageThumbnail: googleBookDto.ImageLinks?.Thumbnail,
             ImageUrl: googleBookDto.ImageLinks?.Thumbnail,

@@ -14,8 +14,8 @@ public class Edition
     public Publisher? Publisher { get; private set; }
     public Language? Language { get; private init; }
     public PublicationDate? PublicationDate { get; private init; }
-    public string? EditionStatement { get; private init; }
-    public BookFormat Binding { get; private init; }
+    public string? EditionDescription { get; private init; }
+    public BookFormat Format { get; private init; }
     public string? ImageThumbnailUrl { get; private init; }
     public string? CoverImageUrl { get; private init; }
     public SaxoUrl? SaxoUrl { get; private init; }
@@ -39,8 +39,8 @@ public class Edition
             Publisher = Publisher.TryCreate(data.Publisher),
             Language = Language.TryCreate(data.LanguageIso639),
             PublicationDate = PublicationDate.TryCreate(data.PublishDate),
-            EditionStatement = data.EditionStatement,
-            Binding = data.Binding.GetStandardBinding(),
+            EditionDescription = EditionDescriptionNormalizer.Normalize(data.EditionStatement),
+            Format = data.Format.GetStandardFormat(),
             ImageThumbnailUrl = data.ImageThumbnail,
             CoverImageUrl = data.ImageUrl,
             SaxoUrl = SaxoUrl.TryCreate(data.SaxoUrl),
@@ -62,8 +62,8 @@ public class Edition
             Pages = data.Pages,
             PublicationDate = PublicationDate.TryCreate(data.PublicationDate),
             Language = data.Language != null ? Language.Reconstitute(data.Language) : null,
-            EditionStatement = data.EditionStatement,
-            Binding = data.Binding,
+            EditionDescription = data.EditionStatement,
+            Format = data.Format,
             ImageThumbnailUrl = data.ImageThumbnailUrl,
             CoverImageUrl = data.CoverImageUrl,
             SaxoUrl = data.SaxoUrl != null ? new SaxoUrl(data.SaxoUrl) : null,

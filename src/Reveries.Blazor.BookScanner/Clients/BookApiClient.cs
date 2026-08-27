@@ -81,7 +81,7 @@ public class BookApiClient
         ImageUrl = book.CoverImageUrl,
         ImageThumbnail = book.ImageThumbnailUrl,
         Msrp = book.Msrp,
-        Binding = book.Binding,
+        Format = book.Format,
         Edition = book.Edition,
         PrimaryGenres = book.PrimaryGenres,
         SecondaryGenres = book.SecondaryGenres,

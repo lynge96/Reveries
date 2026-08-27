@@ -129,8 +129,8 @@ public class GoogleBookService : IGoogleBookSearch
             Pages: pe.Pages > 0 ? pe.Pages : ve.Pages,
             PublicationDate: (pe.PublicationDate ?? ve.PublicationDate)?.Value,
             Language: pe.Language?.Value ?? ve.Language?.Value,
-            EditionStatement: pe.EditionStatement ?? ve.EditionStatement,
-            Binding: PreferBinding(pe.Binding, ve.Binding),
+            EditionStatement: pe.EditionDescription ?? ve.EditionDescription,
+            Format: PreferFormat(pe.Format, ve.Format),
             ImageThumbnailUrl: pe.ImageThumbnailUrl ?? ve.ImageThumbnailUrl,
             CoverImageUrl: pe.CoverImageUrl ?? ve.CoverImageUrl,
             SaxoUrl: pe.SaxoUrl?.Value ?? ve.SaxoUrl?.Value,
@@ -145,6 +145,6 @@ public class GoogleBookService : IGoogleBookSearch
     private static string? Prefer(params string?[] values)
         => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
 
-    private static BookFormat PreferBinding(BookFormat first, BookFormat second)
+    private static BookFormat PreferFormat(BookFormat first, BookFormat second)
         => first != BookFormat.Unknown ? first : second;
 }

@@ -30,7 +30,7 @@ public static class BookMapper
             Pages: cmd.Pages,
             PublishDate: cmd.PublicationDate,
             LanguageIso639: cmd.Language,
-            Binding: cmd.Binding,
+            Format: cmd.Format,
             EditionStatement: cmd.Edition,
             ImageThumbnail: cmd.ImageThumbnail,
             ImageUrl: cmd.ImageUrl,

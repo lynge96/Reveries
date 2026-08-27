@@ -13,7 +13,7 @@ public record CreateBookRequest
     public int? Pages { get; set; }
     public string? PublicationDate { get; set; }
     public string? Synopsis { get; set; }
-    public string? Binding { get; set; }
+    public string? Format { get; set; }
     public string? Edition { get; set; }
     public string? ImageThumbnail { get; set; }
     public string? ImageUrl { get; set; }

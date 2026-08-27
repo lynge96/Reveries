@@ -74,7 +74,7 @@ erDiagram
         text synopsis
         varchar language
         varchar edition
-        varchar binding
+        varchar format
         text image_url
         text image_thumbnail
         decimal msrp

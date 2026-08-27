@@ -42,7 +42,7 @@ public static class IsbndbBookDtoMapperExtensions
             Pages: isbndbBookDto.Pages,
             PublishDate: isbndbBookDto.DatePublished,
             LanguageIso639: isbndbBookDto.Language,
-            Binding: isbndbBookDto.Binding,
+            Format: isbndbBookDto.Binding,
             EditionStatement: isbndbBookDto.Edition,
             ImageThumbnail: isbndbBookDto.Image,
             ImageUrl: isbndbBookDto.ImageOriginal,

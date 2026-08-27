@@ -3,15 +3,15 @@ using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.Tests.Helpers;
 
-public class BookBindingNormalizerTests
+public class BookFormatNormalizerTests
 {
     [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("some obscure format")]
-    public void GetStandardBinding_WithNullEmptyOrUnrecognized_ReturnsUnknown(string? input)
+    public void GetStandardFormat_WithNullEmptyOrUnrecognized_ReturnsUnknown(string? input)
     {
-        Assert.Equal(BookFormat.Unknown, input.GetStandardBinding());
+        Assert.Equal(BookFormat.Unknown, input.GetStandardFormat());
     }
 
     [Theory]
@@ -24,9 +24,9 @@ public class BookBindingNormalizerTests
     [InlineData("Mass Market Paperback")]
     [InlineData("TPB")]
     [InlineData("Perfect Paperback")]
-    public void GetStandardBinding_WithPaperbackVariants_ReturnsPaperback(string input)
+    public void GetStandardFormat_WithPaperbackVariants_ReturnsPaperback(string input)
     {
-        Assert.Equal(BookFormat.Paperback, input.GetStandardBinding());
+        Assert.Equal(BookFormat.Paperback, input.GetStandardFormat());
     }
 
     [Theory]
@@ -35,9 +35,9 @@ public class BookBindingNormalizerTests
     [InlineData("Hard Cover")]
     [InlineData("Hardback")]
     [InlineData("HB")]
-    public void GetStandardBinding_WithHardbackVariants_ReturnsHardback(string input)
+    public void GetStandardFormat_WithHardbackVariants_ReturnsHardback(string input)
     {
-        Assert.Equal(BookFormat.Hardback, input.GetStandardBinding());
+        Assert.Equal(BookFormat.Hardback, input.GetStandardFormat());
     }
 
     [Theory]
@@ -46,9 +46,9 @@ public class BookBindingNormalizerTests
     [InlineData("Kindle")]
     [InlineData("Kindle Edition")]
     [InlineData("ePub")]
-    public void GetStandardBinding_WithEbookVariants_ReturnsEbook(string input)
+    public void GetStandardFormat_WithEbookVariants_ReturnsEbook(string input)
     {
-        Assert.Equal(BookFormat.Ebook, input.GetStandardBinding());
+        Assert.Equal(BookFormat.Ebook, input.GetStandardFormat());
     }
 
     [Theory]
@@ -56,8 +56,8 @@ public class BookBindingNormalizerTests
     [InlineData("Audio Book")]
     [InlineData("Audio CD")]
     [InlineData("Audible")]
-    public void GetStandardBinding_WithAudiobookVariants_ReturnsAudiobook(string input)
+    public void GetStandardFormat_WithAudiobookVariants_ReturnsAudiobook(string input)
     {
-        Assert.Equal(BookFormat.Audiobook, input.GetStandardBinding());
+        Assert.Equal(BookFormat.Audiobook, input.GetStandardFormat());
     }
 }

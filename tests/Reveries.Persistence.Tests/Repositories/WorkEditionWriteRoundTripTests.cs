@@ -121,7 +121,7 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         Pages: 328,
         PublishDate: "1949",
         LanguageIso639: "en",
-        Binding: null,
+        Format: null,
         EditionStatement: null,
         ImageThumbnail: null,
         ImageUrl: null,

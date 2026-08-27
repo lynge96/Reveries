@@ -11,7 +11,7 @@ public sealed record EditionData(
     int? Pages,
     string? PublishDate,
     string? LanguageIso639,
-    string? Binding,
+    string? Format,
     string? EditionStatement,
     string? ImageThumbnail,
     string? ImageUrl,

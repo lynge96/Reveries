@@ -120,8 +120,11 @@ current model:
         holding year + optional month/day with a derived `DatePrecision`; it parses
         `YYYY` / `YYYY-MM` / `YYYY-MM-DD` best-effort and serializes back to the canonical
         string stored in the unchanged `publication_date` varchar column.
-      - `Binding` is `string?` even though `Enums/BindingType.cs` exists and is
-        unused on `Book`. Decide: enum or value object, then use it consistently.
+      - [x] `Binding` is now the `BookFormat` enum, normalized from raw strings via
+        `Helpers/BookFormatNormalizer.GetStandardFormat()`. The property, record params,
+        DB column and API contract were renamed `Binding` → `Format` because the enum
+        spans media (`Ebook`, `Audiobook`) that are not bindings; the external ISBNDB DTO
+        keeps its source name `Binding`.
       - [x] `Language` is now a value object (`Editions/Language.cs`) owning the canonical
         ISO-639-1 code and deriving the display name at the edge; validity is checked against
         `CultureInfo.GetCultures(NeutralCultures)` rather than the lossy `GetLanguageName()`.

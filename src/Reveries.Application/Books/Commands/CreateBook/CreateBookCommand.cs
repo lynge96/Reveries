@@ -16,7 +16,7 @@ public sealed record CreateBookCommand : IQuery<EditionId>
     public int? Pages { get; init; }
     public string? PublicationDate { get; init; }
     public string? Synopsis { get; init; }
-    public string? Binding { get; init; }
+    public string? Format { get; init; }
     public string? Edition { get; init; }
     public string? ImageThumbnail { get; init; }
     public string? ImageUrl { get; init; }

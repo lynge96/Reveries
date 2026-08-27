@@ -13,7 +13,7 @@ public class EditionTests
         string? isbn10 = "1-4028-9462-7",
         int? pages = 412,
         string? languageIso639 = "en",
-        string? binding = "Hardcover")
+        string? format = "Hardcover")
     {
         return Edition.Create(new EditionData(
             WorkId: WorkId.New(),
@@ -23,7 +23,7 @@ public class EditionTests
             Pages: pages,
             PublishDate: "1965",
             LanguageIso639: languageIso639,
-            Binding: binding,
+            Format: format,
             EditionStatement: "1st",
             ImageThumbnail: null,
             ImageUrl: null,
@@ -73,7 +73,7 @@ public class EditionTests
             Pages: null,
             PublishDate: null,
             LanguageIso639: "en",
-            Binding: null,
+            Format: null,
             EditionStatement: null,
             ImageThumbnail: null,
             ImageUrl: null,
@@ -114,11 +114,11 @@ public class EditionTests
     }
 
     [Fact]
-    public void Create_NormalizesBinding()
+    public void Create_NormalizesFormat()
     {
-        var edition = CreateValidEdition(binding: "Hardcover");
+        var edition = CreateValidEdition(format: "Hardcover");
 
-        Assert.Equal(BookFormat.Hardback, edition.Binding);
+        Assert.Equal(BookFormat.Hardback, edition.Format);
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class EditionTests
             PublicationDate: "1965",
             Language: "en",
             EditionStatement: "1st",
-            Binding: BookFormat.Hardback,
+            Format: BookFormat.Hardback,
             ImageThumbnailUrl: null,
             CoverImageUrl: null,
             SaxoUrl: null,

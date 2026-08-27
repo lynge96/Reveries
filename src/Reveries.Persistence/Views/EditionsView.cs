@@ -11,7 +11,7 @@ public sealed class EditionsView
     public int? PageCount { get; init; }
     public string? Language { get; init; }
     public string? EditionStatement { get; init; }
-    public string? Binding { get; init; }
+    public string? Format { get; init; }
     public string? CoverImageUrl { get; init; }
     public string? ImageThumbnailUrl { get; init; }
     public string? SaxoUrl { get; init; }
