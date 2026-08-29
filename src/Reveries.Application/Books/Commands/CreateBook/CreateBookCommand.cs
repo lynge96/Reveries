@@ -16,11 +16,11 @@ public sealed record CreateBookCommand : IQuery<EditionId>
     public int? Pages { get; init; }
     public string? PublicationDate { get; init; }
     public string? Synopsis { get; init; }
+    public string? Description { get; init; }
     public string? Format { get; init; }
     public string? Edition { get; init; }
     public string? ImageThumbnail { get; init; }
     public string? ImageUrl { get; init; }
-    public decimal? Msrp { get; init; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }
     public decimal? ThicknessCm { get; init; }
@@ -28,5 +28,4 @@ public sealed record CreateBookCommand : IQuery<EditionId>
     public List<string>? DeweyDecimals { get; init; }
     public List<string>? PrimaryGenres { get; init; }
     public List<string>? SecondaryGenres { get; init; }
-    public string? DataSource { get; set; }
 }

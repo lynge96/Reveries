@@ -13,11 +13,11 @@ public record CreateBookRequest
     public int? Pages { get; set; }
     public string? PublicationDate { get; set; }
     public string? Synopsis { get; set; }
+    public string? Description { get; set; }
     public string? Format { get; set; }
     public string? Edition { get; set; }
     public string? ImageThumbnail { get; set; }
     public string? ImageUrl { get; set; }
-    public decimal? Msrp { get; set; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }
     public decimal? ThicknessCm { get; init; }
@@ -25,5 +25,4 @@ public record CreateBookRequest
     public List<string>? DeweyDecimals { get; set; }
     public List<string>? PrimaryGenres { get; set; }
     public List<string>? SecondaryGenres { get; set; }
-    public string? DataSource { get; set; }
 }

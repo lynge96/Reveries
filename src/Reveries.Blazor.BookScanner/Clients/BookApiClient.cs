@@ -78,9 +78,9 @@ public class BookApiClient
         Language = book.Language,
         PublicationDate = book.PublicationDate,
         Synopsis = book.Synopsis,
+        Description = book.Description,
         ImageUrl = book.CoverImageUrl,
         ImageThumbnail = book.ImageThumbnailUrl,
-        Msrp = book.Msrp,
         Format = book.Format,
         Edition = book.Edition,
         PrimaryGenres = book.PrimaryGenres,
@@ -91,7 +91,6 @@ public class BookApiClient
         HeightCm = book.HeightCm,
         WidthCm = book.WidthCm,
         ThicknessCm = book.ThicknessCm,
-        WeightG = book.WeightG,
-        DataSource = book.DataSource
+        WeightG = book.WeightG
     };
 }

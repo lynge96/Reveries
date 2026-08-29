@@ -28,9 +28,7 @@ public class EditionTests
             ImageThumbnail: null,
             ImageUrl: null,
             SaxoUrl: null,
-            Msrp: 199.95m,
-            Dimensions: null,
-            DataSource: DataSource.IsbndbApi));
+            Dimensions: null));
     }
 
     [Fact]
@@ -78,9 +76,7 @@ public class EditionTests
             ImageThumbnail: null,
             ImageUrl: null,
             SaxoUrl: null,
-            Msrp: null,
-            Dimensions: null,
-            DataSource: DataSource.IsbndbApi));
+            Dimensions: null));
 
         Assert.Equal(workId, edition.WorkId);
     }
@@ -122,16 +118,6 @@ public class EditionTests
     }
 
     [Fact]
-    public void UpdateDataSource_ChangesDataSource()
-    {
-        var edition = CreateValidEdition();
-
-        edition.UpdateDataSource(DataSource.GoogleBooksApi);
-
-        Assert.Equal(DataSource.GoogleBooksApi, edition.DataSource);
-    }
-
-    [Fact]
     public void SetPublisher_AssignsPublisher()
     {
         var edition = CreateValidEdition();
@@ -160,9 +146,7 @@ public class EditionTests
             ImageThumbnailUrl: null,
             CoverImageUrl: null,
             SaxoUrl: null,
-            Msrp: 199.95m,
             Dimensions: null,
-            DataSource: DataSource.IsbndbApi,
             Publisher: Publisher.TryCreate("Chilton Books"));
 
         var edition = Edition.Reconstitute(data);

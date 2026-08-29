@@ -16,8 +16,6 @@ public sealed record EditionReconstitutionData(
     string? ImageThumbnailUrl,
     string? CoverImageUrl,
     string? SaxoUrl,
-    decimal? Msrp,
     BookDimensions? Dimensions,
-    DataSource DataSource,
     Publisher? Publisher = null
 );

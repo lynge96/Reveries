@@ -1,7 +1,6 @@
 using Reveries.Application.Books.Models;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Utilities;
-using Reveries.Domain.Enums;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;
@@ -10,16 +9,11 @@ public class BookSelectionService
 {
     public List<EditionWithWork> SelectBooksToSave(List<EditionWithWork> books)
     {
-        var booksToPrompt = books
-            .Where(b => b.Edition.DataSource != DataSource.Database && b.Edition.DataSource != DataSource.Cache)
-            .ToList();
-        if (booksToPrompt.Count == 0)
+        if (books.Count == 0)
             return [];
 
-        var sortedBooks = booksToPrompt
-            .OrderByDescending(b => b.Edition.DataSource.HasFlag(DataSource.Database))
-            .ThenBy(b => b.Work.Title.Text)
-            .ThenBy(b => b.Edition.DataSource.HasFlag(DataSource.CombinedBookApi))
+        var sortedBooks = books
+            .OrderBy(b => b.Work.Title.Text)
             .ToList();
 
         var selectedBooks = ConsolePromptUtility.ShowMultiSelectionPrompt("Select books to save:", sortedBooks);

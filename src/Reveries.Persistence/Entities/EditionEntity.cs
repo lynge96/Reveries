@@ -14,12 +14,10 @@ public sealed class EditionEntity
     public string? ImageUrl { get; set; }
     public string? ImageThumbnail { get; set; }
     public string? SaxoUrl { get; set; }
-    public decimal? Msrp { get; set; }
     public decimal? HeightCm { get; set; }
     public decimal? WidthCm { get; set; }
     public decimal? ThicknessCm { get; set; }
     public decimal? WeightG { get; set; }
-    public string DataSource { get; set; } = null!;
     public Guid? PublisherId { get; set; }
     public DateTimeOffset? DateCreated { get; set; }
 }

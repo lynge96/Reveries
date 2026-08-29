@@ -1,6 +1,5 @@
 using Reveries.Application.Books.Commands.CreateBook;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Enums;
 using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Mappers;
@@ -9,16 +8,15 @@ public static class BookMapper
 {
     public static (Work Work, Edition Edition) ToWorkAndEdition(this CreateBookCommand cmd)
     {
-        var work = Work.Create(
-            title: cmd.Title,
-            authors: cmd.Authors,
-            primaryGenres: cmd.PrimaryGenres,
-            secondaryGenres: cmd.SecondaryGenres,
-            deweyDecimals: cmd.DeweyDecimals,
-            synopsis: cmd.Synopsis
-        );
-
-        var dataSourceParsed = Enum.TryParse<DataSource>(cmd.DataSource, true, out var ds);
+        var work = Work.Create(new WorkData(
+            Title: cmd.Title,
+            Authors: cmd.Authors,
+            PrimaryGenres: cmd.PrimaryGenres,
+            SecondaryGenres: cmd.SecondaryGenres,
+            DeweyDecimals: cmd.DeweyDecimals,
+            Synopsis: cmd.Synopsis,
+            Description: cmd.Description
+        ));
 
         var dimensions = BookDimensions.Create(cmd.HeightCm, cmd.WidthCm, cmd.ThicknessCm, cmd.WeightG);
 
@@ -35,9 +33,7 @@ public static class BookMapper
             ImageThumbnail: cmd.ImageThumbnail,
             ImageUrl: cmd.ImageUrl,
             SaxoUrl: null,
-            Msrp: cmd.Msrp,
-            Dimensions: dimensions,
-            DataSource: dataSourceParsed ? ds : DataSource.Unknown));
+            Dimensions: dimensions));
 
         return (work, edition);
     }

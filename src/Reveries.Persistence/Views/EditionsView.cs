@@ -15,12 +15,10 @@ public sealed class EditionsView
     public string? CoverImageUrl { get; init; }
     public string? ImageThumbnailUrl { get; init; }
     public string? SaxoUrl { get; init; }
-    public decimal? Msrp { get; init; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }
     public decimal? ThicknessCm { get; init; }
     public decimal? WeightG { get; init; }
-    public string? DataSource { get; init; }
     public DateTimeOffset? DateCreatedEdition { get; init; }
 
     // Publisher (null when the edition has no publisher — LEFT JOIN)

@@ -7,6 +7,7 @@ public sealed record WorkReconstitutionData(
     Guid Id,
     string Title,
     string? Synopsis,
+    string? Description,
     int? SeriesNumber,
     Series? Series = null,
     IEnumerable<Author>? Authors = null,

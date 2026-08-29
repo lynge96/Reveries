@@ -159,15 +159,6 @@ else
                                 </div>
                             </div>
 
-                            <!-- MSRP -->
-                            <div class="book-info">
-                                <i class="bi bi-currency-dollar icon"></i>
-                                <div>
-                                    <div class="label">Price</div>
-                                    <div class="value">@_book.Msrp</div>
-                                </div>
-                            </div>
-
                             <!-- Dimensions -->
                             <div class="book-info">
                                 <i class="bi bi-rulers icon"></i>
@@ -204,14 +195,6 @@ else
                                 </div>
                             }
 
-                            <!-- Datasource -->
-                            <div class="book-info">
-                                <i class="bi bi-database icon"></i>
-                                <div>
-                                    <div class="label">Datasource</div>
-                                    <div class="value"><BookSourceBadge DataSource="@_book.DataSource"/></div>
-                                </div>
-                            </div>
                         </div>
 
                         <hr class="my-3 border border-secondary opacity-15 rounded"/>
@@ -233,6 +216,16 @@ else
                                         @(_showFullSynopsis ? "Show less" : "Show more")
                                     </button>
                                 }
+                            </div>
+                        }
+
+                        <!-- Description -->
+                        @if (!string.IsNullOrEmpty(_book.Description))
+                        {
+                            <div class="synopsis-title mb-2">Description</div>
+
+                            <div class="synopsis">
+                                <p class="synopsis-text mb-1" style="white-space: pre-wrap;">@_book.Description</p>
                             </div>
                         }
 
@@ -274,15 +267,9 @@ else
             _book = await BooksApi.GetAsync(Isbn);
         }
         
-        if (_book != null)
+        if (_book != null && !string.IsNullOrEmpty(Isbn))
         {
-            _isSaved = _book.DataSource switch
-            {
-                "Database" => true,
-                "ExternalApi" => false,
-                "Cache" => await BooksApi.ExistsAsync(Isbn!),
-                _ => false
-            };
+            _isSaved = await BooksApi.ExistsAsync(Isbn);
         }
     }
 

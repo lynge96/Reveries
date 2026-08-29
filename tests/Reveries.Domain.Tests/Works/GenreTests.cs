@@ -21,4 +21,12 @@ public class GenreTests
     {
         Assert.Null(Genre.TryCreate(name));
     }
+
+    [Fact]
+    public void Reconstitute_KeepsStoredNameVerbatim_WithoutRenormalizing()
+    {
+        var genre = Genre.Reconstitute("science fiction");
+
+        Assert.Equal("science fiction", genre.Name);
+    }
 }

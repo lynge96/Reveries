@@ -25,19 +25,18 @@ public static class BookDetailsMapper
             Pages = edition.Pages,
             PublicationDate = edition.PublicationDate?.Value,
             Synopsis = work.Synopsis?.Text,
+            Description = work.Description?.Text,
             Format = edition.Format.ToString(),
             Edition = edition.EditionDescription,
-            CoverImageUrl = edition.CoverImageUrl,
-            ImageThumbnailUrl = edition.ImageThumbnailUrl,
-            Msrp = edition.Msrp,
+            CoverImageUrl = edition.Cover?.Url,
+            ImageThumbnailUrl = edition.Cover?.ThumbnailUrl,
             HeightCm = edition.Dimensions?.HeightCm,
             WidthCm = edition.Dimensions?.WidthCm,
             ThicknessCm = edition.Dimensions?.ThicknessCm,
             WeightG = edition.Dimensions?.WeightG,
             DeweyDecimals = work.DeweyDecimals.Select(dd => dd.Code).ToList(),
             PrimaryGenres = work.Genres.Primary.Select(g => g.Name).ToList(),
-            SecondaryGenres = work.Genres.Secondary.Select(g => g.Name).ToList(),
-            DataSource = edition.DataSource.ToString()
+            SecondaryGenres = work.Genres.Secondary.Select(g => g.Name).ToList()
         };
     }
 

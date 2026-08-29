@@ -29,6 +29,7 @@ public static class EditionWithWorkMerger
             Id: iw.Id.Value,
             Title: Prefer(gw.Title.Text, iw.Title.Text) ?? string.Empty,
             Synopsis: (gw.Synopsis ?? iw.Synopsis)?.Text,
+            Description: (gw.Description ?? iw.Description)?.Text,
             SeriesNumber: iw.SeriesPlacement?.Number,
             Series: iw.SeriesPlacement?.Series,
             Authors: gw.Authors.Count != 0 ? gw.Authors : iw.Authors,
@@ -46,12 +47,10 @@ public static class EditionWithWorkMerger
             Language: Prefer(ie.Language?.Value, ge.Language?.Value),
             EditionStatement: Prefer(ge.EditionDescription, ie.EditionDescription),
             Format: PreferFormat(ie.Format, ge.Format),
-            ImageThumbnailUrl: ge.ImageThumbnailUrl ?? ie.ImageThumbnailUrl,
-            CoverImageUrl: ie.ImageThumbnailUrl ?? ie.CoverImageUrl ?? ge.CoverImageUrl,
+            ImageThumbnailUrl: ie.Cover?.ThumbnailUrl ?? ge.Cover?.ThumbnailUrl,
+            CoverImageUrl: ie.Cover?.Url ?? ge.Cover?.Url,
             SaxoUrl: ie.SaxoUrl?.Value ?? ge.SaxoUrl?.Value,
-            Msrp: ie.Msrp,
             Dimensions: MergeDimensions(ie.Dimensions, ge.Dimensions),
-            DataSource: DataSource.CombinedBookApi,
             Publisher: ie.Publisher ?? ge.Publisher));
 
         return new EditionWithWork(edition, work);

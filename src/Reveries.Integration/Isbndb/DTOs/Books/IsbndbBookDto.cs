@@ -26,7 +26,6 @@ public class IsbndbBookDto
     public string? Isbn10 { get; init; }
     public string? Edition { get; init; }
     public string? Binding { get; init; }
-    public decimal? Msrp { get; init; }
     public string? Language { get; init; }
     public string? Dimensions { get; init; }
     public int? Pages { get; init; }

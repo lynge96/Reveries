@@ -1,4 +1,3 @@
-using Reveries.Domain.Enums;
 using Reveries.Domain.Works;
 
 namespace Reveries.Domain.Editions;
@@ -16,6 +15,4 @@ public sealed record EditionData(
     string? ImageThumbnail,
     string? ImageUrl,
     string? SaxoUrl,
-    decimal? Msrp,
-    BookDimensions? Dimensions,
-    DataSource DataSource);
+    BookDimensions? Dimensions);

@@ -54,4 +54,17 @@ public sealed record PublicationDate
 
         return new PublicationDate(year, month, day);
     }
+
+    internal static PublicationDate? Reconstitute(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var segments = value.Split('-');
+        var year = int.Parse(segments[0]);
+        int? month = segments.Length > 1 ? int.Parse(segments[1]) : null;
+        int? day = segments.Length > 2 ? int.Parse(segments[2]) : null;
+
+        return new PublicationDate(year, month, day);
+    }
 }

@@ -31,6 +31,14 @@ public sealed record BookDimensions
         return new BookDimensions(heightCm, widthCm, thicknessCm, weightG);
     }
 
+    public static BookDimensions? Reconstitute(decimal? heightCm, decimal? widthCm, decimal? thicknessCm, decimal? weightG)
+    {
+        if (heightCm is null && widthCm is null && thicknessCm is null && weightG is null)
+            return null;
+
+        return new BookDimensions(heightCm, widthCm, thicknessCm, weightG);
+    }
+
     private static decimal? SanitizeAndRound(decimal? value, int decimals)
     {
         if (value is null or <= 0)

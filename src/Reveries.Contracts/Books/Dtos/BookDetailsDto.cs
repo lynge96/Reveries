@@ -14,11 +14,11 @@ public sealed record BookDetailsDto
     public int? Pages { get; init; }
     public string? PublicationDate { get; init; }
     public string? Synopsis { get; init; }
+    public string? Description { get; init; }
     public string? Format { get; init; }
     public string? Edition { get; init; }
     public string? ImageThumbnailUrl { get; init; }
     public string? CoverImageUrl { get; init; }
-    public decimal? Msrp { get; init; }
     public decimal? WeightG { get; init; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }
@@ -26,5 +26,4 @@ public sealed record BookDetailsDto
     public List<string>? DeweyDecimals { get; init; }
     public List<string>? PrimaryGenres { get; init; }
     public List<string>? SecondaryGenres { get; init; }
-    public string? DataSource { get; init; }
 }

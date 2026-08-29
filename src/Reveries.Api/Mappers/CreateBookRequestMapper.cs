@@ -26,13 +26,13 @@ public static class CreateBookRequestMapper
             Pages = request.Pages,
             PublicationDate = request.PublicationDate,
             Synopsis = request.Synopsis,
+            Description = request.Description,
 
             Format = request.Format,
             Edition = request.Edition,
 
             ImageThumbnail = request.ImageThumbnail,
             ImageUrl = request.ImageUrl,
-            Msrp = request.Msrp,
 
             HeightCm = request.HeightCm,
             WidthCm = request.WidthCm,
@@ -41,9 +41,7 @@ public static class CreateBookRequestMapper
 
             DeweyDecimals = request.DeweyDecimals?.ToList(),
             PrimaryGenres = request.PrimaryGenres?.ToList(),
-            SecondaryGenres = request.SecondaryGenres?.ToList(),
-
-            DataSource = request.DataSource
+            SecondaryGenres = request.SecondaryGenres?.ToList()
         };
     }
 }

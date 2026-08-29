@@ -114,6 +114,7 @@ public class GoogleBookService : IGoogleBookSearch
             Id: pw.Id.Value,
             Title: Prefer(pw.Title.Text, vw.Title.Text) ?? string.Empty,
             Synopsis: Prefer(pw.Synopsis?.Text, vw.Synopsis?.Text),
+            Description: Prefer(vw.Description?.Text, pw.Description?.Text),
             SeriesNumber: pw.SeriesPlacement?.Number,
             Series: pw.SeriesPlacement?.Series,
             Authors: pw.Authors.Count != 0 ? pw.Authors : vw.Authors,
@@ -131,12 +132,10 @@ public class GoogleBookService : IGoogleBookSearch
             Language: pe.Language?.Value ?? ve.Language?.Value,
             EditionStatement: pe.EditionDescription ?? ve.EditionDescription,
             Format: PreferFormat(pe.Format, ve.Format),
-            ImageThumbnailUrl: pe.ImageThumbnailUrl ?? ve.ImageThumbnailUrl,
-            CoverImageUrl: pe.CoverImageUrl ?? ve.CoverImageUrl,
+            ImageThumbnailUrl: pe.Cover?.ThumbnailUrl ?? ve.Cover?.ThumbnailUrl,
+            CoverImageUrl: pe.Cover?.Url ?? ve.Cover?.Url,
             SaxoUrl: pe.SaxoUrl?.Value ?? ve.SaxoUrl?.Value,
-            Msrp: pe.Msrp ?? ve.Msrp,
             Dimensions: ve.Dimensions ?? pe.Dimensions,
-            DataSource: DataSource.GoogleBooksApi,
             Publisher: pe.Publisher ?? ve.Publisher));
 
         return new EditionWithWork(edition, work);

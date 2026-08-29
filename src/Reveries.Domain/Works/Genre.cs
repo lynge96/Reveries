@@ -20,4 +20,6 @@ public sealed record Genre
 
         return new Genre(name.Trim().ToTitleCase());
     }
+
+    public static Genre Reconstitute(string name) => new(name);
 }

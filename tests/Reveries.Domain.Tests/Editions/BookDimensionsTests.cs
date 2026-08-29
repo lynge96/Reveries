@@ -48,4 +48,33 @@ public class BookDimensionsTests
         Assert.Equal(300m, dimensions.WeightG);
     }
 
+    [Fact]
+    public void Reconstitute_PreservesStoredValuesVerbatim()
+    {
+        var dimensions = BookDimensions.Reconstitute(20.5m, 15.2m, 3m, 500m);
+
+        Assert.NotNull(dimensions);
+        Assert.Equal(20.5m, dimensions!.HeightCm);
+        Assert.Equal(15.2m, dimensions.WidthCm);
+        Assert.Equal(3m, dimensions.ThicknessCm);
+        Assert.Equal(500m, dimensions.WeightG);
+    }
+
+    [Fact]
+    public void Reconstitute_DoesNotReSanitize()
+    {
+        var dimensions = BookDimensions.Reconstitute(-10m, 0m, null, 42.7m);
+
+        Assert.NotNull(dimensions);
+        Assert.Equal(-10m, dimensions!.HeightCm);
+        Assert.Equal(0m, dimensions.WidthCm);
+        Assert.Null(dimensions.ThicknessCm);
+        Assert.Equal(42.7m, dimensions.WeightG);
+    }
+
+    [Fact]
+    public void Reconstitute_WithAllNull_ReturnsNull()
+    {
+        Assert.Null(BookDimensions.Reconstitute(null, null, null, null));
+    }
 }

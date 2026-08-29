@@ -1,5 +1,4 @@
 using Reveries.Domain.Editions;
-using Reveries.Domain.Enums;
 using Reveries.Domain.Works;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Repositories;
@@ -45,6 +44,7 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         Assert.NotNull(persistedWork);
         Assert.Equal(work.Title.Text, persistedWork.Title.Text);
         Assert.Equal(work.Synopsis, persistedWork.Synopsis);
+        Assert.Equal(work.Description, persistedWork.Description);
         Assert.Equal(
             work.Authors.Select(a => a.NormalizedName).OrderBy(n => n),
             persistedWork.Authors.Select(a => a.NormalizedName).OrderBy(n => n));
@@ -66,7 +66,6 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         Assert.Equal(Isbn10, persistedEdition.Isbn!.Value10);
         Assert.Equal(edition.Pages, persistedEdition.Pages);
         Assert.Equal(edition.Publisher!.Name, persistedEdition.Publisher!.Name);
-        Assert.Equal(DataSource.Database, persistedEdition.DataSource);
     }
 
     /// <summary>
@@ -105,13 +104,14 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         await transaction.CommitAsync(ct);
     }
 
-    private static Work NewWork() => Work.Create(
-        title: "Nineteen Eighty-Four",
-        authors: ["George Orwell", "Aldous Huxley"],
-        primaryGenres: ["Dystopia"],
-        secondaryGenres: ["Fantasy"],
-        deweyDecimals: ["823"],
-        synopsis: "A dystopian novel.");
+    private static Work NewWork() => Work.Create(new WorkData(
+        Title: "Nineteen Eighty-Four",
+        Authors: ["George Orwell", "Aldous Huxley"],
+        PrimaryGenres: ["Dystopia"],
+        SecondaryGenres: ["Fantasy"],
+        DeweyDecimals: ["823"],
+        Synopsis: "A dystopian novel.",
+        Description: "A fuller description with more detail."));
 
     private static Edition NewEdition(WorkId workId) => Edition.Create(new EditionData(
         WorkId: workId,
@@ -126,7 +126,5 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         ImageThumbnail: null,
         ImageUrl: null,
         SaxoUrl: null,
-        Msrp: null,
-        Dimensions: null,
-        DataSource: DataSource.Database));
+        Dimensions: null));
 }

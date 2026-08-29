@@ -83,4 +83,12 @@ public class DeweyDecimalsTests
 
         Assert.Equal("813.54", dewey!.ToString());
     }
+
+    [Fact]
+    public void Reconstitute_KeepsStoredCodeVerbatim_WithoutNormalizingOrValidating()
+    {
+        var dewey = DeweyDecimal.Reconstitute("813/.6");
+
+        Assert.Equal("813/.6", dewey.Code);
+    }
 }

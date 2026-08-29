@@ -16,12 +16,9 @@ public class Edition
     public PublicationDate? PublicationDate { get; private init; }
     public string? EditionDescription { get; private init; }
     public BookFormat Format { get; private init; }
-    public string? ImageThumbnailUrl { get; private init; }
-    public string? CoverImageUrl { get; private init; }
+    public Cover? Cover { get; private set; }
     public SaxoUrl? SaxoUrl { get; private init; }
-    public decimal? Msrp { get; private init; }
     public BookDimensions? Dimensions { get; private init; }
-    public DataSource DataSource { get; private set; }
 
     private Edition() { }
 
@@ -35,18 +32,15 @@ public class Edition
             Id = EditionId.New(),
             WorkId = data.WorkId,
             Isbn = data.Isbn13 != null ? Isbn.Create(data.Isbn13) : Isbn.Create(data.Isbn10!),
-            Pages = data.Pages > 0 ? data.Pages : null,
+            Pages = PageCountNormalizer.Normalize(data.Pages),
             Publisher = Publisher.TryCreate(data.Publisher),
             Language = Language.TryCreate(data.LanguageIso639),
             PublicationDate = PublicationDate.TryCreate(data.PublishDate),
             EditionDescription = EditionDescriptionNormalizer.Normalize(data.EditionStatement),
             Format = data.Format.GetStandardFormat(),
-            ImageThumbnailUrl = data.ImageThumbnail,
-            CoverImageUrl = data.ImageUrl,
+            Cover = Cover.TryCreate(url: data.ImageUrl, thumbnailUrl: data.ImageThumbnail),
             SaxoUrl = SaxoUrl.TryCreate(data.SaxoUrl),
-            Msrp = data.Msrp,
-            Dimensions = data.Dimensions,
-            DataSource = data.DataSource
+            Dimensions = data.Dimensions
         };
 
         return edition;
@@ -60,27 +54,20 @@ public class Edition
             WorkId = new WorkId(data.WorkId),
             Isbn = BuildReconstitutedIsbn(data.Isbn13, data.Isbn10),
             Pages = data.Pages,
-            PublicationDate = PublicationDate.TryCreate(data.PublicationDate),
+            PublicationDate = PublicationDate.Reconstitute(data.PublicationDate),
             Language = data.Language != null ? Language.Reconstitute(data.Language) : null,
             EditionDescription = data.EditionStatement,
             Format = data.Format,
-            ImageThumbnailUrl = data.ImageThumbnailUrl,
-            CoverImageUrl = data.CoverImageUrl,
+            Cover = Cover.Reconstitute(url: data.CoverImageUrl, thumbnailUrl: data.ImageThumbnailUrl),
             SaxoUrl = data.SaxoUrl != null ? new SaxoUrl(data.SaxoUrl) : null,
-            Msrp = data.Msrp,
             Dimensions = data.Dimensions,
-            Publisher = data.Publisher,
-            DataSource = data.DataSource
+            Publisher = data.Publisher
         };
     }
 
     public void SetPublisher(Publisher? publisher) => Publisher = publisher;
 
-    public void UpdateDataSource(DataSource newDataSource)
-    {
-        if (DataSource == newDataSource) return;
-        DataSource = newDataSource;
-    }
+    public void SetCover(Cover? cover) => Cover = cover;
 
     private static Isbn? BuildReconstitutedIsbn(string? value13, string? value10)
     {

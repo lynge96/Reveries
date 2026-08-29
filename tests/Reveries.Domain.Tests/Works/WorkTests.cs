@@ -13,9 +13,10 @@ public class WorkTests
         IEnumerable<string>? primaryGenres = null,
         IEnumerable<string>? secondaryGenres = null,
         IEnumerable<string>? deweyDecimals = null,
-        string? synopsis = "A synopsis")
+        string? synopsis = "A synopsis",
+        string? description = "A description")
     {
-        return Work.Create(title, authors, primaryGenres, secondaryGenres, deweyDecimals, synopsis);
+        return Work.Create(new WorkData(title, authors, primaryGenres, secondaryGenres, deweyDecimals, synopsis, description));
     }
 
     [Fact]
@@ -31,6 +32,14 @@ public class WorkTests
 
         Assert.Equal("Dune", work.Title.Text);
         Assert.Equal("Life on a desert planet.", work.Synopsis?.Text);
+    }
+
+    [Fact]
+    public void Create_SetsDescription()
+    {
+        var work = CreateValidWork(description: "A fuller account of life on Arrakis.");
+
+        Assert.Equal("A fuller account of life on Arrakis.", work.Description?.Text);
     }
 
     [Fact]
@@ -162,6 +171,7 @@ public class WorkTests
             Id: id,
             Title: "Dune",
             Synopsis: "Life on a desert planet.",
+            Description: "A fuller account of life on Arrakis.",
             SeriesNumber: 1,
             Series: Series.Create("Dune Chronicles"),
             Authors: [Author.TryCreate("Frank Herbert")!],
@@ -173,9 +183,26 @@ public class WorkTests
         Assert.Equal(id, work.Id.Value);
         Assert.Equal("Dune", work.Title.Text);
         Assert.Equal("Life on a desert planet.", work.Synopsis?.Text);
+        Assert.Equal("A fuller account of life on Arrakis.", work.Description?.Text);
         Assert.Equal(1, work.SeriesPlacement?.Number);
         Assert.Single(work.Authors);
         Assert.Single(work.Genres.Primary);
         Assert.Single(work.DeweyDecimals);
+    }
+
+    [Fact]
+    public void Reconstitute_WithNumberButNoSeries_DropsTheOrphanNumber()
+    {
+        var data = new WorkReconstitutionData(
+            Id: Guid.NewGuid(),
+            Title: "Orphan",
+            Synopsis: null,
+            Description: null,
+            SeriesNumber: 3,
+            Series: null);
+
+        var work = Work.Reconstitute(data);
+
+        Assert.Null(work.SeriesPlacement);
     }
 }

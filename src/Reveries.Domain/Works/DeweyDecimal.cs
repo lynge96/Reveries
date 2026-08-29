@@ -41,6 +41,8 @@ public sealed partial record DeweyDecimal
         return new DeweyDecimal(normalized);
     }
 
+    public static DeweyDecimal Reconstitute(string code) => new(code);
+
     public override string ToString() => Code;
 
     private static string Normalize(string code)

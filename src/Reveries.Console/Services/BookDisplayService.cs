@@ -1,6 +1,5 @@
 using Reveries.Application.Books.Models;
 using Reveries.Console.Common.Extensions;
-using Reveries.Domain.Enums;
 using Reveries.Domain.Helpers;
 using Spectre.Console;
 
@@ -20,16 +19,7 @@ public class BookDisplayService
 
         foreach (var book in books)
         {
-            var sourceLabel = book.Edition.DataSource switch
-            {
-                DataSource.Database => " (Database)",
-                DataSource.GoogleBooksApi => " (GoogleBooks API)",
-                DataSource.IsbndbApi => " (ISBNDB API)",
-                DataSource.CombinedBookApi => " (Combined API)",
-                DataSource.Cache => " (Cache)",
-                _ => ""
-            };
-            var bookNode = root.AddNode("📖 " + Markup.Escape(book.Work.Title.Text).Bold().AsPrimary() + sourceLabel.AsInfo());
+            var bookNode = root.AddNode("📖 " + Markup.Escape(book.Work.Title.Text).Bold().AsPrimary());
             AddBookDetails(bookNode, book);
         }
 
@@ -51,7 +41,7 @@ public class BookDisplayService
         var columnNames = new[]
         {
             "#", "ISBN", "Title", "Author", "Pages", "Published",
-            "Publisher", "#", "Series", "Format", "Data source"
+            "Publisher", "#", "Series", "Format"
         };
         table.AddColumns(columnNames.Select(c => c.Bold().AsPrimary()).ToArray());
 
@@ -73,8 +63,7 @@ public class BookDisplayService
                 work.SeriesPlacement != null
                     ? $"{Markup.Escape(work.SeriesPlacement.Series.Name)} {Markup.Escape(work.SeriesPlacement.Series.Id.ToString()).AsInfo()}"
                     : "",
-                Markup.Escape(edition.Format.ToString()),
-                edition.DataSource.ToString().AsInfo()
+                Markup.Escape(edition.Format.ToString())
             );
         }
 
@@ -104,7 +93,6 @@ public class BookDisplayService
             { "Publisher", edition.Publisher?.Name ?? "Unknown" },
             { "Language", edition.Language?.DisplayName ?? "Unknown language" },
             { "Published", edition.PublicationDate?.Value ?? "Unknown date" },
-            { "MSRP", edition.Msrp?.ToString() ?? "Unknown" },
             { "Format", edition.Format.ToString() }
         };
 

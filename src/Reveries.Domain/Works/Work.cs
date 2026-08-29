@@ -11,6 +11,7 @@ public class Work
     public WorkId Id { get; private init; }
     public required Title Title { get; init; }
     public Synopsis? Synopsis { get; private init; }
+    public Description? Description { get; private init; }
     public IReadOnlyList<Author> Authors { get; }
     public GenreClassification Genres { get; private init; } = GenreClassification.Empty;
     public IReadOnlyList<DeweyDecimal> DeweyDecimals { get; }
@@ -22,30 +23,25 @@ public class Work
         DeweyDecimals = _deweyDecimals.AsReadOnly();
     }
 
-    public static Work Create(
-        string title,
-        IEnumerable<string>? authors,
-        IEnumerable<string>? primaryGenres,
-        IEnumerable<string>? secondaryGenres,
-        IEnumerable<string>? deweyDecimals,
-        string? synopsis)
+    public static Work Create(WorkData data)
     {
         var work = new Work
         {
             Id = WorkId.New(),
-            Title = Title.Create(title),
-            Synopsis = Synopsis.TryCreate(synopsis),
-            Genres = GenreClassification.Create(primaryGenres, secondaryGenres)
+            Title = Title.Create(data.Title),
+            Synopsis = Synopsis.TryCreate(data.Synopsis),
+            Description = Description.TryCreate(data.Description),
+            Genres = GenreClassification.Create(data.PrimaryGenres, data.SecondaryGenres)
         };
 
-        foreach (var authorName in authors ?? [])
+        foreach (var authorName in data.Authors ?? [])
         {
             var author = Author.TryCreate(authorName);
             if (author is not null)
                 work.AddAuthor(author);
         }
 
-        foreach (var code in deweyDecimals ?? [])
+        foreach (var code in data.DeweyDecimals ?? [])
         {
             var dewey = DeweyDecimal.TryCreate(code);
             if (dewey is not null)
@@ -62,6 +58,7 @@ public class Work
             Id = new WorkId(data.Id),
             Title = new Title(data.Title),
             Synopsis = data.Synopsis is null ? null : new Synopsis(data.Synopsis),
+            Description = data.Description is null ? null : new Description(data.Description),
             SeriesPlacement = data.Series is null ? null : new SeriesPlacement(data.Series, data.SeriesNumber),
             Genres = GenreClassification.Reconstitute(data.PrimaryGenres, data.SecondaryGenres)
         };

@@ -12,6 +12,7 @@ public static class WorkMappingExtensions
             Id = work.Id.Value,
             Title = work.Title.ToString(),
             Synopsis = work.Synopsis?.Text,
+            Description = work.Description?.Text,
             SeriesNumber = work.SeriesPlacement?.Number,
             SeriesId = work.SeriesPlacement?.Series.Id.Value
         };
@@ -24,14 +25,13 @@ public static class WorkMappingExtensions
             Id: entity.Work.Id,
             Title: entity.Work.Title,
             Synopsis: entity.Work.Synopsis,
+            Description: entity.Work.Description,
             SeriesNumber: entity.Work.SeriesNumber,
             Series: entity.Series?.ToDomain(),
             Authors: entity.Authors?.Select(a => a.ToDomain()),
-            PrimaryGenres: entity.PrimaryGenres?.Select(g => Genre.TryCreate(g.Name)).OfType<Genre>(),
-            SecondaryGenres: entity.SecondaryGenres?.Select(g => Genre.TryCreate(g.Name)).OfType<Genre>(),
-            DeweyDecimals: entity.DeweyDecimals?
-                .Select(dd => DeweyDecimal.TryCreate(dd.Code))
-                .OfType<DeweyDecimal>()
+            PrimaryGenres: entity.PrimaryGenres?.Select(g => Genre.Reconstitute(g.Name)),
+            SecondaryGenres: entity.SecondaryGenres?.Select(g => Genre.Reconstitute(g.Name)),
+            DeweyDecimals: entity.DeweyDecimals?.Select(dd => DeweyDecimal.Reconstitute(dd.Code))
         );
 
         return Work.Reconstitute(data);

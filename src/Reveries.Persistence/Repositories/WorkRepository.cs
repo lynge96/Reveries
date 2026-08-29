@@ -25,10 +25,10 @@ public class WorkRepository : IWorkRepository
     {
         const string sql = """
                            INSERT INTO library.works (
-                               id, title, synopsis, series_id, series_number
+                               id, title, synopsis, description, series_id, series_number
                            )
                            VALUES (
-                               @Id, @Title, @Synopsis, @SeriesId, @SeriesNumber
+                               @Id, @Title, @Synopsis, @Description, @SeriesId, @SeriesNumber
                            )
                            """;
 
@@ -209,6 +209,7 @@ public class WorkRepository : IWorkRepository
                     Id = row.Id,
                     Title = row.Title,
                     Synopsis = row.Synopsis,
+                    Description = row.Description,
                     SeriesNumber = row.SeriesNumber,
                     SeriesId = row.SeriesId,
                     DateCreated = row.DateCreatedWork

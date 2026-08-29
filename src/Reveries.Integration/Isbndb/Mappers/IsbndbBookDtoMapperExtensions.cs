@@ -1,6 +1,5 @@
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Enums;
 using Reveries.Domain.Helpers;
 using Reveries.Domain.Works;
 using Reveries.Integration.Isbndb.DTOs.Books;
@@ -20,13 +19,14 @@ public static class IsbndbBookDtoMapperExtensions
 
         var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
 
-        var work = Work.Create(
-            title: isbndbBookDto.Title,
-            authors: isbndbBookDto.Authors,
-            primaryGenres: null,
-            secondaryGenres: isbndbBookDto.Subjects,
-            deweyDecimals: isbndbBookDto.DeweyDecimals,
-            synopsis: isbndbBookDto.Synopsis);
+        var work = Work.Create(new WorkData(
+            Title: isbndbBookDto.Title,
+            Authors: isbndbBookDto.Authors,
+            PrimaryGenres: null,
+            SecondaryGenres: isbndbBookDto.Subjects,
+            DeweyDecimals: isbndbBookDto.DeweyDecimals,
+            Synopsis: isbndbBookDto.Synopsis,
+            Description: null));
 
         var dimensions = BookDimensions.Create(
             normalizedHeight,
@@ -47,9 +47,7 @@ public static class IsbndbBookDtoMapperExtensions
             ImageThumbnail: isbndbBookDto.Image,
             ImageUrl: isbndbBookDto.ImageOriginal,
             SaxoUrl: null,
-            Msrp: isbndbBookDto.Msrp,
-            Dimensions: dimensions,
-            DataSource: DataSource.IsbndbApi));
+            Dimensions: dimensions));
 
         return new EditionWithWork(edition, work);
     }

@@ -1,7 +1,6 @@
 using System.Globalization;
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Enums;
 using Reveries.Domain.Helpers;
 using Reveries.Domain.Works;
 using Reveries.Integration.GoogleBooks.DTOs;
@@ -26,13 +25,14 @@ public static class GoogleBookDtoMapperExtensions
 
         var (primaryGenres, secondaryGenres) = googleBookDto.Categories.SplitGenres();
 
-        var work = Work.Create(
-            title: googleBookDto.Title,
-            authors: googleBookDto.Authors,
-            primaryGenres: primaryGenres,
-            secondaryGenres: secondaryGenres,
-            deweyDecimals: null,
-            synopsis: googleBookDto.Description);
+        var work = Work.Create(new WorkData(
+            Title: googleBookDto.Title,
+            Authors: googleBookDto.Authors,
+            PrimaryGenres: primaryGenres,
+            SecondaryGenres: secondaryGenres,
+            DeweyDecimals: null,
+            Synopsis: googleBookDto.Description,
+            Description: googleBookDto.Description));
 
         var dimensions = BookDimensions.Create(normalizedHeight, normalizedWidth, normalizedThickness, null);
 
@@ -49,9 +49,7 @@ public static class GoogleBookDtoMapperExtensions
             ImageThumbnail: googleBookDto.ImageLinks?.Thumbnail,
             ImageUrl: googleBookDto.ImageLinks?.Thumbnail,
             SaxoUrl: null,
-            Msrp: null,
-            Dimensions: dimensions,
-            DataSource: DataSource.GoogleBooksApi));
+            Dimensions: dimensions));
 
         return new EditionWithWork(edition, work);
     }

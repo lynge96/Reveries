@@ -20,15 +20,13 @@ public static class EditionMappingExtensions
             PublicationDate = edition.PublicationDate?.Value,
             Language = edition.Language?.Value,
             EditionStatement = edition.EditionDescription,
-            ImageUrl = edition.CoverImageUrl,
-            ImageThumbnail = edition.ImageThumbnailUrl,
+            ImageUrl = edition.Cover?.Url,
+            ImageThumbnail = edition.Cover?.ThumbnailUrl,
             SaxoUrl = edition.SaxoUrl?.Value,
-            Msrp = edition.Msrp,
             HeightCm = edition.Dimensions?.HeightCm,
             WidthCm = edition.Dimensions?.WidthCm,
             ThicknessCm = edition.Dimensions?.ThicknessCm,
             WeightG = edition.Dimensions?.WeightG,
-            DataSource = edition.DataSource.ToString(),
             Format = edition.Format.ToString(),
             PublisherId = edition.Publisher?.Id.Value
         };
@@ -50,22 +48,13 @@ public static class EditionMappingExtensions
             ImageThumbnailUrl: view.ImageThumbnailUrl,
             CoverImageUrl: view.CoverImageUrl,
             SaxoUrl: view.SaxoUrl,
-            Msrp: view.Msrp,
-            Dimensions: BookDimensions.Create(view.HeightCm, view.WidthCm, view.ThicknessCm, view.WeightG),
-            DataSource: ParseDataSource(view.DataSource),
+            Dimensions: BookDimensions.Reconstitute(view.HeightCm, view.WidthCm, view.ThicknessCm, view.WeightG),
             Publisher: view.PublisherId is { } publisherId
                 ? Publisher.Reconstitute(new PublisherId(publisherId), view.PublisherName!)
                 : null
         );
 
         return Edition.Reconstitute(data);
-    }
-
-    private static DataSource ParseDataSource(string? value)
-    {
-        return Enum.TryParse<DataSource>(value, out var dataSource)
-            ? dataSource
-            : DataSource.Database;
     }
 
     private static BookFormat ParseFormat(string? value)
