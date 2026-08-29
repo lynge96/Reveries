@@ -236,6 +236,69 @@ current model:
         path. Do enrichment async or lazy, cache author entities in Redis with a
         long TTL (they are highly stable and shared across many books), and use a
         tight timeout with name-based fallback (`Code ?? normalized_name`).
+- [ ] **Work identity & de-duplication — external stable code (groups editions,
+      separates same-title works).** Two problems, one cause. First, there is
+      currently **no `Work` de-duplication at all**: `WorkPersistenceService`
+      always calls `InsertWorkAsync`, so every scanned edition creates a fresh
+      `Work` even when it is another edition of one you already own — the
+      Work/Edition split is structurally present but works are never actually
+      shared. Second, different works share a title (Homer's *Odyssey* vs Stephen
+      Fry's), so title cannot be the key.
+
+      **Identity vs matching are separate concerns and must stay separate.**
+      `Work` identity stays the opaque surrogate `WorkId` (GUID) — it is already
+      correct and collision-free (two *Odyssey* rows just have different GUIDs). Do
+      **not** turn the title into the key, and do **not** invent a derived slug like
+      `odyssey:homer`: a slug bakes a lossy, mutable heuristic into the identity,
+      breaks on title variants ("The Odyssey"), translations/transliteration
+      (`Ὅμηρος`), and — worst — on same-name authors (`odyssey:johnsmith` cannot
+      tell two John Smiths apart, the very ambiguity the author item above
+      describes). De-duplication is a *matching* concern layered on top of the
+      stable identity, not the identity itself.
+
+      **The fix: an optional `WorkCode` resolved from OpenLibrary, used as the
+      dedup key** — the work-level twin of the author `AuthorCode`. Dedup resolves
+      by `WorkCode ?? (normalized title + primary-author signature)` with
+      confirm-on-conflict when the code is absent, and the schema splits the key
+      into two partial unique indexes exactly like the author plan:
+      `UNIQUE(work_code) WHERE work_code IS NOT NULL` and a title+author fallback
+      guard `WHERE work_code IS NULL`.
+
+      **Why OpenLibrary for works (and Wikidata for authors):** OpenLibrary's data
+      model *is* the ISBN → Edition → Work chain, so identity is keyed off the
+      scanned ISBN deterministically rather than guessed from a name — the opposite
+      of Wikidata, which has no reliable ISBN → work chain and thin book coverage.
+      OpenLibrary's stub-quality problem matters less here because dedup needs only
+      the stable `OL…W` key, not the record's contents.
+      - **Endpoints (use the light record fetches, not the heavy `jscmd=data`
+        Books API which is ~10s):** `https://openlibrary.org/isbn/{isbn}.json`
+        returns the edition with `"works":[{"key":"/works/OL…W"}]` — store the
+        `OL…W` as `WorkCode`; `https://openlibrary.org/works/OL…W.json` for the work
+        record; `https://openlibrary.org/search.json?title=&author=&fields=…` as the
+        title+author fallback / disambiguation path (each `doc` is a work with
+        `author_name`).
+      - **Bridge to Wikidata for authors:** OpenLibrary author records
+        (`/authors/OL…A.json`) often carry `remote_ids.wikidata` (and VIAF/ISNI), so
+        one ISBN-keyed OpenLibrary call yields both the work id *and* the authors'
+        OLIDs, and the author `remote_ids` bridge onward to the Wikidata QID for the
+        rich author enrichment above. OpenLibrary is the entry point (ISBN → work +
+        authors); Wikidata is the enrichment layer on top.
+      - **Placement:** same rules as author enrichment — off the scan critical path
+        (async/lazy), a descriptive `User-Agent`, a tight timeout, and Redis caching
+        with a long TTL (works are highly stable and shared across editions).
+
+      **Build it as one vertical slice, not the field alone.** `WorkCode` has no
+      value on its own — it is inert until *both* the OpenLibrary resolver populates
+      it *and* the save-path dedup consumes it. Adding just the column now would be
+      an always-null field of exactly the kind removed with `Msrp` and `DataSource`;
+      and `WorkData`/`WorkReconstitutionData` already make adding the field later a
+      small diff, so there is nothing to gain by front-running it. The three parts
+      that only make sense together: (1) an `IWorkAuthoritySearch` OpenLibrary
+      integration (its own `Reveries.Integration` folder, registered like ISBNDB /
+      Google), (2) the `WorkCode` domain field + `works.work_code` column + partial
+      indexes, and (3) get-or-create-by-code in `WorkPersistenceService` replacing
+      the unconditional `InsertWorkAsync`. Share the OpenLibrary integration with
+      the author-authority item and build the two together.
 - [ ] **Introduce migration tooling here** — the domain changes above are the
       first schema changes, so this is the natural point. Adopt **DbUp**
       (lightweight, plain-SQL, no EF) so schema changes become one versioned
