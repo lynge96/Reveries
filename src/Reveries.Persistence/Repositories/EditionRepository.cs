@@ -83,22 +83,6 @@ public class EditionRepository : IEditionRepository
         return await connection.QuerySingleAsync<bool>(command);
     }
 
-    public async Task<Edition?> GetEditionByIdAsync(EditionId id, CancellationToken ct)
-    {
-        const string sql = """
-                           SELECT *
-                           FROM library.editions_view
-                           WHERE id = @Id
-                           """;
-
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Id = id.Value }, ct);
-
-        var row = await connection.QueryFirstOrDefaultAsync<EditionsView>(command);
-
-        return row?.ToDomain();
-    }
-
     public async Task<List<Edition>> GetEditionsByWorkIdAsync(WorkId workId, CancellationToken ct)
     {
         const string sql = """

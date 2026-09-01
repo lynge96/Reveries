@@ -3,7 +3,7 @@ using Reveries.Application.Books.Models;
 
 namespace Reveries.Application.Books.Queries.GetBookById;
 
-public sealed record GetBookByIdQuery : IQuery<EditionWithWork>
+public sealed record GetBookByIdQuery : IQuery<BookDetails>
 {
     public Guid BookId { get; }
 

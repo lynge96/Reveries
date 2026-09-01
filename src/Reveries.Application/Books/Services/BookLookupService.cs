@@ -147,20 +147,6 @@ public class BookLookupService : IBookLookupService
         return result;
     }
 
-    public async Task<EditionWithWork?> FindBookById(Guid id, CancellationToken ct)
-    {
-        var edition = await _editions.GetEditionByIdAsync(new EditionId(id), ct);
-        if (edition is null)
-            return null;
-
-        var work = await _works.GetWorkByIdAsync(edition.WorkId, ct);
-        if (work is null)
-            return null;
-
-        _logger.LogInformation("Book lookup by Id completed. EditionId: {Id}.", id);
-        return new EditionWithWork(edition, work);
-    }
-
     public async Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct)
     {
         return await _editions.EditionExistsAsync(isbn, ct);

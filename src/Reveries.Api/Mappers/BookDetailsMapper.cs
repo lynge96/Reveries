@@ -48,4 +48,44 @@ public static class BookDetailsMapper
             Items = items.Select(i => i.ToDto()).ToList()
         };
     }
+
+    public static BookDetailsDto ToDto(this BookDetails book)
+    {
+        return new BookDetailsDto
+        {
+            BookId = book.BookId,
+            Isbn10 = book.Isbn10,
+            Isbn13 = book.Isbn13,
+            Title = book.Title,
+            Subtitle = book.Subtitle,
+            Series = book.Series,
+            NumberInSeries = book.NumberInSeries,
+            Authors = book.Authors.ToList(),
+            Publisher = book.Publisher,
+            Language = book.Language,
+            Pages = book.Pages,
+            PublicationDate = book.PublicationDate,
+            Synopsis = book.Synopsis,
+            Description = book.Description,
+            Format = book.Format,
+            Edition = book.Edition,
+            CoverImageUrl = book.CoverImageUrl,
+            ImageThumbnailUrl = book.ImageThumbnailUrl,
+            HeightCm = book.HeightCm,
+            WidthCm = book.WidthCm,
+            ThicknessCm = book.ThicknessCm,
+            WeightG = book.WeightG,
+            DeweyDecimals = book.DeweyDecimals.ToList(),
+            PrimaryGenres = book.PrimaryGenres.ToList(),
+            SecondaryGenres = book.SecondaryGenres.ToList()
+        };
+    }
+
+    public static BooksResponse ToResponse(this IEnumerable<BookDetails> books)
+    {
+        return new BooksResponse
+        {
+            Items = books.Select(book => book.ToDto()).ToList()
+        };
+    }
 }

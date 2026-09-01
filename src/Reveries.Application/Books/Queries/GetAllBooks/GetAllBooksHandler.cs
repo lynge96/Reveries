@@ -6,22 +6,22 @@ using Reveries.Application.Common.Exceptions;
 
 namespace Reveries.Application.Books.Queries.GetAllBooks;
 
-public sealed class GetAllBooksHandler : IQueryHandler<GetAllBooksQuery, List<EditionWithWork>>
+public sealed class GetAllBooksHandler : IQueryHandler<GetAllBooksQuery, IReadOnlyList<BookDetails>>
 {
-    private readonly IBookLookupService _bookLookupService;
+    private readonly IBookQueryRepository _bookQueries;
     private readonly ILogger<GetAllBooksHandler> _logger;
 
     public GetAllBooksHandler(
-        IBookLookupService bookLookupService,
+        IBookQueryRepository bookQueries,
         ILogger<GetAllBooksHandler> logger)
     {
-        _bookLookupService = bookLookupService;
+        _bookQueries = bookQueries;
         _logger = logger;
     }
 
-    public async ValueTask<List<EditionWithWork>> Handle(GetAllBooksQuery query, CancellationToken ct)
+    public async ValueTask<IReadOnlyList<BookDetails>> Handle(GetAllBooksQuery query, CancellationToken ct)
     {
-        var books = await _bookLookupService.GetAllBooksAsync(ct);
+        var books = await _bookQueries.GetAllBooksAsync(ct);
 
         if (books.Count == 0)
             throw new NotFoundException("No books were found.");

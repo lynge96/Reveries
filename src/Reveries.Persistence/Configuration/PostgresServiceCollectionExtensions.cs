@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Persistence.Interfaces;
@@ -45,6 +46,7 @@ public static class PostgresServiceCollectionExtensions
         services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IDeweyDecimalsRepository, DeweyDecimalsRepository>();
         services.AddScoped<ISeriesRepository, SeriesRepository>();
+        services.AddScoped<IBookQueryRepository, BookQueryRepository>();
 
         // DbContext
         services.AddScoped<IDbContext, PostgresDbContext>();

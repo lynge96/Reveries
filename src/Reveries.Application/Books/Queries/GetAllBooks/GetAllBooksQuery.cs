@@ -3,4 +3,4 @@ using Reveries.Application.Books.Models;
 
 namespace Reveries.Application.Books.Queries.GetAllBooks;
 
-public sealed record GetAllBooksQuery : IQuery<List<EditionWithWork>>;
+public sealed record GetAllBooksQuery : IQuery<IReadOnlyList<BookDetails>>;
