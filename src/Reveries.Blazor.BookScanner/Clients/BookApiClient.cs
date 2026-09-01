@@ -72,6 +72,7 @@ public class BookApiClient
         Isbn13 = book.Isbn13,
         Isbn10 = book.Isbn10,
         Title = book.Title,
+        Subtitle = book.Subtitle,
         Authors = book.Authors,
         Publisher = book.Publisher,
         Pages = book.Pages,

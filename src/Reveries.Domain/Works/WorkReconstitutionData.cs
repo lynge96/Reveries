@@ -6,6 +6,7 @@ namespace Reveries.Domain.Works;
 public sealed record WorkReconstitutionData(
     Guid Id,
     string Title,
+    string? Subtitle,
     string? Synopsis,
     string? Description,
     int? SeriesNumber,

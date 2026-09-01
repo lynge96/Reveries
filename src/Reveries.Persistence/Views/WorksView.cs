@@ -5,6 +5,7 @@ public sealed class WorksView
     // Work
     public Guid Id { get; init; }
     public string Title { get; init; } = null!;
+    public string? Subtitle { get; init; }
     public string? Synopsis { get; init; }
     public string? Description { get; init; }
     public int? SeriesNumber { get; init; }

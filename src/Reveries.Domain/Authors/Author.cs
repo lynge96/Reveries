@@ -1,10 +1,10 @@
+using Reveries.Domain.Common;
 using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.Authors;
 
-public class Author
+public class Author : Entity<AuthorId>
 {
-    public AuthorId Id { get; private init; }
     public string Name { get; }
     public string NormalizedName => Name.ToLowerInvariant();
 

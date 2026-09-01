@@ -43,6 +43,7 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         var persistedWork = await new WorkRepository(readContext).GetWorkByIdAsync(work.Id, CancellationToken.None);
         Assert.NotNull(persistedWork);
         Assert.Equal(work.Title.Text, persistedWork.Title.Text);
+        Assert.Equal(work.Subtitle, persistedWork.Subtitle);
         Assert.Equal(work.Synopsis, persistedWork.Synopsis);
         Assert.Equal(work.Description, persistedWork.Description);
         Assert.Equal(
@@ -106,6 +107,7 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
 
     private static Work NewWork() => Work.Create(new WorkData(
         Title: "Nineteen Eighty-Four",
+        Subtitle: "A Novel",
         Authors: ["George Orwell", "Aldous Huxley"],
         PrimaryGenres: ["Dystopia"],
         SecondaryGenres: ["Fantasy"],

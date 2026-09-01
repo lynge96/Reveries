@@ -1,10 +1,10 @@
+using Reveries.Domain.Common;
 using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.Publishers;
 
-public class Publisher
+public class Publisher : Entity<PublisherId>
 {
-    public PublisherId Id { get; private init; }
     public string Name { get; }
     public string NormalizedName => Name.ToLowerInvariant();
 

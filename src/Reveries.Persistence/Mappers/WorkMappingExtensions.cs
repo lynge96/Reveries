@@ -11,6 +11,7 @@ public static class WorkMappingExtensions
         {
             Id = work.Id.Value,
             Title = work.Title.ToString(),
+            Subtitle = work.Subtitle,
             Synopsis = work.Synopsis?.Text,
             Description = work.Description?.Text,
             SeriesNumber = work.SeriesPlacement?.Number,
@@ -24,6 +25,7 @@ public static class WorkMappingExtensions
         (
             Id: entity.Work.Id,
             Title: entity.Work.Title,
+            Subtitle: entity.Work.Subtitle,
             Synopsis: entity.Work.Synopsis,
             Description: entity.Work.Description,
             SeriesNumber: entity.Work.SeriesNumber,

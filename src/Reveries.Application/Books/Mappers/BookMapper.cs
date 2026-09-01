@@ -10,6 +10,7 @@ public static class BookMapper
     {
         var work = Work.Create(new WorkData(
             Title: cmd.Title,
+            Subtitle: cmd.Subtitle,
             Authors: cmd.Authors,
             PrimaryGenres: cmd.PrimaryGenres,
             SecondaryGenres: cmd.SecondaryGenres,

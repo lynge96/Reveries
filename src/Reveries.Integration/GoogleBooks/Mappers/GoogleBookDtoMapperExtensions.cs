@@ -27,6 +27,7 @@ public static class GoogleBookDtoMapperExtensions
 
         var work = Work.Create(new WorkData(
             Title: googleBookDto.Title,
+            Subtitle: googleBookDto.Subtitle,
             Authors: googleBookDto.Authors,
             PrimaryGenres: primaryGenres,
             SecondaryGenres: secondaryGenres,
@@ -45,7 +46,7 @@ public static class GoogleBookDtoMapperExtensions
             PublishDate: googleBookDto.PublishedDate,
             LanguageIso639: googleBookDto.Language,
             Format: googleBookDto.PrintType,
-            EditionStatement: googleBookDto.Subtitle,
+            EditionStatement: null,
             ImageThumbnail: googleBookDto.ImageLinks?.Thumbnail,
             ImageUrl: googleBookDto.ImageLinks?.Thumbnail,
             SaxoUrl: null,

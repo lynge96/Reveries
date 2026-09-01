@@ -1,3 +1,4 @@
+using Reveries.Domain.Common;
 using Reveries.Domain.Enums;
 using Reveries.Domain.Exceptions;
 using Reveries.Domain.Helpers;
@@ -5,9 +6,8 @@ using Reveries.Domain.Publishers;
 using Reveries.Domain.Works;
 namespace Reveries.Domain.Editions;
 
-public class Edition
+public class Edition : Entity<EditionId>
 {
-    public EditionId Id { get; private init; }
     public WorkId WorkId { get; private init; }
     public Isbn? Isbn { get; private init; }
     public int? Pages { get; private init; }

@@ -1,11 +1,11 @@
+using Reveries.Domain.Common;
 using Reveries.Domain.Exceptions;
 using Reveries.Domain.Helpers;
 
 namespace Reveries.Domain.BookSeries;
 
-public class Series
+public class Series : Entity<SeriesId>
 {
-    public SeriesId Id { get; private init; }
     public string Name { get; }
 
     private Series(SeriesId id, string name)

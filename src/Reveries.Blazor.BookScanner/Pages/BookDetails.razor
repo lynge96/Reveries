@@ -309,6 +309,10 @@ else
         <!-- Title -->
         <div>
             <h1 class="book-title mb-1">@_book!.Title</h1>
+            @if (!string.IsNullOrEmpty(_book.Subtitle))
+            {
+                <h2 class="book-subtitle text-muted mb-1">@_book.Subtitle</h2>
+            }
         </div>
 
         <!-- Series -->

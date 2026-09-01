@@ -73,6 +73,7 @@ CREATE TABLE library.authors (
 CREATE TABLE library.works (
     id uuid CONSTRAINT works_domain_id_not_null NOT NULL,
     title character varying NOT NULL,
+    subtitle character varying,
     synopsis text,
     description text,
     series_number integer,
@@ -190,6 +191,7 @@ CREATE TABLE library.series (
 CREATE VIEW library.works_view AS
  SELECT w.id,
     w.title,
+    w.subtitle,
     w.synopsis,
     w.description,
     w.series_number AS "seriesNumber",

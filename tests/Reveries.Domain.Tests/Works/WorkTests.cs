@@ -9,6 +9,7 @@ public class WorkTests
 {
     private static Work CreateValidWork(
         string title = "Test Work",
+        string? subtitle = null,
         IEnumerable<string>? authors = null,
         IEnumerable<string>? primaryGenres = null,
         IEnumerable<string>? secondaryGenres = null,
@@ -16,7 +17,7 @@ public class WorkTests
         string? synopsis = "A synopsis",
         string? description = "A description")
     {
-        return Work.Create(new WorkData(title, authors, primaryGenres, secondaryGenres, deweyDecimals, synopsis, description));
+        return Work.Create(new WorkData(title, subtitle, authors, primaryGenres, secondaryGenres, deweyDecimals, synopsis, description));
     }
 
     [Fact]
@@ -32,6 +33,25 @@ public class WorkTests
 
         Assert.Equal("Dune", work.Title.Text);
         Assert.Equal("Life on a desert planet.", work.Synopsis?.Text);
+    }
+
+    [Fact]
+    public void Create_TrimsSubtitle()
+    {
+        var work = CreateValidWork(subtitle: "  A Brief History of Humankind  ");
+
+        Assert.Equal("A Brief History of Humankind", work.Subtitle);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Create_WithBlankSubtitle_LeavesItNull(string? subtitle)
+    {
+        var work = CreateValidWork(subtitle: subtitle);
+
+        Assert.Null(work.Subtitle);
     }
 
     [Fact]
@@ -170,6 +190,7 @@ public class WorkTests
         var data = new WorkReconstitutionData(
             Id: id,
             Title: "Dune",
+            Subtitle: null,
             Synopsis: "Life on a desert planet.",
             Description: "A fuller account of life on Arrakis.",
             SeriesNumber: 1,
@@ -196,6 +217,7 @@ public class WorkTests
         var data = new WorkReconstitutionData(
             Id: Guid.NewGuid(),
             Title: "Orphan",
+            Subtitle: null,
             Synopsis: null,
             Description: null,
             SeriesNumber: 3,

@@ -28,6 +28,7 @@ public static class EditionWithWorkMerger
         var work = Work.Reconstitute(new WorkReconstitutionData(
             Id: iw.Id.Value,
             Title: Prefer(gw.Title.Text, iw.Title.Text) ?? string.Empty,
+            Subtitle: Prefer(gw.Subtitle, iw.Subtitle),
             Synopsis: (gw.Synopsis ?? iw.Synopsis)?.Text,
             Description: (gw.Description ?? iw.Description)?.Text,
             SeriesNumber: iw.SeriesPlacement?.Number,

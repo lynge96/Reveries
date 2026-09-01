@@ -15,6 +15,7 @@ public static class CreateBookRequestMapper
                  : request.Isbn10 != null ? Isbn.Create(request.Isbn10)
                  : null,
             Title = request.Title,
+            Subtitle = request.Subtitle,
 
             Series = request.Series,
             NumberInSeries = request.NumberInSeries,

@@ -21,6 +21,7 @@ public static class IsbndbBookDtoMapperExtensions
 
         var work = Work.Create(new WorkData(
             Title: isbndbBookDto.Title,
+            Subtitle: null,
             Authors: isbndbBookDto.Authors,
             PrimaryGenres: null,
             SecondaryGenres: isbndbBookDto.Subjects,

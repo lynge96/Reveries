@@ -1,15 +1,16 @@
 using Reveries.Domain.Authors;
 using Reveries.Domain.BookSeries;
+using Reveries.Domain.Common;
 
 namespace Reveries.Domain.Works;
 
-public class Work
+public class Work : Entity<WorkId>
 {
     private readonly List<Author> _authors = [];
     private readonly List<DeweyDecimal> _deweyDecimals = [];
 
-    public WorkId Id { get; private init; }
     public required Title Title { get; init; }
+    public string? Subtitle { get; private init; }
     public Synopsis? Synopsis { get; private init; }
     public Description? Description { get; private init; }
     public IReadOnlyList<Author> Authors { get; }
@@ -29,6 +30,7 @@ public class Work
         {
             Id = WorkId.New(),
             Title = Title.Create(data.Title),
+            Subtitle = string.IsNullOrWhiteSpace(data.Subtitle) ? null : data.Subtitle.Trim(),
             Synopsis = Synopsis.TryCreate(data.Synopsis),
             Description = Description.TryCreate(data.Description),
             Genres = GenreClassification.Create(data.PrimaryGenres, data.SecondaryGenres)
@@ -57,6 +59,7 @@ public class Work
         {
             Id = new WorkId(data.Id),
             Title = new Title(data.Title),
+            Subtitle = data.Subtitle,
             Synopsis = data.Synopsis is null ? null : new Synopsis(data.Synopsis),
             Description = data.Description is null ? null : new Description(data.Description),
             SeriesPlacement = data.Series is null ? null : new SeriesPlacement(data.Series, data.SeriesNumber),

@@ -2,6 +2,7 @@ namespace Reveries.Domain.Works;
 
 public sealed record WorkData(
     string Title,
+    string? Subtitle,
     IEnumerable<string>? Authors,
     IEnumerable<string>? PrimaryGenres,
     IEnumerable<string>? SecondaryGenres,
