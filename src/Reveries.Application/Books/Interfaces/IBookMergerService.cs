@@ -6,6 +6,6 @@ namespace Reveries.Application.Books.Interfaces;
 
 public interface IBookMergerService
 {
-    List<EditionWithWork> AggregateBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, IReadOnlyList<EditionWithWork>? isbndbBooks, IReadOnlyList<EditionWithWork>? googleBooks);
-    List<EditionWithWork> AggregateBooksByTitlesAsync(IReadOnlyList<Title> titles, IReadOnlyList<EditionWithWork>? isbndbBooks, IReadOnlyList<EditionWithWork>? googleBooks);
+    List<BookCandidate> AggregateBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, IReadOnlyList<BookCandidate>? isbndbBooks, IReadOnlyList<BookCandidate>? googleBooks);
+    List<BookCandidate> AggregateBooksByTitlesAsync(IReadOnlyList<Title> titles, IReadOnlyList<BookCandidate>? isbndbBooks, IReadOnlyList<BookCandidate>? googleBooks);
 }

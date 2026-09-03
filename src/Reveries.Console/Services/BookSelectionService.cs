@@ -7,13 +7,13 @@ namespace Reveries.Console.Services;
 
 public class BookSelectionService
 {
-    public List<EditionWithWork> SelectBooksToSave(List<EditionWithWork> books)
+    public List<BookCandidate> SelectBooksToSave(List<BookCandidate> books)
     {
         if (books.Count == 0)
             return [];
 
         var sortedBooks = books
-            .OrderBy(b => b.Work.Title.Text)
+            .OrderBy(b => b.Title)
             .ToList();
 
         var selectedBooks = ConsolePromptUtility.ShowMultiSelectionPrompt("Select books to save:", sortedBooks);
@@ -27,12 +27,12 @@ public class BookSelectionService
         return selectedBooks;
     }
 
-    public List<EditionWithWork> FilterBooksByLanguage(IEnumerable<EditionWithWork> books)
+    public List<T> FilterBooksByLanguage<T>(IEnumerable<T> books) where T : IBookRow
     {
         var booksList = books.ToList();
         var availableLanguages = booksList
-            .Where(b => b.Edition.Language is not null)
-            .Select(b => b.Edition.Language!.DisplayName)
+            .Where(b => b.LanguageLabel is not null)
+            .Select(b => b.LanguageLabel!)
             .Distinct()
             .OrderBy(l => l)
             .ToList();
@@ -44,6 +44,6 @@ public class BookSelectionService
 
         return selectedLanguages.Count == 0
             ? booksList
-            : booksList.Where(b => b.Edition.Language is not null && selectedLanguages.Contains(b.Edition.Language.DisplayName)).ToList();
+            : booksList.Where(b => b.LanguageLabel is not null && selectedLanguages.Contains(b.LanguageLabel)).ToList();
     }
 }

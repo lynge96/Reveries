@@ -6,46 +6,41 @@ namespace Reveries.Api.Mappers;
 
 public static class BookDetailsMapper
 {
-    public static BookDetailsDto ToDto(this EditionWithWork item)
+    public static BookDetailsDto ToDto(this BookCandidate book)
     {
-        var edition = item.Edition;
-        var work = item.Work;
-
         return new BookDetailsDto
         {
-            BookId = edition.Id.Value,
-            Isbn10 = edition.Isbn?.Value10,
-            Isbn13 = edition.Isbn?.Value13,
-            Title = work.Title.Text,
-            Subtitle = work.Subtitle,
-            Series = work.SeriesPlacement?.Series.Name,
-            NumberInSeries = work.SeriesPlacement?.Number,
-            Authors = work.Authors.Select(a => a.Name).ToList(),
-            Publisher = edition.Publisher?.Name,
-            Language = edition.Language?.DisplayName,
-            Pages = edition.Pages,
-            PublicationDate = edition.PublicationDate?.Value,
-            Synopsis = work.Synopsis?.Text,
-            Description = work.Description?.Text,
-            Format = edition.Format.ToString(),
-            Edition = edition.EditionDescription,
-            CoverImageUrl = edition.Cover?.Url,
-            ImageThumbnailUrl = edition.Cover?.ThumbnailUrl,
-            HeightCm = edition.Dimensions?.HeightCm,
-            WidthCm = edition.Dimensions?.WidthCm,
-            ThicknessCm = edition.Dimensions?.ThicknessCm,
-            WeightG = edition.Dimensions?.WeightG,
-            DeweyDecimals = work.DeweyDecimals.Select(dd => dd.Code).ToList(),
-            PrimaryGenres = work.Genres.Primary.Select(g => g.Name).ToList(),
-            SecondaryGenres = work.Genres.Secondary.Select(g => g.Name).ToList()
+            BookId = Guid.Empty,
+            Isbn10 = book.Isbn?.Value10,
+            Isbn13 = book.Isbn?.Value13,
+            Title = book.Title,
+            Subtitle = book.Subtitle,
+            Authors = book.Authors.ToList(),
+            Publisher = book.Publisher,
+            Language = book.Language?.DisplayName,
+            Pages = book.Pages,
+            PublicationDate = book.PublicationDate,
+            Synopsis = book.Synopsis,
+            Description = book.Description,
+            Format = book.Format.ToString(),
+            Edition = book.EditionStatement,
+            CoverImageUrl = book.Cover?.Url,
+            ImageThumbnailUrl = book.Cover?.ThumbnailUrl,
+            HeightCm = book.Dimensions?.HeightCm,
+            WidthCm = book.Dimensions?.WidthCm,
+            ThicknessCm = book.Dimensions?.ThicknessCm,
+            WeightG = book.Dimensions?.WeightG,
+            DeweyDecimals = book.DeweyDecimals.ToList(),
+            PrimaryGenres = book.PrimaryGenres.ToList(),
+            SecondaryGenres = book.SecondaryGenres.ToList()
         };
     }
 
-    public static BooksResponse ToResponse(this IEnumerable<EditionWithWork> items)
+    public static BooksResponse ToResponse(this IEnumerable<BookCandidate> books)
     {
         return new BooksResponse
         {
-            Items = items.Select(i => i.ToDto()).ToList()
+            Items = books.Select(book => book.ToDto()).ToList()
         };
     }
 

@@ -4,7 +4,7 @@ using Reveries.Domain.Publishers;
 
 namespace Reveries.Application.Books.Queries.FindBooksByPublisher;
 
-public sealed record FindBooksByPublisherQuery : IQuery<List<EditionWithWork>>
+public sealed record FindBooksByPublisherQuery : IQuery<List<BookCandidate>>
 {
     public Publisher Publisher { get; }
 

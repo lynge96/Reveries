@@ -13,13 +13,14 @@ public class EditionTests
         string? isbn10 = "1-4028-9462-7",
         int? pages = 412,
         string? languageIso639 = "en",
-        string? format = "Hardcover")
+        string? format = "Hardcover",
+        PublisherId? publisherId = null)
     {
         return Edition.Create(new EditionData(
             WorkId: WorkId.New(),
             Isbn13: isbn13,
             Isbn10: isbn10,
-            Publisher: "Chilton Books",
+            PublisherId: publisherId,
             Pages: pages,
             PublishDate: "1965",
             LanguageIso639: languageIso639,
@@ -67,7 +68,7 @@ public class EditionTests
             WorkId: workId,
             Isbn13: "9781402894626",
             Isbn10: null,
-            Publisher: null,
+            PublisherId: null,
             Pages: null,
             PublishDate: null,
             LanguageIso639: "en",
@@ -79,6 +80,16 @@ public class EditionTests
             Dimensions: null));
 
         Assert.Equal(workId, edition.WorkId);
+    }
+
+    [Fact]
+    public void Create_AssignsPublisherId()
+    {
+        var publisherId = PublisherId.New();
+
+        var edition = CreateValidEdition(publisherId: publisherId);
+
+        Assert.Equal(publisherId, edition.PublisherId);
     }
 
     [Theory]
@@ -118,14 +129,14 @@ public class EditionTests
     }
 
     [Fact]
-    public void SetPublisher_AssignsPublisher()
+    public void SetPublisher_AssignsPublisherId()
     {
         var edition = CreateValidEdition();
-        var publisher = Publisher.TryCreate("Ace Books");
+        var publisherId = PublisherId.New();
 
-        edition.SetPublisher(publisher);
+        edition.SetPublisher(publisherId);
 
-        Assert.Equal(publisher, edition.Publisher);
+        Assert.Equal(publisherId, edition.PublisherId);
     }
 
     [Fact]
@@ -133,6 +144,7 @@ public class EditionTests
     {
         var id = Guid.NewGuid();
         var workId = Guid.NewGuid();
+        var publisherId = PublisherId.New();
         var data = new EditionReconstitutionData(
             Id: id,
             WorkId: workId,
@@ -147,7 +159,7 @@ public class EditionTests
             CoverImageUrl: null,
             SaxoUrl: null,
             Dimensions: null,
-            Publisher: Publisher.TryCreate("Chilton Books"));
+            PublisherId: publisherId);
 
         var edition = Edition.Reconstitute(data);
 
@@ -157,7 +169,7 @@ public class EditionTests
         Assert.Equal(412, edition.Pages);
         Assert.Equal("1965", edition.PublicationDate?.Value);
         Assert.Equal("en", edition.Language?.Value);
-        Assert.Equal("Chilton Books", edition.Publisher?.Name);
+        Assert.Equal(publisherId, edition.PublisherId);
     }
 
     [Fact]

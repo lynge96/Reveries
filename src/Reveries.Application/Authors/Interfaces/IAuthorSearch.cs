@@ -6,5 +6,5 @@ namespace Reveries.Application.Authors.Interfaces;
 public interface IAuthorSearch
 {
     Task<IReadOnlyList<Author>?> GetAuthorsByNameAsync(Author author, CancellationToken ct = default);
-    Task<List<EditionWithWork>?> GetBooksByAuthorAsync(Author author, CancellationToken ct = default);
+    Task<List<BookCandidate>?> GetBooksByAuthorAsync(Author author, CancellationToken ct = default);
 }

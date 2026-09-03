@@ -17,5 +17,5 @@ public sealed record EditionReconstitutionData(
     string? CoverImageUrl,
     string? SaxoUrl,
     BookDimensions? Dimensions,
-    Publisher? Publisher = null
+    PublisherId? PublisherId = null
 );

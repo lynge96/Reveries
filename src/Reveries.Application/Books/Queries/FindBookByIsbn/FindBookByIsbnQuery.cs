@@ -4,7 +4,7 @@ using Reveries.Domain.Editions;
 
 namespace Reveries.Application.Books.Queries.FindBookByIsbn;
 
-public sealed record FindBookByIsbnQuery : IQuery<EditionWithWork>
+public sealed record FindBookByIsbnQuery : IQuery<BookCandidate>
 {
     public Isbn Isbn { get; }
 

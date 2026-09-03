@@ -6,7 +6,7 @@ using Reveries.Application.Common.Exceptions;
 
 namespace Reveries.Application.Books.Queries.FindBooksByIsbns;
 
-public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuery, List<EditionWithWork>>
+public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuery, List<BookCandidate>>
 {
     private readonly IBookLookupService _lookupService;
     private readonly ILogger<FindBooksByIsbnsHandler> _logger;
@@ -19,7 +19,7 @@ public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuer
         _logger = logger;
     }
 
-    public async ValueTask<List<EditionWithWork>> Handle(FindBooksByIsbnsQuery query, CancellationToken ct)
+    public async ValueTask<List<BookCandidate>> Handle(FindBooksByIsbnsQuery query, CancellationToken ct)
     {
         var apiResult = await _lookupService.LookupByIsbnsAsync(query.Isbns, ct);
 

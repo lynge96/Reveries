@@ -11,7 +11,7 @@ public class Edition : Entity<EditionId>
     public WorkId WorkId { get; private init; }
     public Isbn? Isbn { get; private init; }
     public int? Pages { get; private init; }
-    public Publisher? Publisher { get; private set; }
+    public PublisherId? PublisherId { get; private set; }
     public Language? Language { get; private init; }
     public PublicationDate? PublicationDate { get; private init; }
     public string? EditionDescription { get; private init; }
@@ -33,7 +33,7 @@ public class Edition : Entity<EditionId>
             WorkId = data.WorkId,
             Isbn = data.Isbn13 != null ? Isbn.Create(data.Isbn13) : Isbn.Create(data.Isbn10!),
             Pages = PageCountNormalizer.Normalize(data.Pages),
-            Publisher = Publisher.TryCreate(data.Publisher),
+            PublisherId = data.PublisherId,
             Language = Language.TryCreate(data.LanguageIso639),
             PublicationDate = PublicationDate.TryCreate(data.PublishDate),
             EditionDescription = EditionDescriptionNormalizer.Normalize(data.EditionStatement),
@@ -61,13 +61,19 @@ public class Edition : Entity<EditionId>
             Cover = Cover.Reconstitute(url: data.CoverImageUrl, thumbnailUrl: data.ImageThumbnailUrl),
             SaxoUrl = data.SaxoUrl != null ? new SaxoUrl(data.SaxoUrl) : null,
             Dimensions = data.Dimensions,
-            Publisher = data.Publisher
+            PublisherId = data.PublisherId
         };
     }
 
-    public void SetPublisher(Publisher? publisher) => Publisher = publisher;
+    public void SetPublisher(PublisherId? publisherId)
+    {
+        PublisherId = publisherId;
+    }
 
-    public void SetCover(Cover? cover) => Cover = cover;
+    public void SetCover(Cover? cover)
+    {
+        Cover = cover;
+    }
 
     private static Isbn? BuildReconstitutedIsbn(string? value13, string? value10)
     {

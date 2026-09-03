@@ -1,14 +1,13 @@
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Helpers;
-using Reveries.Domain.Works;
 using Reveries.Integration.Isbndb.DTOs.Books;
 
 namespace Reveries.Integration.Isbndb.Mappers;
 
 public static class IsbndbBookDtoMapperExtensions
 {
-    public static EditionWithWork? ToEditionWithWork(this IsbndbBookDto isbndbBookDto)
+    public static BookCandidate? ToBookCandidate(this IsbndbBookDto isbndbBookDto)
     {
         if (string.IsNullOrWhiteSpace(isbndbBookDto.Isbn13) && string.IsNullOrWhiteSpace(isbndbBookDto.Isbn10))
             return null;
@@ -19,27 +18,24 @@ public static class IsbndbBookDtoMapperExtensions
 
         var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
 
-        var work = Work.Create(new WorkData(
-            Title: isbndbBookDto.Title,
-            Subtitle: null,
-            Authors: isbndbBookDto.Authors,
-            PrimaryGenres: null,
-            SecondaryGenres: isbndbBookDto.Subjects,
-            DeweyDecimals: isbndbBookDto.DeweyDecimals,
-            Synopsis: isbndbBookDto.Synopsis,
-            Description: null));
-
         var dimensions = BookDimensions.Create(
             normalizedHeight,
             normalizedWidth,
             normalizedThickness,
             isbndbBookDto.DimensionsStructured?.Weight.ConvertDimension());
 
-        var edition = Edition.Create(new EditionData(
-            WorkId: work.Id,
+        return BookCandidate.Create(new BookCandidateData(
             Isbn13: isbndbBookDto.Isbn13,
             Isbn10: isbndbBookDto.Isbn10,
+            Title: isbndbBookDto.Title,
+            Subtitle: null,
+            Authors: isbndbBookDto.Authors,
             Publisher: isbndbBookDto.Publisher,
+            PrimaryGenres: null,
+            SecondaryGenres: isbndbBookDto.Subjects,
+            DeweyDecimals: isbndbBookDto.DeweyDecimals,
+            Synopsis: isbndbBookDto.Synopsis,
+            Description: null,
             Pages: isbndbBookDto.Pages,
             PublishDate: isbndbBookDto.DatePublished,
             LanguageIso639: isbndbBookDto.Language,
@@ -47,10 +43,7 @@ public static class IsbndbBookDtoMapperExtensions
             EditionStatement: isbndbBookDto.Edition,
             ImageThumbnail: isbndbBookDto.Image,
             ImageUrl: isbndbBookDto.ImageOriginal,
-            SaxoUrl: null,
             Dimensions: dimensions));
-
-        return new EditionWithWork(edition, work);
     }
 
     private static decimal? ConvertDimension(this DimensionDto? dimension)

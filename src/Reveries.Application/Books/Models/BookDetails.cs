@@ -1,6 +1,6 @@
 namespace Reveries.Application.Books.Models;
 
-public sealed record BookDetails
+public sealed record BookDetails : IBookRow
 {
     public required Guid BookId { get; init; }
     public string? Isbn10 { get; init; }
@@ -27,4 +27,17 @@ public sealed record BookDetails
     public IReadOnlyList<string> DeweyDecimals { get; init; } = [];
     public IReadOnlyList<string> PrimaryGenres { get; init; } = [];
     public IReadOnlyList<string> SecondaryGenres { get; init; } = [];
+
+    IReadOnlyList<string> IBookRow.AuthorNames => Authors;
+    string? IBookRow.PublisherName => Publisher;
+    string? IBookRow.SeriesName => Series;
+    int? IBookRow.SeriesNumber => NumberInSeries;
+    string IBookRow.FormatLabel => Format ?? string.Empty;
+    string? IBookRow.LanguageLabel => Language;
+
+    public override string ToString()
+    {
+        var authors = Authors.Count != 0 ? string.Join(", ", Authors) : "Unknown Author";
+        return $"{Title} by {authors}";
+    }
 }

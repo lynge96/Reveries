@@ -28,7 +28,7 @@ public static class EditionMappingExtensions
             ThicknessCm = edition.Dimensions?.ThicknessCm,
             WeightG = edition.Dimensions?.WeightG,
             Format = edition.Format.ToString(),
-            PublisherId = edition.Publisher?.Id.Value
+            PublisherId = edition.PublisherId?.Value
         };
     }
 
@@ -49,8 +49,8 @@ public static class EditionMappingExtensions
             CoverImageUrl: view.CoverImageUrl,
             SaxoUrl: view.SaxoUrl,
             Dimensions: BookDimensions.Reconstitute(view.HeightCm, view.WidthCm, view.ThicknessCm, view.WeightG),
-            Publisher: view.PublisherId is { } publisherId
-                ? Publisher.Reconstitute(new PublisherId(publisherId), view.PublisherName!)
+            PublisherId: view.PublisherId is { } publisherId
+                ? new PublisherId(publisherId)
                 : null
         );
 

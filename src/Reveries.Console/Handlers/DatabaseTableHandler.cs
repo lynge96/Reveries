@@ -1,6 +1,6 @@
 using Reveries.Application.Books.Commands.SetBookSeries;
+using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
-using Reveries.Application.Books.Services;
 using Reveries.Application.BookSeries.Services;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Models.Menu;
@@ -14,18 +14,18 @@ public class DatabaseTableHandler : BaseHandler
 {
     public override MenuChoice MenuChoice => MenuChoice.BooksInDatabase;
 
-    private readonly BookLookupService _bookLookupService;
+    private readonly IBookQueryRepository _bookQueries;
     private readonly CreateSeriesService _createSeriesService;
     private readonly SetBookSeriesHandler _setBookSeriesCommandHandler;
     private readonly BookDisplayService _bookDisplayService;
 
     public DatabaseTableHandler(
-        BookLookupService bookLookupService,
+        IBookQueryRepository bookQueries,
         CreateSeriesService createSeriesService,
         SetBookSeriesHandler setBookSeriesCommandHandler,
         BookDisplayService bookDisplayService)
     {
-        _bookLookupService = bookLookupService;
+        _bookQueries = bookQueries;
         _createSeriesService = createSeriesService;
         _setBookSeriesCommandHandler = setBookSeriesCommandHandler;
         _bookDisplayService = bookDisplayService;
@@ -34,7 +34,7 @@ public class DatabaseTableHandler : BaseHandler
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         var (booksInDb, elapsedSearchMs) = await AnsiConsole.Create(new AnsiConsoleSettings())
-            .RunWithStatusAsync(() => _bookLookupService.GetAllBooksAsync(ct));
+            .RunWithStatusAsync(() => _bookQueries.GetAllBooksAsync(ct));
         var sortedBooks = booksInDb.Arrange();
 
         AnsiConsole.MarkupLine($"\nElapsed search time: {elapsedSearchMs} ms".Italic().AsInfo());
@@ -51,7 +51,7 @@ public class DatabaseTableHandler : BaseHandler
         await menu[selection](ct);
     }
 
-    private async Task UpdateSelectedBooksWithSeriesAsync(List<EditionWithWork> books, CancellationToken ct)
+    private async Task UpdateSelectedBooksWithSeriesAsync(List<BookDetails> books, CancellationToken ct)
     {
         var seriesInDb = await _createSeriesService.GetSeriesAsync(ct);
         if (seriesInDb.Count == 0)
@@ -72,15 +72,12 @@ public class DatabaseTableHandler : BaseHandler
 
         foreach (var book in selectedBooks)
         {
-            book.Work.SetSeries(series);
-
             var numberInSeries = ConsolePromptUtility.GetUserInput(
-                $"What number is {book.Work.Title.Text.AsSecondary()} in the series?");
+                $"What number is {book.Title.AsSecondary()} in the series?");
 
-            if (int.TryParse(numberInSeries, out var num))
-                book.Work.SetSeries(series, num);
+            int? number = int.TryParse(numberInSeries, out var parsed) ? parsed : null;
 
-            var bookSeriesCommand = new SetBookSeriesCommand(book.Edition.Isbn!.Value13, series.Name, num);
+            var bookSeriesCommand = new SetBookSeriesCommand(book.Isbn13!, series.Name, number);
             await _setBookSeriesCommandHandler.Handle(bookSeriesCommand, ct);
         }
 

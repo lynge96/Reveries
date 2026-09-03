@@ -4,7 +4,7 @@ using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Queries.FindBookByTitle;
 
-public sealed record FindBookByTitleQuery : IQuery<EditionWithWork>
+public sealed record FindBookByTitleQuery : IQuery<BookCandidate>
 {
     public Title Title { get; }
 

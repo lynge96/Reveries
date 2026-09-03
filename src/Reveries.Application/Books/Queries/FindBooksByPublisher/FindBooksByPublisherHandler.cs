@@ -6,7 +6,7 @@ using Reveries.Application.Publishers.Interfaces;
 
 namespace Reveries.Application.Books.Queries.FindBooksByPublisher;
 
-public sealed class FindBooksByPublisherHandler : IQueryHandler<FindBooksByPublisherQuery, List<EditionWithWork>>
+public sealed class FindBooksByPublisherHandler : IQueryHandler<FindBooksByPublisherQuery, List<BookCandidate>>
 {
     private readonly IPublisherSearch _publisherSearch;
     private readonly ILogger<FindBooksByPublisherHandler> _logger;
@@ -19,7 +19,7 @@ public sealed class FindBooksByPublisherHandler : IQueryHandler<FindBooksByPubli
         _logger = logger;
     }
 
-    public async ValueTask<List<EditionWithWork>> Handle(FindBooksByPublisherQuery query, CancellationToken ct)
+    public async ValueTask<List<BookCandidate>> Handle(FindBooksByPublisherQuery query, CancellationToken ct)
     {
         var publisher = query.Publisher;
 

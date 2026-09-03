@@ -21,7 +21,7 @@ public class SaveEntityService
         _createSeriesService = createSeriesService;
     }
 
-    public async Task SaveBooksAsync(IEnumerable<EditionWithWork> books, CancellationToken ct = default)
+    public async Task SaveBooksAsync(IEnumerable<BookCandidate> books, CancellationToken ct = default)
     {
         var booksList = books.ToList();
 
@@ -33,27 +33,24 @@ public class SaveEntityService
 
         AnsiConsole.MarkupLine($"\nSaving {booksList.Count} book(s)...".AsSuccess());
 
-        foreach (var book in booksList)
+        foreach (var candidate in booksList)
         {
-            var edition = book.Edition;
-            var work = book.Work;
-
             try
             {
-                var editionId = await _workPersistenceService.SaveWorkWithEditionAsync(work, edition, ct);
+                var editionId = await _workPersistenceService.SaveBookAsync(candidate, ct);
 
                 AnsiConsole.MarkupLine($"""
                                         ✅ Successfully saved to database:
-                                           Title: {work.Title}
+                                           Title: {candidate.Title}
                                            ID: {editionId}
-                                           ISBN: {edition.Isbn?.Value13 ?? "N/A"}
+                                           ISBN: {candidate.Isbn?.Value13 ?? "N/A"}
                                         """.AsPrimary());
             }
             catch (BookAlreadyExistsException ex)
             {
                 AnsiConsole.MarkupLine($"""
                                         ⚠️ Book already exists:
-                                           Title: {work.Title}
+                                           Title: {candidate.Title}
                                            Error: {ex.Message}
                                         """.AsWarning());
             }
@@ -61,7 +58,7 @@ public class SaveEntityService
             {
                 AnsiConsole.MarkupLine($"""
                                         ❌ Transaction failed:
-                                           Title: {work.Title}
+                                           Title: {candidate.Title}
                                            Error: {ex.Message}
                                            Details: Transaction was rolled back
                                         """.AsError());

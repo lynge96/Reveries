@@ -51,7 +51,7 @@ public class SearchBookHandler : BaseHandler
             await _saveEntityService.SaveBooksAsync(booksToSave, ct);
     }
 
-    private async Task<List<EditionWithWork>> SearchBooksAsync(string searchInput, CancellationToken ct)
+    private async Task<List<BookCandidate>> SearchBooksAsync(string searchInput, CancellationToken ct)
     {
         var tokens = searchInput
             .Split([','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -60,7 +60,7 @@ public class SearchBookHandler : BaseHandler
         var isbnTokens = tokens.Where(IsIsbnFormat).ToList();
         var titleTokens = tokens.Except(isbnTokens).ToList();
 
-        var results = new List<EditionWithWork>();
+        var results = new List<BookCandidate>();
 
         if (isbnTokens.Count != 0)
         {

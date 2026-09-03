@@ -11,7 +11,6 @@ namespace Reveries.Application.Books.Services;
 
 public class BookLookupService : IBookLookupService
 {
-    private readonly IWorkRepository _works;
     private readonly IEditionRepository _editions;
     private readonly IBookMergerService _bookMergerService;
     private readonly ILogger<BookLookupService> _logger;
@@ -21,14 +20,12 @@ public class BookLookupService : IBookLookupService
     public BookLookupService(
         IIsbndbBookSearch isbnDbClient,
         IGoogleBookSearch googleBooksClient,
-        IWorkRepository works,
         IEditionRepository editions,
         IBookMergerService bookMergerService,
         ILogger<BookLookupService> logger)
     {
         _isbnDbClient = isbnDbClient;
         _googleBooksClient = googleBooksClient;
-        _works = works;
         _editions = editions;
         _bookMergerService = bookMergerService;
         _logger = logger;
@@ -63,7 +60,7 @@ public class BookLookupService : IBookLookupService
         var found = _bookMergerService.AggregateBooksByIsbnsAsync(isbns, isbndbBooks, googleBooks);
 
         var foundIsbnKeys = found
-            .Select(b => b.Edition.Isbn?.Value13 ?? b.Edition.Isbn?.Value10)
+            .Select(b => b.Isbn?.Value13 ?? b.Isbn?.Value10)
             .Where(k => k is not null)
             .ToHashSet();
 
@@ -111,11 +108,11 @@ public class BookLookupService : IBookLookupService
         var found = _bookMergerService.AggregateBooksByTitlesAsync(titles, isbndbBooks, googleBooks);
 
         var foundTitles = found
-            .Select(b => b.Work.Title)
+            .Select(b => b.Title)
             .ToHashSet();
 
         var missingTitles = titles
-            .Where(t => !foundTitles.Contains(t))
+            .Where(t => !foundTitles.Contains(t.Text))
             .ToList();
 
         _logger.LogInformation(
@@ -129,30 +126,12 @@ public class BookLookupService : IBookLookupService
         return new BookLookupResult<Title>(found, missingTitles);
     }
 
-    public async Task<List<EditionWithWork>> GetAllBooksAsync(CancellationToken ct)
-    {
-        var works = await _works.GetAllWorksAsync(ct);
-        var editions = await _editions.GetAllEditionsAsync(ct);
-        if (editions.Count == 0)
-            return [];
-
-        var worksById = works.ToDictionary(w => w.Id);
-
-        var result = editions
-            .Where(e => worksById.ContainsKey(e.WorkId))
-            .Select(e => new EditionWithWork(e, worksById[e.WorkId]))
-            .ToList();
-
-        _logger.LogInformation("Book lookup by all editions completed. Editions: {Count}.", result.Count);
-        return result;
-    }
-
     public async Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct)
     {
         return await _editions.EditionExistsAsync(isbn, ct);
     }
 
-    private async Task<IReadOnlyList<EditionWithWork>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    private async Task<IReadOnlyList<BookCandidate>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         try
         {
@@ -165,7 +144,7 @@ public class BookLookupService : IBookLookupService
         }
     }
 
-    private async Task<IReadOnlyList<EditionWithWork>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Title> titles,
+    private async Task<IReadOnlyList<BookCandidate>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Title> titles,
         CancellationToken ct)
     {
         try
@@ -179,7 +158,7 @@ public class BookLookupService : IBookLookupService
         }
     }
 
-    private async Task<IReadOnlyList<EditionWithWork>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    private async Task<IReadOnlyList<BookCandidate>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         try
         {
@@ -192,7 +171,7 @@ public class BookLookupService : IBookLookupService
         }
     }
 
-    private async Task<IReadOnlyList<EditionWithWork>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Title> titles,
+    private async Task<IReadOnlyList<BookCandidate>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Title> titles,
         CancellationToken ct)
     {
         try

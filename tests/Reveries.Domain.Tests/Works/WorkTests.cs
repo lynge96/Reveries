@@ -10,14 +10,14 @@ public class WorkTests
     private static Work CreateValidWork(
         string title = "Test Work",
         string? subtitle = null,
-        IEnumerable<string>? authors = null,
+        IReadOnlyList<AuthorId>? authorIds = null,
         IEnumerable<string>? primaryGenres = null,
         IEnumerable<string>? secondaryGenres = null,
         IEnumerable<string>? deweyDecimals = null,
         string? synopsis = "A synopsis",
         string? description = "A description")
     {
-        return Work.Create(new WorkData(title, subtitle, authors, primaryGenres, secondaryGenres, deweyDecimals, synopsis, description));
+        return Work.Create(new WorkData(title, subtitle, authorIds, primaryGenres, secondaryGenres, deweyDecimals, synopsis, description));
     }
 
     [Fact]
@@ -65,9 +65,9 @@ public class WorkTests
     [Fact]
     public void Create_WithNullCollections_DoesNotThrow()
     {
-        var work = CreateValidWork(authors: null, primaryGenres: null, secondaryGenres: null, deweyDecimals: null);
+        var work = CreateValidWork(authorIds: null, primaryGenres: null, secondaryGenres: null, deweyDecimals: null);
 
-        Assert.Empty(work.Authors);
+        Assert.Empty(work.AuthorIds);
         Assert.Empty(work.Genres.All);
         Assert.Empty(work.DeweyDecimals);
     }
@@ -76,40 +76,34 @@ public class WorkTests
     public void Create_PopulatesCollections()
     {
         var work = CreateValidWork(
-            authors: ["Frank Herbert"],
+            authorIds: [AuthorId.New()],
             primaryGenres: ["Science Fiction"],
             deweyDecimals: ["813.54"]);
 
-        Assert.Single(work.Authors);
+        Assert.Single(work.AuthorIds);
         Assert.Single(work.Genres.Primary);
         Assert.Single(work.DeweyDecimals);
     }
 
     [Fact]
-    public void Create_DeduplicatesAuthors_ByNormalizedName()
+    public void Create_PreservesAuthorIdsInOrder()
     {
-        var work = CreateValidWork(authors: ["Frank Herbert", "frank herbert"]);
+        var first = AuthorId.New();
+        var second = AuthorId.New();
 
-        Assert.Single(work.Authors);
+        var work = CreateValidWork(authorIds: [first, second]);
+
+        Assert.Equal([first, second], work.AuthorIds);
     }
 
     [Fact]
-    public void AddAuthor_DoesNotAddDuplicate_ByNormalizedName()
+    public void Create_DeduplicatesAuthorIds()
     {
-        var work = CreateValidWork();
+        var authorId = AuthorId.New();
 
-        work.AddAuthor(Author.TryCreate("Frank Herbert")!);
-        work.AddAuthor(Author.TryCreate("frank herbert")!);
+        var work = CreateValidWork(authorIds: [authorId, authorId]);
 
-        Assert.Single(work.Authors);
-    }
-
-    [Fact]
-    public void AddAuthor_WithNull_Throws()
-    {
-        var work = CreateValidWork();
-
-        Assert.Throws<ArgumentNullException>(() => work.AddAuthor(null!));
+        Assert.Single(work.AuthorIds);
     }
 
     [Fact]
@@ -154,39 +148,40 @@ public class WorkTests
     public void SetSeries_AssignsSeriesAndNumber()
     {
         var work = CreateValidWork();
-        var series = Series.Create("Dune Chronicles");
+        var seriesId = SeriesId.New();
 
-        work.SetSeries(series, 3);
+        work.SetSeries(seriesId, 3);
 
-        Assert.Equal(series, work.SeriesPlacement?.Series);
-        Assert.Equal(3, work.SeriesPlacement?.Number);
+        Assert.Equal(seriesId, work.SeriesId);
+        Assert.Equal(3, work.NumberInSeries);
     }
 
     [Fact]
     public void SetSeries_WithoutNumber_LeavesNumberNull()
     {
         var work = CreateValidWork();
-        var series = Series.Create("Dune Chronicles");
+        var seriesId = SeriesId.New();
 
-        work.SetSeries(series);
+        work.SetSeries(seriesId);
 
-        Assert.Equal(series, work.SeriesPlacement?.Series);
-        Assert.Null(work.SeriesPlacement?.Number);
+        Assert.Equal(seriesId, work.SeriesId);
+        Assert.Null(work.NumberInSeries);
     }
 
     [Fact]
     public void SetSeries_WithNegativeNumber_Throws()
     {
         var work = CreateValidWork();
-        var series = Series.Create("Dune Chronicles");
 
-        Assert.Throws<InvalidSeriesNumberException>(() => work.SetSeries(series, -1));
+        Assert.Throws<InvalidSeriesNumberException>(() => work.SetSeries(SeriesId.New(), -1));
     }
 
     [Fact]
     public void Reconstitute_PreservesData()
     {
         var id = Guid.NewGuid();
+        var authorId = AuthorId.New();
+        var seriesId = SeriesId.New();
         var data = new WorkReconstitutionData(
             Id: id,
             Title: "Dune",
@@ -194,8 +189,8 @@ public class WorkTests
             Synopsis: "Life on a desert planet.",
             Description: "A fuller account of life on Arrakis.",
             SeriesNumber: 1,
-            Series: Series.Create("Dune Chronicles"),
-            Authors: [Author.TryCreate("Frank Herbert")!],
+            SeriesId: seriesId,
+            AuthorIds: [authorId],
             PrimaryGenres: [Genre.TryCreate("Science Fiction")!],
             DeweyDecimals: [DeweyDecimal.TryCreate("813.54")!]);
 
@@ -205,8 +200,9 @@ public class WorkTests
         Assert.Equal("Dune", work.Title.Text);
         Assert.Equal("Life on a desert planet.", work.Synopsis?.Text);
         Assert.Equal("A fuller account of life on Arrakis.", work.Description?.Text);
-        Assert.Equal(1, work.SeriesPlacement?.Number);
-        Assert.Single(work.Authors);
+        Assert.Equal(seriesId, work.SeriesId);
+        Assert.Equal(1, work.NumberInSeries);
+        Assert.Single(work.AuthorIds);
         Assert.Single(work.Genres.Primary);
         Assert.Single(work.DeweyDecimals);
     }
@@ -221,10 +217,11 @@ public class WorkTests
             Synopsis: null,
             Description: null,
             SeriesNumber: 3,
-            Series: null);
+            SeriesId: null);
 
         var work = Work.Reconstitute(data);
 
-        Assert.Null(work.SeriesPlacement);
+        Assert.Null(work.SeriesId);
+        Assert.Null(work.NumberInSeries);
     }
 }
