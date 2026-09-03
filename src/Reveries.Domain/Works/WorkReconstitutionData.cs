@@ -10,8 +10,8 @@ public sealed record WorkReconstitutionData(
     string? Synopsis,
     string? Description,
     int? SeriesNumber,
-    Series? Series = null,
-    IEnumerable<Author>? Authors = null,
+    SeriesId? SeriesId = null,
+    IEnumerable<AuthorId>? AuthorIds = null,
     IEnumerable<Genre>? PrimaryGenres = null,
     IEnumerable<Genre>? SecondaryGenres = null,
     IEnumerable<DeweyDecimal>? DeweyDecimals = null

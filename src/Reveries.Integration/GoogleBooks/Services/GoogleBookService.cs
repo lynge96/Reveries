@@ -21,7 +21,7 @@ public class GoogleBookService : IGoogleBookSearch
         _logger = logger;
     }
 
-    public async Task<List<EditionWithWork>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    public async Task<List<BookCandidate>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
@@ -33,14 +33,14 @@ public class GoogleBookService : IGoogleBookSearch
             return null;
 
         var books = results
-            .OfType<EditionWithWork>()
+            .OfType<BookCandidate>()
             .ToList();
 
         _logger.LogDebug("GoogleBooks ISBN lookup completed. Requested {RequestedCount} ISBNs, found {FoundCount} books.", isbns.Count, books.Count);
         return books;
     }
 
-    public async Task<List<EditionWithWork>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, CancellationToken ct)
+    public async Task<List<BookCandidate>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, CancellationToken ct)
     {
         if (titles.Count == 0)
             return [];
@@ -52,7 +52,7 @@ public class GoogleBookService : IGoogleBookSearch
             return null;
 
         var books = results
-            .OfType<EditionWithWork>()
+            .OfType<BookCandidate>()
             .ToList();
 
         _logger.LogDebug("GoogleBooks title lookup completed. Searched {TotalTitles} titles, found {TotalBooks} books.", titles.Count, books.Count);
@@ -60,7 +60,7 @@ public class GoogleBookService : IGoogleBookSearch
         return books;
     }
 
-    private async Task<EditionWithWork?> FetchAndMergeByIsbnAsync(Isbn isbn, CancellationToken ct)
+    private async Task<BookCandidate?> FetchAndMergeByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         var bookResponse = await _googleBooksClient.FetchBookByIsbnAsync(isbn, ct);
 
@@ -73,7 +73,7 @@ public class GoogleBookService : IGoogleBookSearch
         return await FetchVolumeAndMergeAsync(bookResponse.Items.First(), ct);
     }
 
-    private async Task<EditionWithWork?> FetchAndMergeByTitleAsync(Title title, CancellationToken ct)
+    private async Task<BookCandidate?> FetchAndMergeByTitleAsync(Title title, CancellationToken ct)
     {
         var bookResponse = await _googleBooksClient.SearchBooksByTitleAsync(title, ct);
 
@@ -86,17 +86,17 @@ public class GoogleBookService : IGoogleBookSearch
         return await FetchVolumeAndMergeAsync(bookResponse.Items.First(), ct);
     }
 
-    private async Task<EditionWithWork?> FetchVolumeAndMergeAsync(GoogleBookItemDto item, CancellationToken ct)
+    private async Task<BookCandidate?> FetchVolumeAndMergeAsync(GoogleBookItemDto item, CancellationToken ct)
     {
         var volumeResponse = await _googleBooksClient.FetchBookByVolumeIdAsync(item.Id, ct);
 
-        var primary = item.VolumeInfo.ToEditionWithWork();
-        var volume = volumeResponse?.VolumeInfo.ToEditionWithWork();
+        var primary = item.VolumeInfo.ToBookCandidate();
+        var volume = volumeResponse?.VolumeInfo.ToBookCandidate();
 
-        return MergeGoogleEditions(primary, volume);
+        return MergeGoogleCandidates(primary, volume);
     }
 
-    private static EditionWithWork? MergeGoogleEditions(EditionWithWork? primary, EditionWithWork? volume)
+    private static BookCandidate? MergeGoogleCandidates(BookCandidate? primary, BookCandidate? volume)
     {
         if (primary is null && volume is null)
             return null;
@@ -105,46 +105,37 @@ public class GoogleBookService : IGoogleBookSearch
         if (volume is null)
             return primary;
 
-        var pw = primary.Work;
-        var vw = volume.Work;
-        var pe = primary.Edition;
-        var ve = volume.Edition;
-
-        var work = Work.Reconstitute(new WorkReconstitutionData(
-            Id: pw.Id.Value,
-            Title: Prefer(pw.Title.Text, vw.Title.Text) ?? string.Empty,
-            Subtitle: Prefer(pw.Subtitle, vw.Subtitle),
-            Synopsis: Prefer(pw.Synopsis?.Text, vw.Synopsis?.Text),
-            Description: Prefer(vw.Description?.Text, pw.Description?.Text),
-            SeriesNumber: pw.SeriesPlacement?.Number,
-            Series: pw.SeriesPlacement?.Series,
-            Authors: pw.Authors.Count != 0 ? pw.Authors : vw.Authors,
-            PrimaryGenres: vw.Genres.Primary.Count != 0 ? vw.Genres.Primary : pw.Genres.Primary,
-            SecondaryGenres: vw.Genres.Secondary.Count != 0 ? vw.Genres.Secondary : pw.Genres.Secondary,
-            DeweyDecimals: vw.DeweyDecimals.Count != 0 ? vw.DeweyDecimals : pw.DeweyDecimals));
-
-        var edition = Edition.Reconstitute(new EditionReconstitutionData(
-            Id: pe.Id.Value,
-            WorkId: work.Id.Value,
-            Isbn13: pe.Isbn?.Value13 ?? ve.Isbn?.Value13,
-            Isbn10: pe.Isbn?.Value10 ?? ve.Isbn?.Value10,
-            Pages: pe.Pages > 0 ? pe.Pages : ve.Pages,
-            PublicationDate: (pe.PublicationDate ?? ve.PublicationDate)?.Value,
-            Language: pe.Language?.Value ?? ve.Language?.Value,
-            EditionStatement: pe.EditionDescription ?? ve.EditionDescription,
-            Format: PreferFormat(pe.Format, ve.Format),
-            ImageThumbnailUrl: pe.Cover?.ThumbnailUrl ?? ve.Cover?.ThumbnailUrl,
-            CoverImageUrl: pe.Cover?.Url ?? ve.Cover?.Url,
-            SaxoUrl: pe.SaxoUrl?.Value ?? ve.SaxoUrl?.Value,
-            Dimensions: ve.Dimensions ?? pe.Dimensions,
-            Publisher: pe.Publisher ?? ve.Publisher));
-
-        return new EditionWithWork(edition, work);
+        return new BookCandidate
+        {
+            Isbn = primary.Isbn ?? volume.Isbn,
+            Title = Prefer(primary.Title, volume.Title) ?? string.Empty,
+            Subtitle = Prefer(primary.Subtitle, volume.Subtitle),
+            Authors = primary.Authors.Count != 0 ? primary.Authors : volume.Authors,
+            Publisher = Prefer(primary.Publisher, volume.Publisher),
+            PrimaryGenres = volume.PrimaryGenres.Count != 0 ? volume.PrimaryGenres : primary.PrimaryGenres,
+            SecondaryGenres = volume.SecondaryGenres.Count != 0 ? volume.SecondaryGenres : primary.SecondaryGenres,
+            DeweyDecimals = volume.DeweyDecimals.Count != 0 ? volume.DeweyDecimals : primary.DeweyDecimals,
+            Synopsis = Prefer(primary.Synopsis, volume.Synopsis),
+            Description = Prefer(volume.Description, primary.Description),
+            Pages = primary.Pages > 0 ? primary.Pages : volume.Pages,
+            PublicationDate = Prefer(primary.PublicationDate, volume.PublicationDate),
+            Language = primary.Language ?? volume.Language,
+            Format = PreferFormat(primary.Format, volume.Format),
+            EditionStatement = Prefer(primary.EditionStatement, volume.EditionStatement),
+            Cover = Cover.TryCreate(
+                url: primary.Cover?.Url ?? volume.Cover?.Url,
+                thumbnailUrl: primary.Cover?.ThumbnailUrl ?? volume.Cover?.ThumbnailUrl),
+            Dimensions = volume.Dimensions ?? primary.Dimensions
+        };
     }
 
     private static string? Prefer(params string?[] values)
-        => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+    {
+        return values.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
+    }
 
     private static BookFormat PreferFormat(BookFormat first, BookFormat second)
-        => first != BookFormat.Unknown ? first : second;
+    {
+        return first != BookFormat.Unknown ? first : second;
+    }
 }

@@ -18,7 +18,7 @@ public class IsbndbPublisherService : IPublisherSearch
         _logger = logger;
     }
 
-    public async Task<List<EditionWithWork>?> GetBooksByPublisherAsync(Publisher publisher, CancellationToken ct)
+    public async Task<List<BookCandidate>?> GetBooksByPublisherAsync(Publisher publisher, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(publisher.Name))
             return [];
@@ -29,8 +29,8 @@ public class IsbndbPublisherService : IPublisherSearch
             return null;
 
         var books = (response.Books ?? [])
-            .Select(dto => dto.ToEditionWithWork())
-            .OfType<EditionWithWork>()
+            .Select(dto => dto.ToBookCandidate())
+            .OfType<BookCandidate>()
             .ToList();
 
         _logger.LogDebug("Publisher '{Publisher}' returned {Count} books.", publisher, books.Count);

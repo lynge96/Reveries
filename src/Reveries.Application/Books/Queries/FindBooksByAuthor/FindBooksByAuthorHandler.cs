@@ -6,7 +6,7 @@ using Reveries.Application.Common.Exceptions;
 
 namespace Reveries.Application.Books.Queries.FindBooksByAuthor;
 
-public sealed class FindBooksByAuthorHandler : IQueryHandler<FindBooksByAuthorQuery, List<EditionWithWork>>
+public sealed class FindBooksByAuthorHandler : IQueryHandler<FindBooksByAuthorQuery, List<BookCandidate>>
 {
     private readonly IAuthorSearch _authorSearch;
     private readonly ILogger<FindBooksByAuthorHandler> _logger;
@@ -19,7 +19,7 @@ public sealed class FindBooksByAuthorHandler : IQueryHandler<FindBooksByAuthorQu
         _logger = logger;
     }
 
-    public async ValueTask<List<EditionWithWork>> Handle(FindBooksByAuthorQuery query, CancellationToken ct)
+    public async ValueTask<List<BookCandidate>> Handle(FindBooksByAuthorQuery query, CancellationToken ct)
     {
         var author = query.Author;
 

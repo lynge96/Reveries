@@ -2,14 +2,13 @@ using System.Globalization;
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Helpers;
-using Reveries.Domain.Works;
 using Reveries.Integration.GoogleBooks.DTOs;
 
 namespace Reveries.Integration.GoogleBooks.Mappers;
 
 public static class GoogleBookDtoMapperExtensions
 {
-    public static EditionWithWork? ToEditionWithWork(this GoogleVolumeInfoDto googleBookDto)
+    public static BookCandidate? ToBookCandidate(this GoogleVolumeInfoDto googleBookDto)
     {
         var isbn13 = googleBookDto.IndustryIdentifiers?.FirstOrDefault(i => i.Type == "ISBN_13")?.Identifier;
         var isbn10 = googleBookDto.IndustryIdentifiers?.FirstOrDefault(i => i.Type == "ISBN_10")?.Identifier;
@@ -23,25 +22,22 @@ public static class GoogleBookDtoMapperExtensions
 
         var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
 
+        var dimensions = BookDimensions.Create(normalizedHeight, normalizedWidth, normalizedThickness, null);
+
         var (primaryGenres, secondaryGenres) = googleBookDto.Categories.SplitGenres();
 
-        var work = Work.Create(new WorkData(
+        return BookCandidate.Create(new BookCandidateData(
+            Isbn13: isbn13,
+            Isbn10: isbn10,
             Title: googleBookDto.Title,
             Subtitle: googleBookDto.Subtitle,
             Authors: googleBookDto.Authors,
+            Publisher: googleBookDto.Publisher,
             PrimaryGenres: primaryGenres,
             SecondaryGenres: secondaryGenres,
             DeweyDecimals: null,
             Synopsis: googleBookDto.Description,
-            Description: googleBookDto.Description));
-
-        var dimensions = BookDimensions.Create(normalizedHeight, normalizedWidth, normalizedThickness, null);
-
-        var edition = Edition.Create(new EditionData(
-            WorkId: work.Id,
-            Isbn13: isbn13,
-            Isbn10: isbn10,
-            Publisher: googleBookDto.Publisher,
+            Description: googleBookDto.Description,
             Pages: googleBookDto.PageCount,
             PublishDate: googleBookDto.PublishedDate,
             LanguageIso639: googleBookDto.Language,
@@ -49,10 +45,7 @@ public static class GoogleBookDtoMapperExtensions
             EditionStatement: null,
             ImageThumbnail: googleBookDto.ImageLinks?.Thumbnail,
             ImageUrl: googleBookDto.ImageLinks?.Thumbnail,
-            SaxoUrl: null,
             Dimensions: dimensions));
-
-        return new EditionWithWork(edition, work);
     }
 
     private static (List<string> Primary, List<string> Secondary) SplitGenres(this IEnumerable<string>? categories)

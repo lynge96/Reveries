@@ -6,7 +6,7 @@ using Reveries.Application.Common.Exceptions;
 
 namespace Reveries.Application.Books.Queries.FindBookByTitle;
 
-public sealed class FindBookByTitleHandler : IQueryHandler<FindBookByTitleQuery, EditionWithWork>
+public sealed class FindBookByTitleHandler : IQueryHandler<FindBookByTitleQuery, BookCandidate>
 {
     private readonly IBookLookupService _bookLookupService;
     private readonly ILogger<FindBookByTitleHandler> _logger;
@@ -19,7 +19,7 @@ public sealed class FindBookByTitleHandler : IQueryHandler<FindBookByTitleQuery,
         _logger = logger;
     }
 
-    public async ValueTask<EditionWithWork> Handle(FindBookByTitleQuery query, CancellationToken ct)
+    public async ValueTask<BookCandidate> Handle(FindBookByTitleQuery query, CancellationToken ct)
     {
         var title = query.Title;
         var bookLookupResult = await _bookLookupService.LookupByTitleAsync(title, ct);
@@ -29,7 +29,7 @@ public sealed class FindBookByTitleHandler : IQueryHandler<FindBookByTitleQuery,
 
         var result = bookLookupResult.Found[0];
 
-        _logger.LogInformation("Successfully retrieved book '{Title}'", result.Work.Title);
+        _logger.LogInformation("Successfully retrieved book '{Title}'", result.Title);
 
         return result;
     }

@@ -24,7 +24,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         _logger = logger;
     }
 
-    public async Task<List<EditionWithWork>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    public async Task<List<BookCandidate>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
@@ -54,7 +54,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         return books;
     }
 
-    public async Task<List<EditionWithWork>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode,
+    public async Task<List<BookCandidate>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode,
         CancellationToken ct)
     {
         if (titles.Count == 0)
@@ -65,8 +65,8 @@ public class IsbndbBookService : IIsbndbBookSearch
             var response = await _bookClient.SearchBooksAsync(title.Text, languageCode, shouldMatchAll: true, ct: ct);
 
             var mapped = response?.Books
-                .Select(b => b.ToEditionWithWork())
-                .OfType<EditionWithWork>()
+                .Select(b => b.ToBookCandidate())
+                .OfType<BookCandidate>()
                 .ToList();
 
             return mapped;
@@ -86,20 +86,20 @@ public class IsbndbBookService : IIsbndbBookSearch
         return allBooks;
     }
 
-    private async Task<EditionWithWork?> GetSingleBookAsync(Isbn isbn, CancellationToken ct)
+    private async Task<BookCandidate?> GetSingleBookAsync(Isbn isbn, CancellationToken ct)
     {
         var dto = await _bookClient.FetchBookByIsbnAsync(isbn, ct);
 
-        return dto?.Book.ToEditionWithWork();
+        return dto?.Book.ToBookCandidate();
     }
 
-    private async Task<List<EditionWithWork>?> GetMultipleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    private async Task<List<BookCandidate>?> GetMultipleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, ct);
 
         var books = response?.Data
-            .Select(b => b.ToEditionWithWork())
-            .OfType<EditionWithWork>()
+            .Select(b => b.ToBookCandidate())
+            .OfType<BookCandidate>()
             .ToList();
 
         return books;

@@ -54,6 +54,11 @@ The outer layer is mirrored by test projects — `Reveries.Persistence.Tests`,
 `Reveries.Integration.Tests`, and `Reveries.Api.Tests` — alongside the existing
 `Reveries.Domain.Tests` and `Reveries.Application.Tests`.
 
+`Reveries.Console` — the CLI entry point — was **deleted**. It was a manual
+scratch/testing harness, and its last domain coupling (the `DataSource`-based
+filtering and ordering) had already been removed earlier in the refactor. The
+scanner (`Reveries.Blazor.BookScanner`) is now the only frontend.
+
 Layer boundaries that assembly separation no longer enforces are recovered by a
 **`Reveries.Architecture.Tests`** project using **NetArchTest**, asserting the
 layer rules on the compiled namespaces. Four rules are in place:
