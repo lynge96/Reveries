@@ -16,7 +16,7 @@ namespace Reveries.Application.Books.Models;
 /// (ISBNDB, Google Books) before it is persisted. Aggregate references (authors, publisher)
 /// are carried as normalized names; genuine value objects are carried as-is.
 /// </summary>
-public sealed record BookCandidate : IBookRow
+public sealed record BookCandidate
 {
     public Isbn? Isbn { get; init; }
     public required string Title { get; init; }
@@ -35,15 +35,6 @@ public sealed record BookCandidate : IBookRow
     public string? EditionStatement { get; init; }
     public Cover? Cover { get; init; }
     public BookDimensions? Dimensions { get; init; }
-
-    string? IBookRow.Isbn13 => Isbn?.Value13;
-    string? IBookRow.Isbn10 => Isbn?.Value10;
-    IReadOnlyList<string> IBookRow.AuthorNames => Authors;
-    string? IBookRow.PublisherName => Publisher;
-    string? IBookRow.SeriesName => null;
-    int? IBookRow.SeriesNumber => null;
-    string IBookRow.FormatLabel => Format.ToString();
-    string? IBookRow.LanguageLabel => Language?.DisplayName;
 
     public override string ToString()
     {

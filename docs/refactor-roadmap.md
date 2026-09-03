@@ -54,6 +54,15 @@ The outer layer is mirrored by test projects — `Reveries.Persistence.Tests`,
 `Reveries.Integration.Tests`, and `Reveries.Api.Tests` — alongside the existing
 `Reveries.Domain.Tests` and `Reveries.Application.Tests`.
 
+`Reveries.Console` — the CLI entry point — was **deleted**. It was a manual
+scratch/testing harness, and its last domain coupling (the `DataSource`-based
+filtering and ordering) had already been removed in Phase 1. Removing it also
+retired the `IBookRow` presentation abstraction: that interface existed only so a
+Spectre.Console display could render either a persisted `BookDetails` or an
+un-persisted `BookCandidate` through one shape, and with the Console gone it had
+no consumers, so `BookDetails`/`BookCandidate` no longer implement it. The
+scanner (`Reveries.Blazor.BookScanner`) is now the only frontend.
+
 Layer boundaries that assembly separation no longer enforces are recovered by a
 **`Reveries.Architecture.Tests`** project using **NetArchTest**, asserting the
 layer rules on the compiled namespaces. Four rules are in place:
