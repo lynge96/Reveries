@@ -4,7 +4,7 @@ using Reveries.Application.Books.Models;
 
 namespace Reveries.Application.Books.Queries.FindBooksByAuthor;
 
-public sealed record FindBooksByAuthorQuery : IQuery<List<EditionWithWork>>
+public sealed record FindBooksByAuthorQuery : IQuery<List<BookCandidate>>
 {
     public Author Author { get; }
 

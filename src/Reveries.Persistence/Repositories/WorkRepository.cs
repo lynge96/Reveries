@@ -37,7 +37,7 @@ public class WorkRepository : IWorkRepository
 
         await connection.ExecuteAsync(_dbContext.CreateCommand(sql, workEntity, ct));
 
-        await InsertAuthorsAsync(work.Id, relations.AuthorIds, ct);
+        await InsertAuthorsAsync(work.Id, work.AuthorIds, ct);
         await InsertGenresAsync(work.Id, relations.PrimaryGenreIds, isPrimary: true, ct);
         await InsertGenresAsync(work.Id, relations.SecondaryGenreIds, isPrimary: false, ct);
         await InsertDeweyDecimalsAsync(work.Id, relations.DeweyDecimalIds, ct);
@@ -126,55 +126,10 @@ public class WorkRepository : IWorkRepository
 
         var command = _dbContext.CreateCommand(
             sql,
-            new { Id = work.Id.Value, SeriesId = seriesId.Value, SeriesNumber = work.SeriesPlacement?.Number },
+            new { Id = work.Id.Value, SeriesId = seriesId.Value, SeriesNumber = work.NumberInSeries },
             ct);
 
         await connection.ExecuteAsync(command);
-    }
-
-    public async Task<List<Work>> GetWorksByAuthorsAsync(IEnumerable<Author> authors, CancellationToken ct)
-    {
-        const string sql = """
-                           SELECT *
-                           FROM library.works_view
-                           WHERE authors ILIKE ANY(@Patterns)
-                           """;
-
-        var patterns = authors
-            .Where(n => !string.IsNullOrWhiteSpace(n.NormalizedName))
-            .Select(n => $"%{n.NormalizedName.Trim()}%")
-            .ToList();
-
-        return await QueryWorksAsync(sql, new { Patterns = patterns }, ct);
-    }
-
-    public async Task<List<Work>> GetDetailedWorksByTitleAsync(List<Title> titles, CancellationToken ct)
-    {
-        if (titles.Count == 0)
-            return [];
-
-        const string sql = """
-                           SELECT *
-                           FROM library.works_view
-                           WHERE title ILIKE ANY(@Patterns)
-                           """;
-
-        var patterns = titles
-            .Where(t => !string.IsNullOrWhiteSpace(t.Text))
-            .Select(t => $"%{t.Text.Trim()}%")
-            .ToList();
-
-        return await QueryWorksAsync(sql, new { Patterns = patterns }, ct);
-    }
-
-    public async Task<List<Work>> GetAllWorksAsync(CancellationToken ct)
-    {
-        const string sql = """
-                           SELECT *
-                           FROM library.works_view
-                           """;
-
-        return await QueryWorksAsync(sql, null, ct);
     }
 
     private async Task<List<Work>> QueryWorksAsync(string sql, object? parameters, CancellationToken ct)

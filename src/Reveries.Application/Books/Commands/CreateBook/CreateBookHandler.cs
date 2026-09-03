@@ -6,6 +6,7 @@ using Reveries.Domain.Editions;
 
 namespace Reveries.Application.Books.Commands.CreateBook;
 
+
 public sealed class CreateBookHandler : IQueryHandler<CreateBookCommand, EditionId>
 {
     private readonly IWorkPersistenceService _workPersistenceService;
@@ -21,14 +22,14 @@ public sealed class CreateBookHandler : IQueryHandler<CreateBookCommand, Edition
 
     public async ValueTask<EditionId> Handle(CreateBookCommand command, CancellationToken ct)
     {
-        var (work, edition) = command.ToWorkAndEdition();
+        var candidate = command.ToCandidate();
 
         _logger.LogDebug(
-            "Creating work '{Title}' with edition ISBN {Isbn}",
-            work.Title,
-            edition.Isbn?.Value13);
+            "Creating book '{Title}' with ISBN {Isbn}",
+            candidate.Title,
+            candidate.Isbn?.Value13);
 
-        var editionId = await _workPersistenceService.SaveWorkWithEditionAsync(work, edition, ct);
+        var editionId = await _workPersistenceService.SaveBookAsync(candidate, ct);
 
         return editionId;
     }

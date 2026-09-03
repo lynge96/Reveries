@@ -43,18 +43,10 @@ public class BookSeriesService : IBookSeriesService
             throw new NotFoundException($"Work for ISBN '{isbn}' was not found.");
 
         var existingSeries = await _series.GetByNameAsync(series, ct);
+        var resolvedSeries = existingSeries ?? await _series.GetOrCreateAsync(series, ct);
 
-        if (existingSeries != null)
-        {
-            work.SetSeries(existingSeries, numberInSeries);
-            await _works.UpdateWorkSeriesAsync(work, existingSeries.Id, ct);
-        }
-        else
-        {
-            work.SetSeries(series, numberInSeries);
-            var createdSeries = await _series.GetOrCreateAsync(series, ct: ct);
-            await _works.UpdateWorkSeriesAsync(work, createdSeries!.Id, ct);
-        }
+        work.SetSeries(resolvedSeries!.Id, numberInSeries);
+        await _works.UpdateWorkSeriesAsync(work, resolvedSeries.Id, ct);
 
         await tx.CommitAsync(ct);
 

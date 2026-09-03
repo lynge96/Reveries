@@ -42,7 +42,7 @@ public class IsbndbAuthorService : IAuthorSearch
         return distinctAuthors;
     }
 
-    public async Task<List<EditionWithWork>?> GetBooksByAuthorAsync(Author author, CancellationToken ct)
+    public async Task<List<BookCandidate>?> GetBooksByAuthorAsync(Author author, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(author.NormalizedName))
             return [];
@@ -53,8 +53,8 @@ public class IsbndbAuthorService : IAuthorSearch
             return null;
 
         var books = (response.Books ?? [])
-            .Select(b => b.ToEditionWithWork())
-            .OfType<EditionWithWork>()
+            .Select(b => b.ToBookCandidate())
+            .OfType<BookCandidate>()
             .ToList();
 
         _logger.LogDebug("Found {Count} books for author '{AuthorName}'.",
