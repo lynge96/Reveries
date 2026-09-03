@@ -14,7 +14,7 @@ public static class GoogleBooksClientExtensions
 
         return services;
     }
-    
+
     private static void ConfigureGoogleBooksClient(IServiceProvider serviceProvider, HttpClient client)
     {
         var settings = serviceProvider.GetRequiredService<IOptions<GoogleBooksSettings>>().Value;

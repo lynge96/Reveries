@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Books.Interfaces;
-using Reveries.Domain.Exceptions;
-using Reveries.Domain.Models;
-using Reveries.Domain.ValueObjects;
+using Reveries.Application.Books.Models;
+using Reveries.Application.Common.Exceptions;
+using Reveries.Domain.Editions;
+using Reveries.Domain.Works;
 using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
@@ -22,59 +23,60 @@ public class IsbndbBookService : IIsbndbBookSearch
         _settings = options.Value;
         _logger = logger;
     }
-    
-    public async Task<List<Book>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+
+    public async Task<List<EditionWithWork>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
 
         if (isbns.Count > _settings.MaxBulkIsbns)
-            throw new InvalidIsbnException($"Too many ISBN numbers. Maximum is {_settings.MaxBulkIsbns}.");
-        
+            throw new InvalidRequestException($"Too many ISBN numbers. Maximum is {_settings.MaxBulkIsbns}.");
+
         if (isbns.Count == 1)
         {
             var isbn = isbns.First();
-            
+
             var book = await GetSingleBookAsync(isbn, ct);
-            
+
             if (book is null)
                 return null;
-            
+
             _logger.LogDebug("Single ISBN lookup for '{Isbn}' succeeded.", isbn);
             return [book];
         }
-        
+
         var books = await GetMultipleBooksAsync(isbns, ct);
 
         if (books is null)
             return null;
-        
+
         _logger.LogDebug("Bulk ISBN lookup requested {Requested} ISBNs and returned {Found} books.", isbns.Count, books.Count);
         return books;
     }
-    
-    public async Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode,
+
+    public async Task<List<EditionWithWork>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode,
         CancellationToken ct)
     {
         if (titles.Count == 0)
             return [];
-        
+
         var tasks = titles.Select(async title =>
         {
-            var response = await _bookClient.SearchBooksAsync(title.Value, languageCode, shouldMatchAll: true, ct: ct);
+            var response = await _bookClient.SearchBooksAsync(title.Text, languageCode, shouldMatchAll: true, ct: ct);
 
             var mapped = response?.Books
-                .Select(b => b.ToBook())
+                .Select(b => b.ToEditionWithWork())
+                .OfType<EditionWithWork>()
                 .ToList();
-            
+
             return mapped;
         });
 
         var results = await Task.WhenAll(tasks);
-        
+
         if (results.All(r => r is null))
             return null;
-        
+
         var allBooks = results
             .Where(r => r is not null)
             .SelectMany(b => b!)
@@ -84,24 +86,22 @@ public class IsbndbBookService : IIsbndbBookSearch
         return allBooks;
     }
 
-    private async Task<Book?> GetSingleBookAsync(Isbn isbn, CancellationToken ct)
+    private async Task<EditionWithWork?> GetSingleBookAsync(Isbn isbn, CancellationToken ct)
     {
         var dto = await _bookClient.FetchBookByIsbnAsync(isbn, ct);
 
-        var book = dto?.Book.ToBook();
-
-        return book;
+        return dto?.Book.ToEditionWithWork();
     }
-    
-    private async Task<List<Book>?> GetMultipleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+
+    private async Task<List<EditionWithWork>?> GetMultipleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, ct);
-        
+
         var books = response?.Data
-            .Select(b => b.ToBook())
+            .Select(b => b.ToEditionWithWork())
+            .OfType<EditionWithWork>()
             .ToList();
 
         return books;
     }
-
 }

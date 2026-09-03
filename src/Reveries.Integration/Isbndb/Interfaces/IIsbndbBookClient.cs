@@ -1,4 +1,5 @@
-﻿using Reveries.Domain.ValueObjects;
+using Reveries.Domain.Editions;
+
 using Reveries.Integration.Isbndb.DTOs.Books;
 
 namespace Reveries.Integration.Isbndb.Interfaces;

@@ -74,12 +74,16 @@ else
                         </div>
 
                         <!-- Genres -->
-                        @if (_book.Genres?.Any() == true)
+                        @if (_book.PrimaryGenres?.Any() == true || _book.SecondaryGenres?.Any() == true)
                         {
                             <div class="genre-badges">
-                                @foreach (var genre in _book.Genres)
+                                @foreach (var genre in _book.PrimaryGenres ?? [])
                                 {
                                     <span class="genre-badge">@genre</span>
+                                }
+                                @foreach (var genre in _book.SecondaryGenres ?? [])
+                                {
+                                    <span class="genre-badge genre-badge-secondary">@genre</span>
                                 }
                             </div>
                         }
@@ -137,12 +141,12 @@ else
                                 </div>
                             </div>
 
-                            <!-- Binding -->
+                            <!-- Format -->
                             <div class="book-info">
                                 <i class="bi bi-journal icon"></i>
                                 <div>
-                                    <div class="label">Binding</div>
-                                    <div class="value">@_book.Binding</div>
+                                    <div class="label">Format</div>
+                                    <div class="value">@_book.Format</div>
                                 </div>
                             </div>
 
@@ -152,15 +156,6 @@ else
                                 <div>
                                     <div class="label">Edition</div>
                                     <div class="value">@_book.Edition</div>
-                                </div>
-                            </div>
-
-                            <!-- MSRP -->
-                            <div class="book-info">
-                                <i class="bi bi-currency-dollar icon"></i>
-                                <div>
-                                    <div class="label">Price</div>
-                                    <div class="value">@_book.Msrp</div>
                                 </div>
                             </div>
 
@@ -200,14 +195,6 @@ else
                                 </div>
                             }
 
-                            <!-- Datasource -->
-                            <div class="book-info">
-                                <i class="bi bi-database icon"></i>
-                                <div>
-                                    <div class="label">Datasource</div>
-                                    <div class="value"><BookSourceBadge DataSource="@_book.DataSource"/></div>
-                                </div>
-                            </div>
                         </div>
 
                         <hr class="my-3 border border-secondary opacity-15 rounded"/>
@@ -218,8 +205,8 @@ else
                             <div class="synopsis-title mb-2">Synopsis</div>
 
                             <div class="synopsis">
-                                <p class="synopsis-text mb-1">
-                                    @GetSynopsisMarkup()
+                                <p class="synopsis-text mb-1" style="white-space: pre-wrap;">
+                                    @GetSynopsisText()
                                 </p>
 
                                 @if (_book.Synopsis.Length > MaxSynopsisLength)
@@ -229,6 +216,16 @@ else
                                         @(_showFullSynopsis ? "Show less" : "Show more")
                                     </button>
                                 }
+                            </div>
+                        }
+
+                        <!-- Description -->
+                        @if (!string.IsNullOrEmpty(_book.Description))
+                        {
+                            <div class="synopsis-title mb-2">Description</div>
+
+                            <div class="synopsis">
+                                <p class="synopsis-text mb-1" style="white-space: pre-wrap;">@_book.Description</p>
                             </div>
                         }
 
@@ -270,15 +267,9 @@ else
             _book = await BooksApi.GetAsync(Isbn);
         }
         
-        if (_book != null)
+        if (_book != null && !string.IsNullOrEmpty(Isbn))
         {
-            _isSaved = _book.DataSource switch
-            {
-                "Database" => true,
-                "ExternalApi" => false,
-                "Cache" => await BooksApi.ExistsAsync(Isbn!),
-                _ => false
-            };
+            _isSaved = await BooksApi.ExistsAsync(Isbn);
         }
     }
 
@@ -318,6 +309,10 @@ else
         <!-- Title -->
         <div>
             <h1 class="book-title mb-1">@_book!.Title</h1>
+            @if (!string.IsNullOrEmpty(_book.Subtitle))
+            {
+                <h2 class="book-subtitle text-muted mb-1">@_book.Subtitle</h2>
+            }
         </div>
 
         <!-- Series -->
@@ -338,18 +333,16 @@ else
         </div>
     </div>;
     
-    private MarkupString GetSynopsisMarkup()
+    private string GetSynopsisText()
     {
         if (string.IsNullOrEmpty(_book?.Synopsis))
-            return new MarkupString(string.Empty);
+            return string.Empty;
 
-        var synopsisText = _showFullSynopsis
+        return _showFullSynopsis
             ? _book.Synopsis
             : _book.Synopsis.Length > MaxSynopsisLength
                 ? _book.Synopsis.Substring(0, MaxSynopsisLength) + "..."
                 : _book.Synopsis;
-        
-        return new MarkupString(synopsisText);
     }
 
 }

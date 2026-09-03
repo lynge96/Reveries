@@ -1,10 +1,11 @@
-using Reveries.Domain.Models;
-using Reveries.Domain.ValueObjects;
+using Reveries.Application.Books.Models;
+using Reveries.Domain.Editions;
+using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Interfaces;
 
 public interface IBookMergerService
 {
-    List<Book> AggregateBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, IReadOnlyList<Book>? isbndbBooks, IReadOnlyList<Book>? googleBooks);
-    List<Book> AggregateBooksByTitlesAsync(IReadOnlyList<Title> titles, IReadOnlyList<Book>? isbndbBooks, IReadOnlyList<Book>? googleBooks);
+    List<EditionWithWork> AggregateBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, IReadOnlyList<EditionWithWork>? isbndbBooks, IReadOnlyList<EditionWithWork>? googleBooks);
+    List<EditionWithWork> AggregateBooksByTitlesAsync(IReadOnlyList<Title> titles, IReadOnlyList<EditionWithWork>? isbndbBooks, IReadOnlyList<EditionWithWork>? googleBooks);
 }

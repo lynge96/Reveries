@@ -17,7 +17,7 @@ public class LayerDependencyTests
     private const string Integration = "Reveries.Integration";
     private const string Api = "Reveries.Api";
 
-    private static readonly Assembly DomainAssembly = typeof(Domain.Models.Book).Assembly;
+    private static readonly Assembly DomainAssembly = typeof(Domain.Works.Work).Assembly;
     private static readonly Assembly ApplicationAssembly = typeof(Application.ServiceCollectionExtensions).Assembly;
     private static readonly Assembly ContractsAssembly = typeof(Contracts.Books.Dtos.BookDetailsDto).Assembly;
     private static readonly Assembly InfrastructureAssembly = typeof(Infrastructure.DependencyInjection).Assembly;

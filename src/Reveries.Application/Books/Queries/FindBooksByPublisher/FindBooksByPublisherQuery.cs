@@ -1,16 +1,12 @@
 using Mediator;
-using Reveries.Domain.Models;
+using Reveries.Application.Books.Models;
+using Reveries.Domain.Publishers;
 
 namespace Reveries.Application.Books.Queries.FindBooksByPublisher;
 
-public sealed record FindBooksByPublisherQuery : IQuery<List<Book>>
+public sealed record FindBooksByPublisherQuery : IQuery<List<EditionWithWork>>
 {
     public Publisher Publisher { get; }
-    
-    public FindBooksByPublisherQuery(string publisherName)
-    {
-        Publisher = Publisher.Create(publisherName);
-    }
-    
+
     public FindBooksByPublisherQuery(Publisher publisher) => Publisher = publisher;
 }

@@ -11,7 +11,7 @@ public class ConsoleAppRunnerService : IConsoleAppRunnerService
     private readonly IMenuOperationService _menuOperationService;
     private bool _isRunning = true;
     private readonly Stack<MenuOption[]> _menuStack = new();
-    
+
     public ConsoleAppRunnerService(IMenuOperationService menuOperationService)
     {
         _menuOperationService = menuOperationService;
@@ -21,9 +21,9 @@ public class ConsoleAppRunnerService : IConsoleAppRunnerService
     {
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("Welcome to Reveries! 💫".Bold().AsHeader());
-        
+
         _menuStack.Push(MenuConfiguration.MainMenu);
-        
+
         while (_isRunning && _menuStack.Count > 0)
         {
             var currentMenu = _menuStack.Peek().ToList();

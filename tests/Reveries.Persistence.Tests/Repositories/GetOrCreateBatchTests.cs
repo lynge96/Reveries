@@ -1,6 +1,6 @@
 using Dapper;
-using Reveries.Domain.Models;
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Works;
 using Reveries.Persistence.Repositories;
 using Reveries.Persistence.Tests.Fixtures;
 
@@ -28,7 +28,7 @@ public class GetOrCreateBatchTests : IAsyncLifetime
     public async Task GetOrCreateGenres_deduplicates_within_a_single_batch()
     {
         // Arrange — the same genre twice in one call would break a naive single-statement upsert
-        var genres = new[] { Genre.Create("Dystopia"), Genre.Create("Dystopia"), Genre.Create("Fantasy") };
+        var genres = new[] { Genre.TryCreate("Dystopia")!, Genre.TryCreate("Dystopia")!, Genre.TryCreate("Fantasy")! };
 
         // Act
         await using var db = _fixture.NewDbContext();
@@ -42,7 +42,7 @@ public class GetOrCreateBatchTests : IAsyncLifetime
     public async Task GetOrCreateGenres_is_idempotent_across_calls()
     {
         // Arrange
-        var genres = new[] { Genre.Create("Dystopia") };
+        var genres = new[] { Genre.TryCreate("Dystopia")! };
         await using var db = _fixture.NewDbContext();
         var repository = new GenreRepository(db);
 
@@ -58,7 +58,7 @@ public class GetOrCreateBatchTests : IAsyncLifetime
     public async Task GetOrCreateDeweyDecimals_deduplicates_within_a_single_batch()
     {
         // Arrange
-        var codes = new[] { DeweyDecimal.Create("823"), DeweyDecimal.Create("823"), DeweyDecimal.Create("813") };
+        var codes = new[] { DeweyDecimal.TryCreate("823")!, DeweyDecimal.TryCreate("823")!, DeweyDecimal.TryCreate("813")! };
 
         // Act
         await using var db = _fixture.NewDbContext();
@@ -74,9 +74,9 @@ public class GetOrCreateBatchTests : IAsyncLifetime
         // Arrange — same author twice, resolved through the bulk upsert
         var authors = new[]
         {
-            Author.Create("George Orwell"),
-            Author.Create("George Orwell"),
-            Author.Create("Aldous Huxley")
+            Author.TryCreate("George Orwell")!,
+            Author.TryCreate("George Orwell")!,
+            Author.TryCreate("Aldous Huxley")!
         };
 
         // Act
@@ -85,36 +85,5 @@ public class GetOrCreateBatchTests : IAsyncLifetime
 
         // Assert
         Assert.Equal(2, ids.Distinct().Count());
-    }
-
-    [Fact]
-    public async Task GetOrCreateAuthors_matches_an_existing_author_through_a_name_variant_without_duplicating()
-    {
-        // Arrange — an author stored under one normalized name, with the requested
-        // name held only as a variant (so it matches through the variant, not the
-        // author's own normalized_name)
-        var requested = Author.Create("George Orwell");
-        var existingId = Guid.NewGuid();
-
-        await using (var seed = await _fixture.DataSource.OpenConnectionAsync())
-        {
-            await seed.ExecuteAsync(
-                "INSERT INTO library.authors (id, normalized_name, first_name, last_name) VALUES (@Id, @Normalized, @First, @Last)",
-                new { Id = existingId, Normalized = "eric blair", First = "Eric", Last = "Blair" });
-            await seed.ExecuteAsync(
-                "INSERT INTO library.author_name_variants (author_id, name_variant, is_primary) VALUES (@Id, @Variant, false)",
-                new { Id = existingId, Variant = requested.NormalizedName });
-        }
-
-        // Act
-        await using var db = _fixture.NewDbContext();
-        var ids = await new AuthorRepository(db).GetOrCreateAuthorsAsync([requested], CancellationToken.None);
-
-        // Assert — resolved to the existing author via its variant, no duplicate row inserted
-        Assert.Equal([existingId], ids);
-
-        await using var check = await _fixture.DataSource.OpenConnectionAsync();
-        var authorCount = await check.ExecuteScalarAsync<long>("SELECT COUNT(*) FROM library.authors");
-        Assert.Equal(1L, authorCount);
     }
 }

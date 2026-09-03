@@ -12,10 +12,10 @@ public class DbTransaction : ITransaction
         _dbContext = dbContext;
     }
 
-    public Task CommitAsync(CancellationToken ct) 
+    public Task CommitAsync(CancellationToken ct)
         => _dbContext.CommitTransactionAsync(ct);
 
-    public Task RollbackAsync(CancellationToken ct) 
+    public Task RollbackAsync(CancellationToken ct)
         => _dbContext.RollbackTransactionAsync(ct);
 
     public async ValueTask DisposeAsync()

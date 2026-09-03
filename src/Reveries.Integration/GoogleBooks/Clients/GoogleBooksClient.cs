@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain.Editions;
+using Reveries.Domain.Works;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
@@ -12,15 +13,15 @@ public class GoogleBooksClient : ExternalBaseClient<GoogleBooksClient>, IGoogleB
 {
     private readonly GoogleBooksSettings _settings;
     protected override string DependencyName => GoogleBooksSettings.SectionName;
-    
+
     public GoogleBooksClient(HttpClient httpClient, IOptions<GoogleBooksSettings> settings, ILogger<GoogleBooksClient> logger) : base(httpClient, logger)
     {
         _settings = settings.Value;
     }
-    
+
     public async Task<GoogleBookResponseDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
-        var url = $"volumes?q=isbn:{isbn.Value}&key={_settings.ApiKey}";
+        var url = $"volumes?q=isbn:{isbn.Value13}&key={_settings.ApiKey}";
         var response = await HttpClient.GetAsync(url, ct);
         var context = $"ISBN '{isbn}'";
 
@@ -45,7 +46,7 @@ public class GoogleBooksClient : ExternalBaseClient<GoogleBooksClient>, IGoogleB
 
     public async Task<GoogleBookResponseDto?> SearchBooksByTitleAsync(Title title, CancellationToken ct)
     {
-        var url = $"volumes?q=intitle:\"{Uri.EscapeDataString(title.Value)}\"&key={_settings.ApiKey}";
+        var url = $"volumes?q=intitle:\"{Uri.EscapeDataString(title.Text)}\"&key={_settings.ApiKey}";
         var response = await HttpClient.GetAsync(url, ct);
         var context = $"Book by title '{title}'";
 

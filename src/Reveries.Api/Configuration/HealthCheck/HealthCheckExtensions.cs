@@ -12,12 +12,12 @@ public static class HealthCheckExtensions
         services.AddHealthChecks()
             .AddPostgresHealthCheck()
             .AddRedisHealthCheck();
-        
+
         return services;
     }
-    
+
     public static WebApplication MapStandardHealthChecks(
-        this WebApplication app, 
+        this WebApplication app,
         string endpoint)
     {
         app.MapHealthChecks(endpoint, new HealthCheckOptions

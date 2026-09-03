@@ -2,39 +2,36 @@ namespace Reveries.Domain.Helpers;
 
 public static class BookDimensionNormalizer
 {
-    private const decimal MaxCentimeters = 100;
+    private const decimal MillimeterThreshold = 100;
+    private const int CentimeterDecimals = 1;
 
     /// <summary>
-    /// Normalizes three dimensions (height, width, thickness) so that the largest becomes height,
-    /// second-largest width, and smallest thickness.
+    /// Orders three dimensions so the largest becomes height, the next width, and the smallest thickness.
+    /// The unit is decided for the whole set: when the largest value reaches the millimeter threshold the
+    /// entire set is treated as millimeters and converted to centimeters.
     /// </summary>
     public static (decimal? Height, decimal? Width, decimal? Thickness) OrderDimensionsBySize(
         decimal? height, decimal? width, decimal? thickness)
     {
-        var dimensions = new[] { height, width, thickness }
+        var values = new[] { height, width, thickness }
             .Where(d => d.HasValue)
-            .Select(d => NormalizeUnit(d!.Value))
-            .OrderByDescending(d => d)
+            .Select(d => d!.Value)
             .ToList();
 
-        decimal? normalizedHeight = dimensions.Count > 0 ? dimensions[0] : null;
-        decimal? normalizedWidth = dimensions.Count > 1 ? dimensions[1] : null;
-        decimal? normalizedThickness = dimensions.Count > 2 ? dimensions[2] : null;
+        if (values.Count == 0)
+            return (null, null, null);
+
+        var divisor = values.Max() >= MillimeterThreshold ? 10m : 1m;
+
+        var ordered = values
+            .Select(value => Math.Round(value / divisor, CentimeterDecimals, MidpointRounding.AwayFromZero))
+            .OrderByDescending(value => value)
+            .ToList();
+
+        decimal? normalizedHeight = ordered.Count > 0 ? ordered[0] : null;
+        decimal? normalizedWidth = ordered.Count > 1 ? ordered[1] : null;
+        decimal? normalizedThickness = ordered.Count > 2 ? ordered[2] : null;
 
         return (normalizedHeight, normalizedWidth, normalizedThickness);
-    }
-    
-    /// <summary>
-    /// Converts millimeters to centimeters if value exceeds 100.
-    /// Assumes values > 100 are in millimeters.
-    /// </summary>
-    private static decimal NormalizeUnit(decimal value)
-    {
-        var normalized = value;
-        
-        while (normalized >= MaxCentimeters)
-            normalized /= 10;
-
-        return Math.Round(normalized, 2, MidpointRounding.AwayFromZero);
     }
 }

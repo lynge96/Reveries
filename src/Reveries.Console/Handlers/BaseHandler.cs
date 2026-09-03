@@ -9,15 +9,15 @@ namespace Reveries.Console.Handlers;
 public abstract class BaseHandler : IMenuHandler
 {
     public abstract MenuChoice MenuChoice { get; }
-    
+
     protected abstract Task ExecuteAsync(CancellationToken ct);
-    
+
     public async Task HandleAsync(CancellationToken cancellationToken = default)
     {
         AnsiConsole.Clear();
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(TimeSpan.FromSeconds(30));
-        
+
         try
         {
             await ExecuteAsync(cts.Token);

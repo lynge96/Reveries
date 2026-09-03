@@ -10,9 +10,9 @@ namespace Reveries.Infrastructure.Logging;
 internal static class LokiSinkExtensions
 {
     public static LoggerConfiguration LokiSink(
-        this LoggerSinkConfiguration sink, 
-        LokiSettings settings, 
-        string env, 
+        this LoggerSinkConfiguration sink,
+        LokiSettings settings,
+        string env,
         LogEventLevel level)
     {
         return sink.GrafanaLoki(

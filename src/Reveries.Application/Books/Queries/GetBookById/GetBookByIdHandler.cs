@@ -1,33 +1,33 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
+using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain.Models;
 
 namespace Reveries.Application.Books.Queries.GetBookById;
 
-public sealed class GetBookByIdHandler : IQueryHandler<GetBookByIdQuery, Book>
+public sealed class GetBookByIdHandler : IQueryHandler<GetBookByIdQuery, BookDetails>
 {
-    private readonly IBookLookupService _bookLookupService;
+    private readonly IBookQueryRepository _bookQueries;
     private readonly ILogger<GetBookByIdHandler> _logger;
-    
+
     public GetBookByIdHandler(
-        IBookLookupService bookLookupService,
+        IBookQueryRepository bookQueries,
         ILogger<GetBookByIdHandler> logger)
     {
-        _bookLookupService = bookLookupService;
+        _bookQueries = bookQueries;
         _logger = logger;
     }
-    
-    public async ValueTask<Book> Handle(GetBookByIdQuery query, CancellationToken ct)
-    {
-        var book = await _bookLookupService.FindBookById(query.BookId, ct);
 
-        if (book == null)
+    public async ValueTask<BookDetails> Handle(GetBookByIdQuery query, CancellationToken ct)
+    {
+        var result = await _bookQueries.GetBookByIdAsync(query.BookId, ct);
+
+        if (result is null)
             throw new NotFoundException($"No book was found with the given id: {query.BookId}.");
 
-        _logger.LogInformation("Successfully retrieved book '{Title}' with DbId {Isbn}", book.Title, query.BookId);
-        
-        return book;
+        _logger.LogInformation("Successfully retrieved book '{Title}' with DbId {Id}", result.Title, query.BookId);
+
+        return result;
     }
 }

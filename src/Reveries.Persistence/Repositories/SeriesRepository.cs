@@ -1,6 +1,6 @@
 using Dapper;
-using Reveries.Domain.Interfaces.IRepository;
-using Reveries.Domain.Models;
+using Reveries.Domain.Interfaces.Repositories;
+using Reveries.Domain.BookSeries;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
@@ -23,7 +23,7 @@ public class SeriesRepository : ISeriesRepository
     {
         if (series is null)
             return null;
-    
+
         const string sql = """
                            INSERT INTO library.series (id, name)
                            VALUES (@Id, @Name)
@@ -31,14 +31,14 @@ public class SeriesRepository : ISeriesRepository
                            SET name = EXCLUDED.name
                            RETURNING id, name, date_created
                            """;
-    
+
         var connection = await _dbContext.GetConnectionAsync(ct);
         var seriesEntity = series.ToEntity();
 
         var command = _dbContext.CreateCommand(sql, new { seriesEntity.Id, seriesEntity.Name }, ct);
 
         var result = await connection.QuerySingleAsync<SeriesEntity>(command);
-    
+
         return result.ToDomain();
     }
 
@@ -53,7 +53,7 @@ public class SeriesRepository : ISeriesRepository
                            WHERE name ILIKE @Name
                            LIMIT 1;
                            """;
-    
+
         var connection = await _dbContext.GetConnectionAsync(ct);
 
         var command = _dbContext.CreateCommand(sql, new { series.Name }, ct);
@@ -72,7 +72,7 @@ public class SeriesRepository : ISeriesRepository
                                date_created
                            FROM library.series;
                            """;
-        
+
         var connection = await _dbContext.GetConnectionAsync(ct);
 
         var command = _dbContext.CreateCommand(sql, ct: ct);

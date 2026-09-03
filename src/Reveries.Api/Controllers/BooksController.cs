@@ -34,16 +34,14 @@ public class BooksController : ControllerBase
         Description = "Fetches every book in the database",
         OperationId = "Books_GetAll")]
     [ProducesResponseType(typeof(BooksResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<BooksResponse>> GetAllBooks(
-        [FromQuery] GetAllBooksRequest request, 
-        CancellationToken ct)
+    public async Task<ActionResult<BooksResponse>> GetAllBooks(CancellationToken ct)
     {
-        var query = new GetAllBooksQuery(request.IsRead);
+        var query = new GetAllBooksQuery();
         var books = await _mediator.Send(query, ct);
 
         return Ok(books.ToResponse());
     }
-    
+
     [HttpGet("isbn/{isbn}")]
     [SwaggerOperation(
         Summary = "Get book by ISBN",
@@ -69,7 +67,7 @@ public class BooksController : ControllerBase
     {
         var query = new GetBookExistsQuery(isbn);
         var exists = await _mediator.Send(query, ct);
-        
+
         return Ok(exists);
     }
 
@@ -100,7 +98,7 @@ public class BooksController : ControllerBase
 
         return Ok(book.ToDto());
     }
-    
+
     [HttpPost]
     [SwaggerOperation(
         Summary = "Add book",
@@ -111,10 +109,10 @@ public class BooksController : ControllerBase
     {
         var command = request.ToCommand();
         var bookId = await _mediator.Send(command, ct);
-        
+
         return new CreateBookResponse(bookId.Value);
     }
-    
+
     [HttpPatch("{isbn}/series")]
     [SwaggerOperation(
         Summary = "Set series",

@@ -1,0 +1,21 @@
+using Reveries.Domain.Enums;
+using Reveries.Domain.Publishers;
+
+namespace Reveries.Domain.Editions;
+
+public sealed record EditionReconstitutionData(
+    Guid Id,
+    Guid WorkId,
+    string? Isbn13,
+    string? Isbn10,
+    int? Pages,
+    string? PublicationDate,
+    string? Language,
+    string? EditionStatement,
+    BookFormat Format,
+    string? ImageThumbnailUrl,
+    string? CoverImageUrl,
+    string? SaxoUrl,
+    BookDimensions? Dimensions,
+    Publisher? Publisher = null
+);

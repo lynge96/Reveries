@@ -1,42 +1,38 @@
+using Reveries.Application.Books.Models;
 using Reveries.Console.Common.Extensions;
 using Reveries.Console.Common.Utilities;
-using Reveries.Domain.Enums;
-using Reveries.Domain.Models;
 using Spectre.Console;
 
 namespace Reveries.Console.Services;
 
 public class BookSelectionService
 {
-    public List<Book> SelectBooksToSave(List<Book> books)
+    public List<EditionWithWork> SelectBooksToSave(List<EditionWithWork> books)
     {
-        var booksToPrompt = books.Where(b => b.DataSource != DataSource.Database && b.DataSource != DataSource.Cache).ToList();
-        if (booksToPrompt.Count == 0)
-            return new List<Book>();
-        
-        var sortedBooks = booksToPrompt
-            .OrderByDescending(b => b.DataSource.HasFlag(DataSource.Database))
-            .ThenBy(b => b.Title)
-            .ThenBy(b => b.DataSource.HasFlag(DataSource.CombinedBookApi))
+        if (books.Count == 0)
+            return [];
+
+        var sortedBooks = books
+            .OrderBy(b => b.Work.Title.Text)
             .ToList();
-        
+
         var selectedBooks = ConsolePromptUtility.ShowMultiSelectionPrompt("Select books to save:", sortedBooks);
 
         if (selectedBooks.Count == 0)
         {
             AnsiConsole.MarkupLine("No books selected.".AsWarning());
-            return new List<Book>();
+            return [];
         }
-        
+
         return selectedBooks;
     }
 
-    public List<Book> FilterBooksByLanguage(IEnumerable<Book> books)
+    public List<EditionWithWork> FilterBooksByLanguage(IEnumerable<EditionWithWork> books)
     {
         var booksList = books.ToList();
         var availableLanguages = booksList
-            .Where(b => !string.IsNullOrWhiteSpace(b.Language))
-            .Select(b => b.Language!)
+            .Where(b => b.Edition.Language is not null)
+            .Select(b => b.Edition.Language!.DisplayName)
             .Distinct()
             .OrderBy(l => l)
             .ToList();
@@ -45,9 +41,9 @@ public class BookSelectionService
             return booksList;
 
         var selectedLanguages = ConsolePromptUtility.ShowMultiSelectionPrompt("Select languages to filter by:", availableLanguages);
-        
-        return selectedLanguages.Count == 0 
-            ? booksList 
-            : booksList.Where(b => selectedLanguages.Contains(b.Language!)).ToList();
+
+        return selectedLanguages.Count == 0
+            ? booksList
+            : booksList.Where(b => b.Edition.Language is not null && selectedLanguages.Contains(b.Edition.Language.DisplayName)).ToList();
     }
 }

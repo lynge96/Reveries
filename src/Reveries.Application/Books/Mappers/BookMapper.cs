@@ -1,37 +1,41 @@
 using Reveries.Application.Books.Commands.CreateBook;
-using Reveries.Domain.Enums;
-using Reveries.Domain.Models;
+using Reveries.Domain.Editions;
+using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Mappers;
 
 public static class BookMapper
 {
-    public static Book ToDomain(this CreateBookCommand cmd)
+    public static (Work Work, Edition Edition) ToWorkAndEdition(this CreateBookCommand cmd)
     {
-        var dataSourceParsed = Enum.TryParse<DataSource>(cmd.DataSource, true, out var ds);
+        var work = Work.Create(new WorkData(
+            Title: cmd.Title,
+            Subtitle: cmd.Subtitle,
+            Authors: cmd.Authors,
+            PrimaryGenres: cmd.PrimaryGenres,
+            SecondaryGenres: cmd.SecondaryGenres,
+            DeweyDecimals: cmd.DeweyDecimals,
+            Synopsis: cmd.Synopsis,
+            Description: cmd.Description
+        ));
 
-        return Book.Create(
-            isbn10: cmd.Isbn10?.Value,
-            isbn13: cmd.Isbn13?.Value,
-            title: cmd.Title,
-            pages: cmd.Pages,
-            publishDate: cmd.PublicationDate,
-            languageIso639: cmd.Language,
-            synopsis: cmd.Synopsis,
-            imageThumbnail: cmd.ImageThumbnail,
-            imageUrl: cmd.ImageUrl,
-            msrp: cmd.Msrp,
-            binding: cmd.Binding,
-            edition: cmd.Edition,
-            dataSource: dataSourceParsed ? ds : DataSource.Unknown,
-            publisher: cmd.Publisher,
-            weight: cmd.WeightG,
-            height: cmd.HeightCm,
-            width: cmd.WidthCm,
-            thickness: cmd.ThicknessCm,
-            authors: cmd.Authors,
-            subjects: cmd.Genres,
-            deweyDecimals: cmd.DeweyDecimals
-        );
+        var dimensions = BookDimensions.Create(cmd.HeightCm, cmd.WidthCm, cmd.ThicknessCm, cmd.WeightG);
+
+        var edition = Edition.Create(new EditionData(
+            WorkId: work.Id,
+            Isbn13: cmd.Isbn?.Value13,
+            Isbn10: cmd.Isbn?.Value10,
+            Publisher: cmd.Publisher,
+            Pages: cmd.Pages,
+            PublishDate: cmd.PublicationDate,
+            LanguageIso639: cmd.Language,
+            Format: cmd.Format,
+            EditionStatement: cmd.Edition,
+            ImageThumbnail: cmd.ImageThumbnail,
+            ImageUrl: cmd.ImageUrl,
+            SaxoUrl: null,
+            Dimensions: dimensions));
+
+        return (work, edition);
     }
 }

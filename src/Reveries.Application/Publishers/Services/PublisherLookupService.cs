@@ -1,6 +1,6 @@
 using Reveries.Application.Publishers.Interfaces;
-using Reveries.Domain.Interfaces.IRepository;
-using Reveries.Domain.Models;
+using Reveries.Domain.Interfaces.Repositories;
+using Reveries.Domain.Publishers;
 
 namespace Reveries.Application.Publishers.Services;
 
@@ -21,9 +21,9 @@ public class PublisherLookupService : IPublisherLookupService
     {
         var dbTask = _publishers.SearchByNameAsync(publisher, ct);
         var apiTask = _publisherSearch.GetPublishersByNameAsync(publisher, ct);
-        
+
         await Task.WhenAll(dbTask, apiTask!);
-        
+
         var publishersInDatabase = await dbTask;
         var publishersFromApi = await apiTask ?? [];
 

@@ -1,104 +1,36 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
-using Reveries.Application.Books.Extensions;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Domain.Interfaces.IRepository;
-using Reveries.Domain.Models;
-using Reveries.Domain.ValueObjects;
 
 namespace Reveries.Application.Books.Queries.FindBooksByIsbns;
 
-public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuery, List<Book>>
+public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuery, List<EditionWithWork>>
 {
     private readonly IBookLookupService _lookupService;
-    private readonly IBookRepository _books;
-    private readonly IBookCacheService _cacheService;
     private readonly ILogger<FindBooksByIsbnsHandler> _logger;
 
     public FindBooksByIsbnsHandler(
         IBookLookupService lookupService,
-        IBookRepository books,
-        IBookCacheService cacheService,
         ILogger<FindBooksByIsbnsHandler> logger)
     {
-        _cacheService = cacheService;
-        _books = books;
         _lookupService = lookupService;
         _logger = logger;
     }
-    
-    public async ValueTask<List<Book>> Handle(FindBooksByIsbnsQuery query, CancellationToken ct)
+
+    public async ValueTask<List<EditionWithWork>> Handle(FindBooksByIsbnsQuery query, CancellationToken ct)
     {
-        var isbns = query.Isbns;
-        
-        // Cache
-        var cacheResult = await GetFromCacheAsync(isbns, ct);
-        
-        // Database
-        var dbResult = await GetFromDatabaseAsync(cacheResult.NotFound, ct);
-        
-        // External API
-        var apiResult = await _lookupService.LookupByIsbnsAsync(dbResult.NotFound, ct);
-        
-        if (apiResult.NoResults && dbResult.NoResults)
-            throw new NotFoundException($"Books with ISBNs '{isbns}' were not found.");
-        
-        var booksToCache = dbResult.Found.Concat(apiResult.Found).ToList();
-        if (booksToCache.Count != 0)
-        {
-            await _cacheService.SetBooksByIsbnsAsync(booksToCache, ct);
-        }
-        
-        var allBooks = cacheResult.Found
-            .Concat(dbResult.Found)
-            .Concat(apiResult.Found)
-            .ToList();
-        
+        var apiResult = await _lookupService.LookupByIsbnsAsync(query.Isbns, ct);
+
+        if (apiResult.NoResults)
+            throw new NotFoundException($"Books with ISBNs '{query.Isbns}' were not found.");
+
         _logger.LogInformation(
-            "Book lookup: Requested {Requested}, Cache {Cache}, DB {Db}, API {Api}",
-            isbns.Count,
-            cacheResult.Found.Count,
-            dbResult.Found.Count,
+            "Book lookup by ISBNs completed. Requested {Requested}, Found {Found}.",
+            query.Isbns.Count,
             apiResult.Found.Count);
-        
-        return allBooks;
-    }
-    
-    private async Task<BookLookupResult<Isbn>> GetFromCacheAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
-    {
-        var books = await _cacheService.GetBooksByIsbnsAsync(isbns, ct);
 
-        var foundKeys = books
-            .Select(BookExtensions.GetIsbnKey)
-            .Where(k => !string.IsNullOrWhiteSpace(k))
-            .ToHashSet();
-
-        var missingIsbns = isbns
-            .Where(i => !foundKeys.Contains(i.Value))
-            .ToList();
-
-        return new BookLookupResult<Isbn>(books, missingIsbns);
-    }
-    
-    private async Task<BookLookupResult<Isbn>> GetFromDatabaseAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
-    {
-        if (isbns.Count == 0)
-            return BookLookupResult<Isbn>.Empty;
-
-        var books = await _books
-            .GetDetailedBooksByIsbnsAsync(isbns, ct);
-
-        var foundKeys = books
-            .Select(BookExtensions.GetIsbnKey)
-            .Where(k => !string.IsNullOrWhiteSpace(k))
-            .ToHashSet();
-
-        var missingIsbns = isbns
-            .Where(i => !foundKeys.Contains(i.Value))
-            .ToList();
-
-        return new BookLookupResult<Isbn>(books, missingIsbns);
+        return apiResult.Found.ToList();
     }
 }

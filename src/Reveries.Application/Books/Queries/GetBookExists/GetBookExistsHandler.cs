@@ -12,11 +12,11 @@ public sealed class GetBookExistsHandler : IQueryHandler<GetBookExistsQuery, boo
     {
         _bookLookupService = bookLookupService;
     }
-    
+
     public async ValueTask<bool> Handle(GetBookExistsQuery query, CancellationToken ct)
     {
         var exists = await _bookLookupService.BookExistsAsync(query.Isbn, ct);
-        
+
         return exists;
     }
 }

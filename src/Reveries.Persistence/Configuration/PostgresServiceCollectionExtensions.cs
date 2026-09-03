@@ -3,8 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Common.Abstractions;
-using Reveries.Domain.Interfaces.IRepository;
+using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Repositories;
@@ -38,17 +39,14 @@ public static class PostgresServiceCollectionExtensions
         });
 
         // Entity tabeller
-        services.AddScoped<IBookRepository, BookRepository>();
+        services.AddScoped<IWorkRepository, WorkRepository>();
+        services.AddScoped<IEditionRepository, EditionRepository>();
         services.AddScoped<IPublisherRepository, PublisherRepository>();
         services.AddScoped<IAuthorRepository, AuthorRepository>();
         services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IDeweyDecimalsRepository, DeweyDecimalsRepository>();
         services.AddScoped<ISeriesRepository, SeriesRepository>();
-
-        // Bridge tabeller
-        services.AddScoped<IBookDeweyDecimalsRepository, BookDeweyDecimalsRepository>();
-        services.AddScoped<IBookGenresRepository, BookGenresRepository>();
-        services.AddScoped<IBookAuthorsRepository, BookAuthorsRepository>();
+        services.AddScoped<IBookQueryRepository, BookQueryRepository>();
 
         // DbContext
         services.AddScoped<IDbContext, PostgresDbContext>();

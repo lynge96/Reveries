@@ -4,7 +4,7 @@ using Reveries.Console.Common.Models.Menu;
 using Reveries.Console.Common.Utilities;
 using Reveries.Console.Services;
 using Reveries.Domain.Helpers;
-using Reveries.Domain.Models;
+using Reveries.Domain.BookSeries;
 
 namespace Reveries.Console.Handlers;
 
@@ -14,21 +14,21 @@ public partial class BookSeriesHandler : BaseHandler
     private static partial Regex RemoveWhitespace();
     public override MenuChoice MenuChoice => MenuChoice.BookSeries;
     private readonly SaveEntityService _saveEntityService;
-    
+
     public BookSeriesHandler(SaveEntityService saveEntityService)
     {
         _saveEntityService = saveEntityService;
     }
-    
+
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         var seriesInput = ConsolePromptUtility.GetUserInput("Enter the name of the new series:");
         var seriesName = RemoveWhitespace().Replace(seriesInput.Trim().ToTitleCase(), " ");
-        
+
         var confirm = ConsolePromptUtility.ShowYesNoPrompt("Are you sure you want to create a new series with the name: " + seriesName.AsSecondary().Bold());
         if (!confirm)
             return;
-        
+
         var newSeries = Series.Create(seriesName);
 
         await _saveEntityService.SaveSeriesAsync(newSeries, ct);

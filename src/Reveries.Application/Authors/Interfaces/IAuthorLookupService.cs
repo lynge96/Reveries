@@ -1,4 +1,4 @@
-using Reveries.Domain.Models;
+using Reveries.Domain.Authors;
 
 namespace Reveries.Application.Authors.Interfaces;
 

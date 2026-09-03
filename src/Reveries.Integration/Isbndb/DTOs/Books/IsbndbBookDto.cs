@@ -17,7 +17,7 @@ public class IsbndbBookDto
     public string? Synopsis { get; init; }
     public IEnumerable<string>? Subjects { get; init; }
     public IEnumerable<string>? Authors { get; init; }
-    
+
     [JsonPropertyName("dewey_decimal")]
     public ICollection<string>? DeweyDecimals { get; init; }
 
@@ -26,7 +26,6 @@ public class IsbndbBookDto
     public string? Isbn10 { get; init; }
     public string? Edition { get; init; }
     public string? Binding { get; init; }
-    public decimal? Msrp { get; init; }
     public string? Language { get; init; }
     public string? Dimensions { get; init; }
     public int? Pages { get; init; }

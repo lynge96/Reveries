@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
+using Reveries.Application.Books.Models;
+using Reveries.Domain.Editions;
 using Reveries.Domain.Enums;
-using Reveries.Domain.Models;
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain.Works;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
 using Reveries.Integration.GoogleBooks.Mappers;
@@ -13,14 +14,14 @@ public class GoogleBookService : IGoogleBookSearch
 {
     private readonly IGoogleBooksClient _googleBooksClient;
     private readonly ILogger<GoogleBookService> _logger;
-    
+
     public GoogleBookService(IGoogleBooksClient googleBooksClient, ILogger<GoogleBookService> logger)
     {
         _googleBooksClient = googleBooksClient;
         _logger = logger;
     }
 
-    public async Task<List<Book>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    public async Task<List<EditionWithWork>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
@@ -32,15 +33,14 @@ public class GoogleBookService : IGoogleBookSearch
             return null;
 
         var books = results
-            .Where(b => b is not null)
-            .Select(b => b!)
+            .OfType<EditionWithWork>()
             .ToList();
 
         _logger.LogDebug("GoogleBooks ISBN lookup completed. Requested {RequestedCount} ISBNs, found {FoundCount} books.", isbns.Count, books.Count);
         return books;
     }
-    
-    public async Task<List<Book>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, CancellationToken ct)
+
+    public async Task<List<EditionWithWork>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, CancellationToken ct)
     {
         if (titles.Count == 0)
             return [];
@@ -52,8 +52,7 @@ public class GoogleBookService : IGoogleBookSearch
             return null;
 
         var books = results
-            .Where(b => b is not null)
-            .Select(b => b!)
+            .OfType<EditionWithWork>()
             .ToList();
 
         _logger.LogDebug("GoogleBooks title lookup completed. Searched {TotalTitles} titles, found {TotalBooks} books.", titles.Count, books.Count);
@@ -61,7 +60,7 @@ public class GoogleBookService : IGoogleBookSearch
         return books;
     }
 
-    private async Task<Book?> FetchAndMergeByIsbnAsync(Isbn isbn, CancellationToken ct)
+    private async Task<EditionWithWork?> FetchAndMergeByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         var bookResponse = await _googleBooksClient.FetchBookByIsbnAsync(isbn, ct);
 
@@ -74,7 +73,7 @@ public class GoogleBookService : IGoogleBookSearch
         return await FetchVolumeAndMergeAsync(bookResponse.Items.First(), ct);
     }
 
-    private async Task<Book?> FetchAndMergeByTitleAsync(Title title, CancellationToken ct)
+    private async Task<EditionWithWork?> FetchAndMergeByTitleAsync(Title title, CancellationToken ct)
     {
         var bookResponse = await _googleBooksClient.SearchBooksByTitleAsync(title, ct);
 
@@ -87,75 +86,65 @@ public class GoogleBookService : IGoogleBookSearch
         return await FetchVolumeAndMergeAsync(bookResponse.Items.First(), ct);
     }
 
-    private async Task<Book?> FetchVolumeAndMergeAsync(GoogleBookItemDto item, CancellationToken ct)
+    private async Task<EditionWithWork?> FetchVolumeAndMergeAsync(GoogleBookItemDto item, CancellationToken ct)
     {
         var volumeResponse = await _googleBooksClient.FetchBookByVolumeIdAsync(item.Id, ct);
 
-        var primaryBook = item.VolumeInfo.ToBook();
-        var volumeBook = volumeResponse?.VolumeInfo.ToBook();
+        var primary = item.VolumeInfo.ToEditionWithWork();
+        var volume = volumeResponse?.VolumeInfo.ToEditionWithWork();
 
-        return MergeGoogleBooks(primaryBook, volumeBook);
+        return MergeGoogleEditions(primary, volume);
     }
 
-    private static Book MergeGoogleBooks(Book book, Book? volume)
+    private static EditionWithWork? MergeGoogleEditions(EditionWithWork? primary, EditionWithWork? volume)
     {
-        var mergedTitle = !string.IsNullOrWhiteSpace(book.Title.Value)
-            ? book.Title
-            : volume?.Title ?? throw new InvalidOperationException($"Book title is missing from both sources, for book with ISBN '{book.Isbn13?.Value ?? volume?.Isbn13?.Value}'.");
-    
-        var mergedAuthors = book.Authors.Count > 0
-            ? book.Authors
-            : volume?.Authors;
-    
-        var mergedSubjects = volume?.Genres.Count != 0
-            ? volume?.Genres
-            : book.Genres;
-    
-        var mergedDeweyDecimals = volume?.DeweyDecimals.Count != 0
-            ? volume?.DeweyDecimals
-            : book.DeweyDecimals;
-    
-        var mergedSynopsis = (volume?.Synopsis?.Length ?? 0) > (book.Synopsis?.Length ?? 0)
-            ? volume?.Synopsis
-            : book.Synopsis;
-    
-        var mergedPages = book.Pages > 0
-            ? book.Pages
-            : volume?.Pages > 0 ? volume.Pages : null;
-    
-        var dimensions = volume?.Dimensions ?? book.Dimensions;
+        if (primary is null && volume is null)
+            return null;
+        if (primary is null)
+            return volume;
+        if (volume is null)
+            return primary;
 
-        var bookData = new BookReconstitutionData
-        (
-            Id: book.Id.Value,
-            Isbn13: book.Isbn13?.Value ?? volume?.Isbn13?.Value,
-            Isbn10: book.Isbn10?.Value ?? volume?.Isbn10?.Value,
-            Title: mergedTitle.Value,
-            Pages: mergedPages,
-            IsRead: false,
-            PublicationDate: book.PublicationDate ?? volume?.PublicationDate,
-            Language: book.Language ?? volume?.Language,
-            Synopsis: mergedSynopsis,
-            ImageThumbnailUrl: book.ImageThumbnailUrl ?? volume?.ImageThumbnailUrl,
-            CoverImageUrl: book.CoverImageUrl ?? volume?.CoverImageUrl,
-            Msrp: book.Msrp ?? volume?.Msrp,
-            Binding: book.Binding,
-            Edition: book.Edition,
-            SeriesNumber: book.SeriesNumber,
-            DataSource: DataSource.GoogleBooksApi,
-            Publisher: book.Publisher ?? volume?.Publisher,
-            Series: book.Series,
-            Dimensions: BookDimensions.Create(
-                dimensions?.HeightCm,
-                dimensions?.WidthCm,
-                dimensions?.ThicknessCm,
-                dimensions?.WeightG
-            ),
-            Authors: mergedAuthors,
-            Genres: mergedSubjects,
-            DeweyDecimals: mergedDeweyDecimals
-        );
-        
-        return Book.Reconstitute(bookData);
+        var pw = primary.Work;
+        var vw = volume.Work;
+        var pe = primary.Edition;
+        var ve = volume.Edition;
+
+        var work = Work.Reconstitute(new WorkReconstitutionData(
+            Id: pw.Id.Value,
+            Title: Prefer(pw.Title.Text, vw.Title.Text) ?? string.Empty,
+            Subtitle: Prefer(pw.Subtitle, vw.Subtitle),
+            Synopsis: Prefer(pw.Synopsis?.Text, vw.Synopsis?.Text),
+            Description: Prefer(vw.Description?.Text, pw.Description?.Text),
+            SeriesNumber: pw.SeriesPlacement?.Number,
+            Series: pw.SeriesPlacement?.Series,
+            Authors: pw.Authors.Count != 0 ? pw.Authors : vw.Authors,
+            PrimaryGenres: vw.Genres.Primary.Count != 0 ? vw.Genres.Primary : pw.Genres.Primary,
+            SecondaryGenres: vw.Genres.Secondary.Count != 0 ? vw.Genres.Secondary : pw.Genres.Secondary,
+            DeweyDecimals: vw.DeweyDecimals.Count != 0 ? vw.DeweyDecimals : pw.DeweyDecimals));
+
+        var edition = Edition.Reconstitute(new EditionReconstitutionData(
+            Id: pe.Id.Value,
+            WorkId: work.Id.Value,
+            Isbn13: pe.Isbn?.Value13 ?? ve.Isbn?.Value13,
+            Isbn10: pe.Isbn?.Value10 ?? ve.Isbn?.Value10,
+            Pages: pe.Pages > 0 ? pe.Pages : ve.Pages,
+            PublicationDate: (pe.PublicationDate ?? ve.PublicationDate)?.Value,
+            Language: pe.Language?.Value ?? ve.Language?.Value,
+            EditionStatement: pe.EditionDescription ?? ve.EditionDescription,
+            Format: PreferFormat(pe.Format, ve.Format),
+            ImageThumbnailUrl: pe.Cover?.ThumbnailUrl ?? ve.Cover?.ThumbnailUrl,
+            CoverImageUrl: pe.Cover?.Url ?? ve.Cover?.Url,
+            SaxoUrl: pe.SaxoUrl?.Value ?? ve.SaxoUrl?.Value,
+            Dimensions: ve.Dimensions ?? pe.Dimensions,
+            Publisher: pe.Publisher ?? ve.Publisher));
+
+        return new EditionWithWork(edition, work);
     }
+
+    private static string? Prefer(params string?[] values)
+        => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+
+    private static BookFormat PreferFormat(BookFormat first, BookFormat second)
+        => first != BookFormat.Unknown ? first : second;
 }

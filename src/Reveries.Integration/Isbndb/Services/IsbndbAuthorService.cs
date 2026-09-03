@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Authors.Interfaces;
-using Reveries.Domain.Models;
+using Reveries.Application.Books.Models;
+using Reveries.Domain.Authors;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
 
@@ -28,19 +29,20 @@ public class IsbndbAuthorService : IAuthorSearch
             return null;
 
         var distinctAuthors = response.Authors
-            .Select(Author.Create)
+            .Select(name => Author.TryCreate(name))
+            .OfType<Author>()
             .GroupBy(a => a.NormalizedName)
             .Select(g => g.First())
             .ToList();
 
-        _logger.LogDebug("Search for '{AuthorName}' returned {Count} distinct authors.", 
-            author.NormalizedName, 
+        _logger.LogDebug("Search for '{AuthorName}' returned {Count} distinct authors.",
+            author.NormalizedName,
             distinctAuthors.Count);
-        
+
         return distinctAuthors;
     }
-    
-    public async Task<List<Book>?> GetBooksByAuthorAsync(Author author, CancellationToken ct)
+
+    public async Task<List<EditionWithWork>?> GetBooksByAuthorAsync(Author author, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(author.NormalizedName))
             return [];
@@ -51,13 +53,14 @@ public class IsbndbAuthorService : IAuthorSearch
             return null;
 
         var books = (response.Books ?? [])
-            .Select(b => b.ToBook())
+            .Select(b => b.ToEditionWithWork())
+            .OfType<EditionWithWork>()
             .ToList();
 
-        _logger.LogDebug("Found {Count} books for author '{AuthorName}'.", 
-            books.Count, 
+        _logger.LogDebug("Found {Count} books for author '{AuthorName}'.",
+            books.Count,
             author.NormalizedName);
-        
+
         return books;
     }
 

@@ -17,13 +17,13 @@ public static class ServiceCollectionExtensions
             .Validate(s => !string.IsNullOrWhiteSpace(s.ApiKey), "Isbndb: ApiKey missing")
             .Validate(s => s.MaxBulkIsbns > 0, "Isbndb: MaxBulkIsbns must be positive")
             .ValidateOnStart();
-        
+
         services.AddIsbndbClients();
 
         services.AddScoped<IIsbndbBookSearch, IsbndbBookService>();
         services.AddScoped<IAuthorSearch, IsbndbAuthorService>();
         services.AddScoped<IPublisherSearch, IsbndbPublisherService>();
-        
+
         return services;
     }
 }

@@ -8,39 +8,41 @@ public static partial class PublisherNameNormalizer
     {
         [GeneratedRegex(@"[\(\[].*?[\)\]]|@.*")]
         public static partial Regex ParenthesesAndAtPattern();
-    
-        [GeneratedRegex(@"^[A-Za-z]+\s*:")]
+
+        [GeneratedRegex(@"^\p{L}+\s*:")]
         public static partial Regex PrefixPattern();
-    
-        [GeneratedRegex(@"[^A-Za-z0-9\s,&']")]
+
+        [GeneratedRegex(@"[^\p{L}\p{N}\s,&'-]")]
         public static partial Regex SpecialCharsPattern();
-    
+
         [GeneratedRegex(@"\s+")]
         public static partial Regex MultipleSpacesPattern();
     }
     
-    /// <summary>
-    /// Normalizes the publisher name by removing noise, special characters, and standardizing format.
-    /// Preserves commas and ampersands (&) in publisher names (e.g., "Smith, Anderson & Co.").
-    /// </summary>
-    public static string StandardizePublisherName(this string publisher)
+    public static string Normalize(string? publisher)
     {
-        var normalized = publisher;
+        if (string.IsNullOrWhiteSpace(publisher))
+            return string.Empty;
 
-        // 1. Remove parenthetical content and everything after @
-        normalized = RegexPatterns.ParenthesesAndAtPattern().Replace(normalized, "");
-        
-        // 2. Remove prefixes like "London :"
+        var normalized = RegexPatterns.ParenthesesAndAtPattern().Replace(publisher, "");
         normalized = RegexPatterns.PrefixPattern().Replace(normalized, "");
-
-        // 3. Keep only letters, numbers, spaces, commas and ampersands
         normalized = RegexPatterns.SpecialCharsPattern().Replace(normalized, "");
-
-        // 4. Remove extra spaces and trim
         normalized = RegexPatterns.MultipleSpacesPattern().Replace(normalized, " ").Trim();
+        normalized = normalized.Trim(' ', ',', '&', '\'', '-');
 
-        // 5. Convert to Title Case
-        return normalized.ToTitleCase();
+        return CapitalizeWords(normalized);
+    }
+    
+    private static string CapitalizeWords(string value)
+    {
+        var words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return string.Join(' ', words.Select(CapitalizeWord));
     }
 
+    private static string CapitalizeWord(string word)
+    {
+        var isShout = word.Any(char.IsLetter) && !word.Any(char.IsLower);
+        var body = isShout ? word.ToLowerInvariant() : word;
+        return char.ToUpperInvariant(body[0]) + body[1..];
+    }
 }

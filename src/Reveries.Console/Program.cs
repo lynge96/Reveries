@@ -27,15 +27,15 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddPostgres(configuration);
         services.AddIsbndb(configuration);
         services.AddGoogleBooks(configuration);
-        
+
         services.AddTransient<IConsoleAppRunnerService, ConsoleAppRunnerService>();
-        
+
         services.AddScoped<IMenuOperationService, MenuOperationService>();
-        
+
         services.AddScoped<BookSelectionService>();
         services.AddScoped<SaveEntityService>();
         services.AddScoped<BookDisplayService>();
-        
+
         services.AddScoped<IMenuHandler, SearchBookHandler>();
         services.AddScoped<IMenuHandler, SearchAuthorHandler>();
         services.AddScoped<IMenuHandler, SearchPublisherHandler>();

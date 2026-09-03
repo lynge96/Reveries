@@ -43,7 +43,7 @@ public class BookApiClient
         if (response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<CreateBookResponse>();
-            
+
             return result ?? throw new ApiException("API returned null response.", response.StatusCode);
         }
 
@@ -72,25 +72,26 @@ public class BookApiClient
         Isbn13 = book.Isbn13,
         Isbn10 = book.Isbn10,
         Title = book.Title,
+        Subtitle = book.Subtitle,
         Authors = book.Authors,
         Publisher = book.Publisher,
         Pages = book.Pages,
         Language = book.Language,
         PublicationDate = book.PublicationDate,
         Synopsis = book.Synopsis,
+        Description = book.Description,
         ImageUrl = book.CoverImageUrl,
         ImageThumbnail = book.ImageThumbnailUrl,
-        Msrp = book.Msrp,
-        Binding = book.Binding,
+        Format = book.Format,
         Edition = book.Edition,
-        Genres = book.Genres,
+        PrimaryGenres = book.PrimaryGenres,
+        SecondaryGenres = book.SecondaryGenres,
         Series = book.Series,
         NumberInSeries = book.NumberInSeries,
         DeweyDecimals = book.DeweyDecimals,
         HeightCm = book.HeightCm,
         WidthCm = book.WidthCm,
         ThicknessCm = book.ThicknessCm,
-        WeightG = book.WeightG,
-        DataSource = book.DataSource
+        WeightG = book.WeightG
     };
 }

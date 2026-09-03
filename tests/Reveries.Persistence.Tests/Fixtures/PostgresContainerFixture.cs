@@ -61,11 +61,11 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
     {
         const string sql = """
                            TRUNCATE TABLE
-                               library.books_authors,
-                               library.books_genres,
-                               library.books_dewey_decimals,
-                               library.author_name_variants,
-                               library.books,
+                               library.works_authors,
+                               library.works_genres,
+                               library.works_dewey_decimals,
+                               library.editions,
+                               library.works,
                                library.authors,
                                library.genres,
                                library.dewey_decimals,

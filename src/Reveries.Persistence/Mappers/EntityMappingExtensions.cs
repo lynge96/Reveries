@@ -1,48 +1,20 @@
-using Reveries.Domain.Models;
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain.Authors;
+using Reveries.Domain.Publishers;
+using Reveries.Domain.BookSeries;
+using Reveries.Domain.Works;
 using Reveries.Persistence.Entities;
 
 namespace Reveries.Persistence.Mappers;
 
 public static class EntityMappingExtensions
 {
-    public static BookEntity ToEntity(this Book book)
-    {
-        return new BookEntity
-        {
-            Id = book.Id.Value,
-            Title = book.Title.ToString(),
-            Isbn13 = book.Isbn13?.ToString(),
-            Isbn10 = book.Isbn10?.ToString(),
-            PageCount = book.Pages,
-            IsRead = book.IsRead,
-            PublicationDate = book.PublicationDate,
-            Synopsis = book.Synopsis,
-            Language = book.Language,
-            Edition = book.Edition,
-            Binding = book.Binding,
-            ImageUrl = book.CoverImageUrl,
-            ImageThumbnail = book.ImageThumbnailUrl,
-            Msrp = book.Msrp,
-            SeriesNumber = book.SeriesNumber,
-            HeightCm = book.Dimensions?.HeightCm,
-            WidthCm = book.Dimensions?.WidthCm,
-            ThicknessCm = book.Dimensions?.ThicknessCm,
-            WeightG = book.Dimensions?.WeightG,
-            DateCreated = book.DateCreated,
-            
-            PublisherId = book.Publisher?.Id.Value,
-            SeriesId = book.Series?.Id.Value,
-        };
-    }
-    
     public static PublisherEntity ToEntity(this Publisher publisher)
     {
         return new PublisherEntity
         {
             Id = publisher.Id.Value,
             Name = publisher.Name,
-            DateCreated = publisher.DateCreated
+            NormalizedName = publisher.NormalizedName
         };
     }
 
@@ -51,8 +23,7 @@ public static class EntityMappingExtensions
         return new SeriesEntity
         {
             Id = series.Id.Value,
-            Name = series.Name,
-            DateCreated = series.DateCreated
+            Name = series.Name
         };
     }
 
@@ -61,31 +32,16 @@ public static class EntityMappingExtensions
         return new AuthorEntity
         {
             Id = author.Id.Value,
-            FirstName = author.FirstName,
-            LastName = author.LastName,
-            NormalizedName = author.NormalizedName,
-            DateCreated = author.DateCreated,
-            AuthorNameVariants = author.NameVariants
-                .Select(v => v.ToEntity(author.Id.Value))
-                .ToList()
+            Name = author.Name,
+            NormalizedName = author.NormalizedName
         };
     }
 
-    private static AuthorNameVariantEntity ToEntity(this AuthorNameVariant variant, Guid authorId)
-    {
-        return new AuthorNameVariantEntity
-        {
-            AuthorId = authorId,
-            IsPrimary = variant.IsPrimary,
-            NameVariant = variant.NameVariant
-        };
-    }
-    
     public static GenreEntity ToEntity(this Genre genre)
     {
         return new GenreEntity
         {
-            Name = genre.Value
+            Name = genre.Name
         };
     }
 

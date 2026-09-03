@@ -1,6 +1,6 @@
 using Dapper;
-using Reveries.Domain.Interfaces.IRepository;
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain.Interfaces.Repositories;
+using Reveries.Domain.Works;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 
@@ -9,7 +9,7 @@ namespace Reveries.Persistence.Repositories;
 public class DeweyDecimalsRepository : IDeweyDecimalsRepository
 {
     private readonly IDbContext _dbContext;
-    
+
     public DeweyDecimalsRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;

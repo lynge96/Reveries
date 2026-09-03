@@ -24,8 +24,8 @@ public class RedisHealthCheck : IHealthCheck
             }
 
             var database = _redis.GetDatabase();
-            await  database.PingAsync();
-            
+            await database.PingAsync();
+
             return HealthCheckResult.Healthy("Redis connection is healthy");
         }
         catch (Exception ex)

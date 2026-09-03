@@ -1,7 +1,7 @@
 using Reveries.Application.Books.Commands.CreateBook;
-using Reveries.Contracts.Books;
 using Reveries.Contracts.Books.Requests;
-using Reveries.Domain.ValueObjects;
+using Reveries.Domain.Editions;
+using Reveries.Domain.Works;
 
 namespace Reveries.Api.Mappers;
 
@@ -11,9 +11,11 @@ public static class CreateBookRequestMapper
     {
         return new CreateBookCommand
         {
-            Isbn10 = request.Isbn10 != null ? Isbn.Create(request.Isbn10) : null,
-            Isbn13 = request.Isbn13 != null ? Isbn.Create(request.Isbn13) : null,
+            Isbn = request.Isbn13 != null ? Isbn.Create(request.Isbn13)
+                 : request.Isbn10 != null ? Isbn.Create(request.Isbn10)
+                 : null,
             Title = request.Title,
+            Subtitle = request.Subtitle,
 
             Series = request.Series,
             NumberInSeries = request.NumberInSeries,
@@ -25,14 +27,13 @@ public static class CreateBookRequestMapper
             Pages = request.Pages,
             PublicationDate = request.PublicationDate,
             Synopsis = request.Synopsis,
+            Description = request.Description,
 
-            Binding = request.Binding,
+            Format = request.Format,
             Edition = request.Edition,
 
             ImageThumbnail = request.ImageThumbnail,
             ImageUrl = request.ImageUrl,
-            Msrp = request.Msrp,
-            IsRead = request.IsRead,
 
             HeightCm = request.HeightCm,
             WidthCm = request.WidthCm,
@@ -40,9 +41,8 @@ public static class CreateBookRequestMapper
             WeightG = request.WeightG,
 
             DeweyDecimals = request.DeweyDecimals?.ToList(),
-            Genres = request.Genres?.ToList(),
-
-            DataSource = request.DataSource
+            PrimaryGenres = request.PrimaryGenres?.ToList(),
+            SecondaryGenres = request.SecondaryGenres?.ToList()
         };
     }
 }

@@ -1,59 +1,79 @@
 using System.Globalization;
-using Reveries.Domain.Enums;
+using Reveries.Application.Books.Models;
+using Reveries.Domain.Editions;
 using Reveries.Domain.Helpers;
-using Reveries.Domain.Models;
+using Reveries.Domain.Works;
 using Reveries.Integration.GoogleBooks.DTOs;
 
 namespace Reveries.Integration.GoogleBooks.Mappers;
 
 public static class GoogleBookDtoMapperExtensions
 {
-    public static Book ToBook(this GoogleVolumeInfoDto googleBookDto)
+    public static EditionWithWork? ToEditionWithWork(this GoogleVolumeInfoDto googleBookDto)
     {
+        var isbn13 = googleBookDto.IndustryIdentifiers?.FirstOrDefault(i => i.Type == "ISBN_13")?.Identifier;
+        var isbn10 = googleBookDto.IndustryIdentifiers?.FirstOrDefault(i => i.Type == "ISBN_10")?.Identifier;
+
+        if (string.IsNullOrWhiteSpace(isbn13) && string.IsNullOrWhiteSpace(isbn10))
+            return null;
+
         var thickness = googleBookDto.Dimensions?.Thickness.ParseDimension();
         var height = googleBookDto.Dimensions?.Height.ParseDimension();
         var width = googleBookDto.Dimensions?.Width.ParseDimension();
-        
+
         var (normalizedHeight, normalizedWidth, normalizedThickness) = BookDimensionNormalizer.OrderDimensionsBySize(height, width, thickness);
 
-        return Book.Create(
-            isbn13: googleBookDto.IndustryIdentifiers?
-                .FirstOrDefault(i => i.Type == "ISBN_13")?.Identifier,
-            isbn10: googleBookDto.IndustryIdentifiers?
-                .FirstOrDefault(i => i.Type == "ISBN_10")?.Identifier,
-            title: googleBookDto.Title,
-            authors: googleBookDto.Authors,
-            pages: googleBookDto.PageCount,
-            publishDate: googleBookDto.PublishedDate,
-            publisher: googleBookDto.Publisher,
-            languageIso639: googleBookDto.Language,
-            synopsis: googleBookDto.Description,
-            imageThumbnail: googleBookDto.ImageLinks?.Thumbnail,
-            imageUrl: googleBookDto.ImageLinks?.Thumbnail,
-            msrp: null,
-            binding: googleBookDto.PrintType,
-            edition: googleBookDto.Subtitle,
-            weight: null,
-            thickness: normalizedThickness,
-            height: normalizedHeight,
-            width: normalizedWidth,
-            subjects: googleBookDto.Categories.ExtractUniqueSubjects(),
-            deweyDecimals: null,
-            dataSource: DataSource.GoogleBooksApi
-        );
+        var (primaryGenres, secondaryGenres) = googleBookDto.Categories.SplitGenres();
+
+        var work = Work.Create(new WorkData(
+            Title: googleBookDto.Title,
+            Subtitle: googleBookDto.Subtitle,
+            Authors: googleBookDto.Authors,
+            PrimaryGenres: primaryGenres,
+            SecondaryGenres: secondaryGenres,
+            DeweyDecimals: null,
+            Synopsis: googleBookDto.Description,
+            Description: googleBookDto.Description));
+
+        var dimensions = BookDimensions.Create(normalizedHeight, normalizedWidth, normalizedThickness, null);
+
+        var edition = Edition.Create(new EditionData(
+            WorkId: work.Id,
+            Isbn13: isbn13,
+            Isbn10: isbn10,
+            Publisher: googleBookDto.Publisher,
+            Pages: googleBookDto.PageCount,
+            PublishDate: googleBookDto.PublishedDate,
+            LanguageIso639: googleBookDto.Language,
+            Format: googleBookDto.PrintType,
+            EditionStatement: null,
+            ImageThumbnail: googleBookDto.ImageLinks?.Thumbnail,
+            ImageUrl: googleBookDto.ImageLinks?.Thumbnail,
+            SaxoUrl: null,
+            Dimensions: dimensions));
+
+        return new EditionWithWork(edition, work);
     }
 
-    private static List<string> ExtractUniqueSubjects(this IEnumerable<string>? categories)
+    private static (List<string> Primary, List<string> Secondary) SplitGenres(this IEnumerable<string>? categories)
     {
-        if (categories == null)
-            return new List<string>();
+        var primary = new List<string>();
+        var secondary = new List<string>();
 
-        return categories
-            .Where(c => !string.IsNullOrWhiteSpace(c))
-            .SelectMany(c => c.Split('/', StringSplitOptions.TrimEntries))
-            .Select(c => c.ToTitleCase())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        foreach (var category in categories ?? [])
+        {
+            if (string.IsNullOrWhiteSpace(category))
+                continue;
+
+            var segments = category.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length == 0)
+                continue;
+
+            primary.Add(segments[0]);
+            secondary.AddRange(segments.Skip(1));
+        }
+
+        return (primary, secondary);
     }
 
     private static decimal? ParseDimension(this string? value)

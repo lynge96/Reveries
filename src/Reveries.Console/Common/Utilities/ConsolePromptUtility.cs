@@ -8,12 +8,12 @@ public static class ConsolePromptUtility
     public static string GetUserInput(string promptText)
     {
         var prompt = new TextPrompt<string>(promptText.AsPrimary());
-        
+
         prompt.PromptStyle($"{ConsoleThemeExtensions.Secondary}");
-    
+
         return AnsiConsole.Prompt(prompt);
     }
-    
+
     public static T ShowSelectionPrompt<T>(string title, IEnumerable<T> choices, int pageSize = 10) where T : notnull
     {
         var prompt = new SelectionPrompt<T>()
@@ -30,7 +30,7 @@ public static class ConsolePromptUtility
         var indexedChoices = choices
             .Select((choice, index) => new { Index = index + 1, Value = choice })
             .ToList();
-        
+
         var prompt = new MultiSelectionPrompt<string>()
             .Title(title.AsPrimary())
             .PageSize(pageSize)
@@ -43,9 +43,9 @@ public static class ConsolePromptUtility
             prompt.AddChoiceGroup("All options",
                 indexedChoices.Select(c => $"{c.Index}. {c.Value}").ToArray());
         }
-        
+
         var selected = AnsiConsole.Prompt(prompt);
-        
+
         return selected
             .Select(s =>
             {
@@ -54,7 +54,7 @@ public static class ConsolePromptUtility
             })
             .ToList();
     }
-    
+
     public static bool ShowYesNoPrompt(string title)
     {
         var choice = new SelectionPrompt<string>()

@@ -12,7 +12,7 @@ public class RedisCacheService : IRedisCacheService
     {
         _database = redis.GetDatabase();
     }
-    
+
     public async Task<T?> GetAsync<T>(string key, CancellationToken ct)
     {
         var value = await _database.StringGetAsync(key);
@@ -27,7 +27,7 @@ public class RedisCacheService : IRedisCacheService
     public async Task SetAsync<T>(string key, T value, TimeSpan expiry, CancellationToken ct)
     {
         var json = JsonSerializer.Serialize(value);
-        
+
         await _database.StringSetAsync(key, json, expiry);
     }
 
