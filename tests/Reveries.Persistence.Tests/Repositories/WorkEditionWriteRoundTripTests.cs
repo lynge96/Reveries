@@ -1,3 +1,6 @@
+using Reveries.Application.Authors.Services;
+using Reveries.Application.Books.Services;
+using Reveries.Application.Publishers.Services;
 using Reveries.Domain.Authors;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Publishers;
@@ -79,10 +82,10 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
         var transactionManager = new TransactionManager(db);
         var works = new WorkRepository(db);
         var editions = new EditionRepository(db);
-        var publishers = new PublisherRepository(db);
-        var authors = new AuthorRepository(db);
-        var genres = new GenreRepository(db);
-        var deweyDecimals = new DeweyDecimalsRepository(db);
+        var authorResolver = new AuthorResolver(new AuthorRepository(db));
+        var publisherResolver = new PublisherResolver(new PublisherRepository(db));
+        var genreResolver = new GenreResolver(new GenreRepository(db));
+        var deweyResolver = new DeweyResolver(new DeweyDecimalsRepository(db));
 
         await using var transaction = await transactionManager.BeginTransactionAsync(ct);
 
@@ -90,9 +93,9 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
             .Select(Author.TryCreate)
             .OfType<Author>()
             .ToList();
-        var authorIds = await authors.GetOrCreateAuthorsAsync(authorCandidates, ct);
+        var authorIds = await authorResolver.ResolveIdsAsync(authorCandidates, ct);
 
-        var publisher = await publishers.GetOrCreateAsync(Publisher.TryCreate("Signet Classics"), ct);
+        var publisher = await publisherResolver.ResolveAsync(Publisher.TryCreate("Signet Classics"), ct);
 
         var work = Work.Create(new WorkData(
             Title: "Nineteen Eighty-Four",
@@ -119,11 +122,11 @@ public class WorkEditionWriteRoundTripTests : IAsyncLifetime
             SaxoUrl: null,
             Dimensions: null));
 
-        var genreIds = await genres.GetOrCreateGenresAsync(work.Genres.All, ct);
+        var genreIds = await genreResolver.ResolveIdsAsync(work.Genres.All, ct);
         var primaryGenreIds = work.Genres.Primary.Select(g => genreIds[g.Name]).ToList();
         var secondaryGenreIds = work.Genres.Secondary.Select(g => genreIds[g.Name]).ToList();
 
-        var deweyDecimalIds = await deweyDecimals.GetOrCreateDeweyDecimalsAsync(work.DeweyDecimals, ct);
+        var deweyDecimalIds = await deweyResolver.ResolveIdsAsync(work.DeweyDecimals, ct);
 
         var relations = new WorkRelations(primaryGenreIds, secondaryGenreIds, deweyDecimalIds);
 

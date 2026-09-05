@@ -2,9 +2,9 @@ using Dapper;
 using Reveries.Domain.Authors;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Persistence.Context;
-using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
+using Reveries.Persistence.Records;
 
 namespace Reveries.Persistence.Repositories;
 
@@ -17,117 +17,61 @@ public class AuthorRepository : IAuthorRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<AuthorId>> GetOrCreateAuthorsAsync(
-        IReadOnlyList<Author> authors,
-        CancellationToken ct)
-    {
-        if (authors.Count == 0)
-            return [];
-
-        var authorNames = authors.Select(a => a.NormalizedName).Distinct().ToList();
-
-        var byName = await GetByNamesAsync(authorNames, ct);
-
-        var authorsToCreate = authors
-            .Where(a => !byName.ContainsKey(a.NormalizedName))
-            .DistinctBy(a => a.NormalizedName)
-            .ToList();
-
-        if (authorsToCreate.Count > 0)
-        {
-            var created = await InsertAuthorsAsync(authorsToCreate, ct);
-            foreach (var author in created)
-                byName[author.NormalizedName] = author;
-        }
-
-        return authors
-            .Select(a => byName[a.NormalizedName].Id)
-            .Distinct()
-            .ToList();
-    }
-
-    private async Task<List<Author>> InsertAuthorsAsync(IReadOnlyList<Author> authors, CancellationToken ct)
-    {
-        const string authorSql = """
-                                 INSERT INTO library.authors (id, normalized_name, name)
-                                 SELECT * FROM unnest(
-                                     @Ids::uuid[],
-                                     @NormalizedNames::text[],
-                                     @Names::text[])
-                                 ON CONFLICT (normalized_name) DO UPDATE
-                                 SET normalized_name = EXCLUDED.normalized_name
-                                 RETURNING id, normalized_name, name, date_created
-                                 """;
-
-        var entities = authors.Select(a => a.ToEntity()).ToList();
-
-        var connection = await _dbContext.GetConnectionAsync(ct);
-
-        var command = _dbContext.CreateCommand(authorSql, new
-        {
-            Ids = entities.Select(e => e.Id).ToArray(),
-            NormalizedNames = entities.Select(e => e.NormalizedName).ToArray(),
-            Names = entities.Select(e => e.Name).ToArray()
-        }, ct);
-
-        var inserted = (await connection.QueryAsync<AuthorEntity>(command)).ToList();
-
-        return inserted.Select(e => e.ToDomain()).ToList();
-    }
-
-    private async Task<Dictionary<string, Author>> GetByNamesAsync(List<string> names, CancellationToken ct)
+    public async Task<List<Author>> GetByNamesAsync(IReadOnlyList<string> names, CancellationToken ct = default)
     {
         if (names.Count == 0)
-            return new Dictionary<string, Author>();
+            return [];
 
         const string sql = """
-                           SELECT a.id,
-                                  a.normalized_name,
-                                  a.name,
-                                  a.date_created,
-                                  n.name AS matched_name
-                           FROM unnest(@Names::text[]) AS n(name)
-                           JOIN library.authors a
-                             ON a.normalized_name = n.name
+                           SELECT id, name
+                           FROM catalog.authors
+                           WHERE name = ANY(@Names::citext[])
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
-
         var command = _dbContext.CreateCommand(sql, new { Names = names.ToArray() }, ct);
 
-        var byRequestedName = new Dictionary<string, Author>();
+        var rows = await connection.QueryAsync<AuthorRecord>(command);
 
-        await connection.QueryAsync<AuthorEntity, string, AuthorEntity>(
-            command,
-            (author, matchedName) =>
-            {
-                byRequestedName[matchedName] = author.ToDomain();
-                return author;
-            },
-            splitOn: "matched_name");
-
-        return byRequestedName;
+        return rows.Select(r => r.ToDomain()).ToList();
     }
 
-    public async Task<List<Author>> GetAuthorsByNameAsync(Author author, CancellationToken ct)
+    public async Task AddRangeAsync(IReadOnlyList<Author> authors, CancellationToken ct = default)
+    {
+        if (authors.Count == 0)
+            return;
+
+        const string sql = """
+                           INSERT INTO catalog.authors (id, name)
+                           SELECT * FROM unnest(@Ids::uuid[], @Names::text[])
+                           ON CONFLICT (name) DO NOTHING
+                           """;
+
+        var records = authors.Select(a => a.ToRecord()).ToList();
+
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        var command = _dbContext.CreateCommand(sql, new
+        {
+            Ids = records.Select(r => r.Id).ToArray(),
+            Names = records.Select(r => r.Name).ToArray()
+        }, ct);
+
+        await connection.ExecuteAsync(command);
+    }
+
+    public async Task<List<Author>> GetAuthorsByNameAsync(Author author, CancellationToken ct = default)
     {
         const string sql = """
-                           SELECT a.id,
-                                  a.normalized_name,
-                                  a.name,
-                                  a.date_created
-                           FROM library.authors a
-                           WHERE a.normalized_name ILIKE @Pattern
-                              OR a.name ILIKE @Pattern
+                           SELECT id, name
+                           FROM catalog.authors
+                           WHERE name ILIKE @Pattern
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
+        var command = _dbContext.CreateCommand(sql, new { Pattern = $"%{author.Name}%" }, ct);
 
-        var command = _dbContext.CreateCommand(sql, new { Pattern = $"%{author.NormalizedName}%" }, ct);
+        var rows = await connection.QueryAsync<AuthorRecord>(command);
 
-        var authorDtos = await connection.QueryAsync<AuthorEntity>(command);
-
-        return authorDtos.Select(a => a.ToDomain()).ToList();
+        return rows.Select(r => r.ToDomain()).ToList();
     }
-
 }

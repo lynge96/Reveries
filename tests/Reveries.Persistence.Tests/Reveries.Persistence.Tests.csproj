@@ -19,6 +19,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Testcontainers.PostgreSql" Version="4.14.0" />
+        <PackageReference Include="Respawn" Version="7.0.0" />
         <PackageReference Include="SSH.NET" Version="2026.0.0" />
         <PackageReference Include="Npgsql" Version="10.0.3" />
         <PackageReference Include="Dapper" Version="2.1.79" />
@@ -33,12 +34,6 @@
       <ProjectReference Include="..\..\src\Reveries.Persistence\Reveries.Persistence.csproj" />
       <ProjectReference Include="..\..\src\Reveries.Application\Reveries.Application.csproj" />
       <ProjectReference Include="..\..\src\Reveries.Domain\Reveries.Domain.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="..\..\infra\db_schema.sql" Link="infra\db_schema.sql">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
     </ItemGroup>
 
 </Project>

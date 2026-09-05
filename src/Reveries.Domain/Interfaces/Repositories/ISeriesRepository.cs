@@ -4,7 +4,7 @@ namespace Reveries.Domain.Interfaces.Repositories;
 
 public interface ISeriesRepository
 {
-    Task<Series?> GetOrCreateAsync(Series? series, CancellationToken ct = default);
-    Task<Series?> GetByNameAsync(Series series, CancellationToken ct = default);
+    Task<Series?> GetByNameAsync(string name, CancellationToken ct = default);
+    Task AddAsync(Series series, CancellationToken ct = default);
     Task<List<Series>> GetSeriesAsync(CancellationToken ct = default);
 }

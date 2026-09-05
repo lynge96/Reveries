@@ -9,6 +9,7 @@ using Reveries.Infrastructure;
 using Reveries.Infrastructure.Logging;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.Isbndb.Configuration;
+using Reveries.Persistence.Migrations;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,11 @@ builder.Services
     .AddControllers();
 
 var app = builder.Build();
+
+DatabaseMigrator.Run(
+    app.Configuration.GetConnectionString("ReveriesDb")
+        ?? throw new InvalidOperationException("Missing connection string 'ConnectionStrings:ReveriesDb'."),
+    app.Logger);
 
 if (app.Environment.IsDevelopment())
 {

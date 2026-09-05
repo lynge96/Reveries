@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Logging;
+using Reveries.Application.Authors.Interfaces;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
+using Reveries.Application.Publishers.Interfaces;
 using Reveries.Domain.Authors;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Interfaces.Repositories;
@@ -18,29 +20,29 @@ public class WorkPersistenceService : IWorkPersistenceService
 
     private readonly IWorkRepository _works;
     private readonly IEditionRepository _editions;
-    private readonly IPublisherRepository _publishers;
-    private readonly IAuthorRepository _authors;
-    private readonly IGenreRepository _genres;
-    private readonly IDeweyDecimalsRepository _deweyDecimals;
+    private readonly IAuthorResolver _authorResolver;
+    private readonly IPublisherResolver _publisherResolver;
+    private readonly IGenreResolver _genreResolver;
+    private readonly IDeweyResolver _deweyResolver;
 
     public WorkPersistenceService(
         ITransactionManager transactionManager,
         ILogger<WorkPersistenceService> logger,
         IWorkRepository works,
         IEditionRepository editions,
-        IPublisherRepository publishers,
-        IAuthorRepository authors,
-        IGenreRepository genres,
-        IDeweyDecimalsRepository deweyDecimals)
+        IAuthorResolver authorResolver,
+        IPublisherResolver publisherResolver,
+        IGenreResolver genreResolver,
+        IDeweyResolver deweyResolver)
     {
         _transactionManager = transactionManager;
         _logger = logger;
         _works = works;
         _editions = editions;
-        _publishers = publishers;
-        _authors = authors;
-        _genres = genres;
-        _deweyDecimals = deweyDecimals;
+        _authorResolver = authorResolver;
+        _publisherResolver = publisherResolver;
+        _genreResolver = genreResolver;
+        _deweyResolver = deweyResolver;
     }
 
     public async Task<EditionId> SaveBookAsync(BookCandidate candidate, CancellationToken ct)
@@ -77,9 +79,9 @@ public class WorkPersistenceService : IWorkPersistenceService
             .Select(Author.TryCreate)
             .OfType<Author>()
             .ToList();
-        var authorIds = await _authors.GetOrCreateAuthorsAsync(authors, ct);
+        var authorIds = await _authorResolver.ResolveIdsAsync(authors, ct);
 
-        var publisher = await _publishers.GetOrCreateAsync(Publisher.TryCreate(candidate.Publisher), ct);
+        var publisher = await _publisherResolver.ResolveAsync(Publisher.TryCreate(candidate.Publisher), ct);
 
         var work = Work.Create(new WorkData(
             Title: candidate.Title,
@@ -111,11 +113,11 @@ public class WorkPersistenceService : IWorkPersistenceService
 
     private async Task<WorkRelations> ResolveGenreAndDeweyRelationsAsync(Work work, CancellationToken ct)
     {
-        var genreIds = await _genres.GetOrCreateGenresAsync(work.Genres.All, ct);
+        var genreIds = await _genreResolver.ResolveIdsAsync(work.Genres.All, ct);
         var primaryGenreIds = work.Genres.Primary.Select(g => genreIds[g.Name]).ToList();
         var secondaryGenreIds = work.Genres.Secondary.Select(g => genreIds[g.Name]).ToList();
 
-        var deweyDecimalIds = await _deweyDecimals.GetOrCreateDeweyDecimalsAsync(work.DeweyDecimals, ct);
+        var deweyDecimalIds = await _deweyResolver.ResolveIdsAsync(work.DeweyDecimals, ct);
 
         return new WorkRelations(primaryGenreIds, secondaryGenreIds, deweyDecimalIds);
     }

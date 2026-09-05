@@ -1,15 +1,15 @@
 using Reveries.Domain.Authors;
 using Reveries.Domain.BookSeries;
 using Reveries.Domain.Works;
-using Reveries.Persistence.Entities;
+using Reveries.Persistence.Records;
 
 namespace Reveries.Persistence.Mappers;
 
 public static class WorkMappingExtensions
 {
-    public static WorkEntity ToEntity(this Work work)
+    public static WorkRecord ToRecord(this Work work)
     {
-        return new WorkEntity
+        return new WorkRecord
         {
             Id = work.Id.Value,
             Title = work.Title.ToString(),
@@ -21,21 +21,21 @@ public static class WorkMappingExtensions
         };
     }
 
-    public static Work ToDomainAggregate(this WorkAggregateEntity entity)
+    public static Work ToDomainAggregate(this WorkAggregateRecord record)
     {
         var data = new WorkReconstitutionData
         (
-            Id: entity.Work.Id,
-            Title: entity.Work.Title,
-            Subtitle: entity.Work.Subtitle,
-            Synopsis: entity.Work.Synopsis,
-            Description: entity.Work.Description,
-            SeriesNumber: entity.Work.SeriesNumber,
-            SeriesId: entity.Work.SeriesId is { } seriesId ? new SeriesId(seriesId) : null,
-            AuthorIds: entity.Authors?.Select(a => new AuthorId(a.Id)),
-            PrimaryGenres: entity.PrimaryGenres?.Select(g => Genre.Reconstitute(g.Name)),
-            SecondaryGenres: entity.SecondaryGenres?.Select(g => Genre.Reconstitute(g.Name)),
-            DeweyDecimals: entity.DeweyDecimals?.Select(dd => DeweyDecimal.Reconstitute(dd.Code))
+            Id: record.Work.Id,
+            Title: record.Work.Title,
+            Subtitle: record.Work.Subtitle,
+            Synopsis: record.Work.Synopsis,
+            Description: record.Work.Description,
+            SeriesNumber: record.Work.SeriesNumber,
+            SeriesId: record.Work.SeriesId is { } seriesId ? new SeriesId(seriesId) : null,
+            AuthorIds: record.Authors.Select(a => new AuthorId(a.Id)),
+            PrimaryGenres: record.PrimaryGenres.Select(g => Genre.Reconstitute(g.Name)),
+            SecondaryGenres: record.SecondaryGenres.Select(g => Genre.Reconstitute(g.Name)),
+            DeweyDecimals: record.DeweyDecimals.Select(dd => DeweyDecimal.Reconstitute(dd.Code))
         );
 
         return Work.Reconstitute(data);

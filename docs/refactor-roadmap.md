@@ -367,6 +367,12 @@ tests running against real Postgres.
 
 Least risky, so last.
 
+**Note — direction for the API refactor:** when the API layer is refactored, move
+from MVC controllers to **Minimal APIs** (endpoint routing, typed results). The
+controller-specific items below are then reframed as the equivalent Minimal-API
+concerns (thin endpoint delegates dispatching to Mediator, `TypedResults`,
+`.WithOpenApi()` metadata, route groups for versioning).
+
 - [ ] Review `BooksController` stays thin (translate Contracts → Mediator, no
       logic) and confirm no domain types leak across the API boundary.
 - [ ] Tidy the OpenAPI/Swagger spec; consider response-type annotations and
