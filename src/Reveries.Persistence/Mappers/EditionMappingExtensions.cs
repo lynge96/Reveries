@@ -1,16 +1,15 @@
 using Reveries.Domain.Editions;
 using Reveries.Domain.Enums;
 using Reveries.Domain.Publishers;
-using Reveries.Persistence.Entities;
-using Reveries.Persistence.Views;
+using Reveries.Persistence.Records;
 
 namespace Reveries.Persistence.Mappers;
 
 public static class EditionMappingExtensions
 {
-    public static EditionEntity ToEntity(this Edition edition)
+    public static EditionRecord ToRecord(this Edition edition)
     {
-        return new EditionEntity
+        return new EditionRecord
         {
             Id = edition.Id.Value,
             WorkId = edition.WorkId.Value,
@@ -32,24 +31,24 @@ public static class EditionMappingExtensions
         };
     }
 
-    public static Edition ToDomain(this EditionsView view)
+    public static Edition ToDomain(this EditionRecord record)
     {
         var data = new EditionReconstitutionData
         (
-            Id: view.Id,
-            WorkId: view.WorkId,
-            Isbn13: view.Isbn13,
-            Isbn10: view.Isbn10,
-            Pages: view.PageCount,
-            PublicationDate: view.PublicationDate,
-            Language: view.Language,
-            EditionStatement: view.EditionStatement,
-            Format: ParseFormat(view.Format),
-            ImageThumbnailUrl: view.ImageThumbnailUrl,
-            CoverImageUrl: view.CoverImageUrl,
-            SaxoUrl: view.SaxoUrl,
-            Dimensions: BookDimensions.Reconstitute(view.HeightCm, view.WidthCm, view.ThicknessCm, view.WeightG),
-            PublisherId: view.PublisherId is { } publisherId
+            Id: record.Id,
+            WorkId: record.WorkId,
+            Isbn13: record.Isbn13,
+            Isbn10: record.Isbn10,
+            Pages: record.PageCount,
+            PublicationDate: record.PublicationDate,
+            Language: record.Language,
+            EditionStatement: record.EditionStatement,
+            Format: ParseFormat(record.Format),
+            ImageThumbnailUrl: record.ImageThumbnail,
+            CoverImageUrl: record.ImageUrl,
+            SaxoUrl: record.SaxoUrl,
+            Dimensions: BookDimensions.Reconstitute(record.HeightCm, record.WidthCm, record.ThicknessCm, record.WeightG),
+            PublisherId: record.PublisherId is { } publisherId
                 ? new PublisherId(publisherId)
                 : null
         );

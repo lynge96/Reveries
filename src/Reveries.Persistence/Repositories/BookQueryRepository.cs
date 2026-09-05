@@ -6,7 +6,7 @@ using Reveries.Domain.Editions;
 using Reveries.Domain.Enums;
 using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
-using Reveries.Persistence.Views;
+using Reveries.Persistence.Rows;
 
 namespace Reveries.Persistence.Repositories;
 
@@ -14,33 +14,58 @@ public class BookQueryRepository : IBookQueryRepository
 {
     private const string BaseSql = """
                                    SELECT
-                                       e.id                   AS "bookId",
+                                       e.id AS book_id,
                                        e.isbn13,
                                        e.isbn10,
                                        e.language,
-                                       e."pageCount",
-                                       e."publicationDate",
+                                       e.page_count,
+                                       e.publication_date,
                                        e.format,
-                                       e."editionStatement",
-                                       e."coverImageUrl",
-                                       e."imageThumbnailUrl",
-                                       e."heightCm",
-                                       e."widthCm",
-                                       e."thicknessCm",
-                                       e."weightG",
+                                       e.edition_statement,
+                                       e.image_url AS cover_image_url,
+                                       e.image_thumbnail AS image_thumbnail_url,
+                                       e.height_cm,
+                                       e.width_cm,
+                                       e.thickness_cm,
+                                       e.weight_g,
                                        w.title,
                                        w.subtitle,
                                        w.synopsis,
                                        w.description,
-                                       e."publisherName",
-                                       w."seriesName",
-                                       w."seriesNumber",
-                                       w.authors,
-                                       w."primaryGenres",
-                                       w."secondaryGenres",
-                                       w."deweyCodes"
-                                   FROM library.editions_view e
-                                   JOIN library.works_view w ON w.id = e."workId"
+                                       p.name AS publisher_name,
+                                       se.name AS series_name,
+                                       w.series_number,
+                                       COALESCE(a.authors, '[]'::jsonb) AS authors,
+                                       COALESCE(g.primary_genres, '[]'::jsonb) AS primary_genres,
+                                       COALESCE(g.secondary_genres, '[]'::jsonb) AS secondary_genres,
+                                       COALESCE(dd.dewey_codes, ARRAY[]::text[]) AS dewey_codes
+                                   FROM catalog.editions e
+                                   JOIN catalog.works w ON w.id = e.work_id
+                                   LEFT JOIN catalog.publishers p ON p.id = e.publisher_id
+                                   LEFT JOIN catalog.series se ON se.id = w.series_id
+                                   LEFT JOIN LATERAL (
+                                       SELECT
+                                           jsonb_agg(jsonb_build_object('Id', gg.id, 'Name', gg.name) ORDER BY gg.name)
+                                               FILTER (WHERE wg.is_primary) AS primary_genres,
+                                           jsonb_agg(jsonb_build_object('Id', gg.id, 'Name', gg.name) ORDER BY gg.name)
+                                               FILTER (WHERE NOT wg.is_primary) AS secondary_genres
+                                       FROM catalog.works_genres wg
+                                       JOIN catalog.genres gg ON gg.id = wg.genre_id
+                                       WHERE wg.work_id = w.id
+                                   ) g ON true
+                                   LEFT JOIN LATERAL (
+                                       SELECT jsonb_agg(jsonb_build_object('Id', aa.id, 'Name', aa.name) ORDER BY aa.name) AS authors
+                                       FROM catalog.works_authors wa
+                                       JOIN catalog.authors aa ON aa.id = wa.author_id
+                                       WHERE wa.work_id = w.id
+                                   ) a ON true
+                                   LEFT JOIN LATERAL (
+                                       SELECT array_agg(DISTINCT ddd.code ORDER BY ddd.code) AS dewey_codes
+                                       FROM catalog.works_dewey_decimals wdd
+                                       JOIN catalog.dewey_decimals ddd ON ddd.id = wdd.dewey_decimal_id
+                                       WHERE wdd.work_id = w.id
+                                   ) dd ON true
+                                   /**where**/
                                    """;
 
     private readonly IDbContext _dbContext;
@@ -52,10 +77,12 @@ public class BookQueryRepository : IBookQueryRepository
 
     public async Task<BookDetails?> GetBookByIdAsync(Guid bookId, CancellationToken ct)
     {
-        const string sql = $"{BaseSql}\nWHERE e.id = @Id";
+        var builder = new SqlBuilder();
+        var template = builder.AddTemplate(BaseSql);
+        builder.Where("e.id = @Id", new { Id = bookId });
 
         var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Id = bookId }, ct);
+        var command = _dbContext.CreateCommand(template.RawSql, template.Parameters, ct);
 
         var row = await connection.QueryFirstOrDefaultAsync<BookDetailsRow>(command);
 
@@ -64,8 +91,11 @@ public class BookQueryRepository : IBookQueryRepository
 
     public async Task<IReadOnlyList<BookDetails>> GetAllBooksAsync(CancellationToken ct)
     {
+        var builder = new SqlBuilder();
+        var template = builder.AddTemplate(BaseSql);
+
         var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(BaseSql, null, ct);
+        var command = _dbContext.CreateCommand(template.RawSql, template.Parameters, ct);
 
         var rows = await connection.QueryAsync<BookDetailsRow>(command);
 

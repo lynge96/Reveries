@@ -1,6 +1,6 @@
-namespace Reveries.Persistence.Entities;
+namespace Reveries.Persistence.Records;
 
-public sealed class WorkEntity
+public sealed class WorkRecord
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = null!;
@@ -9,5 +9,4 @@ public sealed class WorkEntity
     public string? Description { get; set; }
     public int? SeriesNumber { get; set; }
     public Guid? SeriesId { get; set; }
-    public DateTimeOffset? DateCreated { get; set; }
 }

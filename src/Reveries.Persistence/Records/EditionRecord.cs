@@ -1,6 +1,6 @@
-namespace Reveries.Persistence.Entities;
+namespace Reveries.Persistence.Records;
 
-public sealed class EditionEntity
+public sealed class EditionRecord
 {
     public Guid Id { get; set; }
     public Guid WorkId { get; set; }
@@ -19,5 +19,4 @@ public sealed class EditionEntity
     public decimal? ThicknessCm { get; set; }
     public decimal? WeightG { get; set; }
     public Guid? PublisherId { get; set; }
-    public DateTimeOffset? DateCreated { get; set; }
 }

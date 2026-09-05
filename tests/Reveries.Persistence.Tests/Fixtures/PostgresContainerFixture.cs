@@ -1,14 +1,17 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
+using Respawn;
 using Reveries.Persistence.Configuration;
 using Reveries.Persistence.Context;
+using Reveries.Persistence.Migrations;
 using Testcontainers.PostgreSql;
 
 namespace Reveries.Persistence.Tests.Fixtures;
 
 /// <summary>
 /// Starts one throwaway PostgreSQL container for the test collection, applies the
-/// schema, and hands out <see cref="PostgresDbContext"/> instances over it.
+/// schema via the DbUp migrations, and hands out <see cref="PostgresDbContext"/>
+/// instances over it.
 /// </summary>
 public sealed class PostgresContainerFixture : IAsyncLifetime
 {
@@ -16,6 +19,7 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
         .Build();
 
     private NpgsqlDataSource? _dataSource;
+    private Respawner? _respawner;
 
     public NpgsqlDataSource DataSource =>
         _dataSource ?? throw new InvalidOperationException("Fixture has not been initialized.");
@@ -31,59 +35,33 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
         DapperConfiguration.Configure();
         await _container.StartAsync();
         _dataSource = NpgsqlDataSource.Create(_container.GetConnectionString());
-        await ApplySchemaAsync();
+
+        DatabaseMigrator.Run(ConnectionString, NullLogger.Instance);
+
+        await using var connection = await _dataSource.OpenConnectionAsync();
+        _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
+        {
+            SchemasToInclude = ["catalog"],
+            DbAdapter = DbAdapter.Postgres,
+            WithReseed = true
+        });
     }
 
     /// <summary>
-    /// The single seam that provisions the schema. Reads the canonical
-    /// <c>infra/db_schema.sql</c> dump, dropping psql meta-commands (lines starting
-    /// with <c>\</c>) that the wire protocol cannot execute. Swap this one method
-    /// when the schema source changes (e.g. to running DbUp migrations).
-    /// </summary>
-    private async Task ApplySchemaAsync()
-    {
-        var schemaPath = Path.Combine(AppContext.BaseDirectory, "infra", "db_schema.sql");
-        var lines = await File.ReadAllLinesAsync(schemaPath);
-
-        var sql = string.Join(
-            Environment.NewLine,
-            lines.Where(line => !line.StartsWith('\\')));
-
-        await using var command = DataSource.CreateCommand(sql);
-        await command.ExecuteNonQueryAsync();
-    }
-
-    /// <summary>
-    /// Wipes every row so each test starts from an empty, known database.
-    /// RESTART IDENTITY resets the serial sequences so seeded ids stay predictable.
+    /// Wipes every row in the <c>catalog</c> schema so each test starts from an empty,
+    /// known database. WithReseed resets the identity sequences so generated ids stay
+    /// predictable. The DbUp journal in <c>public</c> is left untouched.
     /// </summary>
     public async Task ResetAsync()
     {
-        const string sql = """
-                           TRUNCATE TABLE
-                               library.works_authors,
-                               library.works_genres,
-                               library.works_dewey_decimals,
-                               library.editions,
-                               library.works,
-                               library.authors,
-                               library.genres,
-                               library.dewey_decimals,
-                               library.publishers,
-                               library.series
-                           RESTART IDENTITY CASCADE
-                           """;
-
-        await using var command = DataSource.CreateCommand(sql);
-        await command.ExecuteNonQueryAsync();
+        await using var connection = await _dataSource!.OpenConnectionAsync();
+        await _respawner!.ResetAsync(connection);
     }
 
     public async Task DisposeAsync()
     {
         try
         {
-            // Only dispose the data source if startup got far enough to create it,
-            // so a failed InitializeAsync surfaces its real exception, not an NRE.
             if (_dataSource is not null)
                 await _dataSource.DisposeAsync();
         }

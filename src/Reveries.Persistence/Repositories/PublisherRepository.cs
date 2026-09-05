@@ -2,9 +2,9 @@ using Dapper;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Publishers;
 using Reveries.Persistence.Context;
-using Reveries.Persistence.Entities;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
+using Reveries.Persistence.Records;
 
 namespace Reveries.Persistence.Repositories;
 
@@ -17,48 +17,50 @@ public class PublisherRepository : IPublisherRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Publisher?> GetOrCreateAsync(
-        Publisher? publisher,
-        CancellationToken ct)
+    public async Task<Publisher?> GetByNameAsync(string name, CancellationToken ct = default)
     {
-        if (publisher is null)
-            return null;
-
         const string sql = """
-                           INSERT INTO library.publishers (id, name, normalized_name)
-                           VALUES (@Id, @Name, @NormalizedName)
-                           ON CONFLICT (normalized_name) DO UPDATE
-                           SET name = EXCLUDED.name
-                           RETURNING id, name, date_created
+                           SELECT id, name
+                           FROM catalog.publishers
+                           WHERE name = @Name::citext
+                           LIMIT 1
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
-        var publisherEntity = publisher.ToEntity();
+        var command = _dbContext.CreateCommand(sql, new { Name = name }, ct);
 
-        var command = _dbContext.CreateCommand(sql, publisherEntity, ct);
+        var row = await connection.QueryFirstOrDefaultAsync<PublisherRecord>(command);
 
-        var result = await connection.QuerySingleAsync<PublisherEntity>(command);
-
-        return result.ToDomain();
+        return row?.ToDomain();
     }
 
-    public async Task<List<Publisher>> SearchByNameAsync(Publisher publisher, CancellationToken ct)
+    public async Task AddAsync(Publisher publisher, CancellationToken ct = default)
     {
         const string sql = """
-                           SELECT 
-                               id, 
-                               name, 
-                               date_created
-                           FROM library.publishers
+                           INSERT INTO catalog.publishers (id, name)
+                           VALUES (@Id, @Name)
+                           ON CONFLICT (name) DO NOTHING
+                           """;
+
+        var connection = await _dbContext.GetConnectionAsync(ct);
+        var command = _dbContext.CreateCommand(sql, publisher.ToRecord(), ct);
+
+        await connection.ExecuteAsync(command);
+    }
+
+    public async Task<List<Publisher>> SearchByNameAsync(Publisher publisher, CancellationToken ct = default)
+    {
+        const string sql = """
+                           SELECT id, name
+                           FROM catalog.publishers
                            WHERE name ILIKE @Name
                            ORDER BY name
                            """;
 
         var connection = await _dbContext.GetConnectionAsync(ct);
-
         var command = _dbContext.CreateCommand(sql, new { Name = $"%{publisher.Name}%" }, ct);
 
-        var rows = await connection.QueryAsync<PublisherEntity>(command);
+        var rows = await connection.QueryAsync<PublisherRecord>(command);
 
         return rows.Select(r => r.ToDomain()).ToList();
     }
