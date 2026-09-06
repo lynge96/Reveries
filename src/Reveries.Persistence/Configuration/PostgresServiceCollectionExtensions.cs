@@ -9,6 +9,7 @@ using Reveries.Application.Common.Abstractions;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Context;
+using Reveries.Persistence.Exceptions;
 using Reveries.Persistence.Repositories;
 
 namespace Reveries.Persistence.Configuration;
@@ -21,9 +22,7 @@ public static class PostgresServiceCollectionExtensions
 
         var connectionString = config.GetConnectionString("ReveriesDb");
         if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException(
-                "Missing connection string 'ConnectionStrings:ReveriesDb'. Set it via user-secrets (dev) " +
-                "or the ConnectionStrings__ReveriesDb environment variable (prod).");
+            throw new MissingConnectionStringException("ReveriesDb");
 
         services.AddSingleton<NpgsqlDataSource>(serviceProvider =>
         {

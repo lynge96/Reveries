@@ -41,7 +41,7 @@ public class PostgresDbContext : IDbContext
 
     public async Task<IDbTransaction> BeginTransactionAsync(CancellationToken ct = default)
     {
-        if (_disposed) throw new ObjectDisposedException(nameof(PostgresDbContext));
+        ObjectDisposedException.ThrowIf(_disposed, this);
 
         if (_transaction is not null)
             throw new InvalidOperationException(
@@ -76,7 +76,7 @@ public class PostgresDbContext : IDbContext
         object? param,
         CancellationToken ct)
     {
-        if (_disposed) throw new ObjectDisposedException(nameof(PostgresDbContext));
+        ObjectDisposedException.ThrowIf(_disposed, this);
 
         if (_transaction is not null)
         {
@@ -95,7 +95,7 @@ public class PostgresDbContext : IDbContext
 
     private async Task<NpgsqlConnection> GetConnectionAsync(CancellationToken ct)
     {
-        if (_disposed) throw new ObjectDisposedException(nameof(PostgresDbContext));
+        ObjectDisposedException.ThrowIf(_disposed, this);
 
         if (_connection is { State: ConnectionState.Open })
             return _connection;

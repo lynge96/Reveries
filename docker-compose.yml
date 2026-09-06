@@ -16,7 +16,7 @@ services:
     container_name: reveries-api
     restart: always
     environment:
-      ConnectionStrings__ReveriesDb: "Host=postgres;Port=5432;Database=${POSTGRES_DATABASE};Username=${POSTGRES_USERNAME};Password=${POSTGRES_PASSWORD}"
+      ConnectionStrings__ReveriesDb: "Host=postgres;Port=5432;Database=${POSTGRES_DATABASE};Username=${POSTGRES_USERNAME};Password=${POSTGRES_PASSWORD};CommandTimeout=20"
   
       Redis__Host: redis
       Redis__Port: 6379

@@ -33,8 +33,7 @@ builder.Services
 var app = builder.Build();
 
 DatabaseMigrator.Run(
-    app.Configuration.GetConnectionString("ReveriesDb")
-        ?? throw new InvalidOperationException("Missing connection string 'ConnectionStrings:ReveriesDb'."),
+    app.Configuration.GetConnectionString("ReveriesDb")!,
     app.Logger);
 
 if (app.Environment.IsDevelopment())

@@ -3,6 +3,7 @@ using DbUp;
 using DbUp.Engine.Output;
 using Microsoft.Extensions.Logging;
 using Reveries.Persistence.Configuration;
+using Reveries.Persistence.Exceptions;
 
 namespace Reveries.Persistence.Migrations;
 
@@ -31,7 +32,7 @@ public static class DatabaseMigrator
         var result = upgrader.PerformUpgrade();
 
         if (!result.Successful)
-            throw new InvalidOperationException("Database migration failed.", result.Error);
+            throw new DatabaseMigrationException(result.Error);
     }
 
     private sealed class MicrosoftUpgradeLog(ILogger logger) : IUpgradeLog

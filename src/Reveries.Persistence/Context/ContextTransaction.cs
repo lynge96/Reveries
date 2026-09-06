@@ -3,11 +3,11 @@ using Reveries.Persistence.Interfaces;
 
 namespace Reveries.Persistence.Context;
 
-public class DbTransaction : ITransaction
+public class ContextTransaction : ITransaction
 {
     private readonly IDbContext _dbContext;
 
-    public DbTransaction(IDbContext dbContext)
+    public ContextTransaction(IDbContext dbContext)
     {
         _dbContext = dbContext;
     }
