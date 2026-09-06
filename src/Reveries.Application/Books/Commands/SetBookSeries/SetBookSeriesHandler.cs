@@ -1,6 +1,6 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
-using Reveries.Application.BookSeries.Services;
+using Reveries.Application.BookSeries.Interfaces;
 using Reveries.Domain.BookSeries;
 using Reveries.Domain.Works;
 
@@ -8,11 +8,11 @@ namespace Reveries.Application.Books.Commands.SetBookSeries;
 
 public sealed class SetBookSeriesHandler : IQueryHandler<SetBookSeriesCommand, WorkId>
 {
-    private readonly BookSeriesService _bookSeriesService;
+    private readonly IBookSeriesService _bookSeriesService;
     private readonly ILogger<SetBookSeriesHandler> _logger;
 
     public SetBookSeriesHandler(
-        BookSeriesService bookSeriesService,
+        IBookSeriesService bookSeriesService,
         ILogger<SetBookSeriesHandler> logger)
     {
         _bookSeriesService = bookSeriesService;

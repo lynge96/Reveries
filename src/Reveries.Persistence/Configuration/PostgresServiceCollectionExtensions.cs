@@ -41,9 +41,9 @@ public static class PostgresServiceCollectionExtensions
         services.AddSingleton<ResiliencePipeline>(serviceProvider =>
             DbResiliencePipeline.Build(
                 serviceProvider.GetRequiredService<ILoggerFactory>()
-                    .CreateLogger("Reveries.Persistence.Resilience")));
+                    .CreateLogger(typeof(DbResiliencePipeline))));
 
-        // Entity tabeller
+        // Repositories
         services.AddScoped<IWorkRepository, WorkRepository>();
         services.AddScoped<IEditionRepository, EditionRepository>();
         services.AddScoped<IPublisherRepository, PublisherRepository>();

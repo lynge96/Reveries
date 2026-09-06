@@ -9,13 +9,14 @@ namespace Reveries.Persistence.Migrations;
 
 public static class DatabaseMigrator
 {
-    public static void Run(string connectionString, ILogger logger)
+    public static void Run(string connectionString, ILoggerFactory loggerFactory)
     {
+        var logger = loggerFactory.CreateLogger(typeof(DatabaseMigrator));
         var pipeline = DbResiliencePipeline.BuildForStartup(logger);
 
         pipeline.Execute(() =>
         {
-            EnsureDatabase.For.PostgresqlDatabase(connectionString);
+            EnsureDatabase.For.PostgresqlDatabase(connectionString, new MicrosoftUpgradeLog(logger));
             PerformUpgrade(connectionString, logger);
         });
     }

@@ -35,7 +35,7 @@ var app = builder.Build();
 
 DatabaseMigrator.Run(
     app.Configuration.GetConnectionString(ConnectionStringKeys.ReveriesDb)!,
-    app.Logger);
+    app.Services.GetRequiredService<ILoggerFactory>());
 
 if (app.Environment.IsDevelopment())
 {

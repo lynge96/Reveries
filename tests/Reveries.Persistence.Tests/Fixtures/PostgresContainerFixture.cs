@@ -37,7 +37,7 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
         await _container.StartAsync();
         _dataSource = NpgsqlDataSource.Create(_container.GetConnectionString());
 
-        DatabaseMigrator.Run(ConnectionString, NullLogger.Instance);
+        DatabaseMigrator.Run(ConnectionString, NullLoggerFactory.Instance);
 
         await using var connection = await _dataSource.OpenConnectionAsync();
         _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
