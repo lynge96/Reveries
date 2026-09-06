@@ -20,9 +20,9 @@ public static class PostgresServiceCollectionExtensions
     {
         DapperConfiguration.Configure();
 
-        var connectionString = config.GetConnectionString("ReveriesDb");
+        var connectionString = config.GetConnectionString(ConnectionStringKeys.ReveriesDb);
         if (string.IsNullOrWhiteSpace(connectionString))
-            throw new MissingConnectionStringException("ReveriesDb");
+            throw new MissingConnectionStringException(ConnectionStringKeys.ReveriesDb);
 
         services.AddSingleton<NpgsqlDataSource>(serviceProvider =>
         {

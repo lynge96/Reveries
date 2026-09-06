@@ -13,6 +13,12 @@ public static class RedisServiceCollectionExtensions
     {
         services.AddOptions<RedisSettings>()
             .Bind(config.GetSection("Redis"))
+            .Validate(
+                s => !string.IsNullOrWhiteSpace(s.ConnectionString) || !string.IsNullOrWhiteSpace(s.Host),
+                "Redis: either ConnectionString or Host must be set")
+            .Validate(
+                s => !string.IsNullOrWhiteSpace(s.ConnectionString) || s.Port > 0,
+                "Redis: Port must be positive when using Host")
             .ValidateOnStart();
 
         services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>

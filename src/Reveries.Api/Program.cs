@@ -9,6 +9,7 @@ using Reveries.Infrastructure;
 using Reveries.Infrastructure.Logging;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.Isbndb.Configuration;
+using Reveries.Persistence;
 using Reveries.Persistence.Migrations;
 
 Env.Load();
@@ -33,7 +34,7 @@ builder.Services
 var app = builder.Build();
 
 DatabaseMigrator.Run(
-    app.Configuration.GetConnectionString("ReveriesDb")!,
+    app.Configuration.GetConnectionString(ConnectionStringKeys.ReveriesDb)!,
     app.Logger);
 
 if (app.Environment.IsDevelopment())
