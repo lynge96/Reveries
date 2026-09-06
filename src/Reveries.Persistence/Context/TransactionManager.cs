@@ -15,6 +15,6 @@ public class TransactionManager : ITransactionManager
     public async Task<ITransaction> BeginTransactionAsync(CancellationToken ct = default)
     {
         await _dbContext.BeginTransactionAsync(ct);
-        return new DbTransaction(_dbContext);
+        return new ContextTransaction(_dbContext);
     }
 }

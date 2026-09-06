@@ -13,18 +13,18 @@ public class BookSeriesService : IBookSeriesService
     private readonly ITransactionManager _transactionManager;
     private readonly IEditionRepository _editions;
     private readonly IWorkRepository _works;
-    private readonly ISeriesRepository _series;
+    private readonly ISeriesResolver _seriesResolver;
 
     public BookSeriesService(
         ITransactionManager transactionManager,
         IEditionRepository editions,
         IWorkRepository works,
-        ISeriesRepository series)
+        ISeriesResolver seriesResolver)
     {
         _transactionManager = transactionManager;
         _editions = editions;
         _works = works;
-        _series = series;
+        _seriesResolver = seriesResolver;
     }
 
     public async Task<WorkId> SetSeriesAsync(Isbn? isbn, Series series, int? numberInSeries, CancellationToken ct)
@@ -42,10 +42,9 @@ public class BookSeriesService : IBookSeriesService
         if (work is null)
             throw new NotFoundException($"Work for ISBN '{isbn}' was not found.");
 
-        var existingSeries = await _series.GetByNameAsync(series, ct);
-        var resolvedSeries = existingSeries ?? await _series.GetOrCreateAsync(series, ct);
+        var resolvedSeries = await _seriesResolver.ResolveAsync(series, ct);
 
-        work.SetSeries(resolvedSeries!.Id, numberInSeries);
+        work.SetSeries(resolvedSeries.Id, numberInSeries);
         await _works.UpdateWorkSeriesAsync(work, resolvedSeries.Id, ct);
 
         await tx.CommitAsync(ct);

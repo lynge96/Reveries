@@ -1,11 +1,8 @@
-using Dapper;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Interfaces.Repositories;
-using Reveries.Domain.Works;
-using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
-using Reveries.Persistence.Views;
+using Reveries.Persistence.Records;
 
 namespace Reveries.Persistence.Repositories;
 
@@ -21,7 +18,7 @@ public class EditionRepository : IEditionRepository
     public async Task InsertEditionAsync(Edition edition, CancellationToken ct)
     {
         const string sql = """
-                           INSERT INTO library.editions (
+                           INSERT INTO catalog.editions (
                                id, work_id, isbn13, isbn10, page_count, language,
                                publication_date, edition_statement, format,
                                image_url, image_thumbnail, saxo_url,
@@ -37,32 +34,23 @@ public class EditionRepository : IEditionRepository
                            )
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var editionEntity = edition.ToEntity();
-
-        var command = _dbContext.CreateCommand(sql, editionEntity, ct);
-
-        await connection.ExecuteAsync(command);
+        await _dbContext.ExecuteAsync(sql, edition.ToRecord(), ct);
     }
 
     public async Task<Edition?> GetEditionByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         const string sql = """
-                           SELECT *
-                           FROM library.editions_view
+                           SELECT id, work_id, isbn13, isbn10, publication_date, page_count,
+                                  language, edition_statement, format, image_url, image_thumbnail,
+                                  saxo_url, height_cm, width_cm, thickness_cm, weight_g, publisher_id
+                           FROM catalog.editions
                            WHERE isbn13 = @Value13
                               OR (@Value10 IS NOT NULL AND isbn10 = @Value10)
                            LIMIT 1
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-
-        var command = _dbContext.CreateCommand(
-            sql,
-            new { isbn.Value13, isbn.Value10 },
-            ct);
-
-        var row = await connection.QueryFirstOrDefaultAsync<EditionsView>(command);
+        var row = await _dbContext.QueryFirstOrDefaultAsync<EditionRecord>(
+            sql, new { isbn.Value13, isbn.Value10 }, ct);
 
         return row?.ToDomain();
     }
@@ -71,15 +59,12 @@ public class EditionRepository : IEditionRepository
     {
         const string sql = """
                            SELECT EXISTS (
-                               SELECT 1 FROM library.editions
+                               SELECT 1 FROM catalog.editions
                                WHERE isbn13 = @Value13
                                   OR (@Value10 IS NOT NULL AND isbn10 = @Value10)
                            )
                            """;
-        var connection = await _dbContext.GetConnectionAsync(ct);
 
-        var command = _dbContext.CreateCommand(sql, new { isbn.Value13, isbn.Value10 }, ct);
-
-        return await connection.QuerySingleAsync<bool>(command);
+        return await _dbContext.QuerySingleAsync<bool>(sql, new { isbn.Value13, isbn.Value10 }, ct);
     }
 }

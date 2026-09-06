@@ -16,13 +16,13 @@ public class CreateSeriesService : ICreateSeriesService
 
     public async Task<Series> CreateSeriesAsync(Series series, CancellationToken ct)
     {
-        var existingSeries = await _series.GetByNameAsync(series, ct);
+        var existingSeries = await _series.GetByNameAsync(series.Name, ct);
         if (existingSeries != null)
         {
             throw new SeriesAlreadyExistsException(series.Name);
         }
 
-        await _series.GetOrCreateAsync(series, ct);
+        await _series.AddAsync(series, ct);
         return series;
     }
 

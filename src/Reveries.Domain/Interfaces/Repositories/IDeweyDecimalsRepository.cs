@@ -1,8 +1,7 @@
-using Reveries.Domain.Works;
-
 namespace Reveries.Domain.Interfaces.Repositories;
 
 public interface IDeweyDecimalsRepository
 {
-    Task<List<int>> GetOrCreateDeweyDecimalsAsync(IReadOnlyList<DeweyDecimal> deweyDecimals, CancellationToken ct = default);
+    Task<Dictionary<string, int>> GetByCodesAsync(IReadOnlyList<string> codes, CancellationToken ct = default);
+    Task<Dictionary<string, int>> AddRangeAsync(IReadOnlyList<string> codes, CancellationToken ct = default);
 }

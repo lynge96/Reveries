@@ -48,92 +48,105 @@ The plan for the project is outlined below. The choice of technologies is primar
     Pipelines automatically package new builds into Docker images and deploy them to the Raspberry Pi, ensuring the application always runs the latest version.  
 
 ### Database Schema 📋
-Below is an ER diagram of the current entities in the project.  
-The diagram provides an overview of the tables, their relationships, and their fields. It serves as the foundation for the database schema implementation and helps keep the structure organized as the project grows.  
-  
+Below is an ER diagram of the current entities in the project. All tables live in the
+`catalog` schema and are provisioned by versioned **DbUp** migrations
+(`src/Reveries.Persistence/Migrations/Scripts`). The catalog is split into a **Work** (the
+abstract book) and its **Editions** (concrete physical releases); name columns use `citext`
+for case-insensitive uniqueness, and `genres`/`dewey_decimals` use identity keys.
 
 ```mermaid
 erDiagram
-    authors {
-        uuid id PK
-        varchar normalized_name UK
-        varchar name
-        timestamp date_created
-    }
-    
-    books {
+    works {
         uuid id PK
         varchar title
-        varchar isbn13 UK
-        varchar isbn10 UK
-        uuid publisher_id FK
+        varchar subtitle
+        text synopsis
+        text description
         uuid series_id FK
         int series_number
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    editions {
+        uuid id PK
+        uuid work_id FK
+        varchar isbn13 UK
+        varchar isbn10 UK
         varchar publication_date
         int page_count
-        text synopsis
         varchar language
-        varchar edition
+        varchar edition_statement
         varchar format
         text image_url
         text image_thumbnail
-        decimal msrp
-        boolean is_read
-        decimal height_cm
-        decimal width_cm
-        decimal thickness_cm
-        decimal weight_g
-        timestamp date_created
+        text saxo_url
+        numeric height_cm
+        numeric width_cm
+        numeric thickness_cm
+        numeric weight_g
+        uuid publisher_id FK
+        timestamptz created_at
+        timestamptz updated_at
     }
-    
+
+    authors {
+        uuid id PK
+        citext name UK
+        timestamptz created_at
+    }
+
     publishers {
         uuid id PK
-        varchar name UK
-        timestamp date_created
+        citext name UK
+        timestamptz created_at
     }
-    
+
+    series {
+        uuid id PK
+        citext name UK
+        timestamptz created_at
+    }
+
     genres {
         int id PK
-        varchar name UK
-        timestamp date_created
-    }
-    
-    books_authors {
-        uuid book_id PK, FK
-        uuid author_id PK, FK
-    }
-    
-    books_genres {
-        uuid book_id PK, FK
-        int genre_id PK, FK
-    }
-    
-    books_dewey_decimals {
-        uuid book_id PK, FK
-        int dewey_decimal_id PK, FK
+        citext name UK
+        timestamptz created_at
     }
 
     dewey_decimals {
         int id PK
         varchar code UK
-        timestamp date_created
+        timestamptz created_at
     }
 
-    series {
-        uuid id PK
-        varchar name UK
-        timestamp date_created
+    works_authors {
+        uuid work_id PK, FK
+        uuid author_id PK, FK
     }
 
-    authors ||--o{ books_authors : "writes"
-    books ||--o{ books_authors : "written by"
+    works_genres {
+        uuid work_id PK, FK
+        int genre_id PK, FK
+        boolean is_primary
+    }
 
-    books ||--o{ books_genres : "categorized as"
-    genres ||--o{ books_genres : "categorizes"
+    works_dewey_decimals {
+        uuid work_id PK, FK
+        int dewey_decimal_id PK, FK
+    }
 
-    books ||--o{ books_dewey_decimals : "classified as"
-    dewey_decimals ||--o{ books_dewey_decimals : "classifies"
+    works ||--o{ editions : "has editions"
 
-    publishers ||--o{ books : "publishes"
-    series ||--o{ books : "contains"
+    authors ||--o{ works_authors : "writes"
+    works ||--o{ works_authors : "written by"
+
+    works ||--o{ works_genres : "categorized as"
+    genres ||--o{ works_genres : "categorizes"
+
+    works ||--o{ works_dewey_decimals : "classified as"
+    dewey_decimals ||--o{ works_dewey_decimals : "classifies"
+
+    publishers ||--o{ editions : "publishes"
+    series ||--o{ works : "contains"
 ```

@@ -1,10 +1,8 @@
-using Dapper;
-using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.BookSeries;
-using Reveries.Persistence.Context;
-using Reveries.Persistence.Entities;
+using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
+using Reveries.Persistence.Records;
 
 namespace Reveries.Persistence.Repositories;
 
@@ -17,67 +15,39 @@ public class SeriesRepository : ISeriesRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Series?> GetOrCreateAsync(
-        Series? series,
-        CancellationToken ct)
-    {
-        if (series is null)
-            return null;
-
-        const string sql = """
-                           INSERT INTO library.series (id, name)
-                           VALUES (@Id, @Name)
-                           ON CONFLICT (name) DO UPDATE 
-                           SET name = EXCLUDED.name
-                           RETURNING id, name, date_created
-                           """;
-
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var seriesEntity = series.ToEntity();
-
-        var command = _dbContext.CreateCommand(sql, new { seriesEntity.Id, seriesEntity.Name }, ct);
-
-        var result = await connection.QuerySingleAsync<SeriesEntity>(command);
-
-        return result.ToDomain();
-    }
-
-    public async Task<Series?> GetByNameAsync(Series series, CancellationToken ct)
+    public async Task<Series?> GetByNameAsync(string name, CancellationToken ct = default)
     {
         const string sql = """
-                           SELECT 
-                               id,
-                               name, 
-                               date_created
-                           FROM library.series 
-                           WHERE name ILIKE @Name
-                           LIMIT 1;
+                           SELECT id, name
+                           FROM catalog.series
+                           WHERE name = @Name::citext
+                           LIMIT 1
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-
-        var command = _dbContext.CreateCommand(sql, new { series.Name }, ct);
-
-        var row = await connection.QueryFirstOrDefaultAsync<SeriesEntity>(command);
+        var row = await _dbContext.QueryFirstOrDefaultAsync<SeriesRecord>(sql, new { Name = name }, ct);
 
         return row?.ToDomain();
     }
 
-    public async Task<List<Series>> GetSeriesAsync(CancellationToken ct)
+    public async Task AddAsync(Series series, CancellationToken ct = default)
     {
         const string sql = """
-                           SELECT 
-                               id, 
-                               name, 
-                               date_created
-                           FROM library.series;
+                           INSERT INTO catalog.series (id, name)
+                           VALUES (@Id, @Name)
+                           ON CONFLICT (name) DO NOTHING
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
+        await _dbContext.ExecuteAsync(sql, series.ToRecord(), ct);
+    }
 
-        var command = _dbContext.CreateCommand(sql, ct: ct);
+    public async Task<List<Series>> GetSeriesAsync(CancellationToken ct = default)
+    {
+        const string sql = """
+                           SELECT id, name
+                           FROM catalog.series
+                           """;
 
-        var rows = await connection.QueryAsync<SeriesEntity>(command);
+        var rows = await _dbContext.QueryAsync<SeriesRecord>(sql, ct: ct);
 
         return rows.Select(r => r.ToDomain()).ToList();
     }

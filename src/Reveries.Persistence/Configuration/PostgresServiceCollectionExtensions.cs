@@ -3,11 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using Polly;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Context;
+using Reveries.Persistence.Exceptions;
 using Reveries.Persistence.Repositories;
 
 namespace Reveries.Persistence.Configuration;
@@ -18,11 +20,9 @@ public static class PostgresServiceCollectionExtensions
     {
         DapperConfiguration.Configure();
 
-        var connectionString = config.GetConnectionString("ReveriesDb");
+        var connectionString = config.GetConnectionString(ConnectionStringKeys.ReveriesDb);
         if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException(
-                "Missing connection string 'ConnectionStrings:ReveriesDb'. Set it via user-secrets (dev) " +
-                "or the ConnectionStrings__ReveriesDb environment variable (prod).");
+            throw new MissingConnectionStringException(ConnectionStringKeys.ReveriesDb);
 
         services.AddSingleton<NpgsqlDataSource>(serviceProvider =>
         {
@@ -38,7 +38,12 @@ public static class PostgresServiceCollectionExtensions
             return builder.Build();
         });
 
-        // Entity tabeller
+        services.AddSingleton<ResiliencePipeline>(serviceProvider =>
+            DbResiliencePipeline.Build(
+                serviceProvider.GetRequiredService<ILoggerFactory>()
+                    .CreateLogger(typeof(DbResiliencePipeline))));
+
+        // Repositories
         services.AddScoped<IWorkRepository, WorkRepository>();
         services.AddScoped<IEditionRepository, EditionRepository>();
         services.AddScoped<IPublisherRepository, PublisherRepository>();

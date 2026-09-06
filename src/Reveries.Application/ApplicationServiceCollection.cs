@@ -24,16 +24,21 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWorkPersistenceService, WorkPersistenceService>();
         services.AddScoped<IBookMergerService, BookMergerService>();
         services.AddScoped<IBookLookupService, BookLookupService>();
+        services.AddScoped<IGenreResolver, GenreResolver>();
+        services.AddScoped<IDeweyResolver, DeweyResolver>();
 
         // Authors
         services.AddScoped<IAuthorLookupService, AuthorLookupService>();
+        services.AddScoped<IAuthorResolver, AuthorResolver>();
 
         // Publishers
         services.AddScoped<IPublisherLookupService, PublisherLookupService>();
+        services.AddScoped<IPublisherResolver, PublisherResolver>();
 
         // Series
         services.AddScoped<ICreateSeriesService, CreateSeriesService>();
         services.AddScoped<IBookSeriesService, BookSeriesService>();
+        services.AddScoped<ISeriesResolver, SeriesResolver>();
 
         return services;
     }

@@ -4,6 +4,7 @@ namespace Reveries.Domain.Interfaces.Repositories;
 
 public interface IPublisherRepository
 {
-    Task<Publisher?> GetOrCreateAsync(Publisher? publisher, CancellationToken ct = default);
+    Task<Publisher?> GetByNameAsync(string name, CancellationToken ct = default);
+    Task AddAsync(Publisher publisher, CancellationToken ct = default);
     Task<List<Publisher>> SearchByNameAsync(Publisher publisher, CancellationToken ct = default);
 }
