@@ -1,6 +1,4 @@
-using Dapper;
 using Reveries.Domain.Interfaces.Repositories;
-using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Records;
 
@@ -26,10 +24,7 @@ public class DeweyDecimalsRepository : IDeweyDecimalsRepository
                            WHERE code = ANY(@Codes::text[])
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Codes = codes.ToArray() }, ct);
-
-        var rows = await connection.QueryAsync<DeweyDecimalRecord>(command);
+        var rows = await _dbContext.QueryAsync<DeweyDecimalRecord>(sql, new { Codes = codes.ToArray() }, ct);
 
         return rows.ToDictionary(r => r.Code, r => r.Id);
     }
@@ -47,10 +42,7 @@ public class DeweyDecimalsRepository : IDeweyDecimalsRepository
                            RETURNING id, code
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Codes = codes.ToArray() }, ct);
-
-        var rows = await connection.QueryAsync<DeweyDecimalRecord>(command);
+        var rows = await _dbContext.QueryAsync<DeweyDecimalRecord>(sql, new { Codes = codes.ToArray() }, ct);
 
         return rows.ToDictionary(r => r.Code, r => r.Id);
     }

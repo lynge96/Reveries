@@ -1,7 +1,5 @@
-using Dapper;
 using Reveries.Domain.Authors;
 using Reveries.Domain.Interfaces.Repositories;
-using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
 using Reveries.Persistence.Records;
@@ -28,10 +26,7 @@ public class AuthorRepository : IAuthorRepository
                            WHERE name = ANY(@Names::citext[])
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Names = names.ToArray() }, ct);
-
-        var rows = await connection.QueryAsync<AuthorRecord>(command);
+        var rows = await _dbContext.QueryAsync<AuthorRecord>(sql, new { Names = names.ToArray() }, ct);
 
         return rows.Select(r => r.ToDomain()).ToList();
     }
@@ -49,14 +44,11 @@ public class AuthorRepository : IAuthorRepository
 
         var records = authors.Select(a => a.ToRecord()).ToList();
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new
+        await _dbContext.ExecuteAsync(sql, new
         {
             Ids = records.Select(r => r.Id).ToArray(),
             Names = records.Select(r => r.Name).ToArray()
         }, ct);
-
-        await connection.ExecuteAsync(command);
     }
 
     public async Task<List<Author>> GetAuthorsByNameAsync(Author author, CancellationToken ct = default)
@@ -67,10 +59,7 @@ public class AuthorRepository : IAuthorRepository
                            WHERE name ILIKE @Pattern
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Pattern = $"%{author.Name}%" }, ct);
-
-        var rows = await connection.QueryAsync<AuthorRecord>(command);
+        var rows = await _dbContext.QueryAsync<AuthorRecord>(sql, new { Pattern = $"%{author.Name}%" }, ct);
 
         return rows.Select(r => r.ToDomain()).ToList();
     }

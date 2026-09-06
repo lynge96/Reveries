@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
+using Polly;
 using Respawn;
 using Reveries.Persistence.Configuration;
 using Reveries.Persistence.Context;
@@ -28,7 +29,7 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
 
     /// <summary>A fresh context over the shared container.</summary>
     public PostgresDbContext NewDbContext() =>
-        new(DataSource, NullLogger<PostgresDbContext>.Instance);
+        new(DataSource, ResiliencePipeline.Empty, NullLogger<PostgresDbContext>.Instance);
 
     public async Task InitializeAsync()
     {

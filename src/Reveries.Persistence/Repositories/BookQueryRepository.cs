@@ -4,7 +4,6 @@ using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Enums;
-using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Rows;
 
@@ -81,10 +80,8 @@ public class BookQueryRepository : IBookQueryRepository
         var template = builder.AddTemplate(BaseSql);
         builder.Where("e.id = @Id", new { Id = bookId });
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(template.RawSql, template.Parameters, ct);
-
-        var row = await connection.QueryFirstOrDefaultAsync<BookDetailsRow>(command);
+        var row = await _dbContext.QueryFirstOrDefaultAsync<BookDetailsRow>(
+            template.RawSql, template.Parameters, ct);
 
         return row is null ? null : MapToBookDetails(row);
     }
@@ -94,10 +91,7 @@ public class BookQueryRepository : IBookQueryRepository
         var builder = new SqlBuilder();
         var template = builder.AddTemplate(BaseSql);
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(template.RawSql, template.Parameters, ct);
-
-        var rows = await connection.QueryAsync<BookDetailsRow>(command);
+        var rows = await _dbContext.QueryAsync<BookDetailsRow>(template.RawSql, template.Parameters, ct);
 
         return rows.Select(MapToBookDetails).ToList();
     }

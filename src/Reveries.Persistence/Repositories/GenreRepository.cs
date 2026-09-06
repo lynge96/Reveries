@@ -1,6 +1,4 @@
-using Dapper;
 using Reveries.Domain.Interfaces.Repositories;
-using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Records;
 
@@ -26,10 +24,7 @@ public class GenreRepository : IGenreRepository
                            WHERE name = ANY(@Names::citext[])
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Names = names.ToArray() }, ct);
-
-        var rows = await connection.QueryAsync<GenreRecord>(command);
+        var rows = await _dbContext.QueryAsync<GenreRecord>(sql, new { Names = names.ToArray() }, ct);
 
         return rows.ToDictionary(r => r.Name, r => r.Id, StringComparer.OrdinalIgnoreCase);
     }
@@ -47,10 +42,7 @@ public class GenreRepository : IGenreRepository
                            RETURNING id, name
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Names = names.ToArray() }, ct);
-
-        var rows = await connection.QueryAsync<GenreRecord>(command);
+        var rows = await _dbContext.QueryAsync<GenreRecord>(sql, new { Names = names.ToArray() }, ct);
 
         return rows.ToDictionary(r => r.Name, r => r.Id, StringComparer.OrdinalIgnoreCase);
     }

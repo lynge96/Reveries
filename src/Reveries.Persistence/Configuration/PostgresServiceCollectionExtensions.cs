@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using Polly;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Domain.Interfaces.Repositories;
@@ -37,6 +38,11 @@ public static class PostgresServiceCollectionExtensions
 
             return builder.Build();
         });
+
+        services.AddSingleton<ResiliencePipeline>(serviceProvider =>
+            DbResiliencePipeline.Build(
+                serviceProvider.GetRequiredService<ILoggerFactory>()
+                    .CreateLogger("Reveries.Persistence.Resilience")));
 
         // Entity tabeller
         services.AddScoped<IWorkRepository, WorkRepository>();

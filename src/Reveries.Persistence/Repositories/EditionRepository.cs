@@ -1,7 +1,5 @@
-using Dapper;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Interfaces.Repositories;
-using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
 using Reveries.Persistence.Records;
@@ -36,10 +34,7 @@ public class EditionRepository : IEditionRepository
                            )
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, edition.ToRecord(), ct);
-
-        await connection.ExecuteAsync(command);
+        await _dbContext.ExecuteAsync(sql, edition.ToRecord(), ct);
     }
 
     public async Task<Edition?> GetEditionByIsbnAsync(Isbn isbn, CancellationToken ct)
@@ -54,10 +49,8 @@ public class EditionRepository : IEditionRepository
                            LIMIT 1
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { isbn.Value13, isbn.Value10 }, ct);
-
-        var row = await connection.QueryFirstOrDefaultAsync<EditionRecord>(command);
+        var row = await _dbContext.QueryFirstOrDefaultAsync<EditionRecord>(
+            sql, new { isbn.Value13, isbn.Value10 }, ct);
 
         return row?.ToDomain();
     }
@@ -72,9 +65,6 @@ public class EditionRepository : IEditionRepository
                            )
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { isbn.Value13, isbn.Value10 }, ct);
-
-        return await connection.QuerySingleAsync<bool>(command);
+        return await _dbContext.QuerySingleAsync<bool>(sql, new { isbn.Value13, isbn.Value10 }, ct);
     }
 }

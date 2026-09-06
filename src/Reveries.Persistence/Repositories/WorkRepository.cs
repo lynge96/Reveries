@@ -1,10 +1,8 @@
 using System.Text.Json;
-using Dapper;
 using Reveries.Domain.Authors;
 using Reveries.Domain.BookSeries;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Works;
-using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
 using Reveries.Persistence.Records;
@@ -72,9 +70,7 @@ public class WorkRepository : IWorkRepository
                            )
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-
-        await connection.ExecuteAsync(_dbContext.CreateCommand(sql, work.ToRecord(), ct));
+        await _dbContext.ExecuteAsync(sql, work.ToRecord(), ct);
 
         await InsertAuthorsAsync(work.Id, work.AuthorIds, ct);
         await InsertGenresAsync(work.Id, relations.PrimaryGenreIds, isPrimary: true, ct);
@@ -95,10 +91,7 @@ public class WorkRepository : IWorkRepository
                            ON CONFLICT (work_id, author_id) DO NOTHING
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { WorkId = workId.Value, AuthorIds = ids }, ct);
-
-        await connection.ExecuteAsync(command);
+        await _dbContext.ExecuteAsync(sql, new { WorkId = workId.Value, AuthorIds = ids }, ct);
     }
 
     private async Task InsertGenresAsync(WorkId workId, IEnumerable<int> genreIds, bool isPrimary, CancellationToken ct)
@@ -114,10 +107,8 @@ public class WorkRepository : IWorkRepository
                            ON CONFLICT (work_id, genre_id) DO NOTHING
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { WorkId = workId.Value, GenreIds = ids, IsPrimary = isPrimary }, ct);
-
-        await connection.ExecuteAsync(command);
+        await _dbContext.ExecuteAsync(
+            sql, new { WorkId = workId.Value, GenreIds = ids, IsPrimary = isPrimary }, ct);
     }
 
     private async Task InsertDeweyDecimalsAsync(WorkId workId, IEnumerable<int> deweyDecimalIds, CancellationToken ct)
@@ -133,20 +124,14 @@ public class WorkRepository : IWorkRepository
                            ON CONFLICT (work_id, dewey_decimal_id) DO NOTHING
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { WorkId = workId.Value, DeweyDecimalIds = ids }, ct);
-
-        await connection.ExecuteAsync(command);
+        await _dbContext.ExecuteAsync(sql, new { WorkId = workId.Value, DeweyDecimalIds = ids }, ct);
     }
 
     public async Task<Work?> GetWorkByIdAsync(WorkId id, CancellationToken ct)
     {
         const string sql = $"{WorkAggregateSql}\nWHERE w.id = @Id";
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Id = id.Value }, ct);
-
-        var row = await connection.QueryFirstOrDefaultAsync<WorkAggregateRow>(command);
+        var row = await _dbContext.QueryFirstOrDefaultAsync<WorkAggregateRow>(sql, new { Id = id.Value }, ct);
 
         return row is null ? null : MapToAggregate(row).ToDomainAggregate();
     }
@@ -161,13 +146,10 @@ public class WorkRepository : IWorkRepository
                            WHERE id = @Id
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(
+        await _dbContext.ExecuteAsync(
             sql,
             new { Id = work.Id.Value, SeriesId = seriesId.Value, SeriesNumber = work.NumberInSeries },
             ct);
-
-        await connection.ExecuteAsync(command);
     }
 
     private static WorkAggregateRecord MapToAggregate(WorkAggregateRow row)

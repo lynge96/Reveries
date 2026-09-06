@@ -1,36 +1,22 @@
-using System.Net.Sockets;
 using System.Reflection;
 using DbUp;
 using DbUp.Engine.Output;
 using Microsoft.Extensions.Logging;
-using Npgsql;
+using Reveries.Persistence.Configuration;
 
 namespace Reveries.Persistence.Migrations;
 
 public static class DatabaseMigrator
 {
-    private const int MaxAttempts = 10;
-    private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(3);
-
     public static void Run(string connectionString, ILogger logger)
     {
-        for (var attempt = 1; ; attempt++)
+        var pipeline = DbResiliencePipeline.BuildForStartup(logger);
+
+        pipeline.Execute(() =>
         {
-            try
-            {
-                EnsureDatabase.For.PostgresqlDatabase(connectionString);
-                PerformUpgrade(connectionString, logger);
-                return;
-            }
-            catch (Exception ex) when (attempt < MaxAttempts && IsTransient(ex))
-            {
-                logger.LogWarning(
-                    ex,
-                    "Database not reachable yet (attempt {Attempt}/{Max}); retrying in {Delay}s.",
-                    attempt, MaxAttempts, RetryDelay.TotalSeconds);
-                Thread.Sleep(RetryDelay);
-            }
-        }
+            EnsureDatabase.For.PostgresqlDatabase(connectionString);
+            PerformUpgrade(connectionString, logger);
+        });
     }
 
     private static void PerformUpgrade(string connectionString, ILogger logger)
@@ -46,20 +32,6 @@ public static class DatabaseMigrator
 
         if (!result.Successful)
             throw new InvalidOperationException("Database migration failed.", result.Error);
-    }
-
-    private static bool IsTransient(Exception exception)
-    {
-        for (var current = exception; current is not null; current = current.InnerException)
-        {
-            if (current is NpgsqlException { IsTransient: true })
-                return true;
-
-            if (current is SocketException or TimeoutException)
-                return true;
-        }
-
-        return false;
     }
 
     private sealed class MicrosoftUpgradeLog(ILogger logger) : IUpgradeLog

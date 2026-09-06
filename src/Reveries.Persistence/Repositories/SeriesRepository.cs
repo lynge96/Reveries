@@ -1,7 +1,5 @@
-using Dapper;
-using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.BookSeries;
-using Reveries.Persistence.Context;
+using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
 using Reveries.Persistence.Records;
@@ -26,10 +24,7 @@ public class SeriesRepository : ISeriesRepository
                            LIMIT 1
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Name = name }, ct);
-
-        var row = await connection.QueryFirstOrDefaultAsync<SeriesRecord>(command);
+        var row = await _dbContext.QueryFirstOrDefaultAsync<SeriesRecord>(sql, new { Name = name }, ct);
 
         return row?.ToDomain();
     }
@@ -42,10 +37,7 @@ public class SeriesRepository : ISeriesRepository
                            ON CONFLICT (name) DO NOTHING
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, series.ToRecord(), ct);
-
-        await connection.ExecuteAsync(command);
+        await _dbContext.ExecuteAsync(sql, series.ToRecord(), ct);
     }
 
     public async Task<List<Series>> GetSeriesAsync(CancellationToken ct = default)
@@ -55,10 +47,7 @@ public class SeriesRepository : ISeriesRepository
                            FROM catalog.series
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, ct: ct);
-
-        var rows = await connection.QueryAsync<SeriesRecord>(command);
+        var rows = await _dbContext.QueryAsync<SeriesRecord>(sql, ct: ct);
 
         return rows.Select(r => r.ToDomain()).ToList();
     }

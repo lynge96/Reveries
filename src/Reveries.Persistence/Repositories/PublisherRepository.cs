@@ -1,7 +1,5 @@
-using Dapper;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Publishers;
-using Reveries.Persistence.Context;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Mappers;
 using Reveries.Persistence.Records;
@@ -26,10 +24,7 @@ public class PublisherRepository : IPublisherRepository
                            LIMIT 1
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Name = name }, ct);
-
-        var row = await connection.QueryFirstOrDefaultAsync<PublisherRecord>(command);
+        var row = await _dbContext.QueryFirstOrDefaultAsync<PublisherRecord>(sql, new { Name = name }, ct);
 
         return row?.ToDomain();
     }
@@ -42,10 +37,7 @@ public class PublisherRepository : IPublisherRepository
                            ON CONFLICT (name) DO NOTHING
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, publisher.ToRecord(), ct);
-
-        await connection.ExecuteAsync(command);
+        await _dbContext.ExecuteAsync(sql, publisher.ToRecord(), ct);
     }
 
     public async Task<List<Publisher>> SearchByNameAsync(Publisher publisher, CancellationToken ct = default)
@@ -57,10 +49,7 @@ public class PublisherRepository : IPublisherRepository
                            ORDER BY name
                            """;
 
-        var connection = await _dbContext.GetConnectionAsync(ct);
-        var command = _dbContext.CreateCommand(sql, new { Name = $"%{publisher.Name}%" }, ct);
-
-        var rows = await connection.QueryAsync<PublisherRecord>(command);
+        var rows = await _dbContext.QueryAsync<PublisherRecord>(sql, new { Name = $"%{publisher.Name}%" }, ct);
 
         return rows.Select(r => r.ToDomain()).ToList();
     }
