@@ -12,7 +12,7 @@ namespace Reveries.Integration.GoogleBooks.Clients;
 public class GoogleBooksClient : ExternalBaseClient<GoogleBooksClient>, IGoogleBooksClient
 {
     private readonly GoogleBooksSettings _settings;
-    protected override string DependencyName => GoogleBooksSettings.SectionName;
+    protected override string DependencyName => GoogleBooksSettings.DisplayName;
 
     public GoogleBooksClient(HttpClient httpClient, IOptions<GoogleBooksSettings> settings, ILogger<GoogleBooksClient> logger) : base(httpClient, logger)
     {

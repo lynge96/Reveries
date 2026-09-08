@@ -10,7 +10,7 @@ knowledge the spec does not carry — auth, hosts, rate limits, quotas.
 
 ## Configuration
 
-Bound from the `Isbndb` config section (`ServiceCollectionExtensions.AddIsbndb`), validated on
+Bound from the `Isbndb` config section (`IsbndbServiceCollectionExtensions.AddIsbndb`), validated on
 start (`ApiUrl`, `ApiKey` required; `MaxBulkIsbns` must be positive).
 
 | Key | appsettings | Env override | Notes |
@@ -19,8 +19,8 @@ start (`ApiUrl`, `ApiKey` required; `MaxBulkIsbns` must be positive).
 | API key | `Isbndb:ApiKey` | `Isbndb__ApiKey` | Never committed; user-secrets (dev) / env (prod) |
 | Bulk cap | `Isbndb:MaxBulkIsbns` | `Isbndb__MaxBulkIsbns` | Default 100 |
 
-The dependency's display name in logs is `ISBNdb API` (`IsbndbSettings.SectionName`), which is
-distinct from the `Isbndb` config-section name.
+The dependency's display name in logs is `ISBNdb API` (`IsbndbSettings.DisplayName`); the config
+section it binds from is `Isbndb` (`IsbndbSettings.SectionName`).
 
 ## Authentication
 

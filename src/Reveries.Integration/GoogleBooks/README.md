@@ -1,25 +1,26 @@
 # Google Books integration
 
-Operational notes for the Google Books API. The `GoogleBooksOpenAPI.json` spec in this folder is
+Operational notes for the Google Books API. The `openapi.yaml` spec in this folder is
 the *contract* (endpoints and response shapes); this file is the *runtime* knowledge the spec
 does not carry — auth, quotas, query qualifiers.
 
 - **Official docs:** https://developers.google.com/books/docs/v1/using
-- **OpenAPI spec:** [`GoogleBooksOpenAPI.json`](./GoogleBooksOpenAPI.json) — trimmed to the
+- **OpenAPI spec:** [`openapi.yaml`](./openapi.yaml) — OpenAPI 3.0, trimmed to the
   `volumes` and `series` surface only.
 
 ## Configuration
 
 Bound from the `GoogleBooks` config section (`GoogleBooksServiceCollectionExtensions.AddGoogleBooks`),
-validated on start (`ApiUrl`, `ApiKey` required).
+validated on start (`ApiUrl` required; `ApiKey` optional — Google Books allows unauthenticated
+volume reads at a lower quota).
 
 | Key | appsettings | Env override | Value |
 |---|---|---|---|
 | Base URL | `GoogleBooks:ApiUrl` | `GoogleBooks__ApiUrl` | `https://www.googleapis.com/books/v1/` |
 | API key | `GoogleBooks:ApiKey` | `GoogleBooks__ApiKey` | Never committed; user-secrets (dev) / env (prod) |
 
-The dependency's display name in logs is `GoogleBooks API` (`GoogleBooksSettings.SectionName`),
-distinct from the `GoogleBooks` config-section name.
+The dependency's display name in logs is `GoogleBooks API` (`GoogleBooksSettings.DisplayName`); the
+config section it binds from is `GoogleBooks` (`GoogleBooksSettings.SectionName`).
 
 ## Authentication
 

@@ -12,7 +12,7 @@ namespace Reveries.Integration.Isbndb.Clients;
 
 public class IsbndbBookClient : ExternalBaseClient<IsbndbBookClient>, IIsbndbBookClient
 {
-    protected override string DependencyName => IsbndbSettings.SectionName;
+    protected override string DependencyName => IsbndbSettings.DisplayName;
 
     public IsbndbBookClient(HttpClient httpClient, ILogger<IsbndbBookClient> logger)
         : base(httpClient, logger) { }
