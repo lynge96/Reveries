@@ -1,11 +1,11 @@
 # ISBNdb integration
 
-Operational notes for the ISBNdb book-metadata API. The `IsbnDbOpenAPI.json` spec in this
+Operational notes for the ISBNdb book-metadata API. The `openapi.yaml` spec in this
 folder is the *contract* (endpoints and response shapes); this file is the *runtime*
 knowledge the spec does not carry — auth, hosts, rate limits, quotas.
 
 - **Official docs:** https://isbndb.com/apidocs/v2
-- **OpenAPI spec:** [`IsbnDbOpenAPI.json`](./IsbnDbOpenAPI.json) — trimmed (deprecated endpoints
+- **OpenAPI spec:** [`openapi.yaml`](./openapi.yaml) — OpenAPI 3.0, trimmed (deprecated endpoints
   and fields removed).
 
 ## Configuration
