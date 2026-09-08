@@ -64,7 +64,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         {
             var response = await _bookClient.SearchBooksAsync(title.Text, languageCode, shouldMatchAll: true, ct: ct);
 
-            var mapped = response?.Books
+            var mapped = response?.Books?
                 .Select(b => b.ToBookCandidate())
                 .OfType<BookCandidate>()
                 .ToList();
@@ -90,14 +90,14 @@ public class IsbndbBookService : IIsbndbBookSearch
     {
         var dto = await _bookClient.FetchBookByIsbnAsync(isbn, ct);
 
-        return dto?.Book.ToBookCandidate();
+        return dto?.Book?.ToBookCandidate();
     }
 
     private async Task<List<BookCandidate>?> GetMultipleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, ct);
 
-        var books = response?.Data
+        var books = response?.Data?
             .Select(b => b.ToBookCandidate())
             .OfType<BookCandidate>()
             .ToList();
