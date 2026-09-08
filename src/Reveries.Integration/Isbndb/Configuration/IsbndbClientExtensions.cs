@@ -11,8 +11,6 @@ public static class IsbndbClientExtensions
     internal static IServiceCollection AddIsbndbClients(this IServiceCollection services)
     {
         services.AddHttpClient<IIsbndbBookClient, IsbndbBookClient>(ConfigureIsbndb);
-        services.AddHttpClient<IIsbndbAuthorClient, IsbndbAuthorClient>(ConfigureIsbndb);
-        services.AddHttpClient<IIsbndbPublisherClient, IsbndbPublisherClient>(ConfigureIsbndb);
 
         return services;
     }

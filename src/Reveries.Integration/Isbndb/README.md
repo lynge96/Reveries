@@ -53,8 +53,6 @@ implemented — add one if a higher-throughput plan is adopted). HTTP timeout is
 | `IsbndbBookClient` | GET | `book/{isbn}` | Single book by ISBN |
 | `IsbndbBookClient` | GET | `books/{query}` | Search (params: `language`, `shouldMatchAll=1`) |
 | `IsbndbBookClient` | POST | `books` | Bulk ISBN lookup (body `{ isbns: [...] }`, max `MaxBulkIsbns`) |
-| `IsbndbAuthorClient` | GET | `author/{name}`, `authors/{query}` | Author details / search |
-| `IsbndbPublisherClient` | GET | `publisher/{name}`, `publishers/{query}` | Publisher details / search |
 
 ## Spec provenance
 

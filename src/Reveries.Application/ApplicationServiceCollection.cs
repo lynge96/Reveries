@@ -28,11 +28,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDeweyResolver, DeweyResolver>();
 
         // Authors
-        services.AddScoped<IAuthorLookupService, AuthorLookupService>();
         services.AddScoped<IAuthorResolver, AuthorResolver>();
 
         // Publishers
-        services.AddScoped<IPublisherLookupService, PublisherLookupService>();
         services.AddScoped<IPublisherResolver, PublisherResolver>();
 
         // Series
