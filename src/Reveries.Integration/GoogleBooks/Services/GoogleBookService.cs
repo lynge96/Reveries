@@ -64,34 +64,39 @@ public class GoogleBookService : IGoogleBookSearch
     {
         var bookResponse = await _googleBooksClient.FetchBookByIsbnAsync(isbn, ct);
 
-        if (bookResponse?.Items is null)
+        var item = bookResponse?.Items?.FirstOrDefault();
+        if (item is null)
         {
             _logger.LogDebug("ISBN '{Isbn}' not found in Google Books.", isbn);
             return null;
         }
 
-        return await FetchVolumeAndMergeAsync(bookResponse.Items.First(), ct);
+        return await FetchVolumeAndMergeAsync(item, ct);
     }
 
     private async Task<BookCandidate?> FetchAndMergeByTitleAsync(Title title, CancellationToken ct)
     {
         var bookResponse = await _googleBooksClient.SearchBooksByTitleAsync(title, ct);
 
-        if (bookResponse?.Items is null)
+        var item = bookResponse?.Items?.FirstOrDefault();
+        if (item is null)
         {
             _logger.LogDebug("GoogleBooks returned no results for title '{Title}'.", title);
             return null;
         }
 
-        return await FetchVolumeAndMergeAsync(bookResponse.Items.First(), ct);
+        return await FetchVolumeAndMergeAsync(item, ct);
     }
 
     private async Task<BookCandidate?> FetchVolumeAndMergeAsync(GoogleBookItemDto item, CancellationToken ct)
     {
-        var volumeResponse = await _googleBooksClient.FetchBookByVolumeIdAsync(item.Id, ct);
+        var primary = item.VolumeInfo?.ToBookCandidate();
 
-        var primary = item.VolumeInfo.ToBookCandidate();
-        var volume = volumeResponse?.VolumeInfo.ToBookCandidate();
+        if (string.IsNullOrWhiteSpace(item.Id))
+            return primary;
+
+        var volumeResponse = await _googleBooksClient.FetchBookByVolumeIdAsync(item.Id, ct);
+        var volume = volumeResponse?.VolumeInfo?.ToBookCandidate();
 
         return MergeGoogleCandidates(primary, volume);
     }

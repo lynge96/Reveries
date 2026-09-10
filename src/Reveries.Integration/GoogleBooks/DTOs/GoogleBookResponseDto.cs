@@ -1,7 +1,7 @@
 namespace Reveries.Integration.GoogleBooks.DTOs;
 
-public class GoogleBookResponseDto
+public sealed record GoogleBookResponseDto
 {
-    public int TotalItems { get; set; }
-    public List<GoogleBookItemDto>? Items { get; set; }
+    public int TotalItems { get; init; }
+    public IReadOnlyList<GoogleBookItemDto>? Items { get; init; }
 }

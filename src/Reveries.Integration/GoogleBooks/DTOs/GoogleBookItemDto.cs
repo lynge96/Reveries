@@ -1,7 +1,7 @@
 namespace Reveries.Integration.GoogleBooks.DTOs;
 
-public class GoogleBookItemDto
+public sealed record GoogleBookItemDto
 {
-    public string Id { get; set; } = string.Empty;
-    public GoogleVolumeInfoDto VolumeInfo { get; set; } = new();
+    public string? Id { get; init; }
+    public GoogleVolumeInfoDto? VolumeInfo { get; init; }
 }

@@ -12,26 +12,19 @@ namespace Reveries.Integration.Isbndb.Clients;
 public sealed class IsbndbBookClient : IIsbndbBookClient
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<IsbndbBookClient> _logger;
+    private readonly ExternalApiReader _reader;
 
     public IsbndbBookClient(HttpClient httpClient, ILogger<IsbndbBookClient> logger)
     {
         _httpClient = httpClient;
-        _logger = logger;
+        _reader = new ExternalApiReader(IsbndbSettings.DisplayName, logger);
     }
 
     public async Task<IsbndbBookResponseDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default)
     {
         var response = await _httpClient.GetAsync($"book/{isbn.Value13}", ct);
 
-        return await HttpResponseReader.ReadAsync(
-            response,
-            IsbndbJsonContext.Default.IsbndbBookResponseDto,
-            IsbndbSettings.DisplayName,
-            $"ISBN '{isbn}'",
-            _logger,
-            validate: r => r?.Book is not null,
-            ct: ct);
+        return await _reader.ReadAsync(response, IsbndbJsonContext.Default.IsbndbBookResponseDto, $"ISBN '{isbn}'", ct);
     }
 
     public async Task<IsbndbBookSearchResponseDto?> SearchBooksAsync(string query, string? languageCode,
@@ -39,14 +32,7 @@ public sealed class IsbndbBookClient : IIsbndbBookClient
     {
         var response = await _httpClient.GetAsync(BuildSearchUrl(query, languageCode, shouldMatchAll), ct);
 
-        return await HttpResponseReader.ReadAsync(
-            response,
-            IsbndbJsonContext.Default.IsbndbBookSearchResponseDto,
-            IsbndbSettings.DisplayName,
-            $"query '{query}'",
-            _logger,
-            validate: r => r?.Books is not null,
-            ct: ct);
+        return await _reader.ReadAsync(response, IsbndbJsonContext.Default.IsbndbBookSearchResponseDto, $"query '{query}'", ct);
     }
 
     public async Task<IsbndbBookListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns,
@@ -58,14 +44,7 @@ public sealed class IsbndbBookClient : IIsbndbBookClient
         using var content = new StringContent(payload, Encoding.UTF8, "application/json");
         var response = await _httpClient.PostAsync("books", content, ct);
 
-        return await HttpResponseReader.ReadAsync(
-            response,
-            IsbndbJsonContext.Default.IsbndbBookListResponseDto,
-            IsbndbSettings.DisplayName,
-            "bulk ISBN lookup",
-            _logger,
-            validate: r => r?.Data is not null,
-            ct: ct);
+        return await _reader.ReadAsync(response, IsbndbJsonContext.Default.IsbndbBookListResponseDto, "bulk ISBN lookup", ct);
     }
 
     private static string BuildSearchUrl(string query, string? languageCode, bool shouldMatchAll)
