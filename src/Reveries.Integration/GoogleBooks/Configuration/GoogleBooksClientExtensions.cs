@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reveries.Integration.GoogleBooks.Clients;
 using Reveries.Integration.GoogleBooks.Interfaces;
+using Reveries.Integration.Http;
 
 namespace Reveries.Integration.GoogleBooks.Configuration;
 
@@ -11,7 +12,7 @@ public static class GoogleBooksClientExtensions
     internal static IServiceCollection AddGoogleBooksClients(this IServiceCollection services)
     {
         services.AddHttpClient<IGoogleBooksClient, GoogleBooksClient>(ConfigureGoogleBooksClient)
-            .AddStandardResilienceHandler();
+            .AddStandardResilienceHandler(ResilienceConfiguration.Configure);
 
         return services;
     }

@@ -44,7 +44,7 @@ public static class GoogleBookMapper
             LanguageIso639: volumeInfo.Language,
             Format: volumeInfo.PrintType,
             EditionStatement: null,
-            ImageThumbnail: volumeInfo.ImageLinks?.Thumbnail,
+            ImageThumbnail: volumeInfo.ImageLinks?.SmallThumbnail,
             ImageUrl: volumeInfo.ImageLinks?.Thumbnail,
             Dimensions: dimensions));
     }

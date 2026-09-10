@@ -50,5 +50,6 @@ public sealed record IsbndbBookDto
     public string? ImageOriginal { get; init; }
 
     [JsonPropertyName("dimensions_structured")]
+    [JsonConverter(typeof(IsbndbDimensionsConverter))]
     public IsbndbDimensionsDto? DimensionsStructured { get; init; }
 }

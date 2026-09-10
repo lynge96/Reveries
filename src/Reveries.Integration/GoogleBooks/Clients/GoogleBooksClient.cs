@@ -25,35 +25,36 @@ public sealed class GoogleBooksClient : IGoogleBooksClient
 
     public async Task<GoogleBookResponseDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default)
     {
-        var response = await _httpClient.GetAsync(BuildUrl("volumes", $"q=isbn:{isbn.Value13}"), ct);
+        var response = await _httpClient.GetAsync(BuildVolumesSearchUrl($"isbn:{isbn.Value13}"), ct);
 
         return await _reader.ReadAsync(response, GoogleBooksJsonContext.Default.GoogleBookResponseDto, $"ISBN '{isbn}'", ct);
     }
 
     public async Task<GoogleBookItemDto?> FetchBookByVolumeIdAsync(string volumeId, CancellationToken ct = default)
     {
-        var response = await _httpClient.GetAsync(BuildUrl($"volumes/{volumeId}"), ct);
+        var response = await _httpClient.GetAsync(WithKey($"volumes/{Uri.EscapeDataString(volumeId)}"), ct);
 
         return await _reader.ReadAsync(response, GoogleBooksJsonContext.Default.GoogleBookItemDto, $"volume id '{volumeId}'", ct);
     }
 
     public async Task<GoogleBookResponseDto?> SearchBooksByTitleAsync(Title title, CancellationToken ct = default)
     {
-        var response = await _httpClient.GetAsync(BuildUrl("volumes", $"q=intitle:\"{Uri.EscapeDataString(title.Text)}\""), ct);
+        var response = await _httpClient.GetAsync(BuildVolumesSearchUrl($"intitle:\"{title.Text}\""), ct);
 
         return await _reader.ReadAsync(response, GoogleBooksJsonContext.Default.GoogleBookResponseDto, $"title '{title.Text}'", ct);
     }
 
-    private string BuildUrl(string path, string? query = null)
+    private string BuildVolumesSearchUrl(string query)
     {
-        var parameters = new List<string>();
+        return WithKey($"volumes?q={Uri.EscapeDataString(query)}");
+    }
 
-        if (!string.IsNullOrWhiteSpace(query))
-            parameters.Add(query);
+    private string WithKey(string url)
+    {
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            return url;
 
-        if (!string.IsNullOrWhiteSpace(_apiKey))
-            parameters.Add($"key={_apiKey}");
-
-        return parameters.Count > 0 ? $"{path}?{string.Join('&', parameters)}" : path;
+        var separator = url.Contains('?') ? '&' : '?';
+        return $"{url}{separator}key={Uri.EscapeDataString(_apiKey)}";
     }
 }

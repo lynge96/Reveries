@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Reveries.Integration.Http;
 using Reveries.Integration.Isbndb.Clients;
 using Reveries.Integration.Isbndb.Interfaces;
 
@@ -11,7 +12,7 @@ public static class IsbndbClientExtensions
     internal static IServiceCollection AddIsbndbClients(this IServiceCollection services)
     {
         services.AddHttpClient<IIsbndbBookClient, IsbndbBookClient>(ConfigureIsbndb)
-            .AddStandardResilienceHandler();
+            .AddStandardResilienceHandler(ResilienceConfiguration.Configure);
 
         return services;
     }
