@@ -20,17 +20,16 @@ public sealed class IsbndbBookClient : IIsbndbBookClient
         _reader = new ExternalApiReader(IsbndbSettings.DisplayName, logger);
     }
 
-    public async Task<IsbndbBookResponseDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default)
+    public async Task<IsbndbBookResponseDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         var response = await _httpClient.GetAsync($"book/{isbn.Value13}", ct);
 
         return await _reader.ReadAsync(response, IsbndbJsonContext.Default.IsbndbBookResponseDto, $"ISBN '{isbn}'", ct);
     }
 
-    public async Task<IsbndbBookListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns,
-        CancellationToken ct = default)
+    public async Task<IsbndbBookListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
     {
-        var request = new IsbndbBulkIsbnRequest(isbns.Select(isbn => isbn.Value13).ToList());
+        var request = new IsbndbBulkIsbnRequest([.. isbns.Select(isbn => isbn.Value13)]);
         var payload = JsonSerializer.Serialize(request, IsbndbJsonContext.Default.IsbndbBulkIsbnRequest);
 
         using var content = new StringContent(payload, Encoding.UTF8, "application/json");
