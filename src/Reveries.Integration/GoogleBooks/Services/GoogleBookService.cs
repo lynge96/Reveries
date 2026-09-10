@@ -3,15 +3,16 @@ using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Enums;
-using Reveries.Domain.Works;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
 using Reveries.Integration.GoogleBooks.Mappers;
 
 namespace Reveries.Integration.GoogleBooks.Services;
 
-public class GoogleBookService : IGoogleBookSearch
+public class GoogleBookService : IBookSearch
 {
+    public BookSource Source => BookSource.GoogleBooks;
+
     private readonly IGoogleBooksClient _googleBooksClient;
     private readonly ILogger<GoogleBookService> _logger;
 
@@ -21,7 +22,7 @@ public class GoogleBookService : IGoogleBookSearch
         _logger = logger;
     }
 
-    public async Task<List<BookCandidate>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    public async Task<IReadOnlyList<BookCandidate>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
@@ -40,26 +41,6 @@ public class GoogleBookService : IGoogleBookSearch
         return books;
     }
 
-    public async Task<List<BookCandidate>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, CancellationToken ct)
-    {
-        if (titles.Count == 0)
-            return [];
-
-        var tasks = titles.Select(title => FetchAndMergeByTitleAsync(title, ct));
-        var results = await Task.WhenAll(tasks);
-
-        if (results.All(r => r is null))
-            return null;
-
-        var books = results
-            .OfType<BookCandidate>()
-            .ToList();
-
-        _logger.LogDebug("GoogleBooks title lookup completed. Searched {TotalTitles} titles, found {TotalBooks} books.", titles.Count, books.Count);
-
-        return books;
-    }
-
     private async Task<BookCandidate?> FetchAndMergeByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
         var bookResponse = await _googleBooksClient.FetchBookByIsbnAsync(isbn, ct);
@@ -68,20 +49,6 @@ public class GoogleBookService : IGoogleBookSearch
         if (item is null)
         {
             _logger.LogDebug("ISBN '{Isbn}' not found in Google Books.", isbn);
-            return null;
-        }
-
-        return await FetchVolumeAndMergeAsync(item, ct);
-    }
-
-    private async Task<BookCandidate?> FetchAndMergeByTitleAsync(Title title, CancellationToken ct)
-    {
-        var bookResponse = await _googleBooksClient.SearchBooksByTitleAsync(title, ct);
-
-        var item = bookResponse?.Items?.FirstOrDefault();
-        if (item is null)
-        {
-            _logger.LogDebug("GoogleBooks returned no results for title '{Title}'.", title);
             return null;
         }
 

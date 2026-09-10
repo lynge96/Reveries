@@ -27,14 +27,6 @@ public sealed class IsbndbBookClient : IIsbndbBookClient
         return await _reader.ReadAsync(response, IsbndbJsonContext.Default.IsbndbBookResponseDto, $"ISBN '{isbn}'", ct);
     }
 
-    public async Task<IsbndbBookSearchResponseDto?> SearchBooksAsync(string query, string? languageCode,
-        bool shouldMatchAll = true, CancellationToken ct = default)
-    {
-        var response = await _httpClient.GetAsync(BuildSearchUrl(query, languageCode, shouldMatchAll), ct);
-
-        return await _reader.ReadAsync(response, IsbndbJsonContext.Default.IsbndbBookSearchResponseDto, $"query '{query}'", ct);
-    }
-
     public async Task<IsbndbBookListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns,
         CancellationToken ct = default)
     {
@@ -45,19 +37,5 @@ public sealed class IsbndbBookClient : IIsbndbBookClient
         var response = await _httpClient.PostAsync("books", content, ct);
 
         return await _reader.ReadAsync(response, IsbndbJsonContext.Default.IsbndbBookListResponseDto, "bulk ISBN lookup", ct);
-    }
-
-    private static string BuildSearchUrl(string query, string? languageCode, bool shouldMatchAll)
-    {
-        var path = $"books/{Uri.EscapeDataString(query)}";
-        var parameters = new List<string>();
-
-        if (!string.IsNullOrWhiteSpace(languageCode))
-            parameters.Add($"language={Uri.EscapeDataString(languageCode)}");
-
-        if (shouldMatchAll)
-            parameters.Add("shouldMatchAll=1");
-
-        return parameters.Count > 0 ? $"{path}?{string.Join('&', parameters)}" : path;
     }
 }

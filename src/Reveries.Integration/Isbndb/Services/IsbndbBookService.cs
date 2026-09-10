@@ -4,15 +4,16 @@ using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Works;
 using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Isbndb.Interfaces;
 using Reveries.Integration.Isbndb.Mappers;
 
 namespace Reveries.Integration.Isbndb.Services;
 
-public class IsbndbBookService : IIsbndbBookSearch
+public class IsbndbBookService : IBookSearch
 {
+    public BookSource Source => BookSource.Isbndb;
+
     private readonly IIsbndbBookClient _bookClient;
     private readonly IsbndbSettings _settings;
     private readonly ILogger<IsbndbBookService> _logger;
@@ -24,7 +25,7 @@ public class IsbndbBookService : IIsbndbBookSearch
         _logger = logger;
     }
 
-    public async Task<List<BookCandidate>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    public async Task<IReadOnlyList<BookCandidate>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         if (isbns.Count == 0)
             return [];
@@ -34,7 +35,7 @@ public class IsbndbBookService : IIsbndbBookSearch
 
         if (isbns.Count == 1)
         {
-            var isbn = isbns.First();
+            var isbn = isbns[0];
 
             var book = await GetSingleBookAsync(isbn, ct);
 
@@ -52,38 +53,6 @@ public class IsbndbBookService : IIsbndbBookSearch
 
         _logger.LogDebug("Bulk ISBN lookup requested {Requested} ISBNs and returned {Found} books.", isbns.Count, books.Count);
         return books;
-    }
-
-    public async Task<List<BookCandidate>?> GetBooksByTitlesAsync(IReadOnlyList<Title> titles, string? languageCode,
-        CancellationToken ct)
-    {
-        if (titles.Count == 0)
-            return [];
-
-        var tasks = titles.Select(async title =>
-        {
-            var response = await _bookClient.SearchBooksAsync(title.Text, languageCode, shouldMatchAll: true, ct: ct);
-
-            var mapped = response?.Books?
-                .Select(b => b.ToBookCandidate())
-                .OfType<BookCandidate>()
-                .ToList();
-
-            return mapped;
-        });
-
-        var results = await Task.WhenAll(tasks);
-
-        if (results.All(r => r is null))
-            return null;
-
-        var allBooks = results
-            .Where(r => r is not null)
-            .SelectMany(b => b!)
-            .ToList();
-
-        _logger.LogDebug("Completed title search. Requested {RequestedTitles} titles, found {TotalBooks} books.", titles.Count, allBooks.Count);
-        return allBooks;
     }
 
     private async Task<BookCandidate?> GetSingleBookAsync(Isbn isbn, CancellationToken ct)

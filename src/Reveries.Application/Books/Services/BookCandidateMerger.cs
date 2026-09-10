@@ -5,77 +5,123 @@ using Reveries.Domain.Enums;
 namespace Reveries.Application.Books.Services;
 
 /// <summary>
-/// Field-by-field merge of two <see cref="BookCandidate"/> results for the same book
-/// (typically one from ISBNDB, one from Google Books), preferring the richer source per field.
+/// Merges the <see cref="BookCandidate"/> results for one book gathered from several external
+/// sources, taking each field from the highest-priority source that provides a usable value.
 /// </summary>
 public static class BookCandidateMerger
 {
-    public static BookCandidate? Merge(BookCandidate? isbndb, BookCandidate? google)
+    private static readonly BookSource[] Bibliographic = [BookSource.Isbndb, BookSource.GoogleBooks];
+    private static readonly BookSource[] Descriptive = [BookSource.GoogleBooks, BookSource.Isbndb];
+
+    public static BookCandidate? Merge(IReadOnlyDictionary<BookSource, BookCandidate> bySource)
     {
-        if (isbndb is null && google is null)
+        if (bySource.Count == 0)
             return null;
-        if (isbndb is null)
-            return google;
-        if (google is null)
-            return isbndb;
 
         return new BookCandidate
         {
-            Isbn = isbndb.Isbn ?? google.Isbn,
-            Title = Prefer(google.Title, isbndb.Title) ?? string.Empty,
-            Subtitle = Prefer(google.Subtitle, isbndb.Subtitle),
-            Authors = Prefer(google.Authors, isbndb.Authors),
-            Publisher = Prefer(isbndb.Publisher, google.Publisher),
-            PrimaryGenres = Prefer(google.PrimaryGenres, isbndb.PrimaryGenres),
-            SecondaryGenres = Prefer(google.SecondaryGenres, isbndb.SecondaryGenres),
-            DeweyDecimals = isbndb.DeweyDecimals,
-            Synopsis = Prefer(google.Synopsis, isbndb.Synopsis),
-            Description = Prefer(google.Description, isbndb.Description),
-            Pages = isbndb.Pages > 0 ? isbndb.Pages : google.Pages,
-            PublicationDate = Prefer(google.PublicationDate, isbndb.PublicationDate),
-            Language = isbndb.Language ?? google.Language,
-            Format = PreferFormat(isbndb.Format, google.Format),
-            EditionStatement = Prefer(google.EditionStatement, isbndb.EditionStatement),
+            Isbn = Pick(bySource, Bibliographic, c => c.Isbn),
+            Title = PickString(bySource, Descriptive, c => c.Title) ?? string.Empty,
+            Subtitle = PickString(bySource, Descriptive, c => c.Subtitle),
+            Authors = PickList(bySource, Descriptive, c => c.Authors),
+            Publisher = PickString(bySource, Bibliographic, c => c.Publisher),
+            PrimaryGenres = PickList(bySource, Descriptive, c => c.PrimaryGenres),
+            SecondaryGenres = PickList(bySource, Descriptive, c => c.SecondaryGenres),
+            DeweyDecimals = PickList(bySource, Bibliographic, c => c.DeweyDecimals),
+            Synopsis = PickString(bySource, Descriptive, c => c.Synopsis),
+            Description = PickString(bySource, Descriptive, c => c.Description),
+            Pages = PickPages(bySource, Bibliographic),
+            PublicationDate = PickString(bySource, Descriptive, c => c.PublicationDate),
+            Language = Pick(bySource, Bibliographic, c => c.Language),
+            Format = PickFormat(bySource, Bibliographic),
+            EditionStatement = PickString(bySource, Descriptive, c => c.EditionStatement),
             Cover = Cover.TryCreate(
-                url: isbndb.Cover?.Url ?? google.Cover?.Url,
-                thumbnailUrl: isbndb.Cover?.ThumbnailUrl ?? google.Cover?.ThumbnailUrl),
-            Dimensions = MergeDimensions(isbndb.Dimensions, google.Dimensions)
+                url: PickString(bySource, Bibliographic, c => c.Cover?.Url),
+                thumbnailUrl: PickString(bySource, Bibliographic, c => c.Cover?.ThumbnailUrl)),
+            Dimensions = MergeDimensions(bySource)
         };
     }
 
-    public static string? GetIsbnKey(BookCandidate candidate)
+    private static BookDimensions? MergeDimensions(IReadOnlyDictionary<BookSource, BookCandidate> bySource)
     {
-        if (!string.IsNullOrWhiteSpace(candidate.Isbn?.Value13))
-            return candidate.Isbn.Value13;
-        if (!string.IsNullOrWhiteSpace(candidate.Isbn?.Value10))
-            return candidate.Isbn.Value10;
+        return BookDimensions.Create(
+            PickDecimal(bySource, Bibliographic, c => c.Dimensions?.HeightCm),
+            PickDecimal(bySource, Bibliographic, c => c.Dimensions?.WidthCm),
+            PickDecimal(bySource, Bibliographic, c => c.Dimensions?.ThicknessCm),
+            PickDecimal(bySource, Bibliographic, c => c.Dimensions?.WeightG));
+    }
+
+    private static string? PickString(IReadOnlyDictionary<BookSource, BookCandidate> bySource, BookSource[] order, Func<BookCandidate, string?> selector)
+    {
+        foreach (var source in order)
+        {
+            if (bySource.TryGetValue(source, out var candidate))
+            {
+                var value = selector(candidate);
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+        }
+
         return null;
     }
 
-    private static string? Prefer(params string?[] values)
+    private static IReadOnlyList<string> PickList(IReadOnlyDictionary<BookSource, BookCandidate> bySource, BookSource[] order, Func<BookCandidate, IReadOnlyList<string>> selector)
     {
-        return values.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
+        foreach (var source in order)
+        {
+            if (bySource.TryGetValue(source, out var candidate))
+            {
+                var value = selector(candidate);
+                if (value.Count != 0)
+                    return value;
+            }
+        }
+
+        return [];
     }
 
-    private static IReadOnlyList<string> Prefer(IReadOnlyList<string> first, IReadOnlyList<string> second)
+    private static T? Pick<T>(IReadOnlyDictionary<BookSource, BookCandidate> bySource, BookSource[] order, Func<BookCandidate, T?> selector) where T : class
     {
-        return first.Count != 0 ? first : second;
+        foreach (var source in order)
+        {
+            if (bySource.TryGetValue(source, out var candidate) && selector(candidate) is { } value)
+                return value;
+        }
+
+        return null;
     }
 
-    private static BookFormat PreferFormat(BookFormat first, BookFormat second)
+    private static decimal? PickDecimal(IReadOnlyDictionary<BookSource, BookCandidate> bySource, BookSource[] order, Func<BookCandidate, decimal?> selector)
     {
-        return first != BookFormat.Unknown ? first : second;
+        foreach (var source in order)
+        {
+            if (bySource.TryGetValue(source, out var candidate) && selector(candidate) is { } value)
+                return value;
+        }
+
+        return null;
     }
 
-    private static BookDimensions? MergeDimensions(BookDimensions? isbndb, BookDimensions? google)
+    private static int? PickPages(IReadOnlyDictionary<BookSource, BookCandidate> bySource, BookSource[] order)
     {
-        if (isbndb is null && google is null)
-            return null;
+        foreach (var source in order)
+        {
+            if (bySource.TryGetValue(source, out var candidate) && candidate.Pages is > 0)
+                return candidate.Pages;
+        }
 
-        return BookDimensions.Create(
-            isbndb?.HeightCm ?? google?.HeightCm,
-            isbndb?.WidthCm ?? google?.WidthCm,
-            isbndb?.ThicknessCm ?? google?.ThicknessCm,
-            isbndb?.WeightG);
+        return null;
+    }
+
+    private static BookFormat PickFormat(IReadOnlyDictionary<BookSource, BookCandidate> bySource, BookSource[] order)
+    {
+        foreach (var source in order)
+        {
+            if (bySource.TryGetValue(source, out var candidate) && candidate.Format != BookFormat.Unknown)
+                return candidate.Format;
+        }
+
+        return BookFormat.Unknown;
     }
 }

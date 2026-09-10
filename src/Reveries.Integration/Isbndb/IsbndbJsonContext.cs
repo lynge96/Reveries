@@ -5,7 +5,6 @@ namespace Reveries.Integration.Isbndb;
 
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
 [JsonSerializable(typeof(IsbndbBookResponseDto))]
-[JsonSerializable(typeof(IsbndbBookSearchResponseDto))]
 [JsonSerializable(typeof(IsbndbBookListResponseDto))]
 [JsonSerializable(typeof(IsbndbBulkIsbnRequest))]
 [JsonSerializable(typeof(IsbndbDimensionsDto))]

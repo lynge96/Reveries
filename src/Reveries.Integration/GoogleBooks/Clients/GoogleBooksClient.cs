@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Works;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.GoogleBooks.DTOs;
 using Reveries.Integration.GoogleBooks.Interfaces;
@@ -35,13 +34,6 @@ public sealed class GoogleBooksClient : IGoogleBooksClient
         var response = await _httpClient.GetAsync(WithKey($"volumes/{Uri.EscapeDataString(volumeId)}"), ct);
 
         return await _reader.ReadAsync(response, GoogleBooksJsonContext.Default.GoogleBookItemDto, $"volume id '{volumeId}'", ct);
-    }
-
-    public async Task<GoogleBookResponseDto?> SearchBooksByTitleAsync(Title title, CancellationToken ct = default)
-    {
-        var response = await _httpClient.GetAsync(BuildVolumesSearchUrl($"intitle:\"{title.Text}\""), ct);
-
-        return await _reader.ReadAsync(response, GoogleBooksJsonContext.Default.GoogleBookResponseDto, $"title '{title.Text}'", ct);
     }
 
     private string BuildVolumesSearchUrl(string query)

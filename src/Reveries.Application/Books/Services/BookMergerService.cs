@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Services;
 
@@ -15,50 +14,35 @@ public class BookMergerService : IBookMergerService
         _logger = logger;
     }
 
-    public List<BookCandidate> AggregateBooksByIsbnsAsync(
-        IReadOnlyList<Isbn> isbns,
-        IReadOnlyList<BookCandidate>? isbndbBooks,
-        IReadOnlyList<BookCandidate>? googleBooks)
+    public List<BookCandidate> AggregateBooksByIsbns(IReadOnlyList<Isbn> isbns, IReadOnlyList<SourcedBooks> sources)
     {
-        if (isbns.Count == 0 || (isbndbBooks is null && googleBooks is null))
+        if (isbns.Count == 0 || sources.Count == 0)
             return [];
 
-        var googleDict = BuildIsbnDictionary(googleBooks ?? []);
-        var isbndbDict = BuildIsbnDictionary(isbndbBooks ?? []);
+        var indexBySource = sources.ToDictionary(s => s.Source, s => BuildIsbnDictionary(s.Books));
 
         var merged = isbns
-            .Select(isbn =>
-            {
-                isbndbDict.TryGetValue(isbn.Value13, out var isbndbBook);
-                googleDict.TryGetValue(isbn.Value13, out var googleBook);
-
-                return BookCandidateMerger.Merge(isbndbBook, googleBook);
-            })
+            .Select(isbn => MergeForIsbn(isbn, indexBySource))
             .OfType<BookCandidate>()
             .ToList();
 
-        _logger.LogDebug("Aggregated {MergedCount} books from {IsbnCount} ISBNs.", merged.Count, isbns.Count);
+        _logger.LogDebug("Aggregated {MergedCount} books from {IsbnCount} ISBNs across {SourceCount} source(s).",
+            merged.Count, isbns.Count, sources.Count);
+
         return merged;
     }
 
-    public List<BookCandidate> AggregateBooksByTitlesAsync(
-        IReadOnlyList<Title> titles,
-        IReadOnlyList<BookCandidate>? isbndbBooks,
-        IReadOnlyList<BookCandidate>? googleBooks)
+    private static BookCandidate? MergeForIsbn(Isbn isbn, IReadOnlyDictionary<BookSource, Dictionary<string, BookCandidate>> indexBySource)
     {
-        if (titles.Count == 0)
-            return [];
+        var bySource = new Dictionary<BookSource, BookCandidate>();
 
-        var mergedByIsbn = MergeDictionaries(googleBooks ?? [], isbndbBooks ?? []);
+        foreach (var (source, index) in indexBySource)
+        {
+            if (index.TryGetValue(isbn.Value13, out var candidate))
+                bySource[source] = candidate;
+        }
 
-        var merged = mergedByIsbn.Values
-            .Where(x =>
-                !string.IsNullOrWhiteSpace(x.Isbn?.Value13) ||
-                !string.IsNullOrWhiteSpace(x.Isbn?.Value10))
-            .ToList();
-
-        _logger.LogDebug("Aggregated {MergedCount} books from {TitleCount} titles.", merged.Count, titles.Count);
-        return merged;
+        return BookCandidateMerger.Merge(bySource);
     }
 
     private static Dictionary<string, BookCandidate> BuildIsbnDictionary(IEnumerable<BookCandidate> items)
@@ -72,38 +56,5 @@ public class BookMergerService : IBookMergerService
             .Where(t => t.isbn is not null)
             .GroupBy(t => t.isbn!)
             .ToDictionary(g => g.Key, g => g.First().item);
-    }
-
-    private static Dictionary<string, BookCandidate> MergeDictionaries(IEnumerable<BookCandidate> primary, IEnumerable<BookCandidate> secondary)
-    {
-        var secondaryDict = secondary
-            .Select(x => new { Item = x, Key = BookCandidateMerger.GetIsbnKey(x) })
-            .Where(x => x.Key is not null)
-            .GroupBy(x => x.Key!)
-            .ToDictionary(g => g.Key, g => g.First().Item);
-
-        var mergedByIsbn = new Dictionary<string, BookCandidate>();
-
-        foreach (var primaryItem in primary)
-        {
-            var key = BookCandidateMerger.GetIsbnKey(primaryItem);
-            if (key is null)
-                continue;
-
-            if (secondaryDict.TryGetValue(key, out var secondaryItem))
-            {
-                mergedByIsbn[key] = BookCandidateMerger.Merge(secondaryItem, primaryItem)!;
-                secondaryDict.Remove(key);
-            }
-            else
-            {
-                mergedByIsbn[key] = primaryItem;
-            }
-        }
-
-        foreach (var (key, item) in secondaryDict)
-            mergedByIsbn.TryAdd(key, item);
-
-        return mergedByIsbn;
     }
 }

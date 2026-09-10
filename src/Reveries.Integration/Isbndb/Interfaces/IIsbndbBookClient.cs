@@ -7,8 +7,5 @@ public interface IIsbndbBookClient
 {
     Task<IsbndbBookResponseDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default);
 
-    Task<IsbndbBookSearchResponseDto?> SearchBooksAsync(string query, string? languageCode, bool shouldMatchAll = true,
-        CancellationToken ct = default);
-
     Task<IsbndbBookListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct = default);
 }
