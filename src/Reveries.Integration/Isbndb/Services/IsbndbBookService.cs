@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
@@ -16,13 +15,11 @@ public class IsbndbBookService : IBookSearch
 
     private readonly IIsbndbBookClient _bookClient;
     private readonly IsbndbSettings _settings;
-    private readonly ILogger<IsbndbBookService> _logger;
 
-    public IsbndbBookService(IIsbndbBookClient bookClient, IOptions<IsbndbSettings> options, ILogger<IsbndbBookService> logger)
+    public IsbndbBookService(IIsbndbBookClient bookClient, IOptions<IsbndbSettings> options)
     {
         _bookClient = bookClient;
         _settings = options.Value;
-        _logger = logger;
     }
 
     public async Task<IReadOnlyList<BookCandidate>?> GetBooksByIsbnsAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
@@ -35,24 +32,12 @@ public class IsbndbBookService : IBookSearch
 
         if (isbns.Count == 1)
         {
-            var isbn = isbns[0];
+            var book = await GetSingleBookAsync(isbns[0], ct);
 
-            var book = await GetSingleBookAsync(isbn, ct);
-
-            if (book is null)
-                return null;
-
-            _logger.LogDebug("Single ISBN lookup for '{Isbn}' succeeded.", isbn);
-            return [book];
+            return book is null ? null : [book];
         }
 
-        var books = await GetMultipleBooksAsync(isbns, ct);
-
-        if (books is null)
-            return null;
-
-        _logger.LogDebug("Bulk ISBN lookup requested {Requested} ISBNs and returned {Found} books.", isbns.Count, books.Count);
-        return books;
+        return await GetMultipleBooksAsync(isbns, ct);
     }
 
     private async Task<BookCandidate?> GetSingleBookAsync(Isbn isbn, CancellationToken ct)
@@ -66,11 +51,9 @@ public class IsbndbBookService : IBookSearch
     {
         var response = await _bookClient.FetchBooksByIsbnsAsync(isbns, ct);
 
-        var books = response?.Data?
+        return response?.Data?
             .Select(b => b.ToBookCandidate())
             .OfType<BookCandidate>()
             .ToList();
-
-        return books;
     }
 }

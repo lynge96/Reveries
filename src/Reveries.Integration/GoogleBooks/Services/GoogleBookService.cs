@@ -33,12 +33,9 @@ public class GoogleBookService : IBookSearch
         if (results.All(r => r is null))
             return null;
 
-        var books = results
+        return results
             .OfType<BookCandidate>()
             .ToList();
-
-        _logger.LogDebug("GoogleBooks ISBN lookup completed. Requested {RequestedCount} ISBNs, found {FoundCount} books.", isbns.Count, books.Count);
-        return books;
     }
 
     private async Task<BookCandidate?> FetchAndMergeByIsbnAsync(Isbn isbn, CancellationToken ct)
