@@ -10,13 +10,12 @@ public static class GoogleBooksServiceCollectionExtensions
     public static IServiceCollection AddGoogleBooks(this IServiceCollection services, IConfiguration config)
     {
         services.AddOptions<GoogleBooksSettings>()
-            .Bind(config.GetSection("GoogleBooks"))
+            .Bind(config.GetSection(GoogleBooksSettings.SectionName))
             .Validate(s => !string.IsNullOrWhiteSpace(s.ApiUrl), "GoogleBooks: ApiUrl missing")
-            .Validate(s => !string.IsNullOrWhiteSpace(s.ApiKey), "GoogleBooks: ApiKey missing")
             .ValidateOnStart();
 
         services.AddGoogleBooksClients();
-        services.AddScoped<IGoogleBookSearch, GoogleBookService>();
+        services.AddScoped<IBookSearch, GoogleBooksSource>();
 
         return services;
     }

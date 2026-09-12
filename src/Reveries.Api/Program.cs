@@ -7,8 +7,7 @@ using Reveries.Api.Middleware;
 using Reveries.Application;
 using Reveries.Infrastructure;
 using Reveries.Infrastructure.Logging;
-using Reveries.Integration.GoogleBooks.Configuration;
-using Reveries.Integration.Isbndb.Configuration;
+using Reveries.Integration;
 using Reveries.Persistence;
 using Reveries.Persistence.Migrations;
 
@@ -25,8 +24,7 @@ builder.Services.AddApplicationHealthChecks();
 builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
-    .AddIsbndb(builder.Configuration)
-    .AddGoogleBooks(builder.Configuration)
+    .AddIntegration(builder.Configuration)
     .AddCorsPolicies()
     .AddSwagger(builder.Configuration)
     .AddControllers();

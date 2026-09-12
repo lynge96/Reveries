@@ -1,11 +1,10 @@
+using System.Net;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
-using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Services;
 
@@ -14,18 +13,15 @@ public class BookLookupService : IBookLookupService
     private readonly IEditionRepository _editions;
     private readonly IBookMergerService _bookMergerService;
     private readonly ILogger<BookLookupService> _logger;
-    private readonly IIsbndbBookSearch _isbnDbClient;
-    private readonly IGoogleBookSearch _googleBooksClient;
+    private readonly IReadOnlyList<IBookSearch> _sources;
 
     public BookLookupService(
-        IIsbndbBookSearch isbnDbClient,
-        IGoogleBookSearch googleBooksClient,
+        IEnumerable<IBookSearch> sources,
         IEditionRepository editions,
         IBookMergerService bookMergerService,
         ILogger<BookLookupService> logger)
     {
-        _isbnDbClient = isbnDbClient;
-        _googleBooksClient = googleBooksClient;
+        _sources = sources.ToList();
         _editions = editions;
         _bookMergerService = bookMergerService;
         _logger = logger;
@@ -41,23 +37,17 @@ public class BookLookupService : IBookLookupService
         if (isbns.Count == 0)
             return BookLookupResult<Isbn>.Empty;
 
-        var results = await Task.WhenAll(
-            TryLookupFromIsbnDbAsync(isbns, ct),
-            TryLookupFromGoogleBooksAsync(isbns, ct)
-        );
+        var lookups = await Task.WhenAll(_sources.Select(source => TryLookupAsync(source, isbns, ct)));
 
-        var isbndbBooks = results[0];
-        var googleBooks = results[1];
+        if (lookups.Length != 0 && lookups.All(l => l.Failed))
+            throw AllSourcesUnavailable($"{isbns.Count} ISBN(s)");
 
-        if (googleBooks is null && isbndbBooks is null)
-        {
-            _logger.LogWarning(
-                "All external sources failed for ISBNs: {Isbns}",
-                string.Join(", ", isbns.Select(i => i.Value13)));
-            return new BookLookupResult<Isbn>([], isbns.ToList());
-        }
+        var sourcedBooks = lookups
+            .Where(l => l is { Failed: false, Books: not null })
+            .Select(l => new SourcedBooks(l.Source, l.Books!))
+            .ToList();
 
-        var found = _bookMergerService.AggregateBooksByIsbnsAsync(isbns, isbndbBooks, googleBooks);
+        var found = _bookMergerService.AggregateBooksByIsbns(isbns, sourcedBooks);
 
         var foundIsbnKeys = found
             .Select(b => b.Isbn?.Value13 ?? b.Isbn?.Value10)
@@ -69,61 +59,13 @@ public class BookLookupService : IBookLookupService
             .ToList();
 
         _logger.LogInformation(
-            "ISBN lookup completed. Requested: {Requested}, Found: {Found}, NotFound: {NotFound}, Sources: ISBNDB={IsbnDbCount}, Google={GoogleCount}",
+            "ISBN lookup completed. Requested: {Requested}, Found: {Found}, NotFound: {NotFound}, Sources: {SourceCount}.",
             isbns.Count,
             found.Count,
             missingIsbns.Count,
-            isbndbBooks?.Count ?? 0,
-            googleBooks?.Count ?? 0);
+            sourcedBooks.Count);
 
         return new BookLookupResult<Isbn>(found, missingIsbns);
-    }
-
-    public async Task<BookLookupResult<Title>> LookupByTitleAsync(Title title, CancellationToken ct)
-    {
-        return await LookupByTitlesAsync([title], ct);
-    }
-
-    public async Task<BookLookupResult<Title>> LookupByTitlesAsync(IReadOnlyList<Title> titles, CancellationToken ct)
-    {
-        if (titles.Count == 0)
-            return BookLookupResult<Title>.Empty;
-
-        var results = await Task.WhenAll(
-            TryLookupFromIsbnDbAsync(titles, ct),
-            TryLookupFromGoogleBooksAsync(titles, ct)
-        );
-
-        var isbndbBooks = results[0];
-        var googleBooks = results[1];
-
-        if (googleBooks is null && isbndbBooks is null)
-        {
-            _logger.LogWarning(
-                "All external sources failed for titles: {Titles}",
-                string.Join(", ", titles.Select(t => t.Text)));
-            return new BookLookupResult<Title>([], titles);
-        }
-
-        var found = _bookMergerService.AggregateBooksByTitlesAsync(titles, isbndbBooks, googleBooks);
-
-        var foundTitles = found
-            .Select(b => b.Title)
-            .ToHashSet();
-
-        var missingTitles = titles
-            .Where(t => !foundTitles.Contains(t.Text))
-            .ToList();
-
-        _logger.LogInformation(
-            "Titles lookup completed. Requested: {Requested}, Found: {Found}, NotFound: {NotFound}, Sources: ISBNDB={IsbnDbCount}, Google={GoogleCount}",
-            titles.Count,
-            found.Count,
-            missingTitles.Count,
-            isbndbBooks?.Count ?? 0,
-            googleBooks?.Count ?? 0);
-
-        return new BookLookupResult<Title>(found, missingTitles);
     }
 
     public async Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct)
@@ -131,57 +73,27 @@ public class BookLookupService : IBookLookupService
         return await _editions.EditionExistsAsync(isbn, ct);
     }
 
-    private async Task<IReadOnlyList<BookCandidate>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
+    private async Task<SourceLookup> TryLookupAsync(IBookSearch source, IReadOnlyList<Isbn> isbns, CancellationToken ct)
     {
         try
         {
-            return await _isbnDbClient.GetBooksByIsbnsAsync(isbns, ct);
+            var books = await source.GetBooksByIsbnsAsync(isbns, ct);
+            return new SourceLookup(source.Source, books, Failed: false);
         }
         catch (ExternalDependencyException ex)
         {
-            _logger.LogWarning(ex, "IsbnDb lookup failed, returning all as not found");
-            return null;
+            _logger.LogWarning(ex, "{Source} ISBN lookup failed (upstream {UpstreamStatus})", source.Source, ex.UpstreamStatus);
+            return new SourceLookup(source.Source, null, Failed: true);
         }
     }
 
-    private async Task<IReadOnlyList<BookCandidate>?> TryLookupFromIsbnDbAsync(IReadOnlyList<Title> titles,
-        CancellationToken ct)
+    private static ExternalDependencyException AllSourcesUnavailable(string request)
     {
-        try
-        {
-            return await _isbnDbClient.GetBooksByTitlesAsync(titles, null, ct);
-        }
-        catch (ExternalDependencyException ex)
-        {
-            _logger.LogWarning(ex, "IsbnDb lookup failed, returning all as not found");
-            return null;
-        }
+        return new ExternalDependencyException(
+            dependency: "external book sources",
+            message: $"All external book sources were unavailable for the lookup ({request}).",
+            statusCode: HttpStatusCode.ServiceUnavailable);
     }
 
-    private async Task<IReadOnlyList<BookCandidate>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Isbn> isbns, CancellationToken ct)
-    {
-        try
-        {
-            return await _googleBooksClient.GetBooksByIsbnsAsync(isbns, ct);
-        }
-        catch (ExternalDependencyException ex)
-        {
-            _logger.LogWarning(ex, "GoogleBooks lookup failed, returning all as not found");
-            return null;
-        }
-    }
-
-    private async Task<IReadOnlyList<BookCandidate>?> TryLookupFromGoogleBooksAsync(IReadOnlyList<Title> titles,
-        CancellationToken ct)
-    {
-        try
-        {
-            return await _googleBooksClient.GetBooksByTitlesAsync(titles, ct);
-        }
-        catch (ExternalDependencyException ex)
-        {
-            _logger.LogWarning(ex, "GoogleBooks lookup failed, returning all as not found");
-            return null;
-        }
-    }
+    private readonly record struct SourceLookup(BookSource Source, IReadOnlyList<BookCandidate>? Books, bool Failed);
 }

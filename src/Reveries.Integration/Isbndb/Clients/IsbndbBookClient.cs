@@ -1,66 +1,40 @@
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Reveries.Domain.Editions;
-using Reveries.Integration.Http.Base;
+using Reveries.Integration.Http;
 using Reveries.Integration.Isbndb.Configuration;
-using Reveries.Integration.Isbndb.DTOs.Books;
+using Reveries.Integration.Isbndb.Dtos;
 using Reveries.Integration.Isbndb.Interfaces;
 
 namespace Reveries.Integration.Isbndb.Clients;
 
-public class IsbndbBookClient : ExternalBaseClient<IsbndbBookClient>, IIsbndbBookClient
+public sealed class IsbndbBookClient : IIsbndbBookClient
 {
-    protected override string DependencyName => IsbndbSettings.SectionName;
+    private readonly HttpClient _httpClient;
+    private readonly ExternalApiReader _reader;
 
     public IsbndbBookClient(HttpClient httpClient, ILogger<IsbndbBookClient> logger)
-        : base(httpClient, logger) { }
-
-    public async Task<IsbndbBookDetailsDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
-        var response = await HttpClient.GetAsync($"book/{isbn.Value13}", ct);
-        var context = $"ISBN '{isbn}'";
-
-        return await HandleResponseAsync<IsbndbBookDetailsDto>(
-            response,
-            context,
-            validate: r => r?.Book is not null,
-            ct: ct);
+        _httpClient = httpClient;
+        _reader = new ExternalApiReader(IsbndbSettings.DisplayName, logger);
     }
 
-    public async Task<BooksQueryResponseDto?> SearchBooksAsync(string query, string? languageCode, bool shouldMatchAll, CancellationToken ct)
+    public async Task<IsbndbBookResponseDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct)
     {
-        var context = $"query '{query}'";
-        var basePath = $"books/{Uri.EscapeDataString(query)}";
-        var queryParams = new Dictionary<string, string?>();
+        var response = await _httpClient.GetAsync($"book/{isbn.Value13}", ct);
 
-        if (!string.IsNullOrWhiteSpace(languageCode))
-            queryParams.Add("language", languageCode);
-        if (shouldMatchAll)
-            queryParams.Add("shouldMatchAll", "1");
-
-        var response = await HttpClient.GetAsync(QueryHelpers.AddQueryString(basePath, queryParams), ct);
-
-        return await HandleResponseAsync<BooksQueryResponseDto>(
-            response,
-            context,
-            validate: r => r?.Books is not null,
-            ct: ct);
+        return await _reader.ReadAsync(response, IsbndbJsonContext.Default.IsbndbBookResponseDto, $"ISBN '{isbn}'", ct);
     }
 
-    public async Task<BooksListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
+    public async Task<IsbndbBookListResponseDto?> FetchBooksByIsbnsAsync(IEnumerable<Isbn> isbns, CancellationToken ct)
     {
-        const string context = "bulk ISBN lookup";
-        var json = JsonSerializer.Serialize(new { isbns = isbns.ToList() });
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var request = new IsbndbBulkIsbnRequest([.. isbns.Select(isbn => isbn.Value13)]);
+        var payload = JsonSerializer.Serialize(request, IsbndbJsonContext.Default.IsbndbBulkIsbnRequest);
 
-        var response = await HttpClient.PostAsync("books", content, ct);
+        using var content = new StringContent(payload, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync("books", content, ct);
 
-        return await HandleResponseAsync<BooksListResponseDto>(
-            response,
-            context,
-            validate: r => r?.Data is not null,
-            ct: ct);
+        return await _reader.ReadAsync(response, IsbndbJsonContext.Default.IsbndbBookListResponseDto, "bulk ISBN lookup", ct);
     }
 }
