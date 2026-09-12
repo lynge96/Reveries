@@ -69,7 +69,7 @@ public class ExceptionHandlingMiddleware
                     problemDetails = new ProblemDetails
                     {
                         Title = "External Dependency Error",
-                        Status = StatusCodes.Status502BadGateway,
+                        Status = (int?)depEx.StatusCode ?? StatusCodes.Status502BadGateway,
                         Type = depEx.ErrorType,
                         Detail = depEx.Message,
                         Instance = path

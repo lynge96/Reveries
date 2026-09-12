@@ -13,8 +13,9 @@ public class ExternalDependencyException : Exception
         string dependency,
         string message,
         int? upstreamStatus = null,
-        HttpStatusCode statusCode = HttpStatusCode.BadGateway)
-        : base(message)
+        HttpStatusCode statusCode = HttpStatusCode.BadGateway,
+        Exception? innerException = null)
+        : base(message, innerException)
     {
         Dependency = dependency;
         UpstreamStatus = upstreamStatus;

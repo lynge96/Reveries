@@ -1,0 +1,443 @@
+openapi: 3.0.0
+info:
+  title: Books API (trimmed)
+  description: 'Reduced Google Books API surface for Reveries: only the volumes (search + get) and series endpoints and the schemas they return.'
+  license:
+    name: Creative Commons Attribution 3.0
+    url: http://creativecommons.org/licenses/by/3.0/
+  version: v1
+servers:
+  - url: https://www.googleapis.com/
+paths:
+  /books/v1/volumes:
+    get:
+      tags:
+        - volumes
+      description: Performs a book search. For ISBN lookup use q=isbn:9788700000000.
+      operationId: books.volumes.list
+      parameters:
+        - name: q
+          in: query
+          description: 'Full-text search query string. Prefix qualifiers: isbn:, intitle:, inauthor:, inpublisher:, subject:.'
+          required: true
+          schema:
+            type: string
+        - name: langRestrict
+          in: query
+          description: Restrict results to books with this language code (ISO 639-1).
+          schema:
+            type: string
+        - name: maxResults
+          in: query
+          description: Maximum number of results to return (0-40).
+          schema:
+            maximum: 40
+            minimum: 0
+            type: integer
+        - name: orderBy
+          in: query
+          description: Sort search results.
+          schema:
+            enum:
+              - newest
+              - relevance
+            type: string
+        - name: printType
+          in: query
+          description: Restrict to books or magazines.
+          schema:
+            enum:
+              - ALL
+              - BOOKS
+              - MAGAZINES
+            type: string
+        - name: projection
+          in: query
+          description: Restrict information returned to a set of selected fields.
+          schema:
+            enum:
+              - FULL
+              - LITE
+            type: string
+        - name: startIndex
+          in: query
+          description: Index of the first result to return (starts at 0).
+          schema:
+            minimum: 0
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Volumes'
+      security:
+        - ApiKey: [ ]
+  '/books/v1/volumes/{volumeId}':
+    get:
+      tags:
+        - volumes
+      description: Gets volume information for a single volume.
+      operationId: books.volumes.get
+      parameters:
+        - name: volumeId
+          in: path
+          description: ID of volume to retrieve.
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: ISO-3166-1 code to override the IP-based location.
+          schema:
+            type: string
+        - name: projection
+          in: query
+          description: Restrict information returned to a set of selected fields.
+          schema:
+            enum:
+              - FULL
+              - LITE
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Volume'
+      security:
+        - ApiKey: [ ]
+  /books/v1/series/get:
+    get:
+      tags:
+        - series
+      description: Returns Series metadata for the given series ids.
+      operationId: books.series.get
+      parameters:
+        - name: series_id
+          in: query
+          description: String that identifies the series.
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+      security:
+        - ApiKey: [ ]
+  /books/v1/series/membership/get:
+    get:
+      tags:
+        - series
+      description: Returns Series membership data given the series id.
+      operationId: books.series.membership.get
+      parameters:
+        - name: series_id
+          in: query
+          description: String that identifies the series.
+          required: true
+          schema:
+            type: string
+        - name: page_size
+          in: query
+          description: Number of maximum results per page to be included in the response.
+          schema:
+            type: integer
+        - name: page_token
+          in: query
+          description: The value of the nextToken from the previous page.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seriesmembership'
+      security:
+        - ApiKey: [ ]
+components:
+  schemas:
+    Volumes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Volume'
+          description: A list of volumes.
+        kind:
+          type: string
+          description: Resource type.
+        totalItems:
+          type: integer
+          description: Total number of volumes found. This might be greater than the number of volumes returned in this response if results have been paginated.
+          format: int32
+    Volume:
+      type: object
+      properties:
+        kind:
+          type: string
+          description: Resource type for a volume. (In LITE projection.)
+        id:
+          type: string
+          description: Unique identifier for a volume. (In LITE projection.)
+        etag:
+          type: string
+          description: Opaque identifier for a specific version of a volume resource. (In LITE projection)
+        selfLink:
+          type: string
+          description: URL to this resource. (In LITE projection.)
+        searchInfo:
+          type: object
+          properties:
+            textSnippet:
+              type: string
+              description: A text snippet containing the search query.
+          description: Search result information related to this volume.
+        volumeInfo:
+          type: object
+          properties:
+            allowAnonLogging:
+              type: boolean
+              description: Whether anonymous logging should be allowed.
+            authors:
+              type: array
+              items:
+                type: string
+              description: The names of the authors and/or editors for this volume. (In LITE projection)
+            averageRating:
+              type: number
+              description: 'The mean review rating for this volume. (min = 1.0, max = 5.0)'
+              format: double
+            canonicalVolumeLink:
+              type: string
+              description: Canonical URL for a volume. (In LITE projection.)
+            categories:
+              type: array
+              items:
+                type: string
+              description: 'A list of subject categories, such as "Fiction", "Suspense", etc.'
+            comicsContent:
+              type: boolean
+              description: Whether the volume has comics content.
+            contentVersion:
+              type: string
+              description: An identifier for the version of the volume content (text & images). (In LITE projection)
+            description:
+              type: string
+              description: 'A synopsis of the volume. The text of the description is formatted in HTML and includes simple formatting elements, such as b, i, and br tags. (In LITE projection.)'
+            dimensions:
+              type: object
+              properties:
+                height:
+                  type: string
+                  description: Height or length of this volume (in cm).
+                thickness:
+                  type: string
+                  description: Thickness of this volume (in cm).
+                width:
+                  type: string
+                  description: Width of this volume (in cm).
+              description: Physical dimensions of this volume.
+            imageLinks:
+              type: object
+              properties:
+                extraLarge:
+                  type: string
+                  description: Image link for extra large size (width of ~1280 pixels). (In LITE projection)
+                large:
+                  type: string
+                  description: Image link for large size (width of ~800 pixels). (In LITE projection)
+                medium:
+                  type: string
+                  description: Image link for medium size (width of ~575 pixels). (In LITE projection)
+                small:
+                  type: string
+                  description: Image link for small size (width of ~300 pixels). (In LITE projection)
+                smallThumbnail:
+                  type: string
+                  description: Image link for small thumbnail size (width of ~80 pixels). (In LITE projection)
+                thumbnail:
+                  type: string
+                  description: Image link for thumbnail size (width of ~128 pixels). (In LITE projection)
+              description: A list of image links for all the sizes that are available. (In LITE projection.)
+            industryIdentifiers:
+              type: array
+              items:
+                type: object
+                properties:
+                  identifier:
+                    type: string
+                    description: Industry specific volume identifier.
+                  type:
+                    type: string
+                    description: 'Identifier type. Possible values are ISBN_10, ISBN_13, ISSN and OTHER.'
+              description: Industry standard identifiers for this volume.
+            infoLink:
+              type: string
+              description: URL to view information about this volume on the Google Books site. (In LITE projection)
+            language:
+              type: string
+              description: 'Best language for this volume (based on content). It is the two-letter ISO 639-1 code such as ''fr'', ''en'', etc.'
+            mainCategory:
+              type: string
+              description: The main category to which this volume belongs. It will be the category from the categories list returned below that has the highest weight.
+            maturityRating:
+              type: string
+            pageCount:
+              type: integer
+              description: Total number of pages as per publisher metadata.
+              format: int32
+            panelizationSummary:
+              type: object
+              properties:
+                containsEpubBubbles:
+                  type: boolean
+                containsImageBubbles:
+                  type: boolean
+                epubBubbleVersion:
+                  type: string
+                imageBubbleVersion:
+                  type: string
+              description: A top-level summary of the panelization info in this volume.
+            previewLink:
+              type: string
+              description: URL to preview this volume on the Google Books site.
+            printType:
+              type: string
+              description: Type of publication of this volume. Possible values are BOOK or MAGAZINE.
+            printedPageCount:
+              type: integer
+              description: Total number of printed pages in generated pdf representation.
+              format: int32
+            publishedDate:
+              type: string
+              description: Date of publication. (In LITE projection.)
+            publisher:
+              type: string
+              description: Publisher of this volume. (In LITE projection.)
+            ratingsCount:
+              type: integer
+              description: The number of review ratings for this volume.
+              format: int32
+            readingModes:
+              type: object
+              properties:
+                image:
+                  type: boolean
+                text:
+                  type: boolean
+              description: The reading modes available for this volume.
+            samplePageCount:
+              type: integer
+              description: Total number of sample pages as per publisher metadata.
+              format: int32
+            seriesInfo:
+              $ref: '#/components/schemas/Volumeseriesinfo'
+            subtitle:
+              type: string
+              description: Volume subtitle. (In LITE projection.)
+            title:
+              type: string
+              description: Volume title. (In LITE projection.)
+          description: General volume information.
+    Volumeseriesinfo:
+      type: object
+      properties:
+        bookDisplayNumber:
+          type: string
+          description: The display number string. This should be used only for display purposes and the actual sequence should be inferred from the below orderNumber.
+        kind:
+          type: string
+          description: Resource type.
+        shortSeriesBookTitle:
+          type: string
+          description: Short book title in the context of the series.
+        volumeSeries:
+          type: array
+          items:
+            type: object
+            properties:
+              issue:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    issueDisplayNumber:
+                      type: string
+                    issueOrderNumber:
+                      type: integer
+                      format: int32
+                description: List of issues. Applicable only for Collection Edition and Omnibus.
+              orderNumber:
+                type: integer
+                description: The book order number in the series.
+                format: int32
+              seriesBookType:
+                type: string
+                description: 'The book type in the context of series. Examples - Single Issue, Collection Edition, etc.'
+              seriesId:
+                type: string
+                description: The series id.
+    Series:
+      type: object
+      properties:
+        kind:
+          type: string
+          description: Resource type.
+        series:
+          type: array
+          items:
+            type: object
+            properties:
+              bannerImageUrl:
+                type: string
+              eligibleForSubscription:
+                type: boolean
+              imageUrl:
+                type: string
+              isComplete:
+                type: boolean
+              seriesFormatType:
+                type: string
+              seriesId:
+                type: string
+              seriesType:
+                type: string
+              subscriptionId:
+                type: string
+              title:
+                type: string
+    Seriesmembership:
+      type: object
+      properties:
+        kind:
+          type: string
+          description: Resource type.
+        member:
+          type: array
+          items:
+            $ref: '#/components/schemas/Volume'
+        nextPageToken:
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      description: Google API key passed as the 'key' query parameter. Sufficient for public volume search and get.
+      name: key
+      in: query
+tags:
+  - name: volumes
+  - name: series
+externalDocs:
+  url: https://developers.google.com/books/docs/v1/using
