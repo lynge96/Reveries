@@ -24,12 +24,4 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.12" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Authors\Commands\" />
-    <Folder Include="Authors\Queries\" />
-    <Folder Include="BookSeries\Commands\" />
-    <Folder Include="Publishers\Commands\" />
-    <Folder Include="Publishers\Queries\" />
-  </ItemGroup>
-
 </Project>

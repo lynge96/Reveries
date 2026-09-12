@@ -10,7 +10,7 @@ using Reveries.Application.Publishers.Services;
 
 namespace Reveries.Application;
 
-public static class ServiceCollectionExtensions
+public static class ApplicationServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
@@ -19,21 +19,16 @@ public static class ServiceCollectionExtensions
             options.ServiceLifetime = ServiceLifetime.Scoped;
         });
 
-        // Services
-        // Books
         services.AddScoped<IWorkPersistenceService, WorkPersistenceService>();
         services.AddScoped<IBookMergerService, BookMergerService>();
         services.AddScoped<IBookLookupService, BookLookupService>();
         services.AddScoped<IGenreResolver, GenreResolver>();
         services.AddScoped<IDeweyResolver, DeweyResolver>();
 
-        // Authors
         services.AddScoped<IAuthorResolver, AuthorResolver>();
 
-        // Publishers
         services.AddScoped<IPublisherResolver, PublisherResolver>();
 
-        // Series
         services.AddScoped<ICreateSeriesService, CreateSeriesService>();
         services.AddScoped<IBookSeriesService, BookSeriesService>();
         services.AddScoped<ISeriesResolver, SeriesResolver>();

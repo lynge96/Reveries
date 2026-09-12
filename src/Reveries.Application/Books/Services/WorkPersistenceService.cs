@@ -1,11 +1,13 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Authors.Interfaces;
+using Reveries.Application.BookSeries.Interfaces;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Application.Publishers.Interfaces;
 using Reveries.Domain.Authors;
+using Reveries.Domain.BookSeries;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Publishers;
@@ -24,6 +26,7 @@ public class WorkPersistenceService : IWorkPersistenceService
     private readonly IPublisherResolver _publisherResolver;
     private readonly IGenreResolver _genreResolver;
     private readonly IDeweyResolver _deweyResolver;
+    private readonly ISeriesResolver _seriesResolver;
 
     public WorkPersistenceService(
         ITransactionManager transactionManager,
@@ -33,7 +36,8 @@ public class WorkPersistenceService : IWorkPersistenceService
         IAuthorResolver authorResolver,
         IPublisherResolver publisherResolver,
         IGenreResolver genreResolver,
-        IDeweyResolver deweyResolver)
+        IDeweyResolver deweyResolver,
+        ISeriesResolver seriesResolver)
     {
         _transactionManager = transactionManager;
         _logger = logger;
@@ -43,15 +47,17 @@ public class WorkPersistenceService : IWorkPersistenceService
         _publisherResolver = publisherResolver;
         _genreResolver = genreResolver;
         _deweyResolver = deweyResolver;
+        _seriesResolver = seriesResolver;
     }
 
-    public async Task<EditionId> SaveBookAsync(BookCandidate candidate, CancellationToken ct)
+    public async Task<EditionId> SaveBookAsync(BookCandidate candidate, Series? series, int? numberInSeries, CancellationToken ct)
     {
         await using var tx = await _transactionManager.BeginTransactionAsync(ct);
 
         await ValidateEditionNotExistsAsync(candidate.Isbn, ct);
 
         var (work, edition) = await BuildAggregatesAsync(candidate, ct);
+        await AssignSeriesAsync(work, series, numberInSeries, ct);
         var relations = await ResolveGenreAndDeweyRelationsAsync(work, ct);
 
         await _works.InsertWorkAsync(work, relations, ct);
@@ -109,6 +115,15 @@ public class WorkPersistenceService : IWorkPersistenceService
             Dimensions: candidate.Dimensions));
 
         return (work, edition);
+    }
+
+    private async Task AssignSeriesAsync(Work work, Series? series, int? numberInSeries, CancellationToken ct)
+    {
+        if (series is null)
+            return;
+
+        var resolved = await _seriesResolver.ResolveAsync(series, ct);
+        work.SetSeries(resolved.Id, numberInSeries);
     }
 
     private async Task<WorkRelations> ResolveGenreAndDeweyRelationsAsync(Work work, CancellationToken ct)

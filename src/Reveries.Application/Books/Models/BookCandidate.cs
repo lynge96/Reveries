@@ -70,7 +70,7 @@ public sealed record BookCandidate
         return string.IsNullOrWhiteSpace(isbn10) ? null : Isbn.Create(isbn10);
     }
 
-    private static IReadOnlyList<string> NormalizeAuthors(IEnumerable<string>? names)
+    private static List<string> NormalizeAuthors(IEnumerable<string>? names)
     {
         return (names ?? [])
             .Select(Author.TryCreate)
@@ -80,7 +80,7 @@ public sealed record BookCandidate
             .ToList();
     }
 
-    private static IReadOnlyList<string> NormalizeDeweyDecimals(IEnumerable<string>? codes)
+    private static List<string> NormalizeDeweyDecimals(IEnumerable<string>? codes)
     {
         return (codes ?? [])
             .Select(DeweyDecimal.TryCreate)

@@ -61,6 +61,28 @@ concrete `Reveries.Persistence.Repositories` types stay inside Persistence.
 
 ---
 
+## Completed — Application layer tidy
+
+A consolidation pass on `Reveries.Application` alongside the Phase 0 safety net:
+
+- **CQRS semantics corrected.** The two write operations (`CreateBookCommand`,
+  `SetBookSeriesCommand`) now implement `ICommand<T>`/`ICommandHandler<T>` instead of
+  `IQuery<T>`; reads stay `IQuery`. Dispatch is unchanged (`IMediator.Send`), so the Api layer
+  was untouched.
+- **`SetBookSeries` moved into the `BookSeries` slice** (`BookSeries/Commands/SetBookSeries/`),
+  joining the service/resolver/interfaces the feature already lived beside.
+- **Exception base renamed** `ApplicationException` → **`AppException`** to stop colliding with
+  `System.ApplicationException` (which the BCL discourages deriving from); the Api middleware's
+  disambiguating alias is gone. `DomainException` and `ExternalDependencyException` are unchanged.
+- **DI extension** renamed `ApplicationServiceCollectionExtensions` (matching the
+  `XxxServiceCollectionExtensions` convention in the other layers); empty placeholder folders dropped.
+- **Bug fixed (found via characterisation):** a `Series` supplied to `CreateBookCommand` was
+  silently dropped — the Api forwards it, but `BookMapper.ToCandidate` discarded it. `SaveBookAsync`
+  now resolves the series via `ISeriesResolver` and sets it on the `Work` inside the create
+  transaction; `BookCandidate` stays series-free.
+
+---
+
 ## Phase 0 — Safety net (the keystone)
 
 The one piece of work that de-risks both the domain and the query work at once.
@@ -72,10 +94,12 @@ The one piece of work that de-risks both the domain and the query work at once.
       cross-matching, `GetAllBooksAsync`, and the `PostgresDbContext` transaction
       lifecycle. Already caught a real bug (a publisher/series-less book hydrated as a
       fabricated null-name object instead of `null`).
-- [ ] In **`Reveries.Application.Tests`** (use-case tests, infrastructure
-      stubbed), write characterisation tests for the critical path: scan ISBN →
-      enrich (with stubbed ISBNDB / Google Books HTTP responses) → persist → read
-      back. Delete the placeholder `UnitTest1.cs`.
+- [x] In **`Reveries.Application.Tests`** (use-case tests, infrastructure stubbed),
+      characterisation tests for the critical path: scan ISBN → enrich → persist → read
+      back. `BookLifecycleCharacterizationTests` drives the real Application graph through
+      `IMediator` with only the edges (`IBookSearch` sources, repositories, `ITransactionManager`,
+      `IBookQueryRepository`) NSubstitute-stubbed, so it exercises the real merge/persist wiring.
+      The placeholder `UnitTest1.cs` is gone; the resolver/merger unit tests remain.
 - [x] Integration tests wired into CI — `build-test` runs an unfiltered `dotnet test`
       and `ubuntu-latest` provides a Docker daemon, so Testcontainers runs on every PR.
 

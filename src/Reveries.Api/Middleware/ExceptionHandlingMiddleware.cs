@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Domain.Exceptions;
-using ApplicationException = Reveries.Application.Common.Exceptions.ApplicationException;
 
 namespace Reveries.Api.Middleware;
 
@@ -81,7 +80,7 @@ public class ExceptionHandlingMiddleware
 
                     return problemDetails;
                 }
-            case ApplicationException appEx:
+            case AppException appEx:
                 {
                     problemDetails = new ProblemDetails
                     {

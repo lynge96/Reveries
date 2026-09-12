@@ -2,12 +2,12 @@ using System.Net;
 
 namespace Reveries.Application.Common.Exceptions;
 
-public abstract class ApplicationException : Exception
+public abstract class AppException : Exception
 {
     public HttpStatusCode StatusCode { get; }
     public string ErrorType { get; }
 
-    protected ApplicationException(string message, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
+    protected AppException(string message, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
         : base(message)
     {
         StatusCode = statusCode;
