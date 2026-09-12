@@ -9,9 +9,10 @@ using Reveries.Application.Books.Models;
 using Reveries.Application.Books.Queries.FindBookByIsbn;
 using Reveries.Application.Books.Queries.GetBookById;
 using Reveries.Application.Common.Abstractions;
-using Reveries.Domain.Authors;
+using Reveries.Domain.BookSeries;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Interfaces.Repositories;
+using Reveries.Domain.Publishers;
 using Reveries.Domain.Works;
 
 namespace Reveries.Application.Tests.Books;
@@ -106,7 +107,7 @@ public class BookLifecycleCharacterizationTests
         Assert.NotNull(harness.InsertedWork!.SeriesId);
         Assert.Equal(8, harness.InsertedWork.NumberInSeries);
         await harness.Series.Received(1).AddAsync(
-            Arg.Is<Reveries.Domain.BookSeries.Series>(s => s.Name == "Discworld"),
+            Arg.Is<Series>(s => s.Name == "Discworld"),
             Arg.Any<CancellationToken>());
     }
 
@@ -137,8 +138,8 @@ public class BookLifecycleCharacterizationTests
 
             Editions.EditionExistsAsync(Arg.Any<Isbn>(), Arg.Any<CancellationToken>()).Returns(false);
             Authors.GetByNamesAsync(Arg.Any<IReadOnlyList<string>>(), Arg.Any<CancellationToken>()).Returns([]);
-            Publishers.GetByNameAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((Reveries.Domain.Publishers.Publisher?)null);
-            Series.GetByNameAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((Reveries.Domain.BookSeries.Series?)null);
+            Publishers.GetByNameAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((Publisher?)null);
+            Series.GetByNameAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((Series?)null);
 
             Genres.GetByNamesAsync(Arg.Any<IReadOnlyList<string>>(), Arg.Any<CancellationToken>())
                 .Returns(new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
