@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Reveries.Integration.Isbndb.DTOs.Books;
+namespace Reveries.Integration.Isbndb.Dtos;
 
 public sealed class IsbndbDimensionsConverter : JsonConverter<IsbndbDimensionsDto?>
 {

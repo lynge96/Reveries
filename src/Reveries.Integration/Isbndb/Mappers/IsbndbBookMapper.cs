@@ -1,7 +1,7 @@
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Helpers;
-using Reveries.Integration.Isbndb.DTOs.Books;
+using Reveries.Integration.Isbndb.Dtos;
 
 namespace Reveries.Integration.Isbndb.Mappers;
 

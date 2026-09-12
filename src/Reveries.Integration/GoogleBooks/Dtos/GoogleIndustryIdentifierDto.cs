@@ -1,4 +1,4 @@
-namespace Reveries.Integration.GoogleBooks.DTOs;
+namespace Reveries.Integration.GoogleBooks.Dtos;
 
 public sealed record GoogleIndustryIdentifierDto
 {

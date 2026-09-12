@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Reveries.Integration.Isbndb.DTOs.Books;
+using Reveries.Integration.Isbndb.Dtos;
 
 namespace Reveries.Integration.Tests.Isbndb;
 

@@ -32,12 +32,21 @@ public class ExternalApiReaderTests
     }
 
     [Fact]
+    public async Task ReadAsync_TooManyRequests_ThrowsWithUpstreamStatus()
+    {
+        using var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+
+        var ex = await Assert.ThrowsAsync<ExternalDependencyException>(
+            () => Reader().ReadAsync(response, ReaderTestJsonContext.Default.ReaderTestDto, "ctx"));
+
+        Assert.Equal(429, ex.UpstreamStatus);
+    }
+
+    [Fact]
     public async Task ReadAsync_Success_Deserializes()
     {
-        using var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent("""{"Name":"hello"}"""),
-        };
+        using var response = new HttpResponseMessage(HttpStatusCode.OK);
+        response.Content = new StringContent("""{"Name":"hello"}""");
 
         var result = await Reader().ReadAsync(response, ReaderTestJsonContext.Default.ReaderTestDto, "ctx");
 
@@ -47,10 +56,8 @@ public class ExternalApiReaderTests
     [Fact]
     public async Task ReadAsync_MalformedJson_ThrowsExternalDependency()
     {
-        using var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent("not json at all"),
-        };
+        using var response = new HttpResponseMessage(HttpStatusCode.OK);
+        response.Content = new StringContent("not json at all");
 
         await Assert.ThrowsAsync<ExternalDependencyException>(
             () => Reader().ReadAsync(response, ReaderTestJsonContext.Default.ReaderTestDto, "ctx"));

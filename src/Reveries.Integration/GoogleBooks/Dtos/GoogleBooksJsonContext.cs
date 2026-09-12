@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
-using Reveries.Integration.GoogleBooks.DTOs;
 
-namespace Reveries.Integration.GoogleBooks;
+namespace Reveries.Integration.GoogleBooks.Dtos;
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 [JsonSerializable(typeof(GoogleBookResponseDto))]

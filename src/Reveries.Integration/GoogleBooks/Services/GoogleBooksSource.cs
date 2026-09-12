@@ -3,20 +3,20 @@ using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Enums;
-using Reveries.Integration.GoogleBooks.DTOs;
+using Reveries.Integration.GoogleBooks.Dtos;
 using Reveries.Integration.GoogleBooks.Interfaces;
 using Reveries.Integration.GoogleBooks.Mappers;
 
 namespace Reveries.Integration.GoogleBooks.Services;
 
-public class GoogleBookService : IBookSearch
+public class GoogleBooksSource : IBookSearch
 {
     public BookSource Source => BookSource.GoogleBooks;
 
     private readonly IGoogleBooksClient _googleBooksClient;
-    private readonly ILogger<GoogleBookService> _logger;
+    private readonly ILogger<GoogleBooksSource> _logger;
 
-    public GoogleBookService(IGoogleBooksClient googleBooksClient, ILogger<GoogleBookService> logger)
+    public GoogleBooksSource(IGoogleBooksClient googleBooksClient, ILogger<GoogleBooksSource> logger)
     {
         _googleBooksClient = googleBooksClient;
         _logger = logger;

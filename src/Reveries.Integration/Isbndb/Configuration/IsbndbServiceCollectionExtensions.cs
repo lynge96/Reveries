@@ -18,7 +18,7 @@ public static class IsbndbServiceCollectionExtensions
 
         services.AddIsbndbClients();
 
-        services.AddScoped<IBookSearch, IsbndbBookService>();
+        services.AddScoped<IBookSearch, IsbndbSource>();
 
         return services;
     }

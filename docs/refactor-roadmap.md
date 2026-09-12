@@ -37,39 +37,27 @@ either of the other two, and query work needs a real database to verify against.
 
 ## Completed — solution restructuring
 
-Before Phase 0, the outer layer was consolidated from **6 projects to 3** so that
-test projects can mirror the production layers cleanly:
+The outer layer was consolidated from **6 projects to 3** so test projects mirror
+the production layers cleanly:
 
-- `Reveries.Integration.Http` + `.GoogleBooks` + `.Isbndb` → **`Reveries.Integration`**
-  (folders `Http/`, `GoogleBooks/`, `Isbndb/`; namespaces unchanged).
-- `Reveries.Infrastructure` + `.Postgresql` + `.Redis` → first merged into one
-  `Reveries.Infrastructure`, then persistence was split back out (it has the
-  strongest case: heaviest isolated dependencies, largest, and the main
-  integration-test target). Final split:
-  - **`Reveries.Infrastructure`** — composition + Serilog logging + Redis caching.
-  - **`Reveries.Persistence`** — the Dapper/Npgsql database adapter (namespaces
-    `Reveries.Persistence.*`; DB session and `ITransactionManager` under `Context/`).
+- `Reveries.Integration.Http`/`.GoogleBooks`/`.Isbndb` → **`Reveries.Integration`**
+  (folders `Http/`, `GoogleBooks/`, `Isbndb/`). A later tidy pass made each provider
+  an identical slice (`Clients/Configuration/Dtos/Interfaces/Mappers/Services`):
+  `DTOs/` → `Dtos/`, ISBNDB's `Dtos/Books/` flattened, JSON contexts moved beside
+  their DTOs, the Google mapper renamed to the API name (`GoogleBooksMapper`), and the
+  two `IBookSearch` implementations renamed for their role (`GoogleBooksSource`, `IsbndbSource`).
+- `Reveries.Infrastructure`/`.Postgresql`/`.Redis` → **`Reveries.Infrastructure`**
+  (composition + Serilog + Redis) with the Dapper/Npgsql adapter split back out as
+  **`Reveries.Persistence`** (namespaces `Reveries.Persistence.*`; DB session +
+  `ITransactionManager` under `Context/`).
 
-The outer layer is mirrored by test projects — `Reveries.Persistence.Tests`,
-`Reveries.Integration.Tests`, and `Reveries.Api.Tests` — alongside the existing
-`Reveries.Domain.Tests` and `Reveries.Application.Tests`.
-
-`Reveries.Console` — the CLI entry point — was **deleted**. It was a manual
-scratch/testing harness, and its last domain coupling (the `DataSource`-based
-filtering and ordering) had already been removed earlier in the refactor. The
-scanner (`Reveries.Blazor.BookScanner`) is now the only frontend.
-
-Layer boundaries that assembly separation no longer enforces are recovered by a
-**`Reveries.Architecture.Tests`** project using **NetArchTest**, asserting the
-layer rules on the compiled namespaces. Four rules are in place:
-
-1. Domain depends on no outer layer.
-2. Application depends only on Domain (not Contracts, Infrastructure, Persistence,
-   Integration, or Api).
-3. Contracts has no dependency on Domain (no domain type crosses the API boundary).
-4. The concrete `Reveries.Persistence.Repositories` types do not leak out of
-   Persistence — outer layers reach them only through the `IRepository`
-   interfaces and the `AddPostgres` DI extension.
+Test projects mirror the outer layers (`Reveries.Persistence.Tests`,
+`Reveries.Integration.Tests`, `Reveries.Api.Tests`, plus `Reveries.Domain.Tests`
+and `Reveries.Application.Tests`). `Reveries.Console` (a manual scratch harness) was
+**deleted**; the scanner is now the only frontend. **`Reveries.Architecture.Tests`**
+(NetArchTest) enforces the layer rules on the compiled namespaces: Domain depends on
+nothing outer, Application only on Domain, Contracts exposes no domain type, and the
+concrete `Reveries.Persistence.Repositories` types stay inside Persistence.
 
 ---
 
@@ -77,29 +65,19 @@ layer rules on the compiled namespaces. Four rules are in place:
 
 The one piece of work that de-risks both the domain and the query work at once.
 
-- [x] Add a new **`Reveries.Persistence.Tests`** project (mirroring the
-      Persistence layer) with **Testcontainers** (real Postgres in a throwaway
-      container). Repository/SQL tests belong here, not in `Application.Tests`.
-      A shared `PostgresContainerFixture` starts one container per collection,
-      applies `db_schema.sql` via a single `ApplySchemaAsync` seam, and resets
-      between tests with `TRUNCATE`.
-- [x] Add **repository-level tests** that exercise the hand-written Dapper SQL
-      against real Postgres — these are the safety net for Phase 2. Covered:
-      `BookRepository` full view hydration (book + authors + genres + dewey +
-      series), a write round-trip through a real transaction, the ISBN lookup
-      cross-matching, `GetAllBooksAsync` (empty + multi-row without relation
-      leakage), and the `PostgresDbContext` transaction lifecycle (re-entrancy
-      guard and post-commit reuse). These already caught and fixed a real bug: a
-      book with no publisher/series was hydrated as a fabricated object with a
-      null name instead of `null`.
+- [x] **`Reveries.Persistence.Tests`** with **Testcontainers** (real Postgres):
+      a shared `PostgresContainerFixture` (one container per collection, schema via
+      `ApplySchemaAsync`, `TRUNCATE` between tests) plus repository/SQL tests covering
+      `BookRepository` view hydration, a transactional write round-trip, ISBN
+      cross-matching, `GetAllBooksAsync`, and the `PostgresDbContext` transaction
+      lifecycle. Already caught a real bug (a publisher/series-less book hydrated as a
+      fabricated null-name object instead of `null`).
 - [ ] In **`Reveries.Application.Tests`** (use-case tests, infrastructure
       stubbed), write characterisation tests for the critical path: scan ISBN →
       enrich (with stubbed ISBNDB / Google Books HTTP responses) → persist → read
       back. Delete the placeholder `UnitTest1.cs`.
-- [x] Wire the new integration tests into CI (`pr.yml`) — already covered: the
-      `build-test` action runs an unfiltered `dotnet test` over the whole
-      solution, and `ubuntu-latest` provides a running Docker daemon, so
-      Testcontainers runs on every PR with no extra configuration.
+- [x] Integration tests wired into CI — `build-test` runs an unfiltered `dotnet test`
+      and `ubuntu-latest` provides a Docker daemon, so Testcontainers runs on every PR.
 
 **Why integration and not unit?** The Dapper SQL is hand-written; it can only be
 verified against a real database. Mocking the repositories would test the C#, not
@@ -115,98 +93,36 @@ queries behave as they do today, and the build fails if that behaviour changes.
 With the net in place, stabilise the core. Concrete targets spotted in the
 current model:
 
-- [x] **Long-parameter-list factories → parameter objects.** After the aggregate
-      split, the old `Book.Create` became `Work.Create` (7 params) and
-      `Edition.Create`. `Edition.Create` already took an `EditionData` record;
-      `Work.Create` was the remaining positional smell and was asymmetric with
-      `Work.Reconstitute` (which already took `WorkReconstitutionData`). Introduced
-      a **`WorkData`** input record so both `Work` factories take a parameter object,
-      mirroring the `EditionData`/`EditionReconstitutionData` pairing.
+- [x] **Long-parameter-list factories → parameter objects.** `Work.Create`/`Reconstitute`
+      both take a **`WorkData`**/`WorkReconstitutionData` record now, mirroring the
+      existing `EditionData`/`EditionReconstitutionData` pairing.
 - [x] **Weakly-typed fields → value objects / enums:**
-      - [x] `PublicationDate` is now a partial-date value object (`Editions/PublicationDate.cs`)
-        holding year + optional month/day with a derived `DatePrecision`; it parses
-        `YYYY` / `YYYY-MM` / `YYYY-MM-DD` best-effort and serializes back to the canonical
-        string stored in the unchanged `publication_date` varchar column.
-      - [x] `Binding` is now the `BookFormat` enum, normalized from raw strings via
-        `Helpers/BookFormatNormalizer.GetStandardFormat()`. The property, record params,
-        DB column and API contract were renamed `Binding` → `Format` because the enum
-        spans media (`Ebook`, `Audiobook`) that are not bindings; the external ISBNDB DTO
-        keeps its source name `Binding`.
-      - [x] `Language` is now a value object (`Editions/Language.cs`) owning the canonical
-        ISO-639-1 code and deriving the display name at the edge; validity is checked against
-        `CultureInfo.GetCultures(NeutralCultures)` rather than the lossy `GetLanguageName()`.
-      - [x] The two loose image `string?` fields are now a `Cover` value object
-        (`Editions/Cover.cs`) holding `Url` (the full cover image) + optional `ThumbnailUrl`.
-        `TryCreate` normalizes both (trim, empty→null) and drops anything that is not an
-        absolute http(s) URL; if only one usable URL survives it becomes `Url`. The property
-        was named `Url` (not `OriginalUrl`) so the domain does not inherit ISBNDB's
-        `image_original` source vocabulary. `Edition.SetCover` mirrors `SetPublisher`, so the
-        deferred ingestion step can swap the external URL for a stored one. The DB columns
-        (`image_url`, `image_thumbnail`) and the view are unchanged.
-
-        The self-hosting ingestion pipeline (download the source image at scan time, store it
-        in Cloudflare R2, serve our own URL) is designed but deferred. The Application-side
-        `ICoverImageStore` interface (returning `StoredCover`) is in place; the Infrastructure
-        implementation — HttpClient download + magic-byte validation + ImageSharp thumbnail +
-        `AWSSDK.S3` upload to R2, wired in before persistence and outside the DB transaction,
-        returning `null` on failure so book creation degrades to the external URL — is a later
-        step, to be built once the R2 bucket exists. ISBNDB's `image_original` (high-res but
-        expires ~2h after the API response) is the preferred ingest source precisely because
-        ingestion downloads it immediately; `image` (≤500px, durable) is the fallback.
-      - [x] `Msrp` was **removed** rather than modeled. It came only from ISBNDB as a
-        currency-less `decimal?` (a broken money model — an amount without a currency) holding
-        a US list price of little value to a personal Danish shelf; Saxo (the intended DK price
-        source) only yields a product URL via `ISaxoBookSearch`, not a price. A future
-        "collection value" feature can reintroduce price as a proper `Money` value object
-        (amount + `Currency`), user-entered or from a real retail feed. The `msrp` column was
-        dropped from `editions` and `editions_view`.
-      - [x] `Pages` stays an `int?` (a range-checked scalar does not reach the value-object
-        threshold) but its inline `> 0` check moved into a unit-tested `Helpers/PageCountNormalizer`,
-        which also drops implausibly large counts (`> 50000`) to null, matching the other
-        per-field normalizers.
-      - [x] `BookDimensions` gained a `Reconstitute(...)` factory that rehydrates without
-        re-sanitizing/re-rounding; `EditionMappingExtensions.ToDomain` now uses it instead of
-        `Create`, so the DB→domain path no longer re-validates persisted data. The two API-merge
-        call sites keep `Create` because they form new combined data from live results. This
-        closes the "Create vs Reconstitute stays clean" concern for the `Edition` aggregate.
-      - [x] `DataSource` (an enum recording whether a book came from an API, cache, or DB) was
-        **removed**. Provenance of a *read* is not a property of the aggregate — an `Edition` is
-        the same edition regardless of where it was fetched — so it never belonged on the domain
-        model or in the `editions` table. Its driven logic was also largely vestigial: the enum
-        was a broken `[Flags]` (no power-of-two values, so `HasFlag` was meaningless) and
-        `DataSource.Cache` was never assigned in production. The one real consumer was the
-        Blazor "already saved?" check (`_isSaved`), which now uses an honest
-        `BooksApi.ExistsAsync(isbn)` call instead — more correct, since the old switch had a dead
-        `"ExternalApi"` branch that mislabelled already-owned books as unsaved. The Console
-        source-based filtering/ordering was dropped (title ordering kept), the `BookSourceBadge`
-        component deleted, and the `data_source` column dropped from `editions`/`editions_view`.
-- [x] **Reviewed the public setters** (`SetPublisher`, `SetSeries`). The
-      `SetSeries` "null series with a number" concern was already resolved by the
-      `SeriesPlacement` value object: the number is a property *inside* a placement
-      that requires a non-null `Series`, so "number without series" is
-      unrepresentable, not merely validated. All three write paths uphold it —
-      `Work.SetSeries` (non-null param + `SeriesPlacement.Create`), the
-      `SetBookSeries` command (always creates a `Series` first), and
-      `Work.Reconstitute` (drops an orphan number when the series is absent). Added a
-      characterisation test pinning that reconstitute-time orphan drop.
-      (`UpdateDataSource` is gone with `DataSource`.) A DB-level
-      `CHECK (series_number IS NULL OR series_id IS NOT NULL)` for defence-in-depth
-      is noted but deferred.
-- [x] **Audited the `Create` vs `Reconstitute` split across every aggregate and
-      value object.** Most rehydration paths were already clean (`Publisher`,
-      `Series`, `Author`, `Language`, `Cover`, `BookDimensions`,
-      `GenreClassification`, and `Isbn`'s ISBN-13 path all use a `Reconstitute`/ctor).
-      Three genuine leaks were fixed by giving each value object a non-validating
-      `Reconstitute` and switching the reconstitution call site to it: **`Genre`**
-      and **`DeweyDecimal`** (the persistence mapper re-ran the normalising/validating
-      `TryCreate` on stored names/codes) and **`PublicationDate`** (`Edition.Reconstitute`
-      re-parsed the canonical date string via `TryCreate`). Visibility follows the
-      existing convention — `Genre`/`DeweyDecimal.Reconstitute` are `public` (called
-      from Persistence), `PublicationDate.Reconstitute` is `internal` (called only from
-      `Edition.Reconstitute`). One latent case is deliberately left: `Isbn`'s
-      ISBN-10-only fallback in `Edition.Reconstitute` calls `Isbn.Create`, but it is
-      unreachable because `Isbn.Value13` is always non-null, so a persisted edition
-      always stores `isbn13`.
+      - [x] `PublicationDate` — partial-date value object (year + optional month/day, derived
+        `DatePrecision`), parsing/serializing the canonical string in the unchanged column.
+      - [x] `Binding` → `BookFormat` enum (via `BookFormatNormalizer`); property/column/contract
+        renamed `Binding` → `Format` (the enum spans non-binding media); ISBNDB DTO keeps `Binding`.
+      - [x] `Language` — value object owning the ISO-639-1 code, validated against `CultureInfo`
+        neutral cultures, display name derived at the edge.
+      - [x] image fields → `Cover` value object (`Url` + optional `ThumbnailUrl`, http(s)-only).
+        Self-hosting ingestion (download → Cloudflare R2 → own URL) is designed but deferred; the
+        `ICoverImageStore`/`StoredCover` seam is in place, the Infrastructure impl is a later step.
+      - [x] `Msrp` **removed** (a currency-less US list price of little value); a future
+        "collection value" feature can reintroduce it as a proper `Money` value object. Column dropped.
+      - [x] `Pages` stays `int?` but its check moved to a unit-tested `PageCountNormalizer`
+        (also drops implausible `> 50000` counts).
+      - [x] `BookDimensions` gained a non-re-sanitizing `Reconstitute`; the DB→domain path uses it,
+        the two API-merge sites keep `Create`.
+      - [x] `DataSource` enum **removed** — read provenance is not an aggregate property; the Blazor
+        "already saved?" check now uses `BooksApi.ExistsAsync(isbn)`. Column dropped.
+- [x] **Reviewed the public setters.** The `SetSeries` "number without series" concern is
+      structurally unrepresentable via the `SeriesPlacement` value object (the number lives
+      inside a placement requiring a non-null `Series`); all write paths uphold it, pinned by a
+      test. A DB-level `CHECK` for defence-in-depth is deferred.
+- [x] **Audited `Create` vs `Reconstitute` across every aggregate/value object.** Most paths
+      were already clean; three leaks fixed by adding a non-validating `Reconstitute` and switching
+      the call site: **`Genre`**, **`DeweyDecimal`** (the mapper re-ran `TryCreate` on stored data)
+      and **`PublicationDate`** (re-parsed the stored string). One latent `Isbn.Create` fallback in
+      `Edition.Reconstitute` is left as unreachable.
 - [ ] **Author identity — external stable code (guards same-name authors).**
       Two different people with the same name currently collapse into one row
       (`normalized_name` is the identity via `UNIQUE(normalized_name)`), mixing
@@ -311,16 +227,11 @@ current model:
       Dapper SQL, `infra/db_schema.sql`). Backfill an initial baseline migration
       from the existing `db_schema.sql`.
 
-- [x] **`Work` gained a `Description` value object** alongside `Synopsis`
-      (`Works/Description.cs`). Google Books returns two descriptions — a short synopsis
-      (search result) and a fuller text including editorial content (full volume) — so
-      `Synopsis` now holds the short teaser and `Description` the full text; both strip HTML
-      via the shared `HtmlToPlainText` helper. `GoogleBookService` was changed to keep both
-      instead of collapsing to one (`Synopsis` from the search result, `Description` from the
-      volume), and `EditionWithWorkMerger` merges both fields. A `description text` column was
-      added to `works`/`works_view`. Both are work-level because the text describes the book's
-      content, identical across every edition — putting them on `Edition` would duplicate them
-      per ISBN.
+- [x] **`Work` gained a `Description` value object** alongside `Synopsis`. Google returns two
+      descriptions — a short synopsis (search result) and fuller text (full volume) — so
+      `Synopsis` holds the teaser and `Description` the full text (both HTML-stripped via
+      `HtmlToPlainText`); `GoogleBooksSource` keeps both and `EditionWithWorkMerger` merges them.
+      Both are work-level (identical across editions). A `description` column was added.
 
 **Done when:** the domain model expresses its invariants through types and
 methods, `Create`/`Reconstitute` are symmetric, and schema changes ship as
@@ -337,21 +248,13 @@ Now the domain is stable, optimise the outer edge with the Phase 0 tests as a ne
       `BookDeweyDecimalsRepository`). Confirm whether loading one `Book` fans out
       into many round-trips (N+1) and collapse them into set-based joins where
       it helps.
-- [x] **Collapse the write-path N+1.** The `GetOrCreate` repositories (`Author`,
-      `Genre`, `DeweyDecimal`) issued one round-trip per element, and the
-      join-table inserts ran one Dapper execution per row. All now use a single
-      `unnest`-based bulk upsert/insert per call: saving a book with N authors /
-      genres / dewey codes is a constant number of statements instead of scaling
-      with N. Duplicates within a batch are handled with `SELECT DISTINCT` (which
-      also avoids Postgres's "ON CONFLICT DO UPDATE cannot affect row a second
-      time"). Pinned by `GetOrCreateBatchTests`.
-- [x] Verify multi-table writes run inside a transaction so a book plus its
-      authors/genres commit or roll back together. The `IUnitOfWork` aggregate was
-      replaced by a focused `ITransactionManager` (transactional boundary only);
-      repositories are injected directly into the services that need them. A
-      `CreateCommand` seam on `IDbContext` attaches the active transaction to
-      every Dapper command, and `BeginTransactionAsync` guards against re-entrancy.
-      Proven by the write round-trip and `PostgresDbContext` lifecycle tests.
+- [x] **Collapsed the write-path N+1.** The `GetOrCreate` repositories and join-table inserts
+      now use a single `unnest`-based bulk upsert/insert per call (constant statements regardless
+      of N; in-batch duplicates via `SELECT DISTINCT`). Pinned by `GetOrCreateBatchTests`.
+- [x] **Multi-table writes run in a transaction.** `IUnitOfWork` replaced by a focused
+      `ITransactionManager`; a `CreateCommand` seam on `IDbContext` attaches the active
+      transaction to every Dapper command, with re-entrancy guarded. Proven by the write
+      round-trip and lifecycle tests.
 - [ ] Review indexes against the real query patterns (ISBN lookups, title
       search, author joins). Add missing indexes as migrations (Phase 1 tooling).
 - [ ] Re-check the Redis cache-aside paths (`IBookCacheService`) for correctness

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Reveries.Domain.Editions;
 using Reveries.Integration.Http;
 using Reveries.Integration.Isbndb.Configuration;
-using Reveries.Integration.Isbndb.DTOs.Books;
+using Reveries.Integration.Isbndb.Dtos;
 using Reveries.Integration.Isbndb.Interfaces;
 
 namespace Reveries.Integration.Isbndb.Clients;

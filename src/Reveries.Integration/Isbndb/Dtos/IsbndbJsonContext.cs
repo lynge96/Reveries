@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
-using Reveries.Integration.Isbndb.DTOs.Books;
 
-namespace Reveries.Integration.Isbndb;
+namespace Reveries.Integration.Isbndb.Dtos;
 
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
 [JsonSerializable(typeof(IsbndbBookResponseDto))]

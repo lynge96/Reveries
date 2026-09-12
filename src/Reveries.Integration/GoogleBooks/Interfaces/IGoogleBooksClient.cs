@@ -1,5 +1,5 @@
 using Reveries.Domain.Editions;
-using Reveries.Integration.GoogleBooks.DTOs;
+using Reveries.Integration.GoogleBooks.Dtos;
 
 namespace Reveries.Integration.GoogleBooks.Interfaces;
 

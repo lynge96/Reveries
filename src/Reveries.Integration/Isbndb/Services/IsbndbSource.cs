@@ -9,14 +9,14 @@ using Reveries.Integration.Isbndb.Mappers;
 
 namespace Reveries.Integration.Isbndb.Services;
 
-public class IsbndbBookService : IBookSearch
+public class IsbndbSource : IBookSearch
 {
     public BookSource Source => BookSource.Isbndb;
 
     private readonly IIsbndbBookClient _bookClient;
     private readonly IsbndbSettings _settings;
 
-    public IsbndbBookService(IIsbndbBookClient bookClient, IOptions<IsbndbSettings> options)
+    public IsbndbSource(IIsbndbBookClient bookClient, IOptions<IsbndbSettings> options)
     {
         _bookClient = bookClient;
         _settings = options.Value;

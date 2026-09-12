@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reveries.Domain.Editions;
 using Reveries.Integration.GoogleBooks.Configuration;
-using Reveries.Integration.GoogleBooks.DTOs;
+using Reveries.Integration.GoogleBooks.Dtos;
 using Reveries.Integration.GoogleBooks.Interfaces;
 using Reveries.Integration.Http;
 
@@ -24,29 +24,33 @@ public sealed class GoogleBooksClient : IGoogleBooksClient
 
     public async Task<GoogleBookResponseDto?> FetchBookByIsbnAsync(Isbn isbn, CancellationToken ct = default)
     {
-        var response = await _httpClient.GetAsync(BuildVolumesSearchUrl($"isbn:{isbn.Value13}"), ct);
+        var url = BuildUrl("volumes", ("q", $"isbn:{isbn.Value13}"));
+        var response = await _httpClient.GetAsync(url, ct);
 
         return await _reader.ReadAsync(response, GoogleBooksJsonContext.Default.GoogleBookResponseDto, $"ISBN '{isbn}'", ct);
     }
 
     public async Task<GoogleBookItemDto?> FetchBookByVolumeIdAsync(string volumeId, CancellationToken ct = default)
     {
-        var response = await _httpClient.GetAsync(WithKey($"volumes/{Uri.EscapeDataString(volumeId)}"), ct);
+        var url = BuildUrl($"volumes/{Uri.EscapeDataString(volumeId)}");
+        var response = await _httpClient.GetAsync(url, ct);
 
         return await _reader.ReadAsync(response, GoogleBooksJsonContext.Default.GoogleBookItemDto, $"volume id '{volumeId}'", ct);
     }
 
-    private string BuildVolumesSearchUrl(string query)
+    private string BuildUrl(string path, params ReadOnlySpan<(string Key, string? Value)> parameters)
     {
-        return WithKey($"volumes?q={Uri.EscapeDataString(query)}");
-    }
+        var pairs = new List<string>();
 
-    private string WithKey(string url)
-    {
-        if (string.IsNullOrWhiteSpace(_apiKey))
-            return url;
+        foreach (var (key, value) in parameters)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+                pairs.Add($"{key}={Uri.EscapeDataString(value)}");
+        }
 
-        var separator = url.Contains('?') ? '&' : '?';
-        return $"{url}{separator}key={Uri.EscapeDataString(_apiKey)}";
+        if (!string.IsNullOrWhiteSpace(_apiKey))
+            pairs.Add($"key={Uri.EscapeDataString(_apiKey)}");
+
+        return pairs.Count == 0 ? path : $"{path}?{string.Join('&', pairs)}";
     }
 }

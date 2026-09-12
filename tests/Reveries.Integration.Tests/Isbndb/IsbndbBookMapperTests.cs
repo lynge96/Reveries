@@ -1,4 +1,4 @@
-using Reveries.Integration.Isbndb.DTOs.Books;
+using Reveries.Integration.Isbndb.Dtos;
 using Reveries.Integration.Isbndb.Mappers;
 
 namespace Reveries.Integration.Tests.Isbndb;
@@ -34,6 +34,40 @@ public class IsbndbBookMapperTests
         Assert.Contains("Robert C. Martin", candidate.Authors);
         Assert.Equal(464, candidate.Pages);
         Assert.Contains("Software Engineering", candidate.SecondaryGenres);
+    }
+
+    [Fact]
+    public void ToBookCandidate_FallsBackToIsbn10_WhenNoIsbn13()
+    {
+        var dto = new IsbndbBookDto
+        {
+            Isbn10 = "0132350882",
+            Title = "Clean Code",
+        };
+
+        var candidate = dto.ToBookCandidate();
+
+        Assert.NotNull(candidate);
+        Assert.NotNull(candidate.Isbn);
+    }
+
+    [Fact]
+    public void ToBookCandidate_ConvertsLengthFromInchesToCentimeters()
+    {
+        var dto = new IsbndbBookDto
+        {
+            Isbn13 = "9780132350884",
+            Title = "Clean Code",
+            DimensionsStructured = new IsbndbDimensionsDto
+            {
+                Height = new IsbndbDimensionDto { Unit = "inches", Value = 8.5 },
+            },
+        };
+
+        var candidate = dto.ToBookCandidate();
+
+        Assert.NotNull(candidate?.Dimensions);
+        Assert.Equal(21.6m, candidate.Dimensions.HeightCm);
     }
 
     [Fact]

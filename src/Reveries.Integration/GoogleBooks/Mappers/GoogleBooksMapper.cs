@@ -2,11 +2,11 @@ using System.Globalization;
 using Reveries.Application.Books.Models;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Helpers;
-using Reveries.Integration.GoogleBooks.DTOs;
+using Reveries.Integration.GoogleBooks.Dtos;
 
 namespace Reveries.Integration.GoogleBooks.Mappers;
 
-public static class GoogleBookMapper
+public static class GoogleBooksMapper
 {
     public static BookCandidate? ToBookCandidate(this GoogleVolumeInfoDto volumeInfo)
     {

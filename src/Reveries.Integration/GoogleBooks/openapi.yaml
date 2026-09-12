@@ -1,4 +1,4 @@
-openapi: 3.0.4
+openapi: 3.0.0
 info:
   title: Books API (trimmed)
   description: 'Reduced Google Books API surface for Reveries: only the volumes (search + get) and series endpoints and the schemas they return.'
