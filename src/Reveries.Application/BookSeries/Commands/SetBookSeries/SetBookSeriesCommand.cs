@@ -2,9 +2,9 @@ using Mediator;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Works;
 
-namespace Reveries.Application.Books.Commands.SetBookSeries;
+namespace Reveries.Application.BookSeries.Commands.SetBookSeries;
 
-public sealed record SetBookSeriesCommand : IQuery<WorkId>
+public sealed record SetBookSeriesCommand : ICommand<WorkId>
 {
     public Isbn Isbn { get; }
     public string SeriesName { get; }

@@ -4,9 +4,9 @@ using Reveries.Application.BookSeries.Interfaces;
 using Reveries.Domain.BookSeries;
 using Reveries.Domain.Works;
 
-namespace Reveries.Application.Books.Commands.SetBookSeries;
+namespace Reveries.Application.BookSeries.Commands.SetBookSeries;
 
-public sealed class SetBookSeriesHandler : IQueryHandler<SetBookSeriesCommand, WorkId>
+public sealed class SetBookSeriesHandler : ICommandHandler<SetBookSeriesCommand, WorkId>
 {
     private readonly IBookSeriesService _bookSeriesService;
     private readonly ILogger<SetBookSeriesHandler> _logger;

@@ -1,7 +1,7 @@
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Reveries.Api.Mappers;
-using Reveries.Application.Books.Commands.SetBookSeries;
+using Reveries.Application.BookSeries.Commands.SetBookSeries;
 using Reveries.Application.Books.Queries.FindBookByIsbn;
 using Reveries.Application.Books.Queries.FindBooksByIsbns;
 using Reveries.Application.Books.Queries.GetAllBooks;

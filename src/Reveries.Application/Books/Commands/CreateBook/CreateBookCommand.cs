@@ -4,7 +4,7 @@ using Reveries.Domain.Works;
 
 namespace Reveries.Application.Books.Commands.CreateBook;
 
-public sealed record CreateBookCommand : IQuery<EditionId>
+public sealed record CreateBookCommand : ICommand<EditionId>
 {
     public Isbn? Isbn { get; init; }
     public required string Title { get; init; }
