@@ -18,7 +18,8 @@ public static class BookEndpoints
     public static IEndpointRouteBuilder MapBookEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("books")
-            .WithTags("Books");
+            .WithTags("Books")
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet("/", GetAllBooks)
             .WithName("GetAllBooks")
@@ -29,33 +30,41 @@ public static class BookEndpoints
             .WithName("GetBookById")
             .WithSummary("Get book by ID")
             .WithDescription("Fetches a book from the database by ID")
-            .Produces(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         group.MapGet("/isbn/{isbn}", GetBookByIsbn)
             .WithName("GetBookByIsbn")
             .WithSummary("Get book by ISBN")
             .WithDescription("Fetches a specific book by ISBN from external APIs, cache or the database")
-            .Produces(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status502BadGateway);
 
         group.MapGet("/isbn/{isbn}/exists", BookExists)
             .WithName("BookExists")
             .WithSummary("Check book exists")
-            .WithDescription("Checks if a book with the specified ISBN exists in the database");
+            .WithDescription("Checks if a book with the specified ISBN exists in the database")
+            .ProducesProblem(StatusCodes.Status400BadRequest);
 
         group.MapPost("/isbns", GetBooksByIsbns)
             .WithName("GetBooksByIsbns")
             .WithSummary("Get books by ISBNs")
-            .WithDescription("Fetches multiple books by ISBNs");
+            .WithDescription("Fetches multiple books by ISBNs")
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status502BadGateway);
 
         group.MapPost("/", CreateBook)
             .WithName("CreateBook")
             .WithSummary("Add book")
-            .WithDescription("Adds a new book to the database");
+            .WithDescription("Adds a new book to the database")
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status409Conflict);
 
         group.MapPatch("/{isbn}/series", SetSeries)
             .WithName("SetBookSeries")
             .WithSummary("Set series")
-            .WithDescription("Sets the series for a book by its ISBN");
+            .WithDescription("Sets the series for a book by its ISBN")
+            .ProducesValidationProblem();
 
         return app;
     }
