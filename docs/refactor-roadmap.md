@@ -330,10 +330,19 @@ on Minimal APIs, and the contract was made a first-class, generated artifact. Co
 
 Still open:
 
-- [ ] **API versioning** — decide the approach (e.g. **`Asp.Versioning.Http`** + a `/v1` route
-      group) before the first breaking contract change lands with new features.
-- [ ] **Pagination** on `GetAllBooks` (it currently returns the whole catalogue; a ticking
-      cost as the shelf grows). Add via `[AsParameters] PageRequest`.
+- [ ] **API versioning — deferred (YAGNI).** Not added yet: every consumer is controlled and
+      generated from `openapi.json`, so retrofitting is cheap. Introduce it only when the first
+      breaking change actually looms — likely a `/v1` URL segment, upgrading to
+      **`Asp.Versioning.Http`** if version negotiation / `api-supported-versions` headers are
+      wanted. `CreateBook` already uses `TypedResults.CreatedAtRoute`, so moving the routes under
+      a version group needs no endpoint changes. **No `/api` prefix** — the API has its own
+      subdomain (`api.reveries.dk`), which would make `/api/…` redundant; a prefix earns its
+      place only when the API shares an origin with a frontend.
+- [ ] **Pagination** on `GetAllBooks` (it currently returns the whole catalogue and 404s on an
+      empty result; a ticking cost as the shelf grows). Add via `[AsParameters] PageRequest` →
+      a paged response, and make an empty page a valid `200` rather than `404`. Touches the
+      Application query/handler, `IBookQueryRepository`, and the Dapper SQL (`ORDER BY` +
+      `LIMIT`/`OFFSET` + a `COUNT`), so it needs a Persistence (Testcontainers) test.
 - [ ] **Robustness middleware to weigh as the API goes public** (it is exposed via the
       Cloudflare tunnel): rate limiting (`AddRateLimiter`), output caching (`AddOutputCache`),
       and request timeouts (`AddRequestTimeouts`) — all **built-in**, no packages. A stable
@@ -342,6 +351,9 @@ Still open:
 - [ ] **Authentication/authorization** — there is none today (`UseAuthorization` was removed as
       a no-op). Deferred to the social-layer feature work, but must land before any non-personal
       exposure.
+- [ ] **OpenTelemetry** for distributed tracing — traces/metrics unified with the existing
+      Serilog→Loki + Prometheus observability. A larger addition worth doing once there are more
+      services to correlate across; not needed for a single API now.
 
 **Done when:** the API surface is documented, consistent, validated, and versioned ready for
 feature work.

@@ -127,7 +127,7 @@ public sealed class BookEndpointsTests : IDisposable
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        Assert.Equal($"/books/{editionId.Value}", response.Headers.Location?.ToString());
+        Assert.Equal($"/books/{editionId.Value}", response.Headers.Location?.AbsolutePath);
         var payload = await response.Content.ReadFromJsonAsync<CreateBookResponse>();
         Assert.Equal(editionId.Value, payload?.Id);
     }
