@@ -7,6 +7,8 @@ namespace Reveries.Persistence.Migrations;
 
 public sealed class DatabaseMigrationHostedService : IHostedService
 {
+    private const string RunMigrationsKey = "Database:RunMigrationsAtStartup";
+
     private readonly IConfiguration _configuration;
     private readonly ILoggerFactory _loggerFactory;
 
@@ -18,6 +20,9 @@ public sealed class DatabaseMigrationHostedService : IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        if (!_configuration.GetValue(RunMigrationsKey, defaultValue: true))
+            return Task.CompletedTask;
+
         var connectionString = _configuration.GetConnectionString(ConnectionStringKeys.ReveriesDb)
             ?? throw new MissingConnectionStringException(ConnectionStringKeys.ReveriesDb);
 

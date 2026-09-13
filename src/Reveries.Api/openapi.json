@@ -1,0 +1,666 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Reveries API",
+    "description": "REST API for the Reveries book catalog.",
+    "version": "v1"
+  },
+  "paths": {
+    "/books": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Get all books",
+        "description": "Fetches every book in the database",
+        "operationId": "GetAllBooks",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooksResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Add book",
+        "description": "Adds a new book to the database",
+        "operationId": "CreateBook",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBookResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/{id}": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Get book by ID",
+        "description": "Fetches a book from the database by ID",
+        "operationId": "GetBookById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDetailsDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/books/isbn/{isbn}": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Get book by ISBN",
+        "description": "Fetches a specific book by ISBN from external APIs, cache or the database",
+        "operationId": "GetBookByIsbn",
+        "parameters": [
+          {
+            "name": "isbn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDetailsDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/books/isbn/{isbn}/exists": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Check book exists",
+        "description": "Checks if a book with the specified ISBN exists in the database",
+        "operationId": "BookExists",
+        "parameters": [
+          {
+            "name": "isbn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/isbns": {
+      "post": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Get books by ISBNs",
+        "description": "Fetches multiple books by ISBNs",
+        "operationId": "GetBooksByIsbns",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkIsbnRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooksResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/{isbn}/series": {
+      "patch": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Set series",
+        "description": "Sets the series for a book by its ISBN",
+        "operationId": "SetBookSeries",
+        "parameters": [
+          {
+            "name": "isbn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetBookSeriesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BookDetailsDto": {
+        "required": [
+          "bookId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "bookId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isbn10": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isbn13": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "subtitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "series": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "numberInSeries": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "authors": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "publisher": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "language": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "publicationDate": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "synopsis": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "format": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "edition": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "imageThumbnailUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "coverImageUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "weightG": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "heightCm": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "widthCm": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "thicknessCm": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "deweyDecimals": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "primaryGenres": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "secondaryGenres": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "BooksResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookDetailsDto"
+            }
+          }
+        }
+      },
+      "BulkIsbnRequest": {
+        "type": "object",
+        "properties": {
+          "isbns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateBookRequest": {
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "isbn10": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isbn13": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "subtitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "series": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "numberInSeries": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "authors": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "publisher": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "language": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "publicationDate": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "synopsis": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "format": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "edition": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "imageThumbnail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "imageUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "heightCm": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "widthCm": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "thicknessCm": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "weightG": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "deweyDecimals": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "primaryGenres": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "secondaryGenres": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateBookResponse": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "SetBookSeriesRequest": {
+        "required": [
+          "seriesName"
+        ],
+        "type": "object",
+        "properties": {
+          "seriesName": {
+            "type": "string"
+          },
+          "numberInSeries": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Books"
+    }
+  ]
+}

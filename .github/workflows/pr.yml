@@ -28,3 +28,10 @@ jobs:
 
       - name: Build & test
         uses: ./.github/actions/build-test
+
+      - name: Verify OpenAPI spec is up to date
+        shell: bash
+        run: |
+          dotnet build src/Reveries.Api/Reveries.Api.csproj -t:GenerateOpenApi
+          git diff --exit-code -- src/Reveries.Api/openapi.json \
+            || { echo "::error::openapi.json is out of date. Run 'dotnet build src/Reveries.Api/Reveries.Api.csproj -t:GenerateOpenApi' and commit the result."; exit 1; }

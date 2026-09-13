@@ -21,32 +21,39 @@ public static class BookEndpoints
             .WithTags("Books");
 
         group.MapGet("/", GetAllBooks)
+            .WithName("GetAllBooks")
             .WithSummary("Get all books")
             .WithDescription("Fetches every book in the database");
 
         group.MapGet("/{id:guid}", GetBookById)
+            .WithName("GetBookById")
             .WithSummary("Get book by ID")
             .WithDescription("Fetches a book from the database by ID")
             .Produces(StatusCodes.Status404NotFound);
 
         group.MapGet("/isbn/{isbn}", GetBookByIsbn)
+            .WithName("GetBookByIsbn")
             .WithSummary("Get book by ISBN")
             .WithDescription("Fetches a specific book by ISBN from external APIs, cache or the database")
             .Produces(StatusCodes.Status404NotFound);
 
         group.MapGet("/isbn/{isbn}/exists", BookExists)
+            .WithName("BookExists")
             .WithSummary("Check book exists")
             .WithDescription("Checks if a book with the specified ISBN exists in the database");
 
         group.MapPost("/isbns", GetBooksByIsbns)
+            .WithName("GetBooksByIsbns")
             .WithSummary("Get books by ISBNs")
             .WithDescription("Fetches multiple books by ISBNs");
 
         group.MapPost("/", CreateBook)
+            .WithName("CreateBook")
             .WithSummary("Add book")
             .WithDescription("Adds a new book to the database");
 
         group.MapPatch("/{isbn}/series", SetSeries)
+            .WithName("SetBookSeries")
             .WithSummary("Set series")
             .WithDescription("Sets the series for a book by its ISBN");
 
