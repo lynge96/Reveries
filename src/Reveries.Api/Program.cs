@@ -9,7 +9,6 @@ using Reveries.Application;
 using Reveries.Infrastructure;
 using Reveries.Infrastructure.Logging;
 using Reveries.Integration;
-using Reveries.Persistence;
 using Reveries.Persistence.Migrations;
 
 Env.Load();
@@ -28,13 +27,10 @@ builder.Services
     .AddIntegration(builder.Configuration)
     .AddCorsPolicies()
     .AddExceptionHandling(builder.Environment)
-    .AddOpenApiDocument(builder.Configuration);
+    .AddOpenApiDocument(builder.Configuration)
+    .AddDatabaseMigrations();
 
 var app = builder.Build();
-
-DatabaseMigrator.Run(
-    app.Configuration.GetConnectionString(ConnectionStringKeys.ReveriesDb)!,
-    app.Services.GetRequiredService<ILoggerFactory>());
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
