@@ -8,7 +8,7 @@ using Reveries.Persistence.Migrations;
 
 namespace Reveries.Api.Tests;
 
-public sealed class BookApiFactory : WebApplicationFactory<IApiMarker>
+public sealed class BookApiFactory : WebApplicationFactory<Program>
 {
     public IMediator Mediator { get; } = Substitute.For<IMediator>();
 

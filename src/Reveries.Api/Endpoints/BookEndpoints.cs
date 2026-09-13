@@ -99,10 +99,13 @@ public static class BookEndpoints
         return TypedResults.Ok(books.ToResponse());
     }
 
-    private static async Task<Created<CreateBookResponse>> CreateBook(CreateBookRequest request, IMediator mediator, CancellationToken ct)
+    private static async Task<CreatedAtRoute<CreateBookResponse>> CreateBook(CreateBookRequest request, IMediator mediator, CancellationToken ct)
     {
         var editionId = await mediator.Send(request.ToCommand(), ct);
-        return TypedResults.Created($"/books/{editionId.Value}", new CreateBookResponse(editionId.Value));
+        return TypedResults.CreatedAtRoute(
+            new CreateBookResponse(editionId.Value),
+            "GetBookById",
+            new { id = editionId.Value });
     }
 
     private static async Task<NoContent> SetSeries(string isbn, SetBookSeriesRequest body, IMediator mediator, CancellationToken ct)
