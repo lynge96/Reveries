@@ -28,7 +28,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\Reveries.Domain\Reveries.Domain.csproj" />
       <ProjectReference Include="..\..\src\Reveries.Application\Reveries.Application.csproj" />
-      <ProjectReference Include="..\..\src\Reveries.Contracts\Reveries.Contracts.csproj" />
       <ProjectReference Include="..\..\src\Reveries.Infrastructure\Reveries.Infrastructure.csproj" />
       <ProjectReference Include="..\..\src\Reveries.Persistence\Reveries.Persistence.csproj" />
       <ProjectReference Include="..\..\src\Reveries.Integration\Reveries.Integration.csproj" />

@@ -11,7 +11,6 @@ WORKDIR /src
 COPY ["src/Reveries.Api/Reveries.Api.csproj", "Reveries.Api/"]
 COPY ["src/Reveries.Application/Reveries.Application.csproj", "Reveries.Application/"]
 COPY ["src/Reveries.Domain/Reveries.Domain.csproj", "Reveries.Domain/"]
-COPY ["src/Reveries.Contracts/Reveries.Contracts.csproj", "Reveries.Contracts/"]
 COPY ["src/Reveries.Infrastructure/Reveries.Infrastructure.csproj", "Reveries.Infrastructure/"]
 COPY ["src/Reveries.Persistence/Reveries.Persistence.csproj", "Reveries.Persistence/"]
 COPY ["src/Reveries.Integration/Reveries.Integration.csproj", "Reveries.Integration/"]

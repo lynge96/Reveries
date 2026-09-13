@@ -1,6 +1,6 @@
 using Reveries.Application.Books.Models;
-using Reveries.Contracts.Books.Dtos;
-using Reveries.Contracts.Books.Responses;
+using Reveries.Api.Contracts.Books.Dtos;
+using Reveries.Api.Contracts.Books.Responses;
 
 namespace Reveries.Api.Mappers;
 

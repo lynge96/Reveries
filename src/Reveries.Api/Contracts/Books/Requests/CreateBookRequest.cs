@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Reveries.Contracts.Books.Requests;
+namespace Reveries.Api.Contracts.Books.Requests;
 
 public record CreateBookRequest
 {

@@ -7,9 +7,9 @@ using Reveries.Application.Books.Queries.FindBooksByIsbns;
 using Reveries.Application.Books.Queries.GetAllBooks;
 using Reveries.Application.Books.Queries.GetBookById;
 using Reveries.Application.Books.Queries.GetBookExists;
-using Reveries.Contracts.Books.Dtos;
-using Reveries.Contracts.Books.Requests;
-using Reveries.Contracts.Books.Responses;
+using Reveries.Api.Contracts.Books.Dtos;
+using Reveries.Api.Contracts.Books.Requests;
+using Reveries.Api.Contracts.Books.Responses;
 
 namespace Reveries.Api.Endpoints;
 

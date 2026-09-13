@@ -9,7 +9,6 @@ on:
     paths:
       - 'src/Reveries.Api/**'
       - 'src/Reveries.Application/**'
-      - 'src/Reveries.Contracts/**'
       - 'src/Reveries.Domain/**'
       - 'src/Reveries.Infrastructure/**'
       - 'src/Reveries.Persistence/**'

@@ -2,7 +2,6 @@
 WORKDIR /src
 
 COPY ["src/Reveries.Blazor.BookScanner/Reveries.Blazor.BookScanner.csproj", "Reveries.Blazor.BookScanner/"]
-COPY ["src/Reveries.Contracts/Reveries.Contracts.csproj", "Reveries.Contracts/"]
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
     dotnet restore "Reveries.Blazor.BookScanner/Reveries.Blazor.BookScanner.csproj"

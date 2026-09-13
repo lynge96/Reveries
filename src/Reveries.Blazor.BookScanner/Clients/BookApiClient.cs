@@ -1,8 +1,6 @@
 using System.Net.Http.Json;
 using Reveries.Blazor.BookScanner.Exceptions;
-using Reveries.Contracts.Books.Dtos;
-using Reveries.Contracts.Books.Requests;
-using Reveries.Contracts.Books.Responses;
+using Reveries.Blazor.BookScanner.ApiContracts;
 
 namespace Reveries.Blazor.BookScanner.Clients;
 

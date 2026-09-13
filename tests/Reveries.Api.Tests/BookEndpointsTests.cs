@@ -10,9 +10,9 @@ using Reveries.Application.Books.Queries.GetBookById;
 using Reveries.Application.Books.Queries.GetBookExists;
 using Reveries.Application.BookSeries.Commands.SetBookSeries;
 using Reveries.Application.Common.Exceptions;
-using Reveries.Contracts.Books.Dtos;
-using Reveries.Contracts.Books.Requests;
-using Reveries.Contracts.Books.Responses;
+using Reveries.Api.Contracts.Books.Dtos;
+using Reveries.Api.Contracts.Books.Requests;
+using Reveries.Api.Contracts.Books.Responses;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Works;
 
