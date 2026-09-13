@@ -1,10 +1,16 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Reveries.Contracts.Books.Requests;
 
 public record CreateBookRequest
 {
     public string? Isbn10 { get; set; }
     public string? Isbn13 { get; set; }
+
+    [Required]
+    [StringLength(500, MinimumLength = 1)]
     public required string Title { get; set; }
+
     public string? Subtitle { get; set; }
     public string? Series { get; set; }
     public int? NumberInSeries { get; set; }

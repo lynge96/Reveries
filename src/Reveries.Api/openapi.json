@@ -435,9 +435,14 @@
         }
       },
       "BulkIsbnRequest": {
+        "required": [
+          "isbns"
+        ],
         "type": "object",
         "properties": {
           "isbns": {
+            "maxItems": 100,
+            "minItems": 1,
             "type": "array",
             "items": {
               "type": "string"
@@ -464,6 +469,8 @@
             ]
           },
           "title": {
+            "maxLength": 500,
+            "minLength": 1,
             "type": "string"
           },
           "subtitle": {
@@ -643,9 +650,13 @@
         "type": "object",
         "properties": {
           "seriesName": {
+            "maxLength": 200,
+            "minLength": 1,
             "type": "string"
           },
           "numberInSeries": {
+            "maximum": 2147483647,
+            "minimum": 1,
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",

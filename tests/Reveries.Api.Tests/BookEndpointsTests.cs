@@ -149,6 +149,32 @@ public sealed class BookEndpointsTests : IDisposable
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
+    [Fact]
+    public async Task CreateBook_with_blank_title_returns_400()
+    {
+        // Arrange — validation short-circuits before the handler, so no mediator setup.
+        var client = _factory.CreateClient();
+
+        // Act
+        var response = await client.PostAsJsonAsync("/books", new CreateBookRequest { Title = "" });
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetBooksByIsbns_with_empty_list_returns_400()
+    {
+        // Arrange
+        var client = _factory.CreateClient();
+
+        // Act
+        var response = await client.PostAsJsonAsync("/books/isbns", new BulkIsbnRequest { Isbns = [] });
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     private static BookDetails CreateBookDetails(Guid? id = null) => new()
     {
         BookId = id ?? Guid.NewGuid(),

@@ -20,6 +20,7 @@ builder.Services.AddMediator(options =>
     options.ServiceLifetime = ServiceLifetime.Scoped;
 });
 builder.Services.AddApplicationHealthChecks();
+builder.Services.AddValidation();
 
 builder.Services
     .AddApplication()
