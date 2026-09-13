@@ -22,7 +22,7 @@ public class LayerDependencyTests
     private static readonly Assembly ContractsAssembly = typeof(Contracts.Books.Dtos.BookDetailsDto).Assembly;
     private static readonly Assembly InfrastructureAssembly = typeof(Infrastructure.DependencyInjection).Assembly;
     private static readonly Assembly IntegrationAssembly = typeof(Integration.GoogleBooks.Clients.GoogleBooksClient).Assembly;
-    private static readonly Assembly ApiAssembly = typeof(Api.Controllers.BooksController).Assembly;
+    private static readonly Assembly ApiAssembly = typeof(Api.Endpoints.BookEndpoints).Assembly;
 
     // Rule 1 — Domain depends on no outer layer.
     [Fact]
