@@ -22,7 +22,9 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
     {
         _logger.LogError(exception,
             "Unhandled exception occurred. TraceId: {TraceId}, Path: {Path}, Method: {Method}",
-            httpContext.TraceIdentifier, httpContext.Request.Path, httpContext.Request.Method);
+            httpContext.TraceIdentifier,
+            RemoveLineBreaks(httpContext.Request.Path.Value),
+            RemoveLineBreaks(httpContext.Request.Method));
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
@@ -41,4 +43,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             }
         });
     }
+
+    private static string RemoveLineBreaks(string? value) =>
+        value?.Replace("\r", string.Empty).Replace("\n", string.Empty) ?? string.Empty;
 }
