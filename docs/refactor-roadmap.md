@@ -330,14 +330,6 @@ on Minimal APIs, and the contract was made a first-class, generated artifact. Co
 
 Still open:
 
-- [ ] **API versioning — deferred (YAGNI).** Not added yet: every consumer is controlled and
-      generated from `openapi.json`, so retrofitting is cheap. Introduce it only when the first
-      breaking change actually looms — likely a `/v1` URL segment, upgrading to
-      **`Asp.Versioning.Http`** if version negotiation / `api-supported-versions` headers are
-      wanted. `CreateBook` already uses `TypedResults.CreatedAtRoute`, so moving the routes under
-      a version group needs no endpoint changes. **No `/api` prefix** — the API has its own
-      subdomain (`api.reveries.dk`), which would make `/api/…` redundant; a prefix earns its
-      place only when the API shares an origin with a frontend.
 - [ ] **Pagination** on `GetAllBooks` (it currently returns the whole catalogue and 404s on an
       empty result; a ticking cost as the shelf grows). Add via `[AsParameters] PageRequest` →
       a paged response, and make an empty page a valid `200` rather than `404`. Touches the

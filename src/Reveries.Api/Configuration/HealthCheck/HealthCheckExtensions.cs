@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Reveries.Persistence.Configuration;
-using Reveries.Infrastructure.Redis.Configuration;
 
 namespace Reveries.Api.Configuration.HealthCheck;
 
@@ -10,8 +9,7 @@ public static class HealthCheckExtensions
     public static IServiceCollection AddApplicationHealthChecks(this IServiceCollection services)
     {
         services.AddHealthChecks()
-            .AddPostgresHealthCheck()
-            .AddRedisHealthCheck();
+            .AddPostgresHealthCheck();
 
         return services;
     }
