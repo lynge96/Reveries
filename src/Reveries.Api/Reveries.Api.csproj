@@ -7,17 +7,26 @@
     <UserSecretsId>53aa76f5-44dc-4ace-86b5-5d2381ce21a4</UserSecretsId>
     <LangVersion>14</LangVersion>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <OpenApiGenerateDocumentsOnBuild>false</OpenApiGenerateDocumentsOnBuild>
+    <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)</OpenApiDocumentsDirectory>
+    <OpenApiDocumentName>v1</OpenApiDocumentName>
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Reveries.Api.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.2.3" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.12">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Scalar.AspNetCore" Version="2.17.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Reveries.Application\Reveries.Application.csproj" />
-    <ProjectReference Include="..\Reveries.Contracts\Reveries.Contracts.csproj" />
     <ProjectReference Include="..\Reveries.Infrastructure\Reveries.Infrastructure.csproj" />
     <ProjectReference Include="..\Reveries.Persistence\Reveries.Persistence.csproj" />
     <ProjectReference Include="..\Reveries.Integration\Reveries.Integration.csproj" />
@@ -28,5 +37,13 @@
       <Link>.dockerignore</Link>
     </Content>
   </ItemGroup>
+
+  <Target Name="GenerateOpenApi">
+    <Delete Files="$(MSBuildProjectDirectory)/obj/$(AssemblyName).OpenApiFiles.cache;$(MSBuildProjectDirectory)/$(AssemblyName).json" />
+    <Exec Command="dotnet build &quot;$(MSBuildProjectFullPath)&quot; --configuration Debug -p:OpenApiGenerateDocumentsOnBuild=true"
+          EnvironmentVariables="ConnectionStrings__ReveriesDb=Host=localhost;Isbndb__ApiKey=openapi-gen;GoogleBooks__ApiKey=openapi-gen;Database__RunMigrationsAtStartup=false" />
+    <Move SourceFiles="$(MSBuildProjectDirectory)/$(AssemblyName).json"
+          DestinationFiles="$(OpenApiDocumentsDirectory)/openapi.json" />
+  </Target>
 
 </Project>

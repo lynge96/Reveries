@@ -17,10 +17,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Reveries.Contracts\Reveries.Contracts.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <Content Include="..\..\.dockerignore">
       <Link>.dockerignore</Link>
     </Content>
@@ -28,5 +24,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <Target Name="GenerateApiModels">
+    <Exec Command="dotnet tool restore" />
+    <Exec Command="dotnet nswag openapi2csclient /input:&quot;$(MSBuildProjectDirectory)/../Reveries.Api/openapi.json&quot; /classStyle:Poco /generateClientClasses:false /generateExceptionClasses:false /generateNullableReferenceTypes:true /jsonLibrary:SystemTextJson /namespace:Reveries.Blazor.BookScanner.ApiContracts /output:&quot;$(MSBuildProjectDirectory)/Generated/ApiContracts.g.cs&quot;" />
+  </Target>
 
 </Project>

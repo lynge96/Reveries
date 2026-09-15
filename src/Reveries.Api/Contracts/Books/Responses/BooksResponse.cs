@@ -1,6 +1,6 @@
-using Reveries.Contracts.Books.Dtos;
+using Reveries.Api.Contracts.Books.Dtos;
 
-namespace Reveries.Contracts.Books.Responses;
+namespace Reveries.Api.Contracts.Books.Responses;
 
 public class BooksResponse
 {

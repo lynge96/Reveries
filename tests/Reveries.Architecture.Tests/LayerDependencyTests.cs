@@ -11,7 +11,7 @@ public class LayerDependencyTests
 {
     private const string Domain = "Reveries.Domain";
     private const string Application = "Reveries.Application";
-    private const string Contracts = "Reveries.Contracts";
+    private const string ApiContracts = "Reveries.Api.Contracts";
     private const string Infrastructure = "Reveries.Infrastructure";
     private const string Persistence = "Reveries.Persistence";
     private const string Integration = "Reveries.Integration";
@@ -19,10 +19,9 @@ public class LayerDependencyTests
 
     private static readonly Assembly DomainAssembly = typeof(Domain.Works.Work).Assembly;
     private static readonly Assembly ApplicationAssembly = typeof(Application.ApplicationServiceCollectionExtensions).Assembly;
-    private static readonly Assembly ContractsAssembly = typeof(Contracts.Books.Dtos.BookDetailsDto).Assembly;
     private static readonly Assembly InfrastructureAssembly = typeof(Infrastructure.DependencyInjection).Assembly;
     private static readonly Assembly IntegrationAssembly = typeof(Integration.GoogleBooks.Clients.GoogleBooksClient).Assembly;
-    private static readonly Assembly ApiAssembly = typeof(Api.Controllers.BooksController).Assembly;
+    private static readonly Assembly ApiAssembly = typeof(Api.Endpoints.BookEndpoints).Assembly;
 
     // Rule 1 — Domain depends on no outer layer.
     [Fact]
@@ -34,14 +33,14 @@ public class LayerDependencyTests
         // Act
         var result = types
             .Should()
-            .NotHaveDependencyOnAny(Application, Contracts, Infrastructure, Persistence, Integration, Api)
+            .NotHaveDependencyOnAny(Application, Infrastructure, Persistence, Integration, Api)
             .GetResult();
 
         // Assert
         Assert.True(result.IsSuccessful, Describe(result));
     }
 
-    // Rule 2 — Application depends on no outer adapter, the API boundary, or Contracts.
+    // Rule 2 — Application depends on no outer adapter or the API boundary (the DTOs now live under Reveries.Api).
     [Fact]
     public void Application_should_depend_only_on_domain()
     {
@@ -51,19 +50,21 @@ public class LayerDependencyTests
         // Act
         var result = types
             .Should()
-            .NotHaveDependencyOnAny(Contracts, Infrastructure, Persistence, Integration, Api)
+            .NotHaveDependencyOnAny(Infrastructure, Persistence, Integration, Api)
             .GetResult();
 
         // Assert
         Assert.True(result.IsSuccessful, Describe(result));
     }
 
-    // Rule 3 — Contracts has no dependency on Domain.
+    // Rule 3 — the API contracts (DTOs, now a namespace inside Reveries.Api) expose no Domain type.
     [Fact]
     public void Contracts_should_not_depend_on_domain()
     {
         // Arrange
-        var types = Types.InAssembly(ContractsAssembly);
+        var types = Types.InAssembly(ApiAssembly)
+            .That()
+            .ResideInNamespaceStartingWith(ApiContracts);
 
         // Act
         var result = types
@@ -81,7 +82,7 @@ public class LayerDependencyTests
     {
         // Arrange
         const string repositories = "Reveries.Persistence.Repositories";
-        Assembly[] outerLayers = [ContractsAssembly, ApplicationAssembly, InfrastructureAssembly, IntegrationAssembly, ApiAssembly];
+        Assembly[] outerLayers = [ApplicationAssembly, InfrastructureAssembly, IntegrationAssembly, ApiAssembly];
 
         // Act
         var offenders = outerLayers

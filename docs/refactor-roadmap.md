@@ -290,24 +290,72 @@ tests running against real Postgres.
 
 ---
 
-## Phase 3 — API & edges (light, last)
+## Phase 3 — API & edges
 
-Least risky, so last.
+This turned out much larger than "light, last": the API layer was rebuilt from the ground up
+on Minimal APIs, and the contract was made a first-class, generated artifact. Completed:
 
-**Note — direction for the API refactor:** when the API layer is refactored, move
-from MVC controllers to **Minimal APIs** (endpoint routing, typed results). The
-controller-specific items below are then reframed as the equivalent Minimal-API
-concerns (thin endpoint delegates dispatching to Mediator, `TypedResults`,
-`.WithOpenApi()` metadata, route groups for versioning).
+- [x] **MVC controllers → Minimal APIs.** Endpoints live in `Reveries.Api/Endpoints` on a
+      `MapGroup("books")` route group — thin `static` delegates dispatching to Mediator and
+      returning `TypedResults` (`Ok<T>`/`Created<T>`/`NoContent`), `.WithName(...)` for stable
+      operationIds. `BooksController` deleted; `POST /books` now correctly returns `201 Created`
+      with a `Location` header (the controller returned `200`).
+- [x] **`ExceptionHandlingMiddleware` → a chain of `IExceptionHandler` + `AddProblemDetails()`**
+      (registered specific-to-general). Errors are `application/problem+json`; user-provided
+      values are stripped of line breaks before logging (CodeQL log-forging).
+- [x] **Swashbuckle → the built-in `Microsoft.AspNetCore.OpenApi` + Scalar UI** (`/scalar`,
+      Development only). Config lives in the `OpenApi` section via a document transformer.
+- [x] **Committed `openapi.json`** generated on demand with the `GenerateOpenApi` MSBuild
+      target (not on-build — the generator boots the app, which would break clean/Docker
+      builds); `pr.yml` regenerates and `git diff --exit-code`s it, so a stale spec fails CI.
+      `AddPostgres` was moved from a registration-time throw to `ValidateOnStart` so the DI
+      graph builds without a database (matching the existing Redis/ISBNDB convention).
+- [x] **Request validation** via the built-in .NET 10 Minimal API validation (`AddValidation()`
+      + DataAnnotations on the contract DTOs → `400 ValidationProblemDetails`); ISBN-format
+      invariants stay in the domain value objects, not duplicated at the edge.
+- [x] **Error contract documented in the spec** — the `books` group declares `500` and each
+      endpoint its `400`/`404`/`409`/`502` via `.ProducesProblem`/`.ProducesValidationProblem`,
+      so generated clients get typed `ProblemDetails`/`ValidationProblemDetails` models (the
+      RFC 9457 equivalent of a hand-written error spec).
+- [x] **`Reveries.Contracts` consolidated into the API** at `Reveries.Api/Contracts` (namespace
+      `Reveries.Api.Contracts`); the six-project outer ring is now five. The assembly-enforced
+      "contracts have no Domain dependency" guard became a namespace-scoped NetArchTest rule.
+- [x] **Scanner decoupled from the DTOs.** `Reveries.Blazor.BookScanner` no longer references
+      the API's contract types; it generates its own models from `openapi.json` with **NSwag**
+      (POCOs, System.Text.Json) via the `GenerateApiModels` target. This is the seam for the
+      planned JS/TS frontend, which will generate a TypeScript client from the same spec.
+- [x] **`Reveries.Api.Tests`** — `WebApplicationFactory<Program>` (reached via `InternalsVisibleTo`,
+      keeping `Program.cs` untouched) endpoint tests with a substituted `IMediator`, covering
+      every status path plus validation.
 
-- [ ] Review `BooksController` stays thin (translate Contracts → Mediator, no
-      logic) and confirm no domain types leak across the API boundary.
-- [ ] Tidy the OpenAPI/Swagger spec; consider response-type annotations and
-      consistent error contracts via `ExceptionHandlingMiddleware`.
-- [ ] Decide on an API versioning approach before the first breaking contract
-      change lands with new features.
+Still open:
 
-**Done when:** the API surface is documented, consistent, and versioned ready for
+- [ ] **API versioning — deferred (YAGNI).** Not added yet: every consumer is controlled and
+      generated from `openapi.json`, so retrofitting is cheap. Introduce it only when the first
+      breaking change actually looms — likely a `/v1` URL segment, upgrading to
+      **`Asp.Versioning.Http`** if version negotiation / `api-supported-versions` headers are
+      wanted. `CreateBook` already uses `TypedResults.CreatedAtRoute`, so moving the routes under
+      a version group needs no endpoint changes. **No `/api` prefix** — the API has its own
+      subdomain (`api.reveries.dk`), which would make `/api/…` redundant; a prefix earns its
+      place only when the API shares an origin with a frontend.
+- [ ] **Pagination** on `GetAllBooks` (it currently returns the whole catalogue and 404s on an
+      empty result; a ticking cost as the shelf grows). Add via `[AsParameters] PageRequest` →
+      a paged response, and make an empty page a valid `200` rather than `404`. Touches the
+      Application query/handler, `IBookQueryRepository`, and the Dapper SQL (`ORDER BY` +
+      `LIMIT`/`OFFSET` + a `COUNT`), so it needs a Persistence (Testcontainers) test.
+- [ ] **Robustness middleware to weigh as the API goes public** (it is exposed via the
+      Cloudflare tunnel): rate limiting (`AddRateLimiter`), output caching (`AddOutputCache`),
+      and request timeouts (`AddRequestTimeouts`) — all **built-in**, no packages. A stable
+      error-code taxonomy (RFC 9457 `type` as documented slugs/URIs) is worth it only once a
+      client needs to branch on error kind.
+- [ ] **Authentication/authorization** — there is none today (`UseAuthorization` was removed as
+      a no-op). Deferred to the social-layer feature work, but must land before any non-personal
+      exposure.
+- [ ] **OpenTelemetry** for distributed tracing — traces/metrics unified with the existing
+      Serilog→Loki + Prometheus observability. A larger addition worth doing once there are more
+      services to correlate across; not needed for a single API now.
+
+**Done when:** the API surface is documented, consistent, validated, and versioned ready for
 feature work.
 
 ---

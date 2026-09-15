@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using Polly;
 using Reveries.Application.Books.Interfaces;
@@ -9,7 +10,6 @@ using Reveries.Application.Common.Abstractions;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Persistence.Interfaces;
 using Reveries.Persistence.Context;
-using Reveries.Persistence.Exceptions;
 using Reveries.Persistence.Repositories;
 
 namespace Reveries.Persistence.Configuration;
@@ -20,13 +20,17 @@ public static class PostgresServiceCollectionExtensions
     {
         DapperConfiguration.Configure();
 
-        var connectionString = config.GetConnectionString(ConnectionStringKeys.ReveriesDb);
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new MissingConnectionStringException(ConnectionStringKeys.ReveriesDb);
+        services.AddOptions<ReveriesDbOptions>()
+            .Configure(options => options.ConnectionString = config.GetConnectionString(ConnectionStringKeys.ReveriesDb))
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.ConnectionString),
+                $"Missing connection string '{ConnectionStringKeys.ReveriesDb}'. Set it via user-secrets (dev) or the ConnectionStrings__ReveriesDb environment variable (prod).")
+            .ValidateOnStart();
 
         services.AddSingleton<NpgsqlDataSource>(serviceProvider =>
         {
-            var builder = new NpgsqlDataSourceBuilder(connectionString);
+            var options = serviceProvider.GetRequiredService<IOptions<ReveriesDbOptions>>().Value;
+            var builder = new NpgsqlDataSourceBuilder(options.ConnectionString);
 
             var env = serviceProvider.GetRequiredService<IHostEnvironment>();
             if (env.IsDevelopment())

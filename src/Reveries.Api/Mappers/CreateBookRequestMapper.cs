@@ -1,5 +1,5 @@
 using Reveries.Application.Books.Commands.CreateBook;
-using Reveries.Contracts.Books.Requests;
+using Reveries.Api.Contracts.Books.Requests;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Works;
 
