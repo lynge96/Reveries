@@ -40,8 +40,8 @@ The plan for the project is outlined below. The choice of technologies is primar
     Chosen to build experience with one of the most popular relational databases, also widely used in large-scale projects.  
 
 - **Cache**
-  - [x] **Redis**  
-    Implemented to optimize response times and provide a faster, more responsive user experience. Using a Cache-Aside strategy, data is cached in memory and refreshed from the database when needed.
+  - [x] **In-memory (HybridCache)**  
+    External book-metadata lookups (ISBNDB, Google Books) are cached in-memory with .NET's `HybridCache`. A caching decorator over each metadata source adds stampede protection, so repeated or concurrent scans of the same ISBN don't re-hit the rate-limited external APIs. A distributed Redis L2 can be layered in later without touching call sites.
 
 - **CI/CD**
   - [x] **Docker and GitHub Actions**  
