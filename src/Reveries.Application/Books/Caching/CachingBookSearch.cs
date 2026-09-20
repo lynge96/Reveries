@@ -56,7 +56,7 @@ public sealed class CachingBookSearch : IBookSearch
             static async (state, token) =>
             {
                 var books = await state.Inner.GetBooksByIsbnsAsync([state.Isbn], token);
-                var candidate = books?.FirstOrDefault();
+                var candidate = books?[0];
 
                 return candidate is null ? null : CachedBookMapper.ToCached(candidate);
             },

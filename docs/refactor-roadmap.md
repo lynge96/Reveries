@@ -281,8 +281,17 @@ Now the domain is stable, optimise the outer edge with the Phase 0 tests as a ne
       round-trip and lifecycle tests.
 - [ ] Review indexes against the real query patterns (ISBN lookups, title
       search, author joins). Add missing indexes as migrations (Phase 1 tooling).
-- [ ] Re-check the Redis cache-aside paths (`IBookCacheService`) for correctness
-      after any query shape changes.
+- [x] **Caching adopted — in-memory `HybridCache`, Redis decommissioned.** The
+      previous Redis wiring (`IRedisCacheService`, health check, container) was dead
+      code — nothing consumed it — so it was removed. Caching now sits in the
+      Application layer as a `CachingBookSearch` decorator over each `IBookSearch`
+      source (Scrutor `.Decorate`), caching a flat `CachedBook` snapshot per
+      source+ISBN so repeated/concurrent scans don't re-hit the rate-limited
+      external APIs. `HybridCache` (in-memory, no `IDistributedCache`) was chosen
+      over raw `IMemoryCache` for its stampede protection. Empty results are cached;
+      thrown failures are not. When the author/work-authority enrichment below wants
+      a shared, restart-surviving cache, Redis returns as a `HybridCache` L2 by
+      registering one `IDistributedCache` — no call-site changes.
 
 **Done when:** the hot read/write paths have no obvious N+1, transactions are
 verified, and indexes match the query patterns — all proven by the integration
