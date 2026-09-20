@@ -281,8 +281,17 @@ Now the domain is stable, optimise the outer edge with the Phase 0 tests as a ne
       round-trip and lifecycle tests.
 - [ ] Review indexes against the real query patterns (ISBN lookups, title
       search, author joins). Add missing indexes as migrations (Phase 1 tooling).
-- [ ] Re-check the Redis cache-aside paths (`IBookCacheService`) for correctness
-      after any query shape changes.
+- [x] **Caching adopted — in-memory `HybridCache`, Redis decommissioned.** The
+      previous Redis wiring (`IRedisCacheService`, health check, container) was dead
+      code — nothing consumed it — so it was removed. Caching now sits in the
+      Application layer as a `CachingBookSearch` decorator over each `IBookSearch`
+      source (Scrutor `.Decorate`), caching a flat `CachedBook` snapshot per
+      source+ISBN so repeated/concurrent scans don't re-hit the rate-limited
+      external APIs. `HybridCache` (in-memory, no `IDistributedCache`) was chosen
+      over raw `IMemoryCache` for its stampede protection. Empty results are cached;
+      thrown failures are not. When the author/work-authority enrichment below wants
+      a shared, restart-surviving cache, Redis returns as a `HybridCache` L2 by
+      registering one `IDistributedCache` — no call-site changes.
 
 **Done when:** the hot read/write paths have no obvious N+1, transactions are
 verified, and indexes match the query patterns — all proven by the integration
@@ -330,14 +339,6 @@ on Minimal APIs, and the contract was made a first-class, generated artifact. Co
 
 Still open:
 
-- [ ] **API versioning — deferred (YAGNI).** Not added yet: every consumer is controlled and
-      generated from `openapi.json`, so retrofitting is cheap. Introduce it only when the first
-      breaking change actually looms — likely a `/v1` URL segment, upgrading to
-      **`Asp.Versioning.Http`** if version negotiation / `api-supported-versions` headers are
-      wanted. `CreateBook` already uses `TypedResults.CreatedAtRoute`, so moving the routes under
-      a version group needs no endpoint changes. **No `/api` prefix** — the API has its own
-      subdomain (`api.reveries.dk`), which would make `/api/…` redundant; a prefix earns its
-      place only when the API shares an origin with a frontend.
 - [ ] **Pagination** on `GetAllBooks` (it currently returns the whole catalogue and 404s on an
       empty result; a ticking cost as the shelf grows). Add via `[AsParameters] PageRequest` →
       a paged response, and make an empty page a valid `200` rather than `404`. Touches the

@@ -6,6 +6,7 @@ using Reveries.Api.Configuration.HealthCheck;
 using Reveries.Api.Configuration.OpenApi;
 using Reveries.Api.Endpoints;
 using Reveries.Application;
+using Reveries.Application.Common.Caching;
 using Reveries.Infrastructure;
 using Reveries.Infrastructure.Logging;
 using Reveries.Integration;
@@ -26,6 +27,7 @@ builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
     .AddIntegration(builder.Configuration)
+    .AddBookSearchCaching(builder.Configuration)
     .AddCorsPolicies()
     .AddExceptionHandling(builder.Environment)
     .AddOpenApiDocument(builder.Configuration)

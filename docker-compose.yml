@@ -17,17 +17,11 @@ services:
     restart: always
     environment:
       ConnectionStrings__ReveriesDb: "Host=postgres;Port=5432;Database=${POSTGRES_DATABASE};Username=${POSTGRES_USERNAME};Password=${POSTGRES_PASSWORD};CommandTimeout=20"
-  
-      Redis__Host: redis
-      Redis__Port: 6379
-      Redis__Password: ${REDIS_PASSWORD}
-  
+
       Isbndb__ApiKey: ${ISBNDB_APIKEY}
       GoogleBooks__ApiKey: ${GOOGLEBOOKS_APIKEY}
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
@@ -82,43 +76,6 @@ services:
     networks:
       - reveries-network
 
-  redis:
-    image: redis:7.2-alpine
-    container_name: reveries-redis
-    restart: always
-    command: [
-      "redis-server",
-      "--maxmemory", "512mb",
-      "--maxmemory-policy", "allkeys-lru",
-      "--requirepass", "${REDIS_PASSWORD}"
-    ]
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - reveries-network
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a $REDIS_PASSWORD ping | grep PONG"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  redisinsight:
-    image: redis/redisinsight:latest
-    container_name: reveries-redisinsight
-    restart: always
-    volumes:
-      - redisinsight_data:/data
-    ports:
-      - "5540:5540"
-    networks:
-      - reveries-network
-    environment:
-      - RIPROXYPATH=/redis
-    depends_on:
-      - redis
-  
   loki:
     image: grafana/loki:3.0.0
     container_name: reveries-loki
@@ -166,8 +123,6 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:
-  redisinsight_data:
   loki_data:
   grafana_data:
   prometheus-data:
