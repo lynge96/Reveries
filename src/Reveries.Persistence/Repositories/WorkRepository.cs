@@ -127,6 +127,26 @@ public class WorkRepository : IWorkRepository
         await _dbContext.ExecuteAsync(sql, new { WorkId = workId.Value, DeweyDecimalIds = ids }, ct);
     }
 
+    public async Task<WorkId?> FindWorkIdByTitleAndAuthorsAsync(string title, IReadOnlyList<AuthorId> authorIds, CancellationToken ct = default)
+    {
+        var ids = authorIds.Select(a => a.Value).Distinct().ToArray();
+        if (ids.Length == 0)
+            return null;
+
+        const string sql = """
+                           SELECT w.id
+                           FROM catalog.works w
+                           JOIN catalog.works_authors wa ON wa.work_id = w.id
+                           WHERE lower(btrim(w.title)) = lower(btrim(@Title))
+                             AND wa.author_id = ANY(@AuthorIds::uuid[])
+                           LIMIT 1
+                           """;
+
+        var id = await _dbContext.QueryFirstOrDefaultAsync<Guid?>(sql, new { Title = title, AuthorIds = ids }, ct);
+
+        return id is { } value ? new WorkId(value) : null;
+    }
+
     public async Task<Work?> GetWorkByIdAsync(WorkId id, CancellationToken ct)
     {
         const string sql = $"{WorkAggregateSql}\nWHERE w.id = @Id";

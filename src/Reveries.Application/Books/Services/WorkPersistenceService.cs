@@ -56,11 +56,13 @@ public class WorkPersistenceService : IWorkPersistenceService
 
         await ValidateEditionNotExistsAsync(candidate.Isbn, ct);
 
-        var (work, edition) = await BuildAggregatesAsync(candidate, ct);
-        await AssignSeriesAsync(work, series, numberInSeries, ct);
-        var relations = await ResolveGenreAndDeweyRelationsAsync(work, ct);
+        // Resolve authors first: their identities are both the new work's authors and the signal
+        // the de-duplication match keys on (same normalized title + a shared author).
+        var authorIds = await ResolveAuthorIdsAsync(candidate, ct);
+        var workId = await ResolveWorkAsync(candidate, authorIds, series, numberInSeries, ct);
 
-        await _works.InsertWorkAsync(work, relations, ct);
+        var publisher = await _publisherResolver.ResolveAsync(Publisher.TryCreate(candidate.Publisher), ct);
+        var edition = BuildEdition(candidate, workId, publisher?.Id);
         await _editions.InsertEditionAsync(edition, ct);
 
         await tx.CommitAsync(ct);
@@ -78,17 +80,36 @@ public class WorkPersistenceService : IWorkPersistenceService
             throw new BookAlreadyExistsException(isbn);
     }
 
-    private async Task<(Work Work, Edition Edition)> BuildAggregatesAsync(BookCandidate candidate, CancellationToken ct)
+    private async Task<List<AuthorId>> ResolveAuthorIdsAsync(BookCandidate candidate, CancellationToken ct)
     {
-        // Resolve the referenced aggregates to their identities before the aggregate is constructed
         var authors = candidate.Authors
             .Select(Author.TryCreate)
             .OfType<Author>()
             .ToList();
-        var authorIds = await _authorResolver.ResolveIdsAsync(authors, ct);
 
-        var publisher = await _publisherResolver.ResolveAsync(Publisher.TryCreate(candidate.Publisher), ct);
+        return await _authorResolver.ResolveIdsAsync(authors, ct);
+    }
 
+    private async Task<WorkId> ResolveWorkAsync(BookCandidate candidate, IReadOnlyList<AuthorId> authorIds, Series? series, int? numberInSeries, CancellationToken ct)
+    {
+        // De-duplicate only when we have an author to match on: a same-title work is treated as the
+        // same work only if it also shares an author, so same-title/different-author works stay
+        // distinct. A book without authors is never de-duplicated (it is inserted as a new work).
+        if (authorIds.Count > 0)
+        {
+            var existingId = await _works.FindWorkIdByTitleAndAuthorsAsync(candidate.Title, authorIds, ct);
+            if (existingId is { } id)
+            {
+                _logger.LogDebug("Reusing existing work {WorkId} matching title '{Title}' and a shared author.", id.Value, candidate.Title);
+                return id;
+            }
+        }
+
+        return await CreateWorkAsync(candidate, authorIds, series, numberInSeries, ct);
+    }
+
+    private async Task<WorkId> CreateWorkAsync(BookCandidate candidate, IReadOnlyList<AuthorId> authorIds, Series? series, int? numberInSeries, CancellationToken ct)
+    {
         var work = Work.Create(new WorkData(
             Title: candidate.Title,
             Subtitle: candidate.Subtitle,
@@ -99,11 +120,21 @@ public class WorkPersistenceService : IWorkPersistenceService
             Synopsis: candidate.Synopsis,
             Description: candidate.Description));
 
-        var edition = Edition.Create(new EditionData(
-            WorkId: work.Id,
+        await AssignSeriesAsync(work, series, numberInSeries, ct);
+        var relations = await ResolveGenreAndDeweyRelationsAsync(work, ct);
+
+        await _works.InsertWorkAsync(work, relations, ct);
+
+        return work.Id;
+    }
+
+    private static Edition BuildEdition(BookCandidate candidate, WorkId workId, PublisherId? publisherId)
+    {
+        return Edition.Create(new EditionData(
+            WorkId: workId,
             Isbn13: candidate.Isbn?.Value13,
             Isbn10: candidate.Isbn?.Value10,
-            PublisherId: publisher?.Id,
+            PublisherId: publisherId,
             Pages: candidate.Pages,
             PublishDate: candidate.PublicationDate,
             LanguageIso639: candidate.Language?.Value,
@@ -113,8 +144,6 @@ public class WorkPersistenceService : IWorkPersistenceService
             ImageUrl: candidate.Cover?.Url,
             SaxoUrl: null,
             Dimensions: candidate.Dimensions));
-
-        return (work, edition);
     }
 
     private async Task AssignSeriesAsync(Work work, Series? series, int? numberInSeries, CancellationToken ct)

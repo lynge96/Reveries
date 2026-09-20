@@ -190,6 +190,24 @@ current model:
       shared. Second, different works share a title (Homer's *Odyssey* vs Stephen
       Fry's), so title cannot be the key.
 
+      **Status — local title+author de-duplication is implemented.**
+      `WorkPersistenceService` no longer always calls `InsertWorkAsync`: it resolves the
+      book's authors first, then get-or-creates the `Work` via
+      `IWorkRepository.FindWorkIdByTitleAndAuthorsAsync` — a query-time join matching an
+      existing work on **normalized title AND a shared author** (`lower(btrim(title))` +
+      `works_authors.author_id`). A match reuses that `WorkId` for the new `Edition`; a book
+      with no authors, or with no title+author match, creates a new work. This is fully local
+      (no external dependency) — chosen after OpenLibrary's `/isbn/` proved too unstable to
+      sit on the save path (503s / multi-second latency). It deliberately errs toward
+      *missing* a dedup (creating a separate work) rather than a false merge: requiring a
+      shared author keeps same-title/different-author works distinct (Homer's *Odyssey* vs
+      Stephen Fry's). No stored dedup key / hash — that would bake a lossy, mutable heuristic
+      into identity (see below); `WorkId` stays the sole identity. **Deferred:** the
+      OpenLibrary/Wikidata **authority** route (a stable `WorkCode`/`AuthorCode`) as a more
+      robust key if the local match's miss-rate ever bites, real **author-authority**
+      de-duplication of name variants (needs `AuthorCode`/QID, not name-only data), and
+      merging already-duplicated works. The design below is the target for those follow-ups.
+
       **Identity vs matching are separate concerns and must stay separate.**
       `Work` identity stays the opaque surrogate `WorkId` (GUID) — it is already
       correct and collision-free (two *Odyssey* rows just have different GUIDs). Do
