@@ -54,7 +54,6 @@ public static class PostgresServiceCollectionExtensions
         services.AddScoped<IAuthorRepository, AuthorRepository>();
         services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IDeweyDecimalsRepository, DeweyDecimalsRepository>();
-        services.AddScoped<ISeriesRepository, SeriesRepository>();
         services.AddScoped<IBookQueryRepository, BookQueryRepository>();
 
         // DbContext

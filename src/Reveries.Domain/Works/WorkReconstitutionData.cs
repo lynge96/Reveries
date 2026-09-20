@@ -1,5 +1,4 @@
 using Reveries.Domain.Authors;
-using Reveries.Domain.BookSeries;
 
 namespace Reveries.Domain.Works;
 
@@ -9,8 +8,6 @@ public sealed record WorkReconstitutionData(
     string? Subtitle,
     string? Synopsis,
     string? Description,
-    int? SeriesNumber,
-    SeriesId? SeriesId = null,
     IEnumerable<AuthorId>? AuthorIds = null,
     IEnumerable<Genre>? PrimaryGenres = null,
     IEnumerable<Genre>? SecondaryGenres = null,

@@ -336,61 +336,6 @@
           }
         }
       }
-    },
-    "/books/{isbn}/series": {
-      "patch": {
-        "tags": [
-          "Books"
-        ],
-        "summary": "Set series",
-        "description": "Sets the series for a book by its ISBN",
-        "operationId": "SetBookSeries",
-        "parameters": [
-          {
-            "name": "isbn",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetBookSeriesRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -426,21 +371,6 @@
               "null",
               "string"
             ]
-          },
-          "series": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "numberInSeries": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
-            "format": "int32"
           },
           "authors": {
             "type": [
@@ -642,21 +572,6 @@
               "null",
               "string"
             ]
-          },
-          "series": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "numberInSeries": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
-            "format": "int32"
           },
           "authors": {
             "type": [
@@ -889,30 +804,6 @@
               "null",
               "string"
             ]
-          }
-        }
-      },
-      "SetBookSeriesRequest": {
-        "required": [
-          "seriesName"
-        ],
-        "type": "object",
-        "properties": {
-          "seriesName": {
-            "maxLength": 200,
-            "minLength": 1,
-            "type": "string"
-          },
-          "numberInSeries": {
-            "maximum": 2147483647,
-            "minimum": 1,
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
-            "format": "int32"
           }
         }
       }

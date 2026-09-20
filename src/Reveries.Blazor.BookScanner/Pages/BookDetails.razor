@@ -315,15 +315,6 @@ else
             }
         </div>
 
-        <!-- Series -->
-        @if (!string.IsNullOrEmpty(_book.Series))
-        {
-            <h5 class="series-info text-muted mb-1">
-                In the <strong>@_book.Series</strong> series
-                @(_book.NumberInSeries.HasValue ? $" - Book {_book.NumberInSeries}" : "")
-            </h5>
-        }
-
         <!-- Author -->
         <div class="author-info d-flex align-items-center gap-2">
             <i class="bi bi-person author-icon"></i>

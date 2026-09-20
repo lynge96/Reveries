@@ -53,8 +53,6 @@ public static class BookDetailsMapper
             Isbn13 = book.Isbn13,
             Title = book.Title,
             Subtitle = book.Subtitle,
-            Series = book.Series,
-            NumberInSeries = book.NumberInSeries,
             Authors = book.Authors.ToList(),
             Publisher = book.Publisher,
             Language = book.Language,

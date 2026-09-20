@@ -32,8 +32,6 @@ public class BookQueryRepository : IBookQueryRepository
                                        w.synopsis,
                                        w.description,
                                        p.name AS publisher_name,
-                                       se.name AS series_name,
-                                       w.series_number,
                                        COALESCE(a.authors, '[]'::jsonb) AS authors,
                                        COALESCE(g.primary_genres, '[]'::jsonb) AS primary_genres,
                                        COALESCE(g.secondary_genres, '[]'::jsonb) AS secondary_genres,
@@ -41,7 +39,6 @@ public class BookQueryRepository : IBookQueryRepository
                                    FROM catalog.editions e
                                    JOIN catalog.works w ON w.id = e.work_id
                                    LEFT JOIN catalog.publishers p ON p.id = e.publisher_id
-                                   LEFT JOIN catalog.series se ON se.id = w.series_id
                                    LEFT JOIN LATERAL (
                                        SELECT
                                            jsonb_agg(jsonb_build_object('Id', gg.id, 'Name', gg.name) ORDER BY gg.name)
@@ -105,8 +102,6 @@ public class BookQueryRepository : IBookQueryRepository
             Isbn13 = row.Isbn13,
             Title = row.Title,
             Subtitle = row.Subtitle,
-            Series = row.SeriesName,
-            NumberInSeries = row.SeriesNumber,
             Authors = DeserializeNames(row.Authors),
             Publisher = row.PublisherName,
             Language = Language.TryCreate(row.Language)?.DisplayName,

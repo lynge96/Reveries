@@ -9,7 +9,6 @@ using Reveries.Application.Books.Models;
 using Reveries.Application.Books.Queries.FindBookByIsbn;
 using Reveries.Application.Books.Queries.GetBookById;
 using Reveries.Application.Common.Abstractions;
-using Reveries.Domain.BookSeries;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Publishers;
@@ -87,30 +86,6 @@ public class BookLifecycleCharacterizationTests
         Assert.Equal("ISBNDB Publisher", readBack.Publisher);
     }
 
-    [Fact]
-    public async Task CreateBook_WithSeries_ResolvesAndPersistsSeriesOnTheWork()
-    {
-        var harness = new Harness();
-
-        using var scope = harness.BuildScope();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-
-        await mediator.Send(new CreateBookCommand
-        {
-            Isbn = Isbn.Create(TestIsbn),
-            Title = "Guards! Guards!",
-            Series = "Discworld",
-            NumberInSeries = 8
-        });
-
-        Assert.NotNull(harness.InsertedWork);
-        Assert.NotNull(harness.InsertedWork!.SeriesId);
-        Assert.Equal(8, harness.InsertedWork.NumberInSeries);
-        await harness.Series.Received(1).AddAsync(
-            Arg.Is<Series>(s => s.Name == "Discworld"),
-            Arg.Any<CancellationToken>());
-    }
-
     private sealed class Harness
     {
         public IBookSearch Isbndb { get; } = Substitute.For<IBookSearch>();
@@ -121,7 +96,6 @@ public class BookLifecycleCharacterizationTests
         public IGenreRepository Genres { get; } = Substitute.For<IGenreRepository>();
         public IDeweyDecimalsRepository DeweyDecimals { get; } = Substitute.For<IDeweyDecimalsRepository>();
         public IPublisherRepository Publishers { get; } = Substitute.For<IPublisherRepository>();
-        public ISeriesRepository Series { get; } = Substitute.For<ISeriesRepository>();
         public ITransactionManager TransactionManager { get; } = Substitute.For<ITransactionManager>();
         public ITransaction Transaction { get; } = Substitute.For<ITransaction>();
         public IBookQueryRepository Queries { get; } = Substitute.For<IBookQueryRepository>();
@@ -139,7 +113,6 @@ public class BookLifecycleCharacterizationTests
             Editions.EditionExistsAsync(Arg.Any<Isbn>(), Arg.Any<CancellationToken>()).Returns(false);
             Authors.GetByNamesAsync(Arg.Any<IReadOnlyList<string>>(), Arg.Any<CancellationToken>()).Returns([]);
             Publishers.GetByNameAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((Publisher?)null);
-            Series.GetByNameAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((Series?)null);
 
             Genres.GetByNamesAsync(Arg.Any<IReadOnlyList<string>>(), Arg.Any<CancellationToken>())
                 .Returns(new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
@@ -175,7 +148,6 @@ public class BookLifecycleCharacterizationTests
             services.AddSingleton(Genres);
             services.AddSingleton(DeweyDecimals);
             services.AddSingleton(Publishers);
-            services.AddSingleton(Series);
             services.AddSingleton(TransactionManager);
             services.AddSingleton(Queries);
 

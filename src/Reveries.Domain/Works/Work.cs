@@ -1,7 +1,5 @@
 using Reveries.Domain.Authors;
-using Reveries.Domain.BookSeries;
 using Reveries.Domain.Common;
-using Reveries.Domain.Exceptions;
 
 namespace Reveries.Domain.Works;
 
@@ -17,8 +15,6 @@ public class Work : Entity<WorkId>
     public IReadOnlyList<AuthorId> AuthorIds { get; }
     public GenreClassification Genres { get; private init; } = GenreClassification.Empty;
     public IReadOnlyList<DeweyDecimal> DeweyDecimals { get; }
-    public SeriesId? SeriesId { get; private set; }
-    public int? NumberInSeries { get; private set; }
 
     private Work()
     {
@@ -59,8 +55,6 @@ public class Work : Entity<WorkId>
             Subtitle = data.Subtitle,
             Synopsis = data.Synopsis is null ? null : new Synopsis(data.Synopsis),
             Description = data.Description is null ? null : new Description(data.Description),
-            SeriesId = data.SeriesId,
-            NumberInSeries = data.SeriesId is null ? null : data.SeriesNumber,
             Genres = GenreClassification.Reconstitute(data.PrimaryGenres, data.SecondaryGenres)
         };
 
@@ -71,15 +65,6 @@ public class Work : Entity<WorkId>
             work._deweyDecimals.AddRange(data.DeweyDecimals);
 
         return work;
-    }
-
-    public void SetSeries(SeriesId seriesId, int? numberInSeries = null)
-    {
-        if (numberInSeries is <= 0)
-            throw new InvalidSeriesNumberException(numberInSeries);
-
-        SeriesId = seriesId;
-        NumberInSeries = numberInSeries;
     }
 
     public void AddDeweyDecimal(DeweyDecimal deweyDecimal)

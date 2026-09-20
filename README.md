@@ -62,8 +62,6 @@ erDiagram
         varchar subtitle
         text synopsis
         text description
-        uuid series_id FK
-        int series_number
         timestamptz created_at
         timestamptz updated_at
     }
@@ -97,12 +95,6 @@ erDiagram
     }
 
     publishers {
-        uuid id PK
-        citext name UK
-        timestamptz created_at
-    }
-
-    series {
         uuid id PK
         citext name UK
         timestamptz created_at
@@ -148,5 +140,4 @@ erDiagram
     dewey_decimals ||--o{ works_dewey_decimals : "classifies"
 
     publishers ||--o{ editions : "publishes"
-    series ||--o{ works : "contains"
 ```

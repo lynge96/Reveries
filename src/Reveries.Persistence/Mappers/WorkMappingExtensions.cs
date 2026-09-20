@@ -1,5 +1,4 @@
 using Reveries.Domain.Authors;
-using Reveries.Domain.BookSeries;
 using Reveries.Domain.Works;
 using Reveries.Persistence.Records;
 
@@ -15,9 +14,7 @@ public static class WorkMappingExtensions
             Title = work.Title.ToString(),
             Subtitle = work.Subtitle,
             Synopsis = work.Synopsis?.Text,
-            Description = work.Description?.Text,
-            SeriesNumber = work.NumberInSeries,
-            SeriesId = work.SeriesId?.Value
+            Description = work.Description?.Text
         };
     }
 
@@ -30,8 +27,6 @@ public static class WorkMappingExtensions
             Subtitle: record.Work.Subtitle,
             Synopsis: record.Work.Synopsis,
             Description: record.Work.Description,
-            SeriesNumber: record.Work.SeriesNumber,
-            SeriesId: record.Work.SeriesId is { } seriesId ? new SeriesId(seriesId) : null,
             AuthorIds: record.Authors.Select(a => new AuthorId(a.Id)),
             PrimaryGenres: record.PrimaryGenres.Select(g => Genre.Reconstitute(g.Name)),
             SecondaryGenres: record.SecondaryGenres.Select(g => Genre.Reconstitute(g.Name)),

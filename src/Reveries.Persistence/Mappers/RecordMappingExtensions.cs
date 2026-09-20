@@ -1,6 +1,5 @@
 using Reveries.Domain.Authors;
 using Reveries.Domain.Publishers;
-using Reveries.Domain.BookSeries;
 using Reveries.Domain.Works;
 using Reveries.Persistence.Records;
 
@@ -14,15 +13,6 @@ public static class RecordMappingExtensions
         {
             Id = publisher.Id.Value,
             Name = publisher.Name
-        };
-    }
-
-    public static SeriesRecord ToRecord(this Series series)
-    {
-        return new SeriesRecord
-        {
-            Id = series.Id.Value,
-            Name = series.Name
         };
     }
 

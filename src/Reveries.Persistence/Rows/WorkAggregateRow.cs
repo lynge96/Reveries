@@ -7,10 +7,6 @@ public sealed class WorkAggregateRow
     public string? Subtitle { get; init; }
     public string? Synopsis { get; init; }
     public string? Description { get; init; }
-    public int? SeriesNumber { get; init; }
-
-    public Guid? SeriesId { get; init; }
-    public string? SeriesName { get; init; }
 
     public string PrimaryGenres { get; init; } = "[]";
     public string SecondaryGenres { get; init; } = "[]";

@@ -1,7 +1,6 @@
 using Mediator;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Reveries.Api.Mappers;
-using Reveries.Application.BookSeries.Commands.SetBookSeries;
 using Reveries.Application.Books.Queries.FindBookByIsbn;
 using Reveries.Application.Books.Queries.FindBooksByIsbns;
 using Reveries.Application.Books.Queries.GetAllBooks;
@@ -60,12 +59,6 @@ public static class BookEndpoints
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status409Conflict);
 
-        group.MapPatch("/{isbn}/series", SetSeries)
-            .WithName("SetBookSeries")
-            .WithSummary("Set series")
-            .WithDescription("Sets the series for a book by its ISBN")
-            .ProducesValidationProblem();
-
         return app;
     }
 
@@ -106,11 +99,5 @@ public static class BookEndpoints
             new CreateBookResponse(editionId.Value),
             "GetBookById",
             new { id = editionId.Value });
-    }
-
-    private static async Task<NoContent> SetSeries(string isbn, SetBookSeriesRequest body, IMediator mediator, CancellationToken ct)
-    {
-        await mediator.Send(new SetBookSeriesCommand(isbn, body.SeriesName, body.NumberInSeries), ct);
-        return TypedResults.NoContent();
     }
 }

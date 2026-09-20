@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Reveries.Domain.Authors;
-using Reveries.Domain.BookSeries;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Works;
 using Reveries.Persistence.Interfaces;
@@ -19,15 +18,11 @@ public class WorkRepository : IWorkRepository
                                                 w.subtitle,
                                                 w.synopsis,
                                                 w.description,
-                                                w.series_number,
-                                                w.series_id,
-                                                se.name AS series_name,
                                                 COALESCE(g.primary_genres, '[]'::jsonb) AS primary_genres,
                                                 COALESCE(g.secondary_genres, '[]'::jsonb) AS secondary_genres,
                                                 COALESCE(a.authors, '[]'::jsonb) AS authors,
                                                 COALESCE(dd.dewey_codes, ARRAY[]::text[]) AS dewey_codes
                                             FROM catalog.works w
-                                            LEFT JOIN catalog.series se ON se.id = w.series_id
                                             LEFT JOIN LATERAL (
                                                 SELECT
                                                     jsonb_agg(jsonb_build_object('Id', gg.id, 'Name', gg.name) ORDER BY gg.name)
@@ -63,10 +58,10 @@ public class WorkRepository : IWorkRepository
     {
         const string sql = """
                            INSERT INTO catalog.works (
-                               id, title, subtitle, synopsis, description, series_id, series_number
+                               id, title, subtitle, synopsis, description
                            )
                            VALUES (
-                               @Id, @Title, @Subtitle, @Synopsis, @Description, @SeriesId, @SeriesNumber
+                               @Id, @Title, @Subtitle, @Synopsis, @Description
                            )
                            """;
 
@@ -156,22 +151,6 @@ public class WorkRepository : IWorkRepository
         return row is null ? null : MapToAggregate(row).ToDomainAggregate();
     }
 
-    public async Task UpdateWorkSeriesAsync(Work work, SeriesId seriesId, CancellationToken ct)
-    {
-        const string sql = """
-                           UPDATE catalog.works
-                           SET series_id = @SeriesId,
-                               series_number = @SeriesNumber,
-                               updated_at = now()
-                           WHERE id = @Id
-                           """;
-
-        await _dbContext.ExecuteAsync(
-            sql,
-            new { Id = work.Id.Value, SeriesId = seriesId.Value, SeriesNumber = work.NumberInSeries },
-            ct);
-    }
-
     private static WorkAggregateRecord MapToAggregate(WorkAggregateRow row)
     {
         var authors = JsonSerializer.Deserialize<List<AuthorRecord>>(row.Authors) ?? [];
@@ -189,13 +168,8 @@ public class WorkRepository : IWorkRepository
                 Title = row.Title,
                 Subtitle = row.Subtitle,
                 Synopsis = row.Synopsis,
-                Description = row.Description,
-                SeriesNumber = row.SeriesNumber,
-                SeriesId = row.SeriesId
+                Description = row.Description
             },
-            Series = row.SeriesId is { } seriesId
-                ? new SeriesRecord { Id = seriesId, Name = row.SeriesName! }
-                : null,
             Authors = authors,
             PrimaryGenres = primaryGenres,
             SecondaryGenres = secondaryGenres,
