@@ -1,5 +1,4 @@
 using Reveries.Domain.Authors;
-using Reveries.Domain.BookSeries;
 using Reveries.Domain.Exceptions;
 using Reveries.Domain.Works;
 
@@ -145,51 +144,16 @@ public class WorkTests
     }
 
     [Fact]
-    public void SetSeries_AssignsSeriesAndNumber()
-    {
-        var work = CreateValidWork();
-        var seriesId = SeriesId.New();
-
-        work.SetSeries(seriesId, 3);
-
-        Assert.Equal(seriesId, work.SeriesId);
-        Assert.Equal(3, work.NumberInSeries);
-    }
-
-    [Fact]
-    public void SetSeries_WithoutNumber_LeavesNumberNull()
-    {
-        var work = CreateValidWork();
-        var seriesId = SeriesId.New();
-
-        work.SetSeries(seriesId);
-
-        Assert.Equal(seriesId, work.SeriesId);
-        Assert.Null(work.NumberInSeries);
-    }
-
-    [Fact]
-    public void SetSeries_WithNegativeNumber_Throws()
-    {
-        var work = CreateValidWork();
-
-        Assert.Throws<InvalidSeriesNumberException>(() => work.SetSeries(SeriesId.New(), -1));
-    }
-
-    [Fact]
     public void Reconstitute_PreservesData()
     {
         var id = Guid.NewGuid();
         var authorId = AuthorId.New();
-        var seriesId = SeriesId.New();
         var data = new WorkReconstitutionData(
             Id: id,
             Title: "Dune",
             Subtitle: null,
             Synopsis: "Life on a desert planet.",
             Description: "A fuller account of life on Arrakis.",
-            SeriesNumber: 1,
-            SeriesId: seriesId,
             AuthorIds: [authorId],
             PrimaryGenres: [Genre.TryCreate("Science Fiction")!],
             DeweyDecimals: [DeweyDecimal.TryCreate("813.54")!]);
@@ -200,28 +164,8 @@ public class WorkTests
         Assert.Equal("Dune", work.Title.Text);
         Assert.Equal("Life on a desert planet.", work.Synopsis?.Text);
         Assert.Equal("A fuller account of life on Arrakis.", work.Description?.Text);
-        Assert.Equal(seriesId, work.SeriesId);
-        Assert.Equal(1, work.NumberInSeries);
         Assert.Single(work.AuthorIds);
         Assert.Single(work.Genres.Primary);
         Assert.Single(work.DeweyDecimals);
-    }
-
-    [Fact]
-    public void Reconstitute_WithNumberButNoSeries_DropsTheOrphanNumber()
-    {
-        var data = new WorkReconstitutionData(
-            Id: Guid.NewGuid(),
-            Title: "Orphan",
-            Subtitle: null,
-            Synopsis: null,
-            Description: null,
-            SeriesNumber: 3,
-            SeriesId: null);
-
-        var work = Work.Reconstitute(data);
-
-        Assert.Null(work.SeriesId);
-        Assert.Null(work.NumberInSeries);
     }
 }

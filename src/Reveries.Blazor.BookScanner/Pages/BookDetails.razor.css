@@ -93,11 +93,6 @@
     font-size: 1rem;
 }
 
-.series-info{
-    font-size: 1.2rem;
-    font-family: 'Poppins', 'Inter', sans-serif;
-}
-
 .author-info{
     display: flex;
     align-items: center;
@@ -223,12 +218,6 @@
         row-gap: 0.9rem;
         column-gap: 1.6rem;
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    .series-info{
-        font-size: 1.1rem;
-        font-family: 'Poppins', 'Inter', sans-serif;
-        color: rgba(15, 23, 42, 0.7);
     }
 
     .author-icon{

@@ -8,8 +8,6 @@ public sealed record CreateBookCommand : ICommand<EditionId>
     public Isbn? Isbn { get; init; }
     public required string Title { get; init; }
     public string? Subtitle { get; init; }
-    public string? Series { get; init; }
-    public int? NumberInSeries { get; init; }
     public List<string>? Authors { get; init; }
     public string? Publisher { get; init; }
     public string? Language { get; init; }

@@ -49,13 +49,6 @@ namespace Reveries.Blazor.BookScanner.ApiContracts
         [System.Text.Json.Serialization.JsonPropertyName("subtitle")]
         public string? Subtitle { get; set; } = default!;
 
-        [System.Text.Json.Serialization.JsonPropertyName("series")]
-        public string? Series { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("numberInSeries")]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public int? NumberInSeries { get; set; } = default!;
-
         [System.Text.Json.Serialization.JsonPropertyName("authors")]
         public System.Collections.Generic.ICollection<string>? Authors { get; set; } = default!;
 
@@ -186,13 +179,6 @@ namespace Reveries.Blazor.BookScanner.ApiContracts
 
         [System.Text.Json.Serialization.JsonPropertyName("subtitle")]
         public string? Subtitle { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("series")]
-        public string? Series { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("numberInSeries")]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public int? NumberInSeries { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("authors")]
         public System.Collections.Generic.ICollection<string>? Authors { get; set; } = default!;
@@ -336,31 +322,6 @@ namespace Reveries.Blazor.BookScanner.ApiContracts
 
         [System.Text.Json.Serialization.JsonPropertyName("instance")]
         public string? Instance { get; set; } = default!;
-
-        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class SetBookSeriesRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("seriesName")]
-        [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.StringLength(200, MinimumLength = 1)]
-        public string SeriesName { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("numberInSeries")]
-        [System.ComponentModel.DataAnnotations.Range(1, 2147483647)]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public int? NumberInSeries { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

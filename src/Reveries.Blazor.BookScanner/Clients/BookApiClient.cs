@@ -84,8 +84,6 @@ public class BookApiClient
         Edition = book.Edition,
         PrimaryGenres = book.PrimaryGenres,
         SecondaryGenres = book.SecondaryGenres,
-        Series = book.Series,
-        NumberInSeries = book.NumberInSeries,
         DeweyDecimals = book.DeweyDecimals,
         HeightCm = book.HeightCm,
         WidthCm = book.WidthCm,

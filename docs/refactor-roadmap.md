@@ -9,6 +9,15 @@ migration tooling and tidy structure/tests, but do *not* swap the ORM, re-slice
 the projects wholesale, or adopt event sourcing. Those stay explicitly out of
 scope (see [Out of scope](#out-of-scope)).
 
+> **Status — the `Series` feature has been removed.** The whole `BookSeries` slice
+> (`Series`/`SeriesId` aggregate, `ISeriesRepository`, the resolvers, the
+> `SetBookSeries` command and its `PATCH /books/{isbn}/series` endpoint) and the
+> `works.series_id`/`series_number` columns plus the `catalog.series` table are gone,
+> dropped by the forward migration `0002_DropSeries.sql`. It was unused for now and
+> can come back — cleanly — when it is actually needed. The historical "Completed"
+> and checklist entries below that mention series describe work as it stood at the
+> time and are kept as a record; they no longer reflect the current model.
+
 ## Guiding principles
 
 1. **Safety net before surgery.** Nothing structural changes until there are

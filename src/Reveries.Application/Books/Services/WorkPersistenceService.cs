@@ -1,13 +1,11 @@
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Authors.Interfaces;
-using Reveries.Application.BookSeries.Interfaces;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Application.Publishers.Interfaces;
 using Reveries.Domain.Authors;
-using Reveries.Domain.BookSeries;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Interfaces.Repositories;
 using Reveries.Domain.Publishers;
@@ -26,7 +24,6 @@ public class WorkPersistenceService : IWorkPersistenceService
     private readonly IPublisherResolver _publisherResolver;
     private readonly IGenreResolver _genreResolver;
     private readonly IDeweyResolver _deweyResolver;
-    private readonly ISeriesResolver _seriesResolver;
 
     public WorkPersistenceService(
         ITransactionManager transactionManager,
@@ -36,8 +33,7 @@ public class WorkPersistenceService : IWorkPersistenceService
         IAuthorResolver authorResolver,
         IPublisherResolver publisherResolver,
         IGenreResolver genreResolver,
-        IDeweyResolver deweyResolver,
-        ISeriesResolver seriesResolver)
+        IDeweyResolver deweyResolver)
     {
         _transactionManager = transactionManager;
         _logger = logger;
@@ -47,10 +43,9 @@ public class WorkPersistenceService : IWorkPersistenceService
         _publisherResolver = publisherResolver;
         _genreResolver = genreResolver;
         _deweyResolver = deweyResolver;
-        _seriesResolver = seriesResolver;
     }
 
-    public async Task<EditionId> SaveBookAsync(BookCandidate candidate, Series? series, int? numberInSeries, CancellationToken ct)
+    public async Task<EditionId> SaveBookAsync(BookCandidate candidate, CancellationToken ct)
     {
         await using var tx = await _transactionManager.BeginTransactionAsync(ct);
 
@@ -59,7 +54,7 @@ public class WorkPersistenceService : IWorkPersistenceService
         // Resolve authors first: their identities are both the new work's authors and the signal
         // the de-duplication match keys on (same normalized title + a shared author).
         var authorIds = await ResolveAuthorIdsAsync(candidate, ct);
-        var workId = await ResolveWorkAsync(candidate, authorIds, series, numberInSeries, ct);
+        var workId = await ResolveWorkAsync(candidate, authorIds, ct);
 
         var publisher = await _publisherResolver.ResolveAsync(Publisher.TryCreate(candidate.Publisher), ct);
         var edition = BuildEdition(candidate, workId, publisher?.Id);
@@ -90,7 +85,7 @@ public class WorkPersistenceService : IWorkPersistenceService
         return await _authorResolver.ResolveIdsAsync(authors, ct);
     }
 
-    private async Task<WorkId> ResolveWorkAsync(BookCandidate candidate, IReadOnlyList<AuthorId> authorIds, Series? series, int? numberInSeries, CancellationToken ct)
+    private async Task<WorkId> ResolveWorkAsync(BookCandidate candidate, IReadOnlyList<AuthorId> authorIds, CancellationToken ct)
     {
         // De-duplicate only when we have an author to match on: a same-title work is treated as the
         // same work only if it also shares an author, so same-title/different-author works stay
@@ -105,10 +100,10 @@ public class WorkPersistenceService : IWorkPersistenceService
             }
         }
 
-        return await CreateWorkAsync(candidate, authorIds, series, numberInSeries, ct);
+        return await CreateWorkAsync(candidate, authorIds, ct);
     }
 
-    private async Task<WorkId> CreateWorkAsync(BookCandidate candidate, IReadOnlyList<AuthorId> authorIds, Series? series, int? numberInSeries, CancellationToken ct)
+    private async Task<WorkId> CreateWorkAsync(BookCandidate candidate, IReadOnlyList<AuthorId> authorIds, CancellationToken ct)
     {
         var work = Work.Create(new WorkData(
             Title: candidate.Title,
@@ -120,7 +115,6 @@ public class WorkPersistenceService : IWorkPersistenceService
             Synopsis: candidate.Synopsis,
             Description: candidate.Description));
 
-        await AssignSeriesAsync(work, series, numberInSeries, ct);
         var relations = await ResolveGenreAndDeweyRelationsAsync(work, ct);
 
         await _works.InsertWorkAsync(work, relations, ct);
@@ -144,15 +138,6 @@ public class WorkPersistenceService : IWorkPersistenceService
             ImageUrl: candidate.Cover?.Url,
             SaxoUrl: null,
             Dimensions: candidate.Dimensions));
-    }
-
-    private async Task AssignSeriesAsync(Work work, Series? series, int? numberInSeries, CancellationToken ct)
-    {
-        if (series is null)
-            return;
-
-        var resolved = await _seriesResolver.ResolveAsync(series, ct);
-        work.SetSeries(resolved.Id, numberInSeries);
     }
 
     private async Task<WorkRelations> ResolveGenreAndDeweyRelationsAsync(Work work, CancellationToken ct)

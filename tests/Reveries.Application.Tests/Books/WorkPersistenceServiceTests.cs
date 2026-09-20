@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Reveries.Application.Authors.Interfaces;
-using Reveries.Application.BookSeries.Interfaces;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Books.Services;
@@ -27,7 +26,7 @@ public class WorkPersistenceServiceTests
         fixture.Works.FindWorkIdByTitleAndAuthorsAsync(Arg.Any<string>(), Arg.Any<IReadOnlyList<AuthorId>>(), Arg.Any<CancellationToken>())
             .Returns(existingWorkId);
 
-        await fixture.Sut().SaveBookAsync(Candidate(["George Orwell"]), null, null, CancellationToken.None);
+        await fixture.Sut().SaveBookAsync(Candidate(["George Orwell"]), CancellationToken.None);
 
         await fixture.Works.DidNotReceiveWithAnyArgs().InsertWorkAsync(default!, default!, default);
         Assert.NotNull(fixture.InsertedEdition);
@@ -42,7 +41,7 @@ public class WorkPersistenceServiceTests
         fixture.Works.FindWorkIdByTitleAndAuthorsAsync(Arg.Any<string>(), Arg.Any<IReadOnlyList<AuthorId>>(), Arg.Any<CancellationToken>())
             .Returns((WorkId?)null);
 
-        await fixture.Sut().SaveBookAsync(Candidate(["George Orwell"]), null, null, CancellationToken.None);
+        await fixture.Sut().SaveBookAsync(Candidate(["George Orwell"]), CancellationToken.None);
 
         Assert.NotNull(fixture.InsertedWork);
         Assert.Equal(fixture.InsertedWork!.Id, fixture.InsertedEdition!.WorkId);
@@ -54,7 +53,7 @@ public class WorkPersistenceServiceTests
         var fixture = new Fixture();
         fixture.ResolvesAuthors();
 
-        await fixture.Sut().SaveBookAsync(Candidate([]), null, null, CancellationToken.None);
+        await fixture.Sut().SaveBookAsync(Candidate([]), CancellationToken.None);
 
         await fixture.Works.DidNotReceiveWithAnyArgs()
             .FindWorkIdByTitleAndAuthorsAsync(default!, default!, default);
@@ -76,7 +75,6 @@ public class WorkPersistenceServiceTests
         public IPublisherResolver PublisherResolver { get; } = Substitute.For<IPublisherResolver>();
         public IGenreResolver GenreResolver { get; } = Substitute.For<IGenreResolver>();
         public IDeweyResolver DeweyResolver { get; } = Substitute.For<IDeweyResolver>();
-        public ISeriesResolver SeriesResolver { get; } = Substitute.For<ISeriesResolver>();
         public ITransactionManager TransactionManager { get; } = Substitute.For<ITransactionManager>();
         public ITransaction Transaction { get; } = Substitute.For<ITransaction>();
 
@@ -110,7 +108,6 @@ public class WorkPersistenceServiceTests
             AuthorResolver,
             PublisherResolver,
             GenreResolver,
-            DeweyResolver,
-            SeriesResolver);
+            DeweyResolver);
     }
 }

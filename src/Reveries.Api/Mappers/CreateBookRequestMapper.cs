@@ -17,9 +17,6 @@ public static class CreateBookRequestMapper
             Title = request.Title,
             Subtitle = request.Subtitle,
 
-            Series = request.Series,
-            NumberInSeries = request.NumberInSeries,
-
             Authors = request.Authors?.ToList(),
             Publisher = request.Publisher,
 

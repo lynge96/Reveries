@@ -10,10 +10,8 @@ using Reveries.Application.Books.Models;
 using Reveries.Application.Books.Queries.GetAllBooks;
 using Reveries.Application.Books.Queries.GetBookById;
 using Reveries.Application.Books.Queries.GetBookExists;
-using Reveries.Application.BookSeries.Commands.SetBookSeries;
 using Reveries.Application.Common.Exceptions;
 using Reveries.Domain.Editions;
-using Reveries.Domain.Works;
 
 namespace Reveries.Api.Tests;
 
@@ -130,22 +128,6 @@ public sealed class BookEndpointsTests : IDisposable
         Assert.Equal($"/books/{editionId.Value}", response.Headers.Location?.AbsolutePath);
         var payload = await response.Content.ReadFromJsonAsync<CreateBookResponse>();
         Assert.Equal(editionId.Value, payload?.Id);
-    }
-
-    [Fact]
-    public async Task SetSeries_returns_204()
-    {
-        // Arrange
-        Mediator.Send(Arg.Any<SetBookSeriesCommand>(), Arg.Any<CancellationToken>())
-            .Returns(new ValueTask<WorkId>(WorkId.New()));
-        var client = _factory.CreateClient();
-        var body = new SetBookSeriesRequest { SeriesName = "Dune", NumberInSeries = 1 };
-
-        // Act
-        var response = await client.PatchAsJsonAsync("/books/9780132350884/series", body);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [Fact]

@@ -3,8 +3,6 @@ using Reveries.Application.Authors.Interfaces;
 using Reveries.Application.Authors.Services;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Services;
-using Reveries.Application.BookSeries.Interfaces;
-using Reveries.Application.BookSeries.Services;
 using Reveries.Application.Publishers.Interfaces;
 using Reveries.Application.Publishers.Services;
 
@@ -28,10 +26,6 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IAuthorResolver, AuthorResolver>();
 
         services.AddScoped<IPublisherResolver, PublisherResolver>();
-
-        services.AddScoped<ICreateSeriesService, CreateSeriesService>();
-        services.AddScoped<IBookSeriesService, BookSeriesService>();
-        services.AddScoped<ISeriesResolver, SeriesResolver>();
 
         return services;
     }
