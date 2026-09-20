@@ -1,3 +1,4 @@
+using Reveries.Domain.Authors;
 using Reveries.Domain.BookSeries;
 using Reveries.Domain.Works;
 using Reveries.Persistence.Repositories;
@@ -77,4 +78,61 @@ public class WorkRepositoryTests : IAsyncLifetime
         Assert.Equal(series.Id, found.SeriesId);
         Assert.Equal(2, found.NumberInSeries);
     }
+
+    [Fact]
+    public async Task FindWorkIdByTitleAndAuthors_matches_on_title_and_a_shared_author()
+    {
+        await using var db = _fixture.NewDbContext();
+        var authors = new AuthorRepository(db);
+        var orwell = Author.TryCreate("George Orwell")!;
+        await authors.AddRangeAsync([orwell], CancellationToken.None);
+
+        var works = new WorkRepository(db);
+        var work = NewWork("Animal Farm", [orwell.Id]);
+        await works.InsertWorkAsync(work, new WorkRelations([], [], []), CancellationToken.None);
+
+        // Case- and whitespace-insensitive title match, shared author.
+        var foundId = await works.FindWorkIdByTitleAndAuthorsAsync("  animal farm ", [orwell.Id], CancellationToken.None);
+
+        Assert.Equal(work.Id, foundId);
+    }
+
+    [Fact]
+    public async Task FindWorkIdByTitleAndAuthors_does_not_match_same_title_with_a_different_author()
+    {
+        await using var db = _fixture.NewDbContext();
+        var authors = new AuthorRepository(db);
+        var homer = Author.TryCreate("Homer")!;
+        var fry = Author.TryCreate("Stephen Fry")!;
+        await authors.AddRangeAsync([homer, fry], CancellationToken.None);
+
+        var works = new WorkRepository(db);
+        var homersOdyssey = NewWork("The Odyssey", [homer.Id]);
+        await works.InsertWorkAsync(homersOdyssey, new WorkRelations([], [], []), CancellationToken.None);
+
+        var foundId = await works.FindWorkIdByTitleAndAuthorsAsync("The Odyssey", [fry.Id], CancellationToken.None);
+
+        Assert.Null(foundId);
+    }
+
+    [Fact]
+    public async Task FindWorkIdByTitleAndAuthors_returns_null_without_authors_to_match()
+    {
+        await using var db = _fixture.NewDbContext();
+        var works = new WorkRepository(db);
+
+        var foundId = await works.FindWorkIdByTitleAndAuthorsAsync("Anything", [], CancellationToken.None);
+
+        Assert.Null(foundId);
+    }
+
+    private static Work NewWork(string title, IReadOnlyList<AuthorId> authorIds) => Work.Create(new WorkData(
+        Title: title,
+        Subtitle: null,
+        AuthorIds: authorIds,
+        PrimaryGenres: [],
+        SecondaryGenres: [],
+        DeweyDecimals: [],
+        Synopsis: null,
+        Description: null));
 }
