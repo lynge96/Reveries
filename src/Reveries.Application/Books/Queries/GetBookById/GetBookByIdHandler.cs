@@ -6,7 +6,7 @@ using Reveries.Application.Common.Exceptions;
 
 namespace Reveries.Application.Books.Queries.GetBookById;
 
-public sealed class GetBookByIdHandler : IQueryHandler<GetBookByIdQuery, BookDetails>
+public sealed class GetBookByIdHandler : IQueryHandler<GetBookByIdQuery, Book>
 {
     private readonly IBookQueryRepository _bookQueries;
     private readonly ILogger<GetBookByIdHandler> _logger;
@@ -19,7 +19,7 @@ public sealed class GetBookByIdHandler : IQueryHandler<GetBookByIdQuery, BookDet
         _logger = logger;
     }
 
-    public async ValueTask<BookDetails> Handle(GetBookByIdQuery query, CancellationToken ct)
+    public async ValueTask<Book> Handle(GetBookByIdQuery query, CancellationToken ct)
     {
         var result = await _bookQueries.GetBookByIdAsync(query.BookId, ct);
 

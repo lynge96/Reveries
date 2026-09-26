@@ -1,12 +1,13 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
+using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
 
 namespace Reveries.Application.Books.Queries.FindBooksByIsbns;
 
-public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuery, List<BookCandidate>>
+public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuery, IReadOnlyList<Book>>
 {
     private readonly IBookLookupService _lookupService;
     private readonly ILogger<FindBooksByIsbnsHandler> _logger;
@@ -19,7 +20,7 @@ public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuer
         _logger = logger;
     }
 
-    public async ValueTask<List<BookCandidate>> Handle(FindBooksByIsbnsQuery query, CancellationToken ct)
+    public async ValueTask<IReadOnlyList<Book>> Handle(FindBooksByIsbnsQuery query, CancellationToken ct)
     {
         var apiResult = await _lookupService.LookupByIsbnsAsync(query.Isbns, ct);
 
@@ -31,6 +32,6 @@ public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuer
             query.Isbns.Count,
             apiResult.Found.Count);
 
-        return apiResult.Found.ToList();
+        return apiResult.Found.Select(candidate => candidate.ToBook()).ToList();
     }
 }

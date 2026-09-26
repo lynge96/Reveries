@@ -1,6 +1,6 @@
 namespace Reveries.Persistence.Rows;
 
-public sealed class BookDetailsRow
+public sealed class BookRow
 {
     public Guid BookId { get; init; }
     public string? Isbn13 { get; init; }

@@ -53,11 +53,11 @@ public class BookLifecycleCharacterizationTests
         Assert.Equal("ISBNDB Publisher", found.Publisher);
         Assert.Equal(464, found.Pages);
         Assert.Equal("George Orwell", Assert.Single(found.Authors));
-        Assert.Equal(saxoUrl!.Value, found.SaxoUrl?.Value);
+        Assert.Equal(saxoUrl!.Value, found.SaxoUrl);
 
         var editionId = await mediator.Send(new CreateBookCommand
         {
-            Isbn = found.Isbn,
+            Isbn = Isbn.Create(found.Isbn13!),
             Title = found.Title,
             Authors = found.Authors.ToList(),
             Publisher = found.Publisher,
@@ -78,7 +78,7 @@ public class BookLifecycleCharacterizationTests
         await harness.Transaction.Received(1).CommitAsync(Arg.Any<CancellationToken>());
 
         var storedId = Guid.NewGuid();
-        harness.Queries.GetBookByIdAsync(storedId, Arg.Any<CancellationToken>()).Returns(new BookDetails
+        harness.Queries.GetBookByIdAsync(storedId, Arg.Any<CancellationToken>()).Returns(new Book
         {
             BookId = storedId,
             Title = harness.InsertedWork.Title.ToString(),

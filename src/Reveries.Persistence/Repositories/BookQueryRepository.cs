@@ -72,31 +72,31 @@ public class BookQueryRepository : IBookQueryRepository
         _dbContext = dbContext;
     }
 
-    public async Task<BookDetails?> GetBookByIdAsync(Guid bookId, CancellationToken ct)
+    public async Task<Book?> GetBookByIdAsync(Guid bookId, CancellationToken ct)
     {
         var builder = new SqlBuilder();
         var template = builder.AddTemplate(BaseSql);
         builder.Where("e.id = @Id", new { Id = bookId });
 
-        var row = await _dbContext.QueryFirstOrDefaultAsync<BookDetailsRow>(
+        var row = await _dbContext.QueryFirstOrDefaultAsync<BookRow>(
             template.RawSql, template.Parameters, ct);
 
-        return row is null ? null : MapToBookDetails(row);
+        return row is null ? null : MapToBook(row);
     }
 
-    public async Task<IReadOnlyList<BookDetails>> GetAllBooksAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<Book>> GetAllBooksAsync(CancellationToken ct)
     {
         var builder = new SqlBuilder();
         var template = builder.AddTemplate(BaseSql);
 
-        var rows = await _dbContext.QueryAsync<BookDetailsRow>(template.RawSql, template.Parameters, ct);
+        var rows = await _dbContext.QueryAsync<BookRow>(template.RawSql, template.Parameters, ct);
 
-        return rows.Select(MapToBookDetails).ToList();
+        return rows.Select(MapToBook).ToList();
     }
 
-    private static BookDetails MapToBookDetails(BookDetailsRow row)
+    private static Book MapToBook(BookRow row)
     {
-        return new BookDetails
+        return new Book
         {
             BookId = row.BookId,
             Isbn10 = row.Isbn10,
