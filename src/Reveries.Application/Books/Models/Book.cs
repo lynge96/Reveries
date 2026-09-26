@@ -1,6 +1,12 @@
 namespace Reveries.Application.Books.Models;
 
-public sealed record BookDetails
+/// <summary>
+/// The read/display model for a book: a flat composition of a <c>Work</c> and one of its
+/// <c>Edition</c>s, denormalized for querying and returning to the API. This is the read side —
+/// writes go through the <c>Work</c> and <c>Edition</c> domain aggregates, never this type.
+/// A lookup preview (a book found externally but not yet saved) uses an empty <see cref="BookId"/>.
+/// </summary>
+public sealed record Book
 {
     public required Guid BookId { get; init; }
     public string? Isbn10 { get; init; }
@@ -18,6 +24,7 @@ public sealed record BookDetails
     public string? Edition { get; init; }
     public string? ImageThumbnailUrl { get; init; }
     public string? CoverImageUrl { get; init; }
+    public string? SaxoUrl { get; init; }
     public decimal? WeightG { get; init; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }

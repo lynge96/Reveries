@@ -1,12 +1,13 @@
 using Mediator;
 using Microsoft.Extensions.Logging;
 using Reveries.Application.Books.Interfaces;
+using Reveries.Application.Books.Mappers;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Common.Exceptions;
 
 namespace Reveries.Application.Books.Queries.FindBookByIsbn;
 
-public sealed class FindBookByIsbnHandler : IQueryHandler<FindBookByIsbnQuery, BookCandidate>
+public sealed class FindBookByIsbnHandler : IQueryHandler<FindBookByIsbnQuery, Book>
 {
     private readonly IBookLookupService _bookLookupService;
     private readonly ILogger<FindBookByIsbnHandler> _logger;
@@ -19,7 +20,7 @@ public sealed class FindBookByIsbnHandler : IQueryHandler<FindBookByIsbnQuery, B
         _logger = logger;
     }
 
-    public async ValueTask<BookCandidate> Handle(FindBookByIsbnQuery query, CancellationToken ct)
+    public async ValueTask<Book> Handle(FindBookByIsbnQuery query, CancellationToken ct)
     {
         var isbn = query.Isbn;
         var bookLookupResult = await _bookLookupService.LookupByIsbnAsync(isbn, ct);
@@ -31,6 +32,6 @@ public sealed class FindBookByIsbnHandler : IQueryHandler<FindBookByIsbnQuery, B
 
         _logger.LogInformation("Successfully retrieved book '{Title}' with ISBN {Isbn}", result.Title, isbn.Value13);
 
-        return result;
+        return result.ToBook();
     }
 }

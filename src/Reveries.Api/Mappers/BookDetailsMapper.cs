@@ -6,45 +6,7 @@ namespace Reveries.Api.Mappers;
 
 public static class BookDetailsMapper
 {
-    public static BookDetailsDto ToDto(this BookCandidate book)
-    {
-        return new BookDetailsDto
-        {
-            BookId = Guid.Empty,
-            Isbn10 = book.Isbn?.Value10,
-            Isbn13 = book.Isbn?.Value13,
-            Title = book.Title,
-            Subtitle = book.Subtitle,
-            Authors = book.Authors.ToList(),
-            Publisher = book.Publisher,
-            Language = book.Language?.DisplayName,
-            Pages = book.Pages,
-            PublicationDate = book.PublicationDate,
-            Synopsis = book.Synopsis,
-            Description = book.Description,
-            Format = book.Format.ToString(),
-            Edition = book.EditionStatement,
-            CoverImageUrl = book.Cover?.Url,
-            ImageThumbnailUrl = book.Cover?.ThumbnailUrl,
-            HeightCm = book.Dimensions?.HeightCm,
-            WidthCm = book.Dimensions?.WidthCm,
-            ThicknessCm = book.Dimensions?.ThicknessCm,
-            WeightG = book.Dimensions?.WeightG,
-            DeweyDecimals = book.DeweyDecimals.ToList(),
-            PrimaryGenres = book.PrimaryGenres.ToList(),
-            SecondaryGenres = book.SecondaryGenres.ToList()
-        };
-    }
-
-    public static BooksResponse ToResponse(this IEnumerable<BookCandidate> books)
-    {
-        return new BooksResponse
-        {
-            Items = books.Select(book => book.ToDto()).ToList()
-        };
-    }
-
-    public static BookDetailsDto ToDto(this BookDetails book)
+    public static BookDetailsDto ToDto(this Book book)
     {
         return new BookDetailsDto
         {
@@ -64,6 +26,7 @@ public static class BookDetailsMapper
             Edition = book.Edition,
             CoverImageUrl = book.CoverImageUrl,
             ImageThumbnailUrl = book.ImageThumbnailUrl,
+            SaxoUrl = book.SaxoUrl,
             HeightCm = book.HeightCm,
             WidthCm = book.WidthCm,
             ThicknessCm = book.ThicknessCm,
@@ -74,7 +37,7 @@ public static class BookDetailsMapper
         };
     }
 
-    public static BooksResponse ToResponse(this IEnumerable<BookDetails> books)
+    public static BooksResponse ToResponse(this IEnumerable<Book> books)
     {
         return new BooksResponse
         {

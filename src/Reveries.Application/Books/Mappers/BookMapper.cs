@@ -6,6 +6,37 @@ namespace Reveries.Application.Books.Mappers;
 
 public static class BookMapper
 {
+    public static Book ToBook(this BookCandidate candidate)
+    {
+        return new Book
+        {
+            BookId = Guid.Empty,
+            Isbn10 = candidate.Isbn?.Value10,
+            Isbn13 = candidate.Isbn?.Value13,
+            Title = candidate.Title,
+            Subtitle = candidate.Subtitle,
+            Authors = candidate.Authors,
+            Publisher = candidate.Publisher,
+            Language = candidate.Language?.DisplayName,
+            Pages = candidate.Pages,
+            PublicationDate = candidate.PublicationDate,
+            Synopsis = candidate.Synopsis,
+            Description = candidate.Description,
+            Format = candidate.Format.ToString(),
+            Edition = candidate.EditionStatement,
+            CoverImageUrl = candidate.Cover?.Url,
+            ImageThumbnailUrl = candidate.Cover?.ThumbnailUrl,
+            SaxoUrl = candidate.SaxoUrl?.Value,
+            HeightCm = candidate.Dimensions?.HeightCm,
+            WidthCm = candidate.Dimensions?.WidthCm,
+            ThicknessCm = candidate.Dimensions?.ThicknessCm,
+            WeightG = candidate.Dimensions?.WeightG,
+            DeweyDecimals = candidate.DeweyDecimals,
+            PrimaryGenres = candidate.PrimaryGenres,
+            SecondaryGenres = candidate.SecondaryGenres
+        };
+    }
+
     public static BookCandidate ToCandidate(this CreateBookCommand cmd)
     {
         var dimensions = BookDimensions.Create(cmd.HeightCm, cmd.WidthCm, cmd.ThicknessCm, cmd.WeightG);

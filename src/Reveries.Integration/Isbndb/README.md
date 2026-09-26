@@ -45,7 +45,7 @@ current values against your own plan before changing `ApiUrl`.
 The project is currently configured for the Basic host. Requests run through the standard
 resilience handler (`AddStandardResilienceHandler`, Polly-based), which retries transient failures
 — including `429 Too Many Requests` and `5xx` — with exponential backoff and jitter. A `429` that
-survives the retries surfaces as an `ExternalDependencyException` (via `HttpResponseReader`), not a
+survives the retries surfaces as an `ExternalDependencyException` (via `ExternalApiReader`), not a
 silent `null`. Timeouts are owned by the resilience pipeline (30s total, 10s per attempt); the raw
 `HttpClient.Timeout` is disabled (`Timeout.InfiniteTimeSpan`) so it cannot cut a retry sequence short.
 

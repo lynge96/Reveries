@@ -34,6 +34,7 @@ public sealed record BookCandidate
     public BookFormat Format { get; init; }
     public string? EditionStatement { get; init; }
     public Cover? Cover { get; init; }
+    public SaxoUrl? SaxoUrl { get; init; }
     public BookDimensions? Dimensions { get; init; }
 
     public static BookCandidate Create(BookCandidateData data)

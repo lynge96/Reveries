@@ -7,54 +7,40 @@ nothing here is committed to a phase yet.
 
 ---
 
-## Saxo product link on `Edition`
+## Saxo product link on `Edition` — ✅ shipped (deep-link)
 
-Show a link to each book's page in the Saxo online bookshop (`saxo.com`), so a book
-in the catalogue can deep-link out to where it can be bought or previewed.
+A per-book link to the Saxo online bookshop, so a catalogue entry can deep-link out to
+where it can be bought or previewed.
 
-**Approach — ISBN deep-link, no scraping.** Searching Saxo by ISBN lands directly on
-the product page, so the link is just a constructed URL:
+**Built as an ISBN search deep link (no scraping).** `SaxoBookSearch` in the
+`Reveries.Integration/Saxo/` slice implements `ISaxoBookSearch` (`Isbn → SaxoUrl?`) behind
+its own `AddSaxo(configuration)` extension, matching the `GoogleBooks/`/`Isbndb/` pattern. It
+builds an ISBN-13 search URL from a configurable `Saxo:SearchUrlTemplate` (default
+`https://www.saxo.com/dk/products/search?query={0}`) — pure URL construction, no HTTP call.
+The link is resolved off a shared seam in two places: `BookLookupService` enriches each
+looked-up `BookCandidate` (so `GET /books/isbn/{isbn}` returns it before save), and
+`WorkPersistenceService` resolves it **before opening the write transaction** and stores it on
+the `Edition` (so the persisted row always has it — `CreateBookRequest` does not round-trip the
+field). Both are best-effort. The stored `SaxoUrl` value object validates *shape* only (absolute
+`https` on a Saxo host), following the TryCreate-skip pattern; it flows through all layers, the
+`editions` table, and the API DTO.
 
-```
-https://www.saxo.com/dk/products/search?query={isbn13}
-```
+**Why deep-link, not resolve-and-verify.** Verifying against a canonical product URL would need
+to fetch and parse Saxo's search/product pages — which Saxo's `robots.txt` `Disallow`s for
+`User-agent: *` (`*/ean/*`, `/search/`, `*/productpage/*`, `*/item_*`), which raises the EU
+sui-generis database right, and which is fragile behind their bot protection. A stored deep link
+fetches nothing (a human clicks it), so it sits outside those concerns. The trade-off: it does
+**not** prove the book exists on Saxo — an unknown ISBN lands on an empty search page. The
+Partner-Ads affiliate feed (ISBN → canonical URL) would be the clean source but is publisher/author
+only.
 
-This is a plain deep link, not data extraction — no HTML scraping, no metadata pulled
-from Saxo, so it sidesteps their bot protection and the EU database-right concerns
-that real scraping would raise.
+**Open:** verify the exact working search-URL format in a browser and adjust
+`Saxo:SearchUrlTemplate` if needed; the `SaxoUrl` host allow-list already rejects a
+misconfigured template (invalid → `null`).
 
-**Why not the affiliate feed.** Saxo's Partner-Ads product feed (ISBN → canonical
-product URL, with commission) would be the cleaner source, but it is only open to
-publishers and authors — not a third-party personal app — so it is not available to
-this project.
-
-**Where it belongs.** The link is edition-specific (one ISBN = one Saxo product), so
-it sits on `Edition`, next to `CoverImageUrl` and `Msrp`.
-
-**Status (partly implemented).** `Edition` now carries a stored `SaxoUrl` value object
-(`Reveries.Domain/Editions/SaxoUrl.cs`) that flows through all layers and the
-`editions` table. `SaxoUrl.TryCreate` validates *shape* only — an absolute `https`
-URL on a Saxo host (`saxo.com`/`saxo.dk`) — and returns `null` otherwise, following
-the TryCreate-skip pattern. Nothing populates the field yet: every mapper passes
-`null`. Storage vs. derive-on-read is therefore settled as **stored**.
-
-**The integration seam.** `ISaxoBookSearch`
-(`Reveries.Application/Books/Interfaces`) is the Application contract for populating
-the field: `Isbn → SaxoUrl?`. A future `Reveries.Integration/Saxo/` slice implements
-it — with its own `AddSaxo(configuration)` extension, matching the `GoogleBooks/` and
-`Isbndb/` pattern — and `BookLookupService` enriches each looked-up edition through
-it (`Edition` needs an `AssignSaxoUrl` mutator, mirroring `SetPublisher`). Note the
-existence caveat: a plain `search?query={isbn}` deep link always "resolves" — Saxo
-answers `200` with a results page even for an unknown ISBN — so it does **not** prove
-the specific book exists. A verifying implementation must follow the search through to
-a canonical product URL and treat a no-hit result as `null`, guarding against soft-404
-pages that return `200` for missing products.
-
-**If it grows to more shops.** Should other Danish shops (Bog & idé, William Dam, …)
-be added later, put the link behind an `IStoreLinkProvider` abstraction in a
-`Reveries.Integration/Saxo/` slice with its own `AddSaxo(configuration)` extension —
-matching the existing `GoogleBooks/` and `Isbndb/` integration pattern — so an
-`Edition` can carry several store links without changing the domain.
+**If it grows to more shops** (Bog & idé, William Dam, …), put the link behind an
+`IStoreLinkProvider` abstraction so an `Edition` can carry several store links without changing
+the domain.
 
 **Open questions.**
 

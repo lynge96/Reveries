@@ -26,9 +26,9 @@ public sealed class BookEndpointsTests : IDisposable
     public async Task GetAllBooks_returns_200_with_items()
     {
         // Arrange
-        IReadOnlyList<BookDetails> books = [CreateBookDetails()];
+        IReadOnlyList<Book> books = [CreateBook()];
         Mediator.Send(Arg.Any<GetAllBooksQuery>(), Arg.Any<CancellationToken>())
-            .Returns(new ValueTask<IReadOnlyList<BookDetails>>(books));
+            .Returns(new ValueTask<IReadOnlyList<Book>>(books));
         var client = _factory.CreateClient();
 
         // Act
@@ -47,7 +47,7 @@ public sealed class BookEndpointsTests : IDisposable
         // Arrange
         var id = Guid.NewGuid();
         Mediator.Send(Arg.Any<GetBookByIdQuery>(), Arg.Any<CancellationToken>())
-            .Returns(new ValueTask<BookDetails>(CreateBookDetails(id)));
+            .Returns(new ValueTask<Book>(CreateBook(id)));
         var client = _factory.CreateClient();
 
         // Act
@@ -65,8 +65,8 @@ public sealed class BookEndpointsTests : IDisposable
     {
         // Arrange
         Mediator.Send(Arg.Any<GetBookByIdQuery>(), Arg.Any<CancellationToken>())
-            .Returns(new ValueTask<BookDetails>(
-                Task.FromException<BookDetails>(new NotFoundException("missing"))));
+            .Returns(new ValueTask<Book>(
+                Task.FromException<Book>(new NotFoundException("missing"))));
         var client = _factory.CreateClient();
 
         // Act
@@ -156,7 +156,7 @@ public sealed class BookEndpointsTests : IDisposable
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
-    private static BookDetails CreateBookDetails(Guid? id = null) => new()
+    private static Book CreateBook(Guid? id = null) => new()
     {
         BookId = id ?? Guid.NewGuid(),
         Title = "The Pragmatic Programmer",
