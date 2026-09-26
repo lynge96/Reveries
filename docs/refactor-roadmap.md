@@ -59,8 +59,9 @@ object. Value-format validation lives in the domain, not as DB `CHECK`s.
 
 **Phase 2 — Queries & persistence.**
 - Read hydration has **no N+1** — one set-based query per book; each one-to-many relation
-  aggregated in a `LEFT JOIN LATERAL` with `jsonb_agg`/`array_agg`, avoiding both per-relation
-  round-trips and cartesian row-multiplication.
+  (authors, genres, Dewey codes) aggregated into a name/code array in a `LEFT JOIN LATERAL` with
+  `array_agg`, avoiding both per-relation round-trips and cartesian row-multiplication. The row
+  mirrors the schema (no rename aliases); `BookRow → Book` mapping lives in `BookMappingExtensions`.
 - Write-path N+1 collapsed — `GetOrCreate` and join-table inserts use a single `unnest`-based
   bulk upsert/insert per call (`GetOrCreateBatchTests`).
 - Multi-table writes run in a transaction via `ITransactionManager` (a `CreateCommand` seam on

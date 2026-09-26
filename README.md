@@ -33,7 +33,7 @@ The plan for the project is outlined below. The choice of technologies is primar
 
 - **Frontend**
   - [ ] **TypeScript and Vue**  
-    A modern and responsive interface built with React to gain practical experience with one of the most widely adopted frontend libraries.  
+    A modern and responsive interface built with Vue to gain practical experience with one of the most widely adopted frontend frameworks. The current scanner is a Blazor client, kept behind a generated API contract so this rewrite is a clean swap.  
 
 - **Database**
   - [x] **PostgreSQL**  
