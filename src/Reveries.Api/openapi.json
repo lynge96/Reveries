@@ -444,6 +444,12 @@
               "string"
             ]
           },
+          "saxoUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "weightG": {
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
             "type": [

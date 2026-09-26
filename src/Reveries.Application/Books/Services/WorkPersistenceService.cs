@@ -24,6 +24,7 @@ public class WorkPersistenceService : IWorkPersistenceService
     private readonly IPublisherResolver _publisherResolver;
     private readonly IGenreResolver _genreResolver;
     private readonly IDeweyResolver _deweyResolver;
+    private readonly ISaxoBookSearch _saxoBookSearch;
 
     public WorkPersistenceService(
         ITransactionManager transactionManager,
@@ -33,7 +34,8 @@ public class WorkPersistenceService : IWorkPersistenceService
         IAuthorResolver authorResolver,
         IPublisherResolver publisherResolver,
         IGenreResolver genreResolver,
-        IDeweyResolver deweyResolver)
+        IDeweyResolver deweyResolver,
+        ISaxoBookSearch saxoBookSearch)
     {
         _transactionManager = transactionManager;
         _logger = logger;
@@ -43,10 +45,15 @@ public class WorkPersistenceService : IWorkPersistenceService
         _publisherResolver = publisherResolver;
         _genreResolver = genreResolver;
         _deweyResolver = deweyResolver;
+        _saxoBookSearch = saxoBookSearch;
     }
 
     public async Task<EditionId> SaveBookAsync(BookCandidate candidate, CancellationToken ct)
     {
+        // Resolve the Saxo link before opening the transaction: it is an external-facing lookup and
+        // must not run inside the DB transaction (a resolved candidate link is reused when present).
+        var saxoUrl = candidate.SaxoUrl ?? await ResolveSaxoUrlAsync(candidate.Isbn, ct);
+
         await using var tx = await _transactionManager.BeginTransactionAsync(ct);
 
         await ValidateEditionNotExistsAsync(candidate.Isbn, ct);
@@ -57,7 +64,7 @@ public class WorkPersistenceService : IWorkPersistenceService
         var workId = await ResolveWorkAsync(candidate, authorIds, ct);
 
         var publisher = await _publisherResolver.ResolveAsync(Publisher.TryCreate(candidate.Publisher), ct);
-        var edition = BuildEdition(candidate, workId, publisher?.Id);
+        var edition = BuildEdition(candidate, workId, publisher?.Id, saxoUrl);
         await _editions.InsertEditionAsync(edition, ct);
 
         await tx.CommitAsync(ct);
@@ -122,7 +129,23 @@ public class WorkPersistenceService : IWorkPersistenceService
         return work.Id;
     }
 
-    private static Edition BuildEdition(BookCandidate candidate, WorkId workId, PublisherId? publisherId)
+    private async Task<SaxoUrl?> ResolveSaxoUrlAsync(Isbn? isbn, CancellationToken ct)
+    {
+        if (isbn is null)
+            return null;
+
+        try
+        {
+            return await _saxoBookSearch.FindBookUrlAsync(isbn, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Saxo link resolution failed for ISBN {Isbn}; saving the book without one.", isbn.Value13);
+            return null;
+        }
+    }
+
+    private static Edition BuildEdition(BookCandidate candidate, WorkId workId, PublisherId? publisherId, SaxoUrl? saxoUrl)
     {
         return Edition.Create(new EditionData(
             WorkId: workId,
@@ -136,7 +159,7 @@ public class WorkPersistenceService : IWorkPersistenceService
             EditionStatement: candidate.EditionStatement,
             ImageThumbnail: candidate.Cover?.ThumbnailUrl,
             ImageUrl: candidate.Cover?.Url,
-            SaxoUrl: null,
+            SaxoUrl: saxoUrl?.Value,
             Dimensions: candidate.Dimensions));
     }
 

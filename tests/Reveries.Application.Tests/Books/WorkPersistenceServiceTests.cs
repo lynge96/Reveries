@@ -77,6 +77,7 @@ public class WorkPersistenceServiceTests
         public IDeweyResolver DeweyResolver { get; } = Substitute.For<IDeweyResolver>();
         public ITransactionManager TransactionManager { get; } = Substitute.For<ITransactionManager>();
         public ITransaction Transaction { get; } = Substitute.For<ITransaction>();
+        public ISaxoBookSearch SaxoBookSearch { get; } = Substitute.For<ISaxoBookSearch>();
 
         public Work? InsertedWork { get; private set; }
         public Edition? InsertedEdition { get; private set; }
@@ -108,6 +109,7 @@ public class WorkPersistenceServiceTests
             AuthorResolver,
             PublisherResolver,
             GenreResolver,
-            DeweyResolver);
+            DeweyResolver,
+            SaxoBookSearch);
     }
 }

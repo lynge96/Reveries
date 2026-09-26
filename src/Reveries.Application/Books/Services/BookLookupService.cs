@@ -12,6 +12,7 @@ public class BookLookupService : IBookLookupService
 {
     private readonly IEditionRepository _editions;
     private readonly IBookMergerService _bookMergerService;
+    private readonly ISaxoBookSearch _saxoBookSearch;
     private readonly ILogger<BookLookupService> _logger;
     private readonly IReadOnlyList<IBookSearch> _sources;
 
@@ -19,11 +20,13 @@ public class BookLookupService : IBookLookupService
         IEnumerable<IBookSearch> sources,
         IEditionRepository editions,
         IBookMergerService bookMergerService,
+        ISaxoBookSearch saxoBookSearch,
         ILogger<BookLookupService> logger)
     {
         _sources = sources.ToList();
         _editions = editions;
         _bookMergerService = bookMergerService;
+        _saxoBookSearch = saxoBookSearch;
         _logger = logger;
     }
 
@@ -47,7 +50,8 @@ public class BookLookupService : IBookLookupService
             .Select(l => new SourcedBooks(l.Source, l.Books!))
             .ToList();
 
-        var found = _bookMergerService.AggregateBooksByIsbns(isbns, sourcedBooks);
+        var merged = _bookMergerService.AggregateBooksByIsbns(isbns, sourcedBooks);
+        var found = await EnrichWithSaxoLinksAsync(merged, ct);
 
         var foundIsbnKeys = found
             .Select(b => b.Isbn?.Value13 ?? b.Isbn?.Value10)
@@ -71,6 +75,33 @@ public class BookLookupService : IBookLookupService
     public async Task<bool> BookExistsAsync(Isbn isbn, CancellationToken ct)
     {
         return await _editions.EditionExistsAsync(isbn, ct);
+    }
+
+    private async Task<IReadOnlyList<BookCandidate>> EnrichWithSaxoLinksAsync(IReadOnlyList<BookCandidate> candidates, CancellationToken ct)
+    {
+        var enriched = new List<BookCandidate>(candidates.Count);
+
+        foreach (var candidate in candidates)
+            enriched.Add(await EnrichWithSaxoLinkAsync(candidate, ct));
+
+        return enriched;
+    }
+
+    private async Task<BookCandidate> EnrichWithSaxoLinkAsync(BookCandidate candidate, CancellationToken ct)
+    {
+        if (candidate.Isbn is null)
+            return candidate;
+
+        try
+        {
+            var saxoUrl = await _saxoBookSearch.FindBookUrlAsync(candidate.Isbn, ct);
+            return saxoUrl is null ? candidate : candidate with { SaxoUrl = saxoUrl };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Saxo link enrichment failed for ISBN {Isbn}; continuing without a Saxo link.", candidate.Isbn.Value13);
+            return candidate;
+        }
     }
 
     private async Task<SourceLookup> TryLookupAsync(IBookSearch source, IReadOnlyList<Isbn> isbns, CancellationToken ct)

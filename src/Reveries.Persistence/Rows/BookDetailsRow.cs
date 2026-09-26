@@ -12,6 +12,7 @@ public sealed class BookDetailsRow
     public string? EditionStatement { get; init; }
     public string? CoverImageUrl { get; init; }
     public string? ImageThumbnailUrl { get; init; }
+    public string? SaxoUrl { get; init; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }
     public decimal? ThicknessCm { get; init; }

@@ -18,6 +18,7 @@ public sealed record BookDetails
     public string? Edition { get; init; }
     public string? ImageThumbnailUrl { get; init; }
     public string? CoverImageUrl { get; init; }
+    public string? SaxoUrl { get; init; }
     public decimal? WeightG { get; init; }
     public decimal? HeightCm { get; init; }
     public decimal? WidthCm { get; init; }

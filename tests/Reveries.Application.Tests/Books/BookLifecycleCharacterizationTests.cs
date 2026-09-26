@@ -41,6 +41,9 @@ public class BookLifecycleCharacterizationTests
             Description = "Full description text."
         });
 
+        var saxoUrl = SaxoUrl.TryCreate($"https://www.saxo.com/dk/products/search?query={TestIsbn}");
+        harness.SaxoBookSearch.FindBookUrlAsync(Arg.Any<Isbn>(), Arg.Any<CancellationToken>()).Returns(saxoUrl);
+
         using var scope = harness.BuildScope();
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
@@ -50,6 +53,7 @@ public class BookLifecycleCharacterizationTests
         Assert.Equal("ISBNDB Publisher", found.Publisher);
         Assert.Equal(464, found.Pages);
         Assert.Equal("George Orwell", Assert.Single(found.Authors));
+        Assert.Equal(saxoUrl!.Value, found.SaxoUrl?.Value);
 
         var editionId = await mediator.Send(new CreateBookCommand
         {
@@ -67,6 +71,7 @@ public class BookLifecycleCharacterizationTests
         Assert.Equal("Google Title", harness.InsertedWork!.Title.ToString());
         Assert.NotNull(harness.InsertedEdition);
         Assert.Equal(harness.InsertedEdition!.Id, editionId);
+        Assert.Equal(saxoUrl.Value, harness.InsertedEdition.SaxoUrl?.Value);
         await harness.TransactionManager.Received(1).BeginTransactionAsync(Arg.Any<CancellationToken>());
         await harness.Works.Received(1).InsertWorkAsync(Arg.Any<Work>(), Arg.Any<WorkRelations>(), Arg.Any<CancellationToken>());
         await harness.Editions.Received(1).InsertEditionAsync(Arg.Any<Edition>(), Arg.Any<CancellationToken>());
@@ -99,6 +104,7 @@ public class BookLifecycleCharacterizationTests
         public ITransactionManager TransactionManager { get; } = Substitute.For<ITransactionManager>();
         public ITransaction Transaction { get; } = Substitute.For<ITransaction>();
         public IBookQueryRepository Queries { get; } = Substitute.For<IBookQueryRepository>();
+        public ISaxoBookSearch SaxoBookSearch { get; } = Substitute.For<ISaxoBookSearch>();
 
         public Work? InsertedWork { get; private set; }
         public Edition? InsertedEdition { get; private set; }
@@ -150,6 +156,7 @@ public class BookLifecycleCharacterizationTests
             services.AddSingleton(Publishers);
             services.AddSingleton(TransactionManager);
             services.AddSingleton(Queries);
+            services.AddSingleton(SaxoBookSearch);
 
             return services.BuildServiceProvider().CreateScope();
         }
