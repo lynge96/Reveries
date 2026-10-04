@@ -50,7 +50,7 @@ if (app.Environment.IsDevelopment())
 app.MapStandardHealthChecks("/healthz");
 
 app.UseCors(app.Environment.IsDevelopment() ? "Development" : "AllowFrontend");
-app.UseSerilogRequestLogging();
+app.UseRequestLogging();
 app.UseHttpsRedirection();
 
 app.MapBookEndpoints();

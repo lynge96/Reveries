@@ -1,7 +1,6 @@
 using Reveries.Infrastructure.Configuration;
 using Serilog;
 using Serilog.Configuration;
-using Serilog.Events;
 using Serilog.Formatting.Compact;
 using Serilog.Sinks.Grafana.Loki;
 
@@ -12,8 +11,7 @@ internal static class LokiSinkExtensions
     public static LoggerConfiguration LokiSink(
         this LoggerSinkConfiguration sink,
         LokiSettings settings,
-        string env,
-        LogEventLevel level)
+        string env)
     {
         return sink.GrafanaLoki(
             uri: settings.Uri!,
@@ -23,7 +21,6 @@ internal static class LokiSinkExtensions
                 new LokiLabel { Key = "env", Value = env.ToLower() }
             ],
             propertiesAsLabels: ["level"],
-            restrictedToMinimumLevel: level,
             batchSizeLimit: settings.BatchPostingLimit,
             queueLimit: settings.QueueLimit,
             period: TimeSpan.FromSeconds(settings.PeriodSeconds),

@@ -2,12 +2,10 @@ using System.Net;
 
 namespace Reveries.Application.Common.Exceptions;
 
-public class ExternalDependencyException : Exception
+public sealed class ExternalDependencyException : AppException
 {
     public string Dependency { get; }
     public int? UpstreamStatus { get; }
-    public string ErrorType { get; }
-    public HttpStatusCode? StatusCode { get; }
 
     public ExternalDependencyException(
         string dependency,
@@ -15,12 +13,9 @@ public class ExternalDependencyException : Exception
         int? upstreamStatus = null,
         HttpStatusCode statusCode = HttpStatusCode.BadGateway,
         Exception? innerException = null)
-        : base(message, innerException)
+        : base(message, statusCode, innerException)
     {
         Dependency = dependency;
         UpstreamStatus = upstreamStatus;
-        ErrorType = GetType().Name;
-        StatusCode = statusCode;
     }
-
 }

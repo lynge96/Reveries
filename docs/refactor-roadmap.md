@@ -86,6 +86,26 @@ planned JS/TS frontend). `Reveries.Api.Tests` cover every status path via
 one versioned migration under `Migrations/Scripts`, run at startup and journalled in
 `public.schema_versions`.
 
+**Logging & errors hardening.** *Errors:* the four near-identical `IExceptionHandler`s collapsed
+onto a generic base `ProblemDetailsExceptionHandler<TException>` (Template Method — the base owns
+the type match, logging and `ProblemDetails` write; each handler supplies only a
+`Map(exception) → ProblemError`). The RFC 9457 `type` is now a stable URI
+(`https://reveries.dk/errors/<code>`) with the machine-readable code carried in an `errorCode`
+extension (`ProblemTypes`), instead of leaking the .NET exception class name (and, for unhandled
+errors, nothing internal in production). `ExternalDependencyException` folded under `AppException`,
+which makes handler registration order a deliberate contract — the external-dependency handler is
+registered *before* the generic `AppException` one so it keeps its Dependency/UpstreamStatus logging.
+*Logging:* the Serilog config split made crisp — **JSON holds only the environment-tunable values**
+(`MinimumLevel`/overrides + the `Loki` endpoint), while **code (`SerilogExtensions.ConfigureLogger`)
+owns the whole pipeline** (enrichers, console sink, Loki sink + `env` label). Adopted the two-stage
+bootstrap-logger pattern (`CreateBootstrapLogger` → `builder.Services.AddSerilog((sp, lc) => …
+ReadFrom.Services(sp))`); a console sink now runs in production too (compact JSON to stdout for
+`docker logs` and as a Loki-down fallback); the redundant Loki `restrictedToMinimumLevel` dropped so
+`MinimumLevel` is the single level authority; `Serilog:Using` removed (enricher references are now
+compile-time, not config strings); `UseSerilogRequestLogging` renamed `UseRequestLogging` to stop
+shadowing the library method. `Loki:Uri` keeps a compose-DNS default (`http://loki:3100`),
+overridable by a `Loki__Uri` env var when the topology differs.
+
 ---
 
 ## Open (deferred by design)

@@ -1,23 +1,29 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Reveries.Infrastructure.Configuration;
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
+using Serilog.Exceptions;
+using Serilog.Formatting.Compact;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Reveries.Infrastructure.Logging;
 
-public static class SerilogConfigurationExtensions
+public static class SerilogExtensions
 {
     public static void AddSerilog(this WebApplicationBuilder builder)
     {
-        // SelfLog.Enable(Console.WriteLine);
-        Log.Logger = CreateLogger(builder);
-        builder.Host.UseSerilog();
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .CreateBootstrapLogger();
+
+        builder.Services.AddSerilog((services, loggerConfiguration) =>
+            ConfigureLogger(loggerConfiguration, services, builder.Configuration, builder.Environment));
     }
 
-    public static void UseSerilogRequestLogging(this WebApplication app)
+    public static void UseRequestLogging(this WebApplication app)
     {
         app.UseSerilogRequestLogging(options =>
         {
@@ -47,26 +53,39 @@ public static class SerilogConfigurationExtensions
         });
     }
 
-    private static Logger CreateLogger(WebApplicationBuilder builder)
+    private static void ConfigureLogger(
+        LoggerConfiguration loggerConfiguration,
+        IServiceProvider services,
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
-        var env = builder.Environment.EnvironmentName;
-        var lokiSettings = builder.Configuration
+        loggerConfiguration
+            .ReadFrom.Configuration(configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+            .Enrich.WithMachineName()
+            .Enrich.WithProcessId()
+            .Enrich.WithThreadId()
+            .Enrich.WithExceptionDetails();
+
+        if (environment.IsDevelopment())
+        {
+            loggerConfiguration.WriteTo.Console(
+                outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}",
+                theme: AnsiConsoleTheme.Code);
+        }
+        else
+        {
+            loggerConfiguration.WriteTo.Console(new RenderedCompactJsonFormatter());
+        }
+
+        var lokiSettings = configuration
             .GetSection(LokiSettings.SectionName)
             .Get<LokiSettings>() ?? new LokiSettings();
 
-        var level = builder.Environment.IsDevelopment()
-            ? LogEventLevel.Debug
-            : LogEventLevel.Information;
-
-        var config = new LoggerConfiguration()
-            .ReadFrom.Configuration(builder.Configuration);
-
-        var uri = lokiSettings.Uri;
-        if (!string.IsNullOrWhiteSpace(uri))
+        if (!string.IsNullOrWhiteSpace(lokiSettings.Uri))
         {
-            config = config.WriteTo.LokiSink(lokiSettings, env, level);
+            loggerConfiguration.WriteTo.LokiSink(lokiSettings, environment.EnvironmentName);
         }
-
-        return config.CreateLogger();
     }
 }
