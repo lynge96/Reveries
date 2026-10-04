@@ -45,7 +45,7 @@ public class GoogleBooksSource : IBookSearch
         var item = bookResponse?.Items?.FirstOrDefault();
         if (item is null)
         {
-            _logger.LogDebug("ISBN '{Isbn}' not found in Google Books.", isbn);
+            _logger.LogDebug("ISBN '{Isbn}' not found in Google Books.", isbn.Value13);
             return null;
         }
 

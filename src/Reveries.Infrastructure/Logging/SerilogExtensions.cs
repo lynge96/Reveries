@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,7 +34,7 @@ public static class SerilogExtensions
             {
                 diagnosticContext.Set("ClientIP", httpContext.Connection.RemoteIpAddress?.ToString());
                 diagnosticContext.Set("UserAgent", httpContext.Request.Headers.UserAgent.ToString());
-                diagnosticContext.Set("TraceId", httpContext.TraceIdentifier);
+                diagnosticContext.Set("TraceId", Activity.Current?.TraceId.ToString() ?? httpContext.TraceIdentifier);
                 diagnosticContext.Set("CorrelationId", httpContext.Request.Headers["X-Correlation-Id"].ToString());
             };
 

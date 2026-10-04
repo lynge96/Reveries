@@ -104,7 +104,14 @@ ReadFrom.Services(sp))`); a console sink now runs in production too (compact JSO
 `MinimumLevel` is the single level authority; `Serilog:Using` removed (enricher references are now
 compile-time, not config strings); `UseSerilogRequestLogging` renamed `UseRequestLogging` to stop
 shadowing the library method. `Loki:Uri` keeps a compose-DNS default (`http://loki:3100`),
-overridable by a `Loki__Uri` env var when the topology differs.
+overridable by a `Loki__Uri` env var when the topology differs. A pass over the log messages then
+rebalanced levels so significance drives them: state-changing writes log at Information
+(`WorkPersistenceService` now records the saved `EditionId`), while routine reads dropped to Debug
+(the request-logging middleware already records each HTTP call, so per-read Information lines were
+noise). Messages were given consistent, queryable context — reads log `isbn.Value13`/`{BookId}`
+rather than the value object or a `DbId` alias — and `PostgresDbContext`'s previously-unused
+`ILogger` now warns when the context is disposed with an active transaction (a leaked-transaction
+signal that can only fire on misuse, since the `ITransaction` paths always null it first).
 
 ---
 

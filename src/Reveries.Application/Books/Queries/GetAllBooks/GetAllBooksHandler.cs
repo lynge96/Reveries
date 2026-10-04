@@ -26,7 +26,7 @@ public sealed class GetAllBooksHandler : IQueryHandler<GetAllBooksQuery, IReadOn
         if (books.Count == 0)
             throw new NotFoundException("No books were found.");
 
-        _logger.LogInformation("Successfully retrieved {Count} books.", books.Count);
+        _logger.LogDebug("Retrieved {Count} books from the catalog.", books.Count);
 
         return books;
     }

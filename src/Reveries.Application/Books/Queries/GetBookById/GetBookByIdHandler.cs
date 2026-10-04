@@ -26,7 +26,7 @@ public sealed class GetBookByIdHandler : IQueryHandler<GetBookByIdQuery, Book>
         if (result is null)
             throw new NotFoundException($"No book was found with the given id: {query.BookId}.");
 
-        _logger.LogInformation("Successfully retrieved book '{Title}' with DbId {Id}", result.Title, query.BookId);
+        _logger.LogDebug("Retrieved book '{Title}' for id {BookId}.", result.Title, query.BookId);
 
         return result;
     }

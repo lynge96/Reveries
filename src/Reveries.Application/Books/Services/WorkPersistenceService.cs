@@ -69,7 +69,9 @@ public class WorkPersistenceService : IWorkPersistenceService
 
         await tx.CommitAsync(ct);
 
-        _logger.LogDebug("Saved book '{Title}' with ISBN {Isbn}.", candidate.Title, candidate.Isbn?.Value13);
+        _logger.LogInformation(
+            "Saved edition {EditionId} for book '{Title}' (ISBN {Isbn}).",
+            edition.Id.Value, candidate.Title, candidate.Isbn?.Value13);
 
         return edition.Id;
     }

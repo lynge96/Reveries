@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Reveries.Api.Configuration.ExceptionHandling;
 
 public sealed class GlobalExceptionHandler : ProblemDetailsExceptionHandler<Exception>
@@ -28,7 +30,7 @@ public sealed class GlobalExceptionHandler : ProblemDetailsExceptionHandler<Exce
     {
         Logger.LogError(exception,
             "Unhandled exception occurred. TraceId: {TraceId}, Path: {Path}, Method: {Method}",
-            httpContext.TraceIdentifier,
+            Activity.Current?.TraceId.ToString() ?? httpContext.TraceIdentifier,
             RemoveLineBreaks(httpContext.Request.Path.Value),
             RemoveLineBreaks(httpContext.Request.Method));
     }

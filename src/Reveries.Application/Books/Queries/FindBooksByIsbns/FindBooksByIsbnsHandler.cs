@@ -27,7 +27,7 @@ public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuer
         if (apiResult.NoResults)
             throw new NotFoundException($"Books with ISBNs '{query.Isbns}' were not found.");
 
-        _logger.LogInformation(
+        _logger.LogDebug(
             "Book lookup by ISBNs completed. Requested {Requested}, Found {Found}.",
             query.Isbns.Count,
             apiResult.Found.Count);
