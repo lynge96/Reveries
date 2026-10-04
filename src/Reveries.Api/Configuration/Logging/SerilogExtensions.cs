@@ -3,14 +3,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Reveries.Infrastructure.Configuration;
 using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Formatting.Compact;
 using Serilog.Sinks.SystemConsole.Themes;
 
-namespace Reveries.Infrastructure.Logging;
+namespace Reveries.Api.Configuration.Logging;
 
 public static class SerilogExtensions
 {

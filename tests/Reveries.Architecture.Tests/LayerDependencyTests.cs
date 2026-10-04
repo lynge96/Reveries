@@ -12,14 +12,12 @@ public class LayerDependencyTests
     private const string Domain = "Reveries.Domain";
     private const string Application = "Reveries.Application";
     private const string ApiContracts = "Reveries.Api.Contracts";
-    private const string Infrastructure = "Reveries.Infrastructure";
     private const string Persistence = "Reveries.Persistence";
     private const string Integration = "Reveries.Integration";
     private const string Api = "Reveries.Api";
 
     private static readonly Assembly DomainAssembly = typeof(Domain.Works.Work).Assembly;
     private static readonly Assembly ApplicationAssembly = typeof(Application.ApplicationServiceCollectionExtensions).Assembly;
-    private static readonly Assembly InfrastructureAssembly = typeof(Infrastructure.DependencyInjection).Assembly;
     private static readonly Assembly IntegrationAssembly = typeof(Integration.GoogleBooks.Clients.GoogleBooksClient).Assembly;
     private static readonly Assembly ApiAssembly = typeof(Api.Endpoints.BookEndpoints).Assembly;
 
@@ -33,7 +31,7 @@ public class LayerDependencyTests
         // Act
         var result = types
             .Should()
-            .NotHaveDependencyOnAny(Application, Infrastructure, Persistence, Integration, Api)
+            .NotHaveDependencyOnAny(Application, Persistence, Integration, Api)
             .GetResult();
 
         // Assert
@@ -50,7 +48,7 @@ public class LayerDependencyTests
         // Act
         var result = types
             .Should()
-            .NotHaveDependencyOnAny(Infrastructure, Persistence, Integration, Api)
+            .NotHaveDependencyOnAny(Persistence, Integration, Api)
             .GetResult();
 
         // Assert
@@ -82,7 +80,7 @@ public class LayerDependencyTests
     {
         // Arrange
         const string repositories = "Reveries.Persistence.Repositories";
-        Assembly[] outerLayers = [ApplicationAssembly, InfrastructureAssembly, IntegrationAssembly, ApiAssembly];
+        Assembly[] outerLayers = [ApplicationAssembly, IntegrationAssembly, ApiAssembly];
 
         // Act
         var offenders = outerLayers

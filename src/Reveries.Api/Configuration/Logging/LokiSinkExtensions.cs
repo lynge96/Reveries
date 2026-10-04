@@ -1,10 +1,9 @@
-using Reveries.Infrastructure.Configuration;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Formatting.Compact;
 using Serilog.Sinks.Grafana.Loki;
 
-namespace Reveries.Infrastructure.Logging;
+namespace Reveries.Api.Configuration.Logging;
 
 internal static class LokiSinkExtensions
 {

@@ -1,4 +1,4 @@
-namespace Reveries.Infrastructure.Configuration;
+namespace Reveries.Api.Configuration.Logging;
 
 public class LokiSettings
 {

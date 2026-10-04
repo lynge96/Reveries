@@ -31,11 +31,12 @@ event sourcing (see [Out of scope](#out-of-scope)).
 
 ## Completed
 
-**Solution restructuring.** Outer layer consolidated from 6 projects to 3 so test
+**Solution restructuring.** Outer layer consolidated from 6 projects so test
 projects mirror the production layers: `Reveries.Integration` (provider slices `Http/`,
-`GoogleBooks/`, `Isbndb/`, each `Clients/Configuration/Dtos/Interfaces/Mappers/Services`),
-`Reveries.Infrastructure` (composition + Serilog), and `Reveries.Persistence` (Dapper/Npgsql
-+ `ITransactionManager`). `Reveries.Console` deleted. **`Reveries.Architecture.Tests`**
+`GoogleBooks/`, `Isbndb/`, each `Clients/Configuration/Dtos/Interfaces/Mappers/Services`)
+and `Reveries.Persistence` (Dapper/Npgsql + `ITransactionManager`). `Reveries.Console` deleted.
+(A third outer project, `Reveries.Infrastructure`, held the Serilog setup; it was later folded
+into the Api and deleted — see *Logging & errors hardening* below.) **`Reveries.Architecture.Tests`**
 (NetArchTest) enforces the layer rules on the compiled namespaces.
 
 **Application tidy.** CQRS semantics corrected (writes are `ICommand<T>`, reads `IQuery<T>`);
@@ -111,7 +112,14 @@ rebalanced levels so significance drives them: state-changing writes log at Info
 noise). Messages were given consistent, queryable context — reads log `isbn.Value13`/`{BookId}`
 rather than the value object or a `DbId` alias — and `PostgresDbContext`'s previously-unused
 `ILogger` now warns when the context is disposed with an active transaction (a leaked-transaction
-signal that can only fire on misuse, since the `ITransaction` paths always null it first).
+signal that can only fire on misuse, since the `ITransaction` paths always null it first). Finally
+the `Reveries.Infrastructure` project was dissolved: its only remaining content was Serilog host
+wiring (`AddSerilog`/`UseRequestLogging`, which take `WebApplicationBuilder`/`WebApplication`), so it
+moved into `Reveries.Api/Configuration/Logging` next to the other host-composition extensions, its
+one-line `AddInfrastructure`/`AddPostgres` forwarder was inlined into `Program.cs`, and the project
+(and its layer in the architecture tests) was removed — leaving Serilog referenced via the
+`Serilog.AspNetCore` bundle plus only the non-bundled enrichers/sinks (`Serilog.Exceptions`,
+`Serilog.Enrichers.*`, `Serilog.Sinks.Grafana.Loki`).
 
 ---
 
