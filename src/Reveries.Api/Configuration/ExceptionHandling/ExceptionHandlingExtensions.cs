@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Reveries.Api.Configuration.ExceptionHandling;
 
 public static class ExceptionHandlingExtensions
@@ -14,7 +16,8 @@ public static class ExceptionHandlingExtensions
             options.CustomizeProblemDetails = context =>
             {
                 context.ProblemDetails.Instance ??= context.HttpContext.Request.Path;
-                context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+                context.ProblemDetails.Extensions["traceId"] =
+                    Activity.Current?.TraceId.ToString() ?? context.HttpContext.TraceIdentifier;
 
                 if (environment.IsDevelopment() && context.Exception is not null)
                 {

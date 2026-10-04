@@ -30,7 +30,7 @@ public sealed class FindBookByIsbnHandler : IQueryHandler<FindBookByIsbnQuery, B
 
         var result = bookLookupResult.Found[0];
 
-        _logger.LogInformation("Successfully retrieved book '{Title}' with ISBN {Isbn}", result.Title, isbn.Value13);
+        _logger.LogDebug("Retrieved book '{Title}' for ISBN {Isbn}.", result.Title, isbn.Value13);
 
         return result.ToBook();
     }

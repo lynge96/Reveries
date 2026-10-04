@@ -10,7 +10,6 @@ on:
       - 'src/Reveries.Api/**'
       - 'src/Reveries.Application/**'
       - 'src/Reveries.Domain/**'
-      - 'src/Reveries.Infrastructure/**'
       - 'src/Reveries.Persistence/**'
       - 'src/Reveries.Integration/**'
       - '.github/workflows/api.yml'

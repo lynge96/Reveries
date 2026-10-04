@@ -19,8 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3CB98DB5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{18853C1F-30A5-48C3-9123-8B8F6D64D718}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Infrastructure", "src\Reveries.Infrastructure\Reveries.Infrastructure.csproj", "{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Integration", "src\Reveries.Integration\Reveries.Integration.csproj", "{72FB21E6-399A-4E14-ABE1-8273FEE71844}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reveries.Persistence", "src\Reveries.Persistence\Reveries.Persistence.csproj", "{4A8E6B95-2BE6-4F6A-AB66-7C5D10DA141B}"
@@ -115,18 +113,6 @@ Global
 		{8ECE6BE9-6102-4E9B-BD02-FA06595A955A}.Release|x64.Build.0 = Release|Any CPU
 		{8ECE6BE9-6102-4E9B-BD02-FA06595A955A}.Release|x86.ActiveCfg = Release|Any CPU
 		{8ECE6BE9-6102-4E9B-BD02-FA06595A955A}.Release|x86.Build.0 = Release|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|x64.Build.0 = Debug|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Debug|x86.Build.0 = Debug|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|x64.ActiveCfg = Release|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|x64.Build.0 = Release|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|x86.ActiveCfg = Release|Any CPU
-		{7EFAFEEC-5CBC-4C7F-B7BC-6083BBA79303}.Release|x86.Build.0 = Release|Any CPU
 		{72FB21E6-399A-4E14-ABE1-8273FEE71844}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{72FB21E6-399A-4E14-ABE1-8273FEE71844}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72FB21E6-399A-4E14-ABE1-8273FEE71844}.Debug|x64.ActiveCfg = Debug|Any CPU

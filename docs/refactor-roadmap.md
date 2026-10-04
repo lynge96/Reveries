@@ -31,11 +31,12 @@ event sourcing (see [Out of scope](#out-of-scope)).
 
 ## Completed
 
-**Solution restructuring.** Outer layer consolidated from 6 projects to 3 so test
+**Solution restructuring.** Outer layer consolidated from 6 projects so test
 projects mirror the production layers: `Reveries.Integration` (provider slices `Http/`,
-`GoogleBooks/`, `Isbndb/`, each `Clients/Configuration/Dtos/Interfaces/Mappers/Services`),
-`Reveries.Infrastructure` (composition + Serilog), and `Reveries.Persistence` (Dapper/Npgsql
-+ `ITransactionManager`). `Reveries.Console` deleted. **`Reveries.Architecture.Tests`**
+`GoogleBooks/`, `Isbndb/`, each `Clients/Configuration/Dtos/Interfaces/Mappers/Services`)
+and `Reveries.Persistence` (Dapper/Npgsql + `ITransactionManager`). `Reveries.Console` deleted.
+(A third outer project, `Reveries.Infrastructure`, held the Serilog setup; it was later folded
+into the Api and deleted — see *Logging & errors hardening* below.) **`Reveries.Architecture.Tests`**
 (NetArchTest) enforces the layer rules on the compiled namespaces.
 
 **Application tidy.** CQRS semantics corrected (writes are `ICommand<T>`, reads `IQuery<T>`);
@@ -85,6 +86,40 @@ planned JS/TS frontend). `Reveries.Api.Tests` cover every status path via
 **Migration tooling.** **DbUp** adopted (lightweight, plain-SQL, no EF): schema changes ship as
 one versioned migration under `Migrations/Scripts`, run at startup and journalled in
 `public.schema_versions`.
+
+**Logging & errors hardening.** *Errors:* the four near-identical `IExceptionHandler`s collapsed
+onto a generic base `ProblemDetailsExceptionHandler<TException>` (Template Method — the base owns
+the type match, logging and `ProblemDetails` write; each handler supplies only a
+`Map(exception) → ProblemError`). The RFC 9457 `type` is now a stable URI
+(`https://reveries.dk/errors/<code>`) with the machine-readable code carried in an `errorCode`
+extension (`ProblemTypes`), instead of leaking the .NET exception class name (and, for unhandled
+errors, nothing internal in production). `ExternalDependencyException` folded under `AppException`,
+which makes handler registration order a deliberate contract — the external-dependency handler is
+registered *before* the generic `AppException` one so it keeps its Dependency/UpstreamStatus logging.
+*Logging:* the Serilog config split made crisp — **JSON holds only the environment-tunable values**
+(`MinimumLevel`/overrides + the `Loki` endpoint), while **code (`SerilogExtensions.ConfigureLogger`)
+owns the whole pipeline** (enrichers, console sink, Loki sink + `env` label). Adopted the two-stage
+bootstrap-logger pattern (`CreateBootstrapLogger` → `builder.Services.AddSerilog((sp, lc) => …
+ReadFrom.Services(sp))`); a console sink now runs in production too (compact JSON to stdout for
+`docker logs` and as a Loki-down fallback); the redundant Loki `restrictedToMinimumLevel` dropped so
+`MinimumLevel` is the single level authority; `Serilog:Using` removed (enricher references are now
+compile-time, not config strings); `UseSerilogRequestLogging` renamed `UseRequestLogging` to stop
+shadowing the library method. `Loki:Uri` keeps a compose-DNS default (`http://loki:3100`),
+overridable by a `Loki__Uri` env var when the topology differs. A pass over the log messages then
+rebalanced levels so significance drives them: state-changing writes log at Information
+(`WorkPersistenceService` now records the saved `EditionId`), while routine reads dropped to Debug
+(the request-logging middleware already records each HTTP call, so per-read Information lines were
+noise). Messages were given consistent, queryable context — reads log `isbn.Value13`/`{BookId}`
+rather than the value object or a `DbId` alias — and `PostgresDbContext`'s previously-unused
+`ILogger` now warns when the context is disposed with an active transaction (a leaked-transaction
+signal that can only fire on misuse, since the `ITransaction` paths always null it first). Finally
+the `Reveries.Infrastructure` project was dissolved: its only remaining content was Serilog host
+wiring (`AddSerilog`/`UseRequestLogging`, which take `WebApplicationBuilder`/`WebApplication`), so it
+moved into `Reveries.Api/Configuration/Logging` next to the other host-composition extensions, its
+one-line `AddInfrastructure`/`AddPostgres` forwarder was inlined into `Program.cs`, and the project
+(and its layer in the architecture tests) was removed — leaving Serilog referenced via the
+`Serilog.AspNetCore` bundle plus only the non-bundled enrichers/sinks (`Serilog.Exceptions`,
+`Serilog.Enrichers.*`, `Serilog.Sinks.Grafana.Loki`).
 
 ---
 

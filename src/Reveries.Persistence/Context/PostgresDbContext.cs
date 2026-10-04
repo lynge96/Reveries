@@ -118,6 +118,9 @@ public class PostgresDbContext : IDbContext
         {
             if (_transaction != null)
             {
+                _logger.LogWarning(
+                    "Database context disposed while a transaction was still active; rolling it back. A write path likely threw before committing.");
+
                 await _transaction.RollbackAsync();
                 await _transaction.DisposeAsync();
             }
