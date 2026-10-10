@@ -1,12 +1,12 @@
+using System.ComponentModel;
 using Mediator;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Reveries.Api.Mappers;
 using Reveries.Application.Books.Queries.FindBookByIsbn;
 using Reveries.Application.Books.Queries.FindBooksByIsbns;
 using Reveries.Application.Books.Queries.GetAllBooks;
-using Reveries.Application.Books.Queries.GetBookById;
 using Reveries.Application.Books.Queries.GetBookExists;
-using Reveries.Api.Contracts.Books.Dtos;
+using Reveries.Api.Configuration.RequestTimeouts;
 using Reveries.Api.Contracts.Books.Requests;
 using Reveries.Api.Contracts.Books.Responses;
 
@@ -25,19 +25,15 @@ public static class BookEndpoints
             .WithSummary("Get all books")
             .WithDescription("Fetches every book in the database");
 
-        group.MapGet("/{id:guid}", GetBookById)
-            .WithName("GetBookById")
-            .WithSummary("Get book by ID")
-            .WithDescription("Fetches a book from the database by ID")
-            .ProducesProblem(StatusCodes.Status404NotFound);
-
         group.MapGet("/isbn/{isbn}", GetBookByIsbn)
             .WithName("GetBookByIsbn")
             .WithSummary("Get book by ISBN")
-            .WithDescription("Fetches a specific book by ISBN from external APIs, cache or the database")
+            .WithDescription("Fetches a specific book by ISBN from external APIs, the cache or the database. Returns 404 when no book is found.")
+            .WithRequestTimeout(RequestTimeoutExtensions.ExternalLookupPolicy)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status502BadGateway);
+            .ProducesProblem(StatusCodes.Status502BadGateway)
+            .ProducesProblem(StatusCodes.Status504GatewayTimeout);
 
         group.MapGet("/isbn/{isbn}/exists", BookExists)
             .WithName("BookExists")
@@ -48,9 +44,12 @@ public static class BookEndpoints
         group.MapPost("/isbns", GetBooksByIsbns)
             .WithName("GetBooksByIsbns")
             .WithSummary("Get books by ISBNs")
-            .WithDescription("Fetches multiple books by ISBNs")
+            .WithDescription("Looks up multiple books by ISBN from external APIs, the cache or the database. Returns 404 when none of the ISBNs resolve to a book.")
+            .WithRequestTimeout(RequestTimeoutExtensions.ExternalLookupPolicy)
             .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status502BadGateway);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status502BadGateway)
+            .ProducesProblem(StatusCodes.Status504GatewayTimeout);
 
         group.MapPost("/", CreateBook)
             .WithName("CreateBook")
@@ -62,42 +61,47 @@ public static class BookEndpoints
         return app;
     }
 
-    private static async Task<Ok<BooksResponse>> GetAllBooks(IMediator mediator, CancellationToken ct)
+    private static async Task<Ok<BookCollectionResponse>> GetAllBooks(IMediator mediator, CancellationToken ct)
     {
         var books = await mediator.Send(new GetAllBooksQuery(), ct);
-        return TypedResults.Ok(books.ToResponse());
+        return TypedResults.Ok(books.ToCollectionResponse());
     }
 
-    private static async Task<Ok<BookDetailsDto>> GetBookById(Guid id, IMediator mediator, CancellationToken ct)
-    {
-        var book = await mediator.Send(new GetBookByIdQuery(id), ct);
-        return TypedResults.Ok(book.ToDto());
-    }
-
-    private static async Task<Ok<BookDetailsDto>> GetBookByIsbn(string isbn, IMediator mediator, CancellationToken ct)
+    private static async Task<Ok<BookResponse>> GetBookByIsbn(
+        [Description("ISBN-10 or ISBN-13 of the edition.")] string isbn,
+        IMediator mediator,
+        CancellationToken ct)
     {
         var book = await mediator.Send(new FindBookByIsbnQuery(isbn), ct);
-        return TypedResults.Ok(book.ToDto());
+        return TypedResults.Ok(book.ToResponse());
     }
 
-    private static async Task<Ok<bool>> BookExists(string isbn, IMediator mediator, CancellationToken ct)
+    private static async Task<Ok<BookExistsResponse>> BookExists(
+        [Description("ISBN-10 or ISBN-13 of the edition.")] string isbn,
+        IMediator mediator,
+        CancellationToken ct)
     {
         var exists = await mediator.Send(new GetBookExistsQuery(isbn), ct);
-        return TypedResults.Ok(exists);
+        return TypedResults.Ok(new BookExistsResponse(exists));
     }
 
-    private static async Task<Ok<BooksResponse>> GetBooksByIsbns(BulkIsbnRequest request, IMediator mediator, CancellationToken ct)
+    private static async Task<Ok<BookCollectionResponse>> GetBooksByIsbns(
+        BookLookupRequest request,
+        IMediator mediator,
+        CancellationToken ct)
     {
         var books = await mediator.Send(new FindBooksByIsbnsQuery(request.Isbns), ct);
-        return TypedResults.Ok(books.ToResponse());
+        return TypedResults.Ok(books.ToCollectionResponse());
     }
 
-    private static async Task<CreatedAtRoute<CreateBookResponse>> CreateBook(CreateBookRequest request, IMediator mediator, CancellationToken ct)
+    private static async Task<Created<CreateBookResponse>> CreateBook(CreateBookRequest request, IMediator mediator, CancellationToken ct)
     {
         var editionId = await mediator.Send(request.ToCommand(), ct);
-        return TypedResults.CreatedAtRoute(
-            new CreateBookResponse(editionId.Value),
-            "GetBookById",
-            new { id = editionId.Value });
+        var response = new CreateBookResponse(editionId.Value);
+
+        var isbn = request.Isbn13 ?? request.Isbn10;
+        var location = isbn is null ? null : $"/books/isbn/{Uri.EscapeDataString(isbn)}";
+
+        return TypedResults.Created(location, response);
     }
 }

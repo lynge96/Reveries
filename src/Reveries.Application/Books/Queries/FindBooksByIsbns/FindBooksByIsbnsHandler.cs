@@ -25,7 +25,8 @@ public sealed class FindBooksByIsbnsHandler : IQueryHandler<FindBooksByIsbnsQuer
         var apiResult = await _lookupService.LookupByIsbnsAsync(query.Isbns, ct);
 
         if (apiResult.NoResults)
-            throw new NotFoundException($"Books with ISBNs '{query.Isbns}' were not found.");
+            throw new NotFoundException(
+                $"No books were found for the requested ISBNs: {string.Join(", ", query.Isbns.Select(isbn => isbn.Value13))}.");
 
         _logger.LogDebug(
             "Book lookup by ISBNs completed. Requested {Requested}, Found {Found}.",

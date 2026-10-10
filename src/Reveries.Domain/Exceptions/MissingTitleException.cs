@@ -5,7 +5,7 @@ public sealed class MissingTitleException : DomainException
     public string? ProvidedTitle { get; }
 
     public MissingTitleException(string? providedTitle)
-        : base($"Work title is missing, it cannot be empty: {providedTitle}")
+        : base("Missing Title", "A work title is required, but the provided value was empty or whitespace.")
     {
         ProvidedTitle = providedTitle;
     }

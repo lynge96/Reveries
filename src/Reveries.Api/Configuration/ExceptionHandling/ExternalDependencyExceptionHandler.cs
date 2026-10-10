@@ -13,7 +13,7 @@ public sealed class ExternalDependencyExceptionHandler : ProblemDetailsException
     {
         return new ProblemError(
             Status: (int)exception.StatusCode,
-            Title: "External Dependency Error",
+            Title: exception.Title,
             ErrorCode: ProblemTypes.ToErrorCode(exception.ErrorType),
             Detail: exception.Message);
     }

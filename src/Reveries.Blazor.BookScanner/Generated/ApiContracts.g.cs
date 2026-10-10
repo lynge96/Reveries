@@ -29,106 +29,21 @@ namespace Reveries.Blazor.BookScanner.ApiContracts
     
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class BookDetailsDto
+    public partial class BookCollectionResponse
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("bookId")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.Guid BookId { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("isbn10")]
-        public string? Isbn10 { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("isbn13")]
-        public string? Isbn13 { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("title")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Title { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("subtitle")]
-        public string? Subtitle { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("authors")]
-        public System.Collections.Generic.ICollection<string>? Authors { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("publisher")]
-        public string? Publisher { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("language")]
-        public string? Language { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("pages")]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public int? Pages { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("publicationDate")]
-        public string? PublicationDate { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("synopsis")]
-        public string? Synopsis { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string? Description { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string? Format { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("edition")]
-        public string? Edition { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("imageThumbnailUrl")]
-        public string? ImageThumbnailUrl { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("coverImageUrl")]
-        public string? CoverImageUrl { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("weightG")]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? WeightG { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("heightCm")]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? HeightCm { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("widthCm")]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? WidthCm { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("thicknessCm")]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? ThicknessCm { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("deweyDecimals")]
-        public System.Collections.Generic.ICollection<string>? DeweyDecimals { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("primaryGenres")]
-        public System.Collections.Generic.ICollection<string>? PrimaryGenres { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("secondaryGenres")]
-        public System.Collections.Generic.ICollection<string>? SecondaryGenres { get; set; } = default!;
-
-        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class BooksResponse
-    {
-
+        /// <summary>
+        /// Number of books in the response.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("count")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
         public int Count { get; set; } = default!;
 
+        /// <summary>
+        /// The books returned by the request.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<BookDetailsDto> Items { get; set; } = default!;
+        public System.Collections.Generic.ICollection<BookResponse> Items { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -142,9 +57,33 @@ namespace Reveries.Blazor.BookScanner.ApiContracts
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class BulkIsbnRequest
+    public partial class BookExistsResponse
     {
 
+        /// <summary>
+        /// True when a book with the given ISBN exists in the catalog.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("exists")]
+        public bool Exists { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class BookLookupRequest
+    {
+
+        /// <summary>
+        /// ISBNs to look up (ISBN-10 or ISBN-13). Between 1 and 100 entries.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("isbns")]
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.MinLength(1)]
@@ -163,79 +102,316 @@ namespace Reveries.Blazor.BookScanner.ApiContracts
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class CreateBookRequest
+    public partial class BookResponse
     {
 
+        /// <summary>
+        /// Identifier of the edition.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("bookId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.Guid BookId { get; set; } = default!;
+
+        /// <summary>
+        /// ISBN-10 of the edition, when available.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("isbn10")]
         public string? Isbn10 { get; set; } = default!;
 
+        /// <summary>
+        /// ISBN-13 of the edition, when available.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("isbn13")]
         public string? Isbn13 { get; set; } = default!;
 
+        /// <summary>
+        /// Primary title of the work.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("title")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Title { get; set; } = default!;
+
+        /// <summary>
+        /// Secondary title shown after the main title.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("subtitle")]
+        public string? Subtitle { get; set; } = default!;
+
+        /// <summary>
+        /// Author names in display order.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("authors")]
+        public System.Collections.Generic.ICollection<string>? Authors { get; set; } = default!;
+
+        /// <summary>
+        /// Name of the publisher of this edition.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("publisher")]
+        public string? Publisher { get; set; } = default!;
+
+        /// <summary>
+        /// Language of the edition as an ISO code or name.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("language")]
+        public string? Language { get; set; } = default!;
+
+        /// <summary>
+        /// Number of pages in the edition.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("pages")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public int? Pages { get; set; } = default!;
+
+        /// <summary>
+        /// Publication date as free-form text.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("publicationDate")]
+        public string? PublicationDate { get; set; } = default!;
+
+        /// <summary>
+        /// Short synopsis of the work.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("synopsis")]
+        public string? Synopsis { get; set; } = default!;
+
+        /// <summary>
+        /// Longer description of the edition.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("description")]
+        public string? Description { get; set; } = default!;
+
+        /// <summary>
+        /// Physical format or binding (e.g. 'Hardcover', 'Paperback').
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("format")]
+        public string? Format { get; set; } = default!;
+
+        /// <summary>
+        /// Edition statement (e.g. '2nd edition').
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("edition")]
+        public string? Edition { get; set; } = default!;
+
+        /// <summary>
+        /// URL of a small cover thumbnail.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("imageThumbnailUrl")]
+        public string? ImageThumbnailUrl { get; set; } = default!;
+
+        /// <summary>
+        /// URL of the full-size cover image.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("coverImageUrl")]
+        public string? CoverImageUrl { get; set; } = default!;
+
+        /// <summary>
+        /// Deep link to the edition's product page on Saxo.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("saxoUrl")]
+        public string? SaxoUrl { get; set; } = default!;
+
+        /// <summary>
+        /// Weight of the physical edition in grams.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("weightG")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? WeightG { get; set; } = default!;
+
+        /// <summary>
+        /// Height of the physical edition in centimeters.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("heightCm")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? HeightCm { get; set; } = default!;
+
+        /// <summary>
+        /// Width of the physical edition in centimeters.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("widthCm")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? WidthCm { get; set; } = default!;
+
+        /// <summary>
+        /// Thickness (spine) of the physical edition in centimeters.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("thicknessCm")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? ThicknessCm { get; set; } = default!;
+
+        /// <summary>
+        /// Dewey Decimal classification codes.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("deweyDecimals")]
+        public System.Collections.Generic.ICollection<string>? DeweyDecimals { get; set; } = default!;
+
+        /// <summary>
+        /// Primary genres of the work.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("primaryGenres")]
+        public System.Collections.Generic.ICollection<string>? PrimaryGenres { get; set; } = default!;
+
+        /// <summary>
+        /// Secondary genres of the work.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("secondaryGenres")]
+        public System.Collections.Generic.ICollection<string>? SecondaryGenres { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CreateBookRequest
+    {
+
+        /// <summary>
+        /// ISBN-10 of the edition. Provide this or isbn13; isbn13 takes precedence when both are set.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("isbn10")]
+        public string? Isbn10 { get; set; } = default!;
+
+        /// <summary>
+        /// ISBN-13 of the edition. Provide this or isbn10; takes precedence when both are set.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("isbn13")]
+        public string? Isbn13 { get; set; } = default!;
+
+        /// <summary>
+        /// Primary title of the work.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("title")]
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.StringLength(500, MinimumLength = 1)]
         public string Title { get; set; } = default!;
 
+        /// <summary>
+        /// Secondary title shown after the main title.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("subtitle")]
         public string? Subtitle { get; set; } = default!;
 
+        /// <summary>
+        /// Author names in display order.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("authors")]
         public System.Collections.Generic.ICollection<string>? Authors { get; set; } = default!;
 
+        /// <summary>
+        /// Name of the publisher of this edition.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("publisher")]
         public string? Publisher { get; set; } = default!;
 
+        /// <summary>
+        /// Language of the edition as an ISO code or name (e.g. 'en', 'da').
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("language")]
         public string? Language { get; set; } = default!;
 
+        /// <summary>
+        /// Number of pages in the edition.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("pages")]
+        [System.ComponentModel.DataAnnotations.Range(1, 100000)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
         public int? Pages { get; set; } = default!;
 
+        /// <summary>
+        /// Publication date as free-form text (e.g. '2008' or '2008-10-15').
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("publicationDate")]
         public string? PublicationDate { get; set; } = default!;
 
+        /// <summary>
+        /// Short synopsis of the work.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("synopsis")]
         public string? Synopsis { get; set; } = default!;
 
+        /// <summary>
+        /// Longer description of the edition.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string? Description { get; set; } = default!;
 
+        /// <summary>
+        /// Physical format or binding (e.g. 'Hardcover', 'Paperback').
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("format")]
         public string? Format { get; set; } = default!;
 
+        /// <summary>
+        /// Edition statement (e.g. '2nd edition').
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("edition")]
         public string? Edition { get; set; } = default!;
 
+        /// <summary>
+        /// URL of a small cover thumbnail.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("imageThumbnail")]
         public string? ImageThumbnail { get; set; } = default!;
 
+        /// <summary>
+        /// URL of the full-size cover image.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("imageUrl")]
         public string? ImageUrl { get; set; } = default!;
 
+        /// <summary>
+        /// Height of the physical edition in centimeters.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("heightCm")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1000D)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
         public double? HeightCm { get; set; } = default!;
 
+        /// <summary>
+        /// Width of the physical edition in centimeters.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("widthCm")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1000D)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
         public double? WidthCm { get; set; } = default!;
 
+        /// <summary>
+        /// Thickness (spine) of the physical edition in centimeters.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("thicknessCm")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1000D)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
         public double? ThicknessCm { get; set; } = default!;
 
+        /// <summary>
+        /// Weight of the physical edition in grams.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("weightG")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 100000D)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
         public double? WeightG { get; set; } = default!;
 
+        /// <summary>
+        /// Dewey Decimal classification codes.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("deweyDecimals")]
         public System.Collections.Generic.ICollection<string>? DeweyDecimals { get; set; } = default!;
 
+        /// <summary>
+        /// Primary genres of the work.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("primaryGenres")]
         public System.Collections.Generic.ICollection<string>? PrimaryGenres { get; set; } = default!;
 
+        /// <summary>
+        /// Secondary genres of the work.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("secondaryGenres")]
         public System.Collections.Generic.ICollection<string>? SecondaryGenres { get; set; } = default!;
 
@@ -254,6 +430,9 @@ namespace Reveries.Blazor.BookScanner.ApiContracts
     public partial class CreateBookResponse
     {
 
+        /// <summary>
+        /// Identifier of the created edition.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public System.Guid Id { get; set; } = default!;

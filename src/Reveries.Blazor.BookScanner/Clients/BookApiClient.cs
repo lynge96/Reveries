@@ -13,7 +13,7 @@ public class BookApiClient
         _httpClient = httpClient;
     }
 
-    public async Task<BookDetailsDto?> GetAsync(string isbn)
+    public async Task<BookResponse?> GetAsync(string isbn)
     {
         if (string.IsNullOrWhiteSpace(isbn))
             throw new ArgumentException("ISBN is required.");
@@ -21,7 +21,7 @@ public class BookApiClient
         var response = await SendAsync(() => _httpClient.GetAsync($"books/isbn/{isbn}"));
 
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<BookDetailsDto>();
+            return await response.Content.ReadFromJsonAsync<BookResponse>();
 
         var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
         throw new ApiException(error?.Message ?? "Unknown error", response.StatusCode);
@@ -30,10 +30,15 @@ public class BookApiClient
     public async Task<bool> ExistsAsync(string isbn)
     {
         var response = await SendAsync(() => _httpClient.GetAsync($"books/isbn/{isbn}/exists"));
-        return response.IsSuccessStatusCode && await response.Content.ReadFromJsonAsync<bool>();
+
+        if (!response.IsSuccessStatusCode)
+            return false;
+
+        var result = await response.Content.ReadFromJsonAsync<BookExistsResponse>();
+        return result?.Exists ?? false;
     }
 
-    public async Task<CreateBookResponse> CreateAsync(BookDetailsDto book)
+    public async Task<CreateBookResponse> CreateAsync(BookResponse book)
     {
         var request = MapToRequest(book);
         var response = await SendAsync(() => _httpClient.PostAsJsonAsync("books", request));
@@ -65,7 +70,7 @@ public class BookApiClient
         }
     }
 
-    private static CreateBookRequest MapToRequest(BookDetailsDto book) => new()
+    private static CreateBookRequest MapToRequest(BookResponse book) => new()
     {
         Isbn13 = book.Isbn13,
         Isbn10 = book.Isbn10,

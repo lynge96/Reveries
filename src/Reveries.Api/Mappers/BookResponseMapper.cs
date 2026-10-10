@@ -1,14 +1,13 @@
 using Reveries.Application.Books.Models;
-using Reveries.Api.Contracts.Books.Dtos;
 using Reveries.Api.Contracts.Books.Responses;
 
 namespace Reveries.Api.Mappers;
 
-public static class BookDetailsMapper
+public static class BookResponseMapper
 {
-    public static BookDetailsDto ToDto(this Book book)
+    public static BookResponse ToResponse(this Book book)
     {
-        return new BookDetailsDto
+        return new BookResponse
         {
             BookId = book.BookId,
             Isbn10 = book.Isbn10,
@@ -37,11 +36,11 @@ public static class BookDetailsMapper
         };
     }
 
-    public static BooksResponse ToResponse(this IEnumerable<Book> books)
+    public static BookCollectionResponse ToCollectionResponse(this IEnumerable<Book> books)
     {
-        return new BooksResponse
+        return new BookCollectionResponse
         {
-            Items = books.Select(book => book.ToDto()).ToList()
+            Items = books.Select(book => book.ToResponse()).ToList()
         };
     }
 }

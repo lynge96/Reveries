@@ -4,6 +4,7 @@ using Reveries.Api.Configuration.Cors;
 using Reveries.Api.Configuration.ExceptionHandling;
 using Reveries.Api.Configuration.HealthCheck;
 using Reveries.Api.Configuration.OpenApi;
+using Reveries.Api.Configuration.RequestTimeouts;
 using Reveries.Api.Endpoints;
 using Reveries.Application;
 using Reveries.Api.Configuration.Logging;
@@ -22,6 +23,7 @@ builder.Services.AddMediator(options =>
 });
 builder.Services.AddApplicationHealthChecks();
 builder.Services.AddValidation();
+builder.Services.AddRequestTimeoutPolicies();
 
 builder.Services
     .AddApplication()
@@ -52,6 +54,7 @@ app.MapStandardHealthChecks("/healthz");
 app.UseCors(app.Environment.IsDevelopment() ? "Development" : "AllowFrontend");
 app.UseRequestLogging();
 app.UseHttpsRedirection();
+app.UseRequestTimeouts();
 
 app.MapBookEndpoints();
 

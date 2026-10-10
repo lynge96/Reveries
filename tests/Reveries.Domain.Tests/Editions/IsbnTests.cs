@@ -37,7 +37,7 @@ public class IsbnTests
         var ex = Assert.Throws<InvalidIsbnException>(
             () => Isbn.Create(input!));
 
-        Assert.Contains("ISBN cannot be null or empty", ex.Message);
+        Assert.Contains("An ISBN is required", ex.Message);
     }
 
     [Theory]

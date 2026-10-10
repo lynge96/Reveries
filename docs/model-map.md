@@ -16,7 +16,7 @@ clear what to touch where.
 | `Book` | Application | **read** | The single read/display model: a `Work` + `Edition` denormalized flat, returned by every query. A lookup preview (found externally, not yet saved) uses an empty `BookId`. |
 | `BookRow`, `WorkAggregateRow` | Persistence | read | Dapper row shapes the read SQL projects into, mapped to `Book` / `Work`. |
 | `EditionRecord`, `WorkRecord`, … | Persistence | write | Row shapes for the INSERTs. |
-| `BookDetailsDto`, `CreateBookRequest`, `BooksResponse` | API (`Reveries.Api/Contracts`) | edge | The wire contract. Domain/Application types never cross this boundary; the API mappers convert to/from these. |
+| `BookResponse`, `CreateBookRequest`, `BookLookupRequest`, `BookCollectionResponse` | API (`Reveries.Api/Contracts`) | edge | The wire contract. Domain/Application types never cross this boundary; the API mappers convert to/from these. |
 
 ## The two flows
 
@@ -29,9 +29,10 @@ external sources → BookCandidate (merge + enrich, incl. Saxo link)
 
 **Read — look up or display a book**
 ```
-GET /books/isbn/{isbn}  → external lookup → BookCandidate → Book        (preview, empty BookId)
-GET /books, /books/{id} → BookQueryRepository → BookRow → Book          (from the catalogue)
-    → both map through the one BookDetailsMapper → BookDetailsDto
+GET  /books/isbn/{isbn}   → external lookup → BookCandidate → Book       (preview, empty BookId)
+POST /books/isbns         → external lookup → BookCandidate → Book       (bulk preview)
+GET  /books               → BookQueryRepository → BookRow → Book         (from the catalogue)
+    → all map through the one BookResponseMapper → BookResponse
 ```
 
 ## Why not one shared `Book` model for everything

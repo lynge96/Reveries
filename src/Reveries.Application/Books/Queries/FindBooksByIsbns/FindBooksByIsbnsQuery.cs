@@ -8,7 +8,7 @@ public sealed record FindBooksByIsbnsQuery : IQuery<IReadOnlyList<Book>>
 {
     public List<Isbn> Isbns { get; }
 
-    public FindBooksByIsbnsQuery(List<string> isbns)
+    public FindBooksByIsbnsQuery(IReadOnlyList<string> isbns)
     {
         Isbns = isbns.Select(Isbn.Create).ToList();
     }

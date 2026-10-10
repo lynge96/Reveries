@@ -5,6 +5,6 @@ namespace Reveries.Application.Common.Exceptions;
 public class InvalidRequestException : AppException
 {
     public InvalidRequestException(string message)
-        : base(message, HttpStatusCode.BadRequest)
+        : base("Invalid Request", message, HttpStatusCode.BadRequest)
     { }
 }
