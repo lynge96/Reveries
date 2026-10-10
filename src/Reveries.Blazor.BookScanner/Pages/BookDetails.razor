@@ -238,7 +238,7 @@ else
 }
 @code {
     [Parameter] public string? Isbn { get; set; }
-    private BookDetailsDto? _book;
+    private BookResponse? _book;
     private Guid? _bookDbId;
     private bool _showFullSynopsis;
     private const int MaxSynopsisLength = 300;

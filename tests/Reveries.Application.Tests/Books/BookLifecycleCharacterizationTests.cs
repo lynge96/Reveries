@@ -7,7 +7,7 @@ using Reveries.Application.Books.Commands.CreateBook;
 using Reveries.Application.Books.Interfaces;
 using Reveries.Application.Books.Models;
 using Reveries.Application.Books.Queries.FindBookByIsbn;
-using Reveries.Application.Books.Queries.GetBookById;
+using Reveries.Application.Books.Queries.GetAllBooks;
 using Reveries.Application.Common.Abstractions;
 using Reveries.Domain.Editions;
 using Reveries.Domain.Interfaces.Repositories;
@@ -78,14 +78,16 @@ public class BookLifecycleCharacterizationTests
         await harness.Transaction.Received(1).CommitAsync(Arg.Any<CancellationToken>());
 
         var storedId = Guid.NewGuid();
-        harness.Queries.GetBookByIdAsync(storedId, Arg.Any<CancellationToken>()).Returns(new Book
-        {
-            BookId = storedId,
-            Title = harness.InsertedWork.Title.ToString(),
-            Publisher = found.Publisher
-        });
+        harness.Queries.GetAllBooksAsync(Arg.Any<CancellationToken>()).Returns([
+            new Book
+            {
+                BookId = storedId,
+                Title = harness.InsertedWork.Title.ToString(),
+                Publisher = found.Publisher
+            }
+        ]);
 
-        var readBack = await mediator.Send(new GetBookByIdQuery(storedId));
+        var readBack = Assert.Single(await mediator.Send(new GetAllBooksQuery()));
 
         Assert.Equal("Google Title", readBack.Title);
         Assert.Equal("ISBNDB Publisher", readBack.Publisher);

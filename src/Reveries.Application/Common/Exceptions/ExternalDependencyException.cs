@@ -13,7 +13,7 @@ public sealed class ExternalDependencyException : AppException
         int? upstreamStatus = null,
         HttpStatusCode statusCode = HttpStatusCode.BadGateway,
         Exception? innerException = null)
-        : base(message, statusCode, innerException)
+        : base("External Dependency", message, statusCode, innerException)
     {
         Dependency = dependency;
         UpstreamStatus = upstreamStatus;

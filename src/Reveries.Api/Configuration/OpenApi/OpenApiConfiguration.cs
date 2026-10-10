@@ -6,10 +6,17 @@ public sealed class OpenApiConfiguration
     public string Version { get; set; } = "v1";
     public string Description { get; set; } = string.Empty;
     public List<ServerInfo>? Servers { get; set; }
+    public List<TagInfo>? Tags { get; set; }
 }
 
 public sealed class ServerInfo
 {
     public string Url { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+}
+
+public sealed class TagInfo
+{
+    public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 }

@@ -5,6 +5,6 @@ namespace Reveries.Application.Common.Exceptions;
 public class NotFoundException : AppException
 {
     public NotFoundException(string message)
-        : base(message, HttpStatusCode.NotFound)
+        : base("Not Found", message, HttpStatusCode.NotFound)
     { }
 }

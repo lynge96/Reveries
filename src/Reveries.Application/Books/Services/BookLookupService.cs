@@ -122,7 +122,7 @@ public class BookLookupService : IBookLookupService
     {
         return new ExternalDependencyException(
             dependency: "external book sources",
-            message: $"All external book sources were unavailable for the lookup ({request}).",
+            message: $"No external book source could be reached to look up the requested {request}. Please try again later.",
             statusCode: HttpStatusCode.ServiceUnavailable);
     }
 

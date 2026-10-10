@@ -13,7 +13,7 @@ public sealed class ApplicationExceptionHandler : ProblemDetailsExceptionHandler
     {
         return new ProblemError(
             Status: (int)exception.StatusCode,
-            Title: "Application Error",
+            Title: exception.Title,
             ErrorCode: ProblemTypes.ToErrorCode(exception.ErrorType),
             Detail: exception.Message);
     }

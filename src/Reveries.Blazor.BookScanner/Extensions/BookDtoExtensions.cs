@@ -5,7 +5,7 @@ namespace Reveries.Blazor.BookScanner.Extensions;
 
 public static class BookDtoExtensions
 {
-    public static string FormattedDate(this BookDetailsDto? bookDto)
+    public static string FormattedDate(this BookResponse? bookDto)
     {
         var raw = bookDto?.PublicationDate?.Trim();
 

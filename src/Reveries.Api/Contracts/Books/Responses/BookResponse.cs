@@ -1,18 +1,18 @@
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
-namespace Reveries.Api.Contracts.Books.Requests;
+namespace Reveries.Api.Contracts.Books.Responses;
 
-public sealed record CreateBookRequest
+public sealed record BookResponse
 {
-    [Description("ISBN-10 of the edition. Provide this or isbn13; isbn13 takes precedence when both are set.")]
+    [Description("Identifier of the edition.")]
+    public required Guid BookId { get; init; }
+
+    [Description("ISBN-10 of the edition, when available.")]
     public string? Isbn10 { get; init; }
 
-    [Description("ISBN-13 of the edition. Provide this or isbn10; takes precedence when both are set.")]
+    [Description("ISBN-13 of the edition, when available.")]
     public string? Isbn13 { get; init; }
 
-    [Required]
-    [StringLength(500, MinimumLength = 1)]
     [Description("Primary title of the work.")]
     public required string Title { get; init; }
 
@@ -25,14 +25,13 @@ public sealed record CreateBookRequest
     [Description("Name of the publisher of this edition.")]
     public string? Publisher { get; init; }
 
-    [Description("Language of the edition as an ISO code or name (e.g. 'en', 'da').")]
+    [Description("Language of the edition as an ISO code or name.")]
     public string? Language { get; init; }
 
-    [Range(1, 100_000)]
     [Description("Number of pages in the edition.")]
     public int? Pages { get; init; }
 
-    [Description("Publication date as free-form text (e.g. '2008' or '2008-10-15').")]
+    [Description("Publication date as free-form text.")]
     public string? PublicationDate { get; init; }
 
     [Description("Short synopsis of the work.")]
@@ -48,26 +47,25 @@ public sealed record CreateBookRequest
     public string? Edition { get; init; }
 
     [Description("URL of a small cover thumbnail.")]
-    public string? ImageThumbnail { get; init; }
+    public string? ImageThumbnailUrl { get; init; }
 
     [Description("URL of the full-size cover image.")]
-    public string? ImageUrl { get; init; }
+    public string? CoverImageUrl { get; init; }
 
-    [Range(typeof(decimal), "0", "1000")]
+    [Description("Deep link to the edition's product page on Saxo.")]
+    public string? SaxoUrl { get; init; }
+
+    [Description("Weight of the physical edition in grams.")]
+    public decimal? WeightG { get; init; }
+
     [Description("Height of the physical edition in centimeters.")]
     public decimal? HeightCm { get; init; }
 
-    [Range(typeof(decimal), "0", "1000")]
     [Description("Width of the physical edition in centimeters.")]
     public decimal? WidthCm { get; init; }
 
-    [Range(typeof(decimal), "0", "1000")]
     [Description("Thickness (spine) of the physical edition in centimeters.")]
     public decimal? ThicknessCm { get; init; }
-
-    [Range(typeof(decimal), "0", "100000")]
-    [Description("Weight of the physical edition in grams.")]
-    public decimal? WeightG { get; init; }
 
     [Description("Dewey Decimal classification codes.")]
     public List<string>? DeweyDecimals { get; init; }

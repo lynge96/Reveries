@@ -6,7 +6,7 @@ public sealed class TitleTooLongException : DomainException
     public int MaxLength { get; }
 
     public TitleTooLongException(int length, int maxLength)
-        : base($"Title cannot exceed {maxLength} characters, but was {length}.")
+        : base("Title Too Long", $"A work title must be at most {maxLength} characters, but the provided title has {length}.")
     {
         Length = length;
         MaxLength = maxLength;

@@ -28,7 +28,8 @@ public class IsbndbSource : IBookSearch
             return [];
 
         if (isbns.Count > _settings.MaxBulkIsbns)
-            throw new InvalidRequestException($"Too many ISBN numbers. Maximum is {_settings.MaxBulkIsbns}.");
+            throw new InvalidRequestException(
+                $"Too many ISBNs requested: {isbns.Count}. The maximum is {_settings.MaxBulkIsbns} per request.");
 
         if (isbns.Count == 1)
         {

@@ -1,16 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Mediator;
 using NSubstitute;
-using Reveries.Api.Contracts.Books.Dtos;
 using Reveries.Api.Contracts.Books.Requests;
 using Reveries.Api.Contracts.Books.Responses;
 using Reveries.Application.Books.Commands.CreateBook;
 using Reveries.Application.Books.Models;
+using Reveries.Application.Books.Queries.FindBooksByIsbns;
 using Reveries.Application.Books.Queries.GetAllBooks;
-using Reveries.Application.Books.Queries.GetBookById;
 using Reveries.Application.Books.Queries.GetBookExists;
-using Reveries.Application.Common.Exceptions;
 using Reveries.Domain.Editions;
 
 namespace Reveries.Api.Tests;
@@ -36,47 +35,28 @@ public sealed class BookEndpointsTests : IDisposable
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var payload = await response.Content.ReadFromJsonAsync<BooksResponse>();
+        var payload = await response.Content.ReadFromJsonAsync<BookCollectionResponse>();
         Assert.NotNull(payload);
         Assert.Single(payload!.Items);
     }
 
     [Fact]
-    public async Task GetBookById_returns_200_with_book()
+    public async Task GetAllBooks_when_catalog_empty_returns_200_with_empty_list()
     {
         // Arrange
-        var id = Guid.NewGuid();
-        Mediator.Send(Arg.Any<GetBookByIdQuery>(), Arg.Any<CancellationToken>())
-            .Returns(new ValueTask<Book>(CreateBook(id)));
+        Mediator.Send(Arg.Any<GetAllBooksQuery>(), Arg.Any<CancellationToken>())
+            .Returns(new ValueTask<IReadOnlyList<Book>>([]));
         var client = _factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync($"/books/{id}");
+        var response = await client.GetAsync("/books");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var payload = await response.Content.ReadFromJsonAsync<BookDetailsDto>();
+        var payload = await response.Content.ReadFromJsonAsync<BookCollectionResponse>();
         Assert.NotNull(payload);
-        Assert.Equal(id, payload!.BookId);
-    }
-
-    [Fact]
-    public async Task GetBookById_when_not_found_returns_404_problem_details()
-    {
-        // Arrange
-        Mediator.Send(Arg.Any<GetBookByIdQuery>(), Arg.Any<CancellationToken>())
-            .Returns(new ValueTask<Book>(
-                Task.FromException<Book>(new NotFoundException("missing"))));
-        var client = _factory.CreateClient();
-
-        // Act
-        var response = await client.GetAsync($"/books/{Guid.NewGuid()}");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
-        var problem = await response.Content.ReadFromJsonAsync<ProblemPayload>();
-        Assert.Equal((int)HttpStatusCode.NotFound, problem?.Status);
+        Assert.Empty(payload!.Items);
+        Assert.Equal(0, payload.Count);
     }
 
     [Fact]
@@ -95,7 +75,7 @@ public sealed class BookEndpointsTests : IDisposable
     }
 
     [Fact]
-    public async Task BookExists_returns_200_with_boolean()
+    public async Task BookExists_returns_200_with_typed_response()
     {
         // Arrange
         Mediator.Send(Arg.Any<GetBookExistsQuery>(), Arg.Any<CancellationToken>())
@@ -107,25 +87,27 @@ public sealed class BookEndpointsTests : IDisposable
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.True(await response.Content.ReadFromJsonAsync<bool>());
+        var payload = await response.Content.ReadFromJsonAsync<BookExistsResponse>();
+        Assert.NotNull(payload);
+        Assert.True(payload!.Exists);
     }
 
     [Fact]
-    public async Task CreateBook_returns_201_with_location_header()
+    public async Task CreateBook_returns_201_with_isbn_location_header()
     {
         // Arrange
         var editionId = EditionId.New();
         Mediator.Send(Arg.Any<CreateBookCommand>(), Arg.Any<CancellationToken>())
             .Returns(new ValueTask<EditionId>(editionId));
         var client = _factory.CreateClient();
-        var request = new CreateBookRequest { Title = "Test Book" };
+        var request = new CreateBookRequest { Title = "Test Book", Isbn13 = "9780132350884" };
 
         // Act
         var response = await client.PostAsJsonAsync("/books", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        Assert.Equal($"/books/{editionId.Value}", response.Headers.Location?.AbsolutePath);
+        Assert.Equal("/books/isbn/9780132350884", response.Headers.Location?.ToString());
         var payload = await response.Content.ReadFromJsonAsync<CreateBookResponse>();
         Assert.Equal(editionId.Value, payload?.Id);
     }
@@ -144,16 +126,55 @@ public sealed class BookEndpointsTests : IDisposable
     }
 
     [Fact]
-    public async Task GetBooksByIsbns_with_empty_list_returns_400()
+    public async Task GetBooksByIsbns_returns_200_with_items()
+    {
+        // Arrange
+        IReadOnlyList<Book> books = [CreateBook()];
+        Mediator.Send(Arg.Any<FindBooksByIsbnsQuery>(), Arg.Any<CancellationToken>())
+            .Returns(new ValueTask<IReadOnlyList<Book>>(books));
+        var client = _factory.CreateClient();
+        var request = new BookLookupRequest { Isbns = ["9780132350884"] };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/books/isbns", request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<BookCollectionResponse>();
+        Assert.NotNull(payload);
+        Assert.Single(payload!.Items);
+    }
+
+    [Fact]
+    public async Task GetBooksByIsbns_with_no_isbns_returns_400()
     {
         // Arrange
         var client = _factory.CreateClient();
 
         // Act
-        var response = await client.PostAsJsonAsync("/books/isbns", new BulkIsbnRequest { Isbns = [] });
+        var response = await client.PostAsJsonAsync("/books/isbns", new BookLookupRequest { Isbns = [] });
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Validation_problem_carries_traceId_like_other_problem_responses()
+    {
+        // Arrange
+        var client = _factory.CreateClient();
+
+        // Act
+        var response = await client.PostAsJsonAsync("/books", new CreateBookRequest { Title = "" });
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        using var document = await response.Content.ReadFromJsonAsync<JsonDocument>();
+        Assert.NotNull(document);
+        Assert.True(
+            document!.RootElement.TryGetProperty("traceId", out _),
+            "Validation ProblemDetails should include a traceId, consistent with exception-based ProblemDetails.");
     }
 
     private static Book CreateBook(Guid? id = null) => new()
@@ -162,10 +183,4 @@ public sealed class BookEndpointsTests : IDisposable
         Title = "The Pragmatic Programmer",
         Authors = ["Andrew Hunt", "David Thomas"]
     };
-
-    private sealed record ProblemPayload
-    {
-        public int? Status { get; init; }
-        public string? Title { get; init; }
-    }
 }

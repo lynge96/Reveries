@@ -13,7 +13,7 @@ public sealed class DomainExceptionHandler : ProblemDetailsExceptionHandler<Doma
     {
         return new ProblemError(
             Status: StatusCodes.Status400BadRequest,
-            Title: "Domain Validation Error",
+            Title: exception.Title,
             ErrorCode: ProblemTypes.ToErrorCode(exception.ErrorType),
             Detail: exception.Message);
     }

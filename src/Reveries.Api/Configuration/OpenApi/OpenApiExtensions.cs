@@ -32,6 +32,17 @@ public static class OpenApiExtensions
                         .ToList();
                 }
 
+                if (config.Tags is { Count: > 0 })
+                {
+                    document.Tags = config.Tags
+                        .Select(tag => new OpenApiTag
+                        {
+                            Name = tag.Name,
+                            Description = tag.Description
+                        })
+                        .ToHashSet();
+                }
+
                 return Task.CompletedTask;
             });
         });

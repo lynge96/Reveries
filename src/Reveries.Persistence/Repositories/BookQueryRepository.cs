@@ -71,18 +71,6 @@ public class BookQueryRepository : IBookQueryRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Book?> GetBookByIdAsync(Guid bookId, CancellationToken ct)
-    {
-        var builder = new SqlBuilder();
-        var template = builder.AddTemplate(BaseSql);
-        builder.Where("e.id = @Id", new { Id = bookId });
-
-        var row = await _dbContext.QueryFirstOrDefaultAsync<BookRow>(
-            template.RawSql, template.Parameters, ct);
-
-        return row?.ToBook();
-    }
-
     public async Task<IReadOnlyList<Book>> GetAllBooksAsync(CancellationToken ct)
     {
         var builder = new SqlBuilder();

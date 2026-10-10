@@ -30,7 +30,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BooksResponse"
+                  "$ref": "#/components/schemas/BookCollectionResponse"
                 }
               }
             }
@@ -98,71 +98,19 @@
         }
       }
     },
-    "/books/{id}": {
-      "get": {
-        "tags": [
-          "Books"
-        ],
-        "summary": "Get book by ID",
-        "description": "Fetches a book from the database by ID",
-        "operationId": "GetBookById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BookDetailsDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/books/isbn/{isbn}": {
       "get": {
         "tags": [
           "Books"
         ],
         "summary": "Get book by ISBN",
-        "description": "Fetches a specific book by ISBN from external APIs, cache or the database",
+        "description": "Fetches a specific book by ISBN from external APIs, the cache or the database. Returns 404 when no book is found.",
         "operationId": "GetBookByIsbn",
         "parameters": [
           {
             "name": "isbn",
             "in": "path",
+            "description": "ISBN-10 or ISBN-13 of the edition.",
             "required": true,
             "schema": {
               "type": "string"
@@ -185,7 +133,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BookDetailsDto"
+                  "$ref": "#/components/schemas/BookResponse"
                 }
               }
             }
@@ -212,6 +160,16 @@
           },
           "502": {
             "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -235,6 +193,7 @@
           {
             "name": "isbn",
             "in": "path",
+            "description": "ISBN-10 or ISBN-13 of the edition.",
             "required": true,
             "schema": {
               "type": "string"
@@ -257,7 +216,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "boolean"
+                  "$ref": "#/components/schemas/BookExistsResponse"
                 }
               }
             }
@@ -281,13 +240,13 @@
           "Books"
         ],
         "summary": "Get books by ISBNs",
-        "description": "Fetches multiple books by ISBNs",
+        "description": "Looks up multiple books by ISBN from external APIs, the cache or the database. Returns 404 when none of the ISBNs resolve to a book.",
         "operationId": "GetBooksByIsbns",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BulkIsbnRequest"
+                "$ref": "#/components/schemas/BookLookupRequest"
               }
             }
           },
@@ -309,7 +268,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BooksResponse"
+                  "$ref": "#/components/schemas/BookCollectionResponse"
                 }
               }
             }
@@ -324,8 +283,28 @@
               }
             }
           },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "502": {
             "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -340,182 +319,7 @@
   },
   "components": {
     "schemas": {
-      "BookDetailsDto": {
-        "required": [
-          "bookId",
-          "title"
-        ],
-        "type": "object",
-        "properties": {
-          "bookId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "isbn10": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "isbn13": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "title": {
-            "type": "string"
-          },
-          "subtitle": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "authors": {
-            "type": [
-              "null",
-              "array"
-            ],
-            "items": {
-              "type": "string"
-            }
-          },
-          "publisher": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "language": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "pages": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
-            "format": "int32"
-          },
-          "publicationDate": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "synopsis": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "description": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "format": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "edition": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "imageThumbnailUrl": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "coverImageUrl": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "saxoUrl": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "weightG": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ],
-            "format": "double"
-          },
-          "heightCm": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ],
-            "format": "double"
-          },
-          "widthCm": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ],
-            "format": "double"
-          },
-          "thicknessCm": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ],
-            "format": "double"
-          },
-          "deweyDecimals": {
-            "type": [
-              "null",
-              "array"
-            ],
-            "items": {
-              "type": "string"
-            }
-          },
-          "primaryGenres": {
-            "type": [
-              "null",
-              "array"
-            ],
-            "items": {
-              "type": "string"
-            }
-          },
-          "secondaryGenres": {
-            "type": [
-              "null",
-              "array"
-            ],
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "BooksResponse": {
+      "BookCollectionResponse": {
         "type": "object",
         "properties": {
           "count": {
@@ -524,17 +328,31 @@
               "integer",
               "string"
             ],
+            "description": "Number of books in the response.",
             "format": "int32"
           },
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/BookDetailsDto"
-            }
+              "$ref": "#/components/schemas/BookResponse"
+            },
+            "description": "The books returned by the request."
           }
         }
       },
-      "BulkIsbnRequest": {
+      "BookExistsResponse": {
+        "required": [
+          "exists"
+        ],
+        "type": "object",
+        "properties": {
+          "exists": {
+            "type": "boolean",
+            "description": "True when a book with the given ISBN exists in the catalog."
+          }
+        }
+      },
+      "BookLookupRequest": {
         "required": [
           "isbns"
         ],
@@ -546,7 +364,207 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "ISBNs to look up (ISBN-10 or ISBN-13). Between 1 and 100 entries."
+          }
+        }
+      },
+      "BookResponse": {
+        "required": [
+          "bookId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "bookId": {
+            "type": "string",
+            "description": "Identifier of the edition.",
+            "format": "uuid"
+          },
+          "isbn10": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "ISBN-10 of the edition, when available."
+          },
+          "isbn13": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "ISBN-13 of the edition, when available."
+          },
+          "title": {
+            "type": "string",
+            "description": "Primary title of the work."
+          },
+          "subtitle": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Secondary title shown after the main title."
+          },
+          "authors": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Author names in display order."
+          },
+          "publisher": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Name of the publisher of this edition."
+          },
+          "language": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Language of the edition as an ISO code or name."
+          },
+          "pages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "Number of pages in the edition.",
+            "format": "int32"
+          },
+          "publicationDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Publication date as free-form text."
+          },
+          "synopsis": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Short synopsis of the work."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Longer description of the edition."
+          },
+          "format": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Physical format or binding (e.g. 'Hardcover', 'Paperback')."
+          },
+          "edition": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Edition statement (e.g. '2nd edition')."
+          },
+          "imageThumbnailUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "URL of a small cover thumbnail."
+          },
+          "coverImageUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "URL of the full-size cover image."
+          },
+          "saxoUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Deep link to the edition's product page on Saxo."
+          },
+          "weightG": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "description": "Weight of the physical edition in grams.",
+            "format": "double"
+          },
+          "heightCm": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "description": "Height of the physical edition in centimeters.",
+            "format": "double"
+          },
+          "widthCm": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "description": "Width of the physical edition in centimeters.",
+            "format": "double"
+          },
+          "thicknessCm": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "description": "Thickness (spine) of the physical edition in centimeters.",
+            "format": "double"
+          },
+          "deweyDecimals": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Dewey Decimal classification codes."
+          },
+          "primaryGenres": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Primary genres of the work."
+          },
+          "secondaryGenres": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Secondary genres of the work."
           }
         }
       },
@@ -560,24 +578,28 @@
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "ISBN-10 of the edition. Provide this or isbn13; isbn13 takes precedence when both are set."
           },
           "isbn13": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "ISBN-13 of the edition. Provide this or isbn10; takes precedence when both are set."
           },
           "title": {
             "maxLength": 500,
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "Primary title of the work."
           },
           "subtitle": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "Secondary title shown after the main title."
           },
           "authors": {
             "type": [
@@ -586,105 +608,130 @@
             ],
             "items": {
               "type": "string"
-            }
+            },
+            "description": "Author names in display order."
           },
           "publisher": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "Name of the publisher of this edition."
           },
           "language": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "Language of the edition as an ISO code or name (e.g. 'en', 'da')."
           },
           "pages": {
+            "maximum": 100000,
+            "minimum": 1,
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
               "integer",
               "string"
             ],
+            "description": "Number of pages in the edition.",
             "format": "int32"
           },
           "publicationDate": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "Publication date as free-form text (e.g. '2008' or '2008-10-15')."
           },
           "synopsis": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "Short synopsis of the work."
           },
           "description": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "Longer description of the edition."
           },
           "format": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "Physical format or binding (e.g. 'Hardcover', 'Paperback')."
           },
           "edition": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "Edition statement (e.g. '2nd edition')."
           },
           "imageThumbnail": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "URL of a small cover thumbnail."
           },
           "imageUrl": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "URL of the full-size cover image."
           },
           "heightCm": {
+            "maximum": 1000,
+            "minimum": 0,
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
             "type": [
               "null",
               "number",
               "string"
             ],
+            "description": "Height of the physical edition in centimeters.",
             "format": "double"
           },
           "widthCm": {
+            "maximum": 1000,
+            "minimum": 0,
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
             "type": [
               "null",
               "number",
               "string"
             ],
+            "description": "Width of the physical edition in centimeters.",
             "format": "double"
           },
           "thicknessCm": {
+            "maximum": 1000,
+            "minimum": 0,
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
             "type": [
               "null",
               "number",
               "string"
             ],
+            "description": "Thickness (spine) of the physical edition in centimeters.",
             "format": "double"
           },
           "weightG": {
+            "maximum": 100000,
+            "minimum": 0,
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
             "type": [
               "null",
               "number",
               "string"
             ],
+            "description": "Weight of the physical edition in grams.",
             "format": "double"
           },
           "deweyDecimals": {
@@ -694,7 +741,8 @@
             ],
             "items": {
               "type": "string"
-            }
+            },
+            "description": "Dewey Decimal classification codes."
           },
           "primaryGenres": {
             "type": [
@@ -703,7 +751,8 @@
             ],
             "items": {
               "type": "string"
-            }
+            },
+            "description": "Primary genres of the work."
           },
           "secondaryGenres": {
             "type": [
@@ -712,7 +761,8 @@
             ],
             "items": {
               "type": "string"
-            }
+            },
+            "description": "Secondary genres of the work."
           }
         }
       },
@@ -724,6 +774,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Identifier of the created edition.",
             "format": "uuid"
           }
         }
@@ -817,7 +868,8 @@
   },
   "tags": [
     {
-      "name": "Books"
+      "name": "Books",
+      "description": "Catalog books: look up editions by ISBN, enrich them from external sources, and store them."
     }
   ]
 }
