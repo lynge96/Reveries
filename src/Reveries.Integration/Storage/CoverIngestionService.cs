@@ -32,10 +32,9 @@ public sealed class CoverIngestionService : ICoverImageStore
 
         var bytes = await _httpClient.GetByteArrayAsync(source.Url, ct);
         var sha = Convert.ToHexStringLower(SHA256.HashData(bytes));
-        var prefix = $"covers/{sha}";
 
-        var detailKey = $"{prefix}/detail.webp";
-        var thumbKey = $"{prefix}/thumb.webp";
+        var detailKey = $"{sha}/detail.webp";
+        var thumbKey = $"{sha}/thumb.webp";
 
         if (await _objectStore.ExistsAsync(detailKey, ct))
         {
@@ -54,7 +53,7 @@ public sealed class CoverIngestionService : ICoverImageStore
         var provenance = Provenance(source, isbn);
 
         // Resize synchronously (reads the shared bitmap), then upload the three variants in parallel.
-        var originalUpload = new ObjectUpload($"{prefix}/original.{extension}", bytes, contentType, CacheControl, Metadata(provenance, "original"));
+        var originalUpload = new ObjectUpload($"{sha}/original.{extension}", bytes, contentType, CacheControl, Metadata(provenance, "original"));
         var detailUpload = new ObjectUpload(detailKey, EncodeWebp(decoded, DetailWidth), "image/webp", CacheControl, Metadata(provenance, "detail"));
         var thumbUpload = new ObjectUpload(thumbKey, EncodeWebp(decoded, ThumbWidth), "image/webp", CacheControl, Metadata(provenance, "thumb"));
 
