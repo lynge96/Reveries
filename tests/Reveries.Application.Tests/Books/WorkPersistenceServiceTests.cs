@@ -78,6 +78,7 @@ public class WorkPersistenceServiceTests
         public ITransactionManager TransactionManager { get; } = Substitute.For<ITransactionManager>();
         public ITransaction Transaction { get; } = Substitute.For<ITransaction>();
         public ISaxoBookSearch SaxoBookSearch { get; } = Substitute.For<ISaxoBookSearch>();
+        public ICoverImageStore CoverImageStore { get; } = Substitute.For<ICoverImageStore>();
 
         public Work? InsertedWork { get; private set; }
         public Edition? InsertedEdition { get; private set; }
@@ -110,6 +111,7 @@ public class WorkPersistenceServiceTests
             PublisherResolver,
             GenreResolver,
             DeweyResolver,
-            SaxoBookSearch);
+            SaxoBookSearch,
+            CoverImageStore);
     }
 }

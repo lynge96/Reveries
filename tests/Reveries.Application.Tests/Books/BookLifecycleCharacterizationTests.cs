@@ -107,6 +107,7 @@ public class BookLifecycleCharacterizationTests
         public ITransaction Transaction { get; } = Substitute.For<ITransaction>();
         public IBookQueryRepository Queries { get; } = Substitute.For<IBookQueryRepository>();
         public ISaxoBookSearch SaxoBookSearch { get; } = Substitute.For<ISaxoBookSearch>();
+        public ICoverImageStore CoverImageStore { get; } = Substitute.For<ICoverImageStore>();
 
         public Work? InsertedWork { get; private set; }
         public Edition? InsertedEdition { get; private set; }
@@ -159,6 +160,7 @@ public class BookLifecycleCharacterizationTests
             services.AddSingleton(TransactionManager);
             services.AddSingleton(Queries);
             services.AddSingleton(SaxoBookSearch);
+            services.AddSingleton(CoverImageStore);
 
             return services.BuildServiceProvider().CreateScope();
         }

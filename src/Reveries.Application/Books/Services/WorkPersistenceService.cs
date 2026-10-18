@@ -25,6 +25,7 @@ public class WorkPersistenceService : IWorkPersistenceService
     private readonly IGenreResolver _genreResolver;
     private readonly IDeweyResolver _deweyResolver;
     private readonly ISaxoBookSearch _saxoBookSearch;
+    private readonly ICoverImageStore _coverImageStore;
 
     public WorkPersistenceService(
         ITransactionManager transactionManager,
@@ -35,7 +36,8 @@ public class WorkPersistenceService : IWorkPersistenceService
         IPublisherResolver publisherResolver,
         IGenreResolver genreResolver,
         IDeweyResolver deweyResolver,
-        ISaxoBookSearch saxoBookSearch)
+        ISaxoBookSearch saxoBookSearch,
+        ICoverImageStore coverImageStore)
     {
         _transactionManager = transactionManager;
         _logger = logger;
@@ -46,6 +48,7 @@ public class WorkPersistenceService : IWorkPersistenceService
         _genreResolver = genreResolver;
         _deweyResolver = deweyResolver;
         _saxoBookSearch = saxoBookSearch;
+        _coverImageStore = coverImageStore;
     }
 
     public async Task<EditionId> SaveBookAsync(BookCandidate candidate, CancellationToken ct)
@@ -53,6 +56,9 @@ public class WorkPersistenceService : IWorkPersistenceService
         // Resolve the Saxo link before opening the transaction: it is an external-facing lookup and
         // must not run inside the DB transaction (a resolved candidate link is reused when present).
         var saxoUrl = candidate.SaxoUrl ?? await ResolveSaxoUrlAsync(candidate.Isbn, ct);
+
+        // Ingest the cover into R2 before the transaction: it downloads and uploads over the network.
+        var storedCover = await IngestCoverAsync(candidate.Cover, candidate.Isbn, ct);
 
         await using var tx = await _transactionManager.BeginTransactionAsync(ct);
 
@@ -64,7 +70,7 @@ public class WorkPersistenceService : IWorkPersistenceService
         var workId = await ResolveWorkAsync(candidate, authorIds, ct);
 
         var publisher = await _publisherResolver.ResolveAsync(Publisher.TryCreate(candidate.Publisher), ct);
-        var edition = BuildEdition(candidate, workId, publisher?.Id, saxoUrl);
+        var edition = BuildEdition(candidate, workId, publisher?.Id, saxoUrl, storedCover);
         await _editions.InsertEditionAsync(edition, ct);
 
         await tx.CommitAsync(ct);
@@ -147,7 +153,23 @@ public class WorkPersistenceService : IWorkPersistenceService
         }
     }
 
-    private static Edition BuildEdition(BookCandidate candidate, WorkId workId, PublisherId? publisherId, SaxoUrl? saxoUrl)
+    private async Task<StoredCover?> IngestCoverAsync(Cover? source, Isbn? isbn, CancellationToken ct)
+    {
+        if (source is null)
+            return null;
+
+        try
+        {
+            return await _coverImageStore.IngestAsync(source, isbn, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Cover ingestion failed; saving the book with the source cover URL.");
+            return null;
+        }
+    }
+
+    private static Edition BuildEdition(BookCandidate candidate, WorkId workId, PublisherId? publisherId, SaxoUrl? saxoUrl, StoredCover? storedCover)
     {
         return Edition.Create(new EditionData(
             WorkId: workId,
@@ -159,8 +181,8 @@ public class WorkPersistenceService : IWorkPersistenceService
             LanguageIso639: candidate.Language?.Value,
             Format: candidate.Format.ToString(),
             EditionStatement: candidate.EditionStatement,
-            ImageThumbnail: candidate.Cover?.ThumbnailUrl,
-            ImageUrl: candidate.Cover?.Url,
+            ImageThumbnail: storedCover?.ThumbnailUrl ?? candidate.Cover?.ThumbnailUrl,
+            ImageUrl: storedCover?.Url ?? candidate.Cover?.Url,
             SaxoUrl: saxoUrl?.Value,
             Dimensions: candidate.Dimensions));
     }

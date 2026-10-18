@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Reveries.Integration.GoogleBooks.Configuration;
 using Reveries.Integration.Isbndb.Configuration;
 using Reveries.Integration.Saxo.Configuration;
+using Reveries.Integration.Storage.Configuration;
 
 namespace Reveries.Integration;
 
@@ -13,6 +14,7 @@ public static class IntegrationServiceCollectionExtensions
         services.AddIsbndb(config);
         services.AddGoogleBooks(config);
         services.AddSaxo(config);
+        services.AddR2(config);
 
         return services;
     }

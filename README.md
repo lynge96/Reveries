@@ -43,6 +43,10 @@ The plan for the project is outlined below. The choice of technologies is primar
   - [x] **In-memory (HybridCache)**  
     External book-metadata lookups (ISBNDB, Google Books) are cached in-memory with .NET's `HybridCache`. A caching decorator over each metadata source adds stampede protection, so repeated or concurrent scans of the same ISBN don't re-hit the rate-limited external APIs. A distributed Redis L2 can be layered in later without touching call sites.
 
+- **Object storage**
+  - [x] **Cloudflare R2**  
+    Book covers are hosted on my own infrastructure instead of hotlinked. On save, the cover is resized with SkiaSharp into `detail` (1200px) and `thumb` (180px) WebP plus an archived original, and uploaded to a Cloudflare R2 bucket served over a CDN - so the Pi never serves the image bytes. **Content-addressed** keys (`{sha256}/variant`) dedupe identical covers and allow immutable caching. Ingestion sits behind an `IObjectStore` seam, so the store (R2, GCS, …) can be swapped with one small adapter.
+
 - **CI/CD**
   - [x] **Docker and GitHub Actions**  
     Pipelines automatically package new builds into Docker images and deploy them to the Raspberry Pi, ensuring the application always runs the latest version.  
