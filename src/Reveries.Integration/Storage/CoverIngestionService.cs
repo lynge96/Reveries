@@ -11,8 +11,11 @@ public sealed class CoverIngestionService : ICoverImageStore
 {
     private const int DetailWidth = 1200;
     private const int ThumbWidth = 180;
-    private const int WebpQuality = 80;
+    private const int WebpQuality = 85;
+    private const long MaxDownloadBytes = 10 * 1024 * 1024;
     private const string CacheControl = "public, max-age=31536000, immutable";
+
+    private static readonly TimeSpan DownloadTimeout = TimeSpan.FromSeconds(15);
 
     private readonly HttpClient _httpClient;
     private readonly IObjectStore _objectStore;
@@ -30,7 +33,10 @@ public sealed class CoverIngestionService : ICoverImageStore
         if (source is null)
             return null;
 
-        var bytes = await _httpClient.GetByteArrayAsync(source.Url, ct);
+        var bytes = await TryDownloadAsync(source.Url, ct);
+        if (bytes is null)
+            return null;
+
         var sha = Convert.ToHexStringLower(SHA256.HashData(bytes));
 
         var detailKey = $"{sha}/detail.webp";
@@ -42,7 +48,7 @@ public sealed class CoverIngestionService : ICoverImageStore
             return new StoredCover(_objectStore.PublicUrl(detailKey), _objectStore.PublicUrl(thumbKey));
         }
 
-        using var decoded = SKBitmap.Decode(bytes);
+        using var decoded = TryDecode(bytes);
         if (decoded is null)
         {
             _logger.LogWarning("Could not decode cover image from {Url}; saving the book without a stored cover.", source.Url);
@@ -65,6 +71,63 @@ public sealed class CoverIngestionService : ICoverImageStore
         _logger.LogInformation("Stored cover {Sha} ({DetailWidth}px + {ThumbWidth}px).", sha, DetailWidth, ThumbWidth);
 
         return new StoredCover(_objectStore.PublicUrl(detailKey), _objectStore.PublicUrl(thumbKey));
+    }
+
+    private async Task<byte[]?> TryDownloadAsync(string url, CancellationToken ct)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(DownloadTimeout);
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Cover download from {Url} returned HTTP {Status}; skipping.", url, (int)response.StatusCode);
+                return null;
+            }
+
+            var contentType = response.Content.Headers.ContentType?.MediaType;
+            if (contentType is not null && !contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning("Cover at {Url} has non-image content type '{ContentType}'; skipping.", url, contentType);
+                return null;
+            }
+
+            if (response.Content.Headers.ContentLength > MaxDownloadBytes)
+            {
+                _logger.LogWarning("Cover at {Url} is {Size} bytes, over the {Max}-byte limit; skipping.", url, response.Content.Headers.ContentLength, MaxDownloadBytes);
+                return null;
+            }
+
+            return await ReadCappedAsync(response, url, timeout.Token);
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            _logger.LogWarning("Cover download from {Url} timed out after {Timeout}s; skipping.", url, DownloadTimeout.TotalSeconds);
+            return null;
+        }
+    }
+
+    private async Task<byte[]?> ReadCappedAsync(HttpResponseMessage response, string url, CancellationToken ct)
+    {
+        await using var stream = await response.Content.ReadAsStreamAsync(ct);
+        using var buffer = new MemoryStream();
+        var chunk = new byte[81920];
+
+        int read;
+        while ((read = await stream.ReadAsync(chunk, ct)) > 0)
+        {
+            if (buffer.Length + read > MaxDownloadBytes)
+            {
+                _logger.LogWarning("Cover at {Url} exceeded the {Max}-byte limit while downloading; skipping.", url, MaxDownloadBytes);
+                return null;
+            }
+
+            buffer.Write(chunk, 0, read);
+        }
+
+        return buffer.ToArray();
     }
 
     private static Dictionary<string, string> Provenance(Cover source, Isbn? isbn)
@@ -104,6 +167,20 @@ public sealed class CoverIngestionService : ICoverImageStore
         finally
         {
             scaled?.Dispose();
+        }
+    }
+
+    private static SKBitmap? TryDecode(byte[] bytes)
+    {
+        // SKBitmap.Decode returns null for some unreadable input and throws for other
+        // (e.g. ArgumentNullException when no codec matches), so both are treated as "undecodable".
+        try
+        {
+            return SKBitmap.Decode(bytes);
+        }
+        catch (Exception)
+        {
+            return null;
         }
     }
 
